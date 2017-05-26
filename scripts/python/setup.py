@@ -42,12 +42,13 @@ msg("updating submodules")
 
 os.system("git submodule update --init --recursive")
 
+make_dir("tools")
+
 if isWindows() and not os.path.exists("tools/vswhere.exe"):
     url = 'https://github.com/Microsoft/vswhere/releases/download/1.0.62/vswhere.exe'
     downloadFile(url, "tools/vswhere.exe")
 
 if isWindows() and not os.path.exists("tools/ninja.exe"):
-    make_dir("tools")
     url = 'https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip'
     downloadAndExtractZip(url, "tools/ninja.zip", "tools")
     os.remove("tools/ninja.zip")
