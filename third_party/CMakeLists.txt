@@ -59,6 +59,21 @@ add_fPIC_to_target(ppk_assert)
 #    set_target_properties(RocketDebugger PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 #endif()
 
+set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
+set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
+set(BGFX_CUSTOM_TARGETS ON  CACHE BOOL "" FORCE)
+set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
+set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
+set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
+
+if(MSVC)
+    set(BGFX_BUILD_TOOLS    ON CACHE BOOL "" FORCE)
+    set(BGFX_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
+endif()
+
+add_subdirectory(bgfx)
+
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glew
     ucm_add_dirs("${GLEW_DIR}/include/" TO glew.sources REC TRIM_FILTER 3)
