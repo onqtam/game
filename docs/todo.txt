@@ -1,0 +1,186 @@
+
+
+
+
+
+
+- integrate bgfx
+- integrate imgui
+- ingame editor
+- gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
+- asset pipeline from Kosta
+
+
+
+
+
+
+
+integrate typesafe stuff
+https://github.com/Microsoft/GSL
+https://github.com/foonathan/type_safe
+https://github.com/nholthaus/units
+
+
+
+
+== engine:
+- on floating point:
+    - http://msdn.microsoft.com/en-us/library/vstudio/e9b52ceh(v=vs.110).aspx
+    - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
+
+== build system:
+- shared precompiled headers for plugins...?
+- hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
+- add ability to specify configs for emscripten/gcc/ninja builds
+- make a proper release config - with LTO, no plugins, etc.
+- ability to have only the game code in the solution - no third parties
+- be able to build everything in release except for gameplay code (debug iterators?)
+
+== codegen:
+- syntax highlighting for .mix files in VS
+- hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
+- look into https://github.com/macton/DDLParser
+
+== random:
+- check if vs 2015 - need to set cwd
+- filesystem watcher for added files - touches root cmake file (in python)
+- decouple rendering/logic in separate threads
+- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone)
+- optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
+- mark a function to be without optimizations - __attribute__((optnone)) / __attribute__((optimize("O0"))) / #pragma optimize("", off)
+
+== profiler:
+- the one from chobo
+- http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
+- https://github.com/catapult-project/catapult
+
+== logging:
+- https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
+
+== coding standard:
+- figure it out
+- get into the habit of declaring every constructor explicit - https://akrzemi1.wordpress.com/2015/10/22/more-than-you-need/
+- prefer explicit casts (for example !! is bad - do a static_cast<bool>)
+- use the keywords form <ciso646>
+- make a linter rule against "!" - better make the expression explicit! or use "not"
+- use the prefix increment operators instead of postfix - http://www.viva64.com/en/b/0093/
+- http://llvm.org/docs/CodingStandards.html
+- https://github.com/lefticus/cppbestpractices
+- cpp core guidelines
+- CppCon 2016: Jason Turner “Practical Performance Practices" - https://www.youtube.com/watch?v=uzF4u9KgUWI
+
+== tools:
+- valgrind
+- sanitizers
+- cppcheck
+    - https://github.com/VioletGiraffe/cppcheck-vs-addin
+- flint
+- clang-modernize
+- clang-tidy
+    - https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
+    - CodeChecker is a static analysis infrastructure built on the LLVM/Clang Static Analyzer toolchain, replacing scan-build
+- MSVC static analyzer - and the Core Guidelines Checkers
+- struct_layout - tool to show the structure layout of types in your C/C++ program - https://github.com/arvidn/struct_layout
+- clang-format
+    - https://github.com/kbenzie/git-cmake-format
+    - IncludeCategories for clang-format and headers!!!
+    - also SortIncludes
+
+== developer tools:
+- rabbitvcs - like TortoiseGit for linux - http://rabbitvcs.org/
+
+== scripting:
+- checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
+
+== libraries:
+- UI
+    - librocket
+    - turbobadger
+    - imgui
+    - nuklear
+- physics
+    - bullet
+- compression
+    - zlib - the big beast
+    - miniz - tiny zlib implementation
+    - fastlz - fast compression lib
+- crypto
+    - https://github.com/jedisct1/libsodium
+- video
+    - ogg theora
+    - theora play - theora nice API (http://icculus.org/theoraplay/)
+    - https://github.com/libav/libav
+- audio
+    - openal
+    - fmod
+    - ogg vorbis - patent-free audio codec (oggvorbisfile - library with nice API) - https://github.com/soundcloud/vorbis
+    - speex - patent-free format for voip - https://github.com/stoiczek/speex
+    https://github.com/neXyon/audaspace
+    https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=audio
+- networking
+    - enet - https://github.com/lsalzman/enet
+    - raknet
+    - zmq
+    - nanomsk - https://github.com/nanomsg/nanomsg
+    - asio
+- miscellaneous
+    - google breakpad - to send crash report from a remote system
+    - sqlite - light sql using normal files
+    - small random number generator: http://burtleburtle.net/bob/rand/smallprng.html
+    - physicsFS - virtual fs (forget about the physics in the name) for accessing files from multiple zipz and easier asset management
+    - bitfields
+        - http://preshing.com/20150324/safe-bitfields-in-cpp/
+        - https://github.com/grisumbras/enum-flags
+        - https://www.justsoftwaresolutions.co.uk/cplusplus/using-enum-classes-as-bitfields.html
+    - signals and slots
+        - https://aboutcpp.wordpress.com/2015/01/16/an-update-on-a-simple-signal-system/
+        - http://ideone.com/x02YXi
+- texture stuff
+    - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
+    - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
+
+== plugin hot swap system:
+- on demand reloading - instead of automatic polling
+- background compiler process
+- catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
+- serialization and field mapping to be only by name and not type - so a float could go to a double
+- undo system - by keeping a copy of a last working .dll version of a plugin (one which hasn't crashed during it's update())
+
+== code review:
+- https://www.reviewboard.org/
+- phabricator
+
+== automation:
+- https://www.ansible.com/
+- http://buildbot.net/
+- http://gruntjs.com/
+- https://jenkins.io/
+
+== advanced/networking/monitoring/servers:
+- a gateway service that provides dynamic routing, monitoring, resiliency, security, and more - https://github.com/Netflix/zuul
+- netdata is a system for distributed real-time performance and health monitoring - https://github.com/firehol/netdata
+- A beautiful web dashboard for Linux - https://github.com/afaqurk/linux-dash
+- an HTTP benchmarking tool - https://github.com/wg/wrk
+
+== random notes:
+- if emscripten problem with unregistered mixins comes up again:
+    //if(_dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr).id == dynamix::INVALID_MIXIN_ID)
+    //    dynamix::internal::domain::safe_instance().register_mixin_type<MIXIN_TYPE>(
+    //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
+
+== dynamix:
+- make dynamix::object extentable - by inheriting from user types (also think about the constructor)
+- add isCopyable() to object - to check if all current mixins have copy operations
+- forward declaring messages - for better link times - or maybe not - might lead to slower messages
+- moving stuff like this back into the header so it can get inlined with optimizations:
+    https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
+    or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...
+
+
+== other engines:
+https://github.com/mosra/magnum
+https://github.com/urho3d/Urho3D
+https://github.com/nem0/LumixEngine
+https://github.com/bkaradzic/bgfx
+https://github.com/floooh/oryol

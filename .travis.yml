@@ -1,0 +1,93 @@
+sudo: false
+language: c++
+
+notifications:
+  email: false
+
+git:
+  # will update these with the setup script because travis can't handle ssh submodules (only https)
+  submodules: false
+  depth: 500
+
+env:
+  global:
+#    - USE_CCACHE=1
+#    - CCACHE_SLOPPINESS=pch_defines,time_macros
+#    - CCACHE_COMPRESS=1
+#    - CCACHE_MAXSIZE=200M
+#    - CCACHE_CPP2=1
+    - CMAKE_OPTIONS_GLOBAL="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+    - TRACE_MSG=1
+  # Workaround for https://github.com/travis-ci/travis-ci/issues/4681
+  # "Defining the build matrix only with matrix.include leads to an additional, unwanted job"
+  matrix:
+    - TRAVIS_EMPTY_JOB_WORKAROUND=true
+
+addons:
+  # these apt sources will be referenced later (by using *name)
+  apt:
+    sources: &apt_sources
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty
+      - llvm-toolchain-trusty-4.0
+
+compiler: clang
+os: linux
+
+matrix:
+  exclude:
+    - env: TRAVIS_EMPTY_JOB_WORKAROUND=true
+
+  include:
+    # GCC 6
+    - env: COMPILER=g++-6
+      compiler: gcc
+      addons: &gcc6
+        apt:
+          packages: [             "g++-6", "valgrind", "libsdl1.2-dev", "libxxf86vm-dev", "build-essential", "binutils"]
+          sources: *apt_sources
+
+    # Clang 4.0
+    - env: COMPILER=clang++-4.0
+      addons: &clang4
+        apt:
+          packages: ["clang-4.0", "g++-6", "valgrind", "libsdl1.2-dev", "libxxf86vm-dev", "build-essential", "binutils"]
+          sources: *apt_sources
+
+  allow_failures:
+
+before_install:
+  # substitute ssh submodules with https for later fetch
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+
+install:
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+
+  # setup newer cmake
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    else
+      brew update
+      brew outdated cmake || brew upgrade cmake
+    fi
+  - cd ${TRAVIS_BUILD_DIR}
+
+  - export CXX="${COMPILER}"
+#  - export CXX="ccache ${COMPILER}"
+#  - ccache -s
+
+before_script:
+  - ${CXX} --version
+
+script:
+  - python ./r -s
+  - python ./r -b gcc
+
+#  - ccache -s
+
+#after_script:
+#  - cat compile_commands.json

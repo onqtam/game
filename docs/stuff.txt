@@ -1,0 +1,131 @@
+epic stuff:
+http://ithare.com/c-for-games-performance-allocations-and-data-locality/
+http://ithare.com/c-performance-common-wisdoms-and-common-wisdoms/
+http://danluu.com/new-cpu-features/
+http://www.gamedev.net/blog/1729/entry-2261185-niklas-frykholms-articles-on-managing-decoupling/
+
+
+
+
+https://blogs.msdn.microsoft.com/vcblog/2016/07/11/debugging-tips-and-tricks-for-c-in-visual-studio/
+
+
+lots of resources about optimization:
+- https://github.com/fenbf/AwesomePerfCpp
+
+
+opengl:
+- http://docs.gl/
+- https://learnopengl.com/
+- http://antongerdelan.net/opengl/
+
+math:
+- https://github.com/Pomax/BezierInfo-2
+
+
+
+
+Every header should be include-able without prerequisites and should work out of the box! No nasty include directive dependencies please!
+Multiple return paths should NOT be avoided - they make the code with less nested scopes and with the help of RAII and ScopeExit are not bug prone!
+Prefer unordered maps to maps when iteration and ranges are of no concern.
+Always state explicitly the type of inheritance (public/private/protected/virtual)! Makes the code easier to understand.
+Use the assert macro wherever reasonable - read this to get a feeling of assertion usage: http://blog.regehr.org/archives/1091
+In sources with associated headers, include those headers first (to ensure header independency)
+Concider using the final keyword when appropriate to help devirtualization.
+No non-const references as arguments to functions! ==> leads to pointers and "&" at the call site ==> means it can be mutated (for better reading)
+
+list of libraries being used and a hint how to use them:
+- boost scope exit (scope success/fail now implementable since c++17! see cppcon 2015 Andrei Alexandrescu “Declarative Control Flow"
+- boost noncopyable (boost/utility.hpp)
+- to be continued...
+smallstring (from llvm)
+rand (from c++11)
+
+================================================
+== OTHER =======================================
+================================================
+
+=== Formatting
+The formatting shall be made uniform with clang-format
+
+There is a Visual Studio plugin that works for VS 2010 and newer (professional versions).
+It can be invoked on selected text with the Ctrl + R + F. To format a whole file just select everything.
+
+To set it up for VS:
+- the plugin has to be installed (get from here: http://llvm.org/builds/ - "clang-format plugin for Visual Studio")
+- a version of clang has to be installed (get from here: http://llvm.org/builds/ - the Windows Installer)
+- the path to the bin folder should be added to the PATH env var (INSTALL_LOCATION/LLVM/bin)
+- go to "Tools => Options => LLVM/Clang => ClangFormat => Style" and set it to "file" instead of "llvm" or empty (to search for the config file)
+
+With this setup clang-format will search for the file ".clang-format" in the directory structre from in to out until it finds such file.
+It also has a command line interface and can be setup to format all the changes in the git diff for source files
+"git diff -U0 HEAD^ | clang-format-diff.py -i -p1"
+Actually the VS plugin invokes the command line tool.
+
+Options for clang-format
+http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+=== Visual Studio Plugins
+clang-format Visual Studio Plugin:
+http://llvm.org/builds/
+
+VSColorOutput - adds colors for results in the Find Results and Output windows:
+http://visualstudiogallery.msdn.microsoft.com/f4d9c2b5-d6d7-4543-a7a5-2d7ebabc2496
+
+Accent Occurrences - highlights occurencies of selected word
+http://visualstudiogallery.msdn.microsoft.com/2f4627df-98ca-4ce1-9187-8eec7a67ba8c
+
+CMake Tools for Visual Studio
+http://visualstudiogallery.msdn.microsoft.com/6d1586a9-1c98-4ac7-b54f-7615d5f9fbc7
+
+Indent Guides
+https://visualstudiogallery.msdn.microsoft.com/e792686d-542b-474a-8c55-630980e72c30
+
+Visual Studio Spell Checker
+https://visualstudiogallery.msdn.microsoft.com/a23de100-31a1-405c-b4b7-d6be40c3dfff
+
+Productivity Power Tools 2017
+https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.ProductivityPowerPack2017
+
+=== Setuping Visual Studio
+Disable from build libraries in the solution for a particular configuration after they are built so you can clean/rebuild the "whole" project and skip them.
+
+Add "std\:\:.*=NoStepInto" to this registry key "HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\12.0_Config\NativeDE\StepOver"
+to skip STL functions when stepping into code. Other filders may be added for other libraries/namespaces.
+
+Hiding the "External Dependencies" folder from the solution explorer:
+Tools > Options > Text Editor > C/C++ > Advanced > Disable External Dependencies => true
+
+Tracking active items (opened files) in solution explorer:
+Tools > Options > Project and Solutions > General > Track Active Item in Solution Explorer
+
+Displaying line numbers
+Tools > Options > Text Editor > C/C++ > General > Line Numbers
+
+Disable auto formatting
+Tools > Options > Text Editor > C/C++ > Formatting > Spacinig > Insert space between keyword and opening parenthesisin control flow statements
+Tools > Options > Text Editor > C/C++ > Formatting > Spacinig > Insert space within braces of uniform initialization and initializer lists
+
+TODO: find this: "Use Forward Slash in #include Auto Complete" to True
+
+Useful shortcuts:
+- Go to matching brace: Ctrl + ]
+- Go to previous cursor position: Ctrl + -
+- Go to next cursor position: Ctrl + Shift + -
+
+http://visualstudioshortcuts.com/2017/
+https://blogs.msdn.microsoft.com/vcblog/2017/04/20/c-code-editing-and-navigation-in-visual-studio/
+
+ctrl + shift + Up/Down for prev/next selected symbol in current file
+
+Ctrl + "+" + ","
+
+USEFUL LINKS:
+http://devdocs.io/
+http://pl.cs.jhu.edu/oose/resources/uml-cheatsheet.pdf
+http://ndpsoftware.com/git-cheatsheet.html
+https://github.com/tiimgreen/github-cheat-sheet
+
+disable fast forwarding when merging:
+    current repo, all branches: git config --add merge.ff false
+    all repos, all branches: git config --global --add merge.ff false

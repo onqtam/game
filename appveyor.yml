@@ -1,0 +1,32 @@
+# http://www.appveyor.com/docs/appveyor-yml
+
+notifications:
+  - provider: Email
+    on_build_status_changed: false
+    on_build_failure: false
+    on_build_success: false
+
+image: Visual Studio 2017
+clone_depth: 500
+matrix:
+  fast_finish: false
+
+environment:
+  global:
+    TRACE_MSG: 1
+
+install:
+  - appveyor-retry appveyor DownloadFile http://downloads.sourceforge.net/mingw-w64/x86_64-7.1.0-release-posix-seh-rt_v5-rev0.7z
+  - 7z x x86_64-7.1.0-release-posix-seh-rt_v5-rev0.7z -oc:\mingw > nul
+
+before_build:
+  - r -s
+
+build_script:
+  - r -b msvc
+  # workaround for CMake not wanting sh.exe on PATH for MinGW
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - set PATH=C:\mingw\mingw64\bin;%PATH%
+  - r -b gcc
+  - r --setup-emscripten
+  - r -b js

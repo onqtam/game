@@ -1,0 +1,31 @@
+
+
+mixin deymn
+			int			health
+			float		val default:42.0f
+
+
+#alias character_handles std::vector<character_handle>
+#
+#name dummy_comp
+#
+#include <vector>
+#include "common/blah.h"
+#
+## comment
+#
+#		bool    alive
+#protected:
+#
+#export	int     health                            default:8
+#public:
+#
+#export	int32   health                      					# wtfff
+#		character_handles followers									
+
+
+
+
+
+
+

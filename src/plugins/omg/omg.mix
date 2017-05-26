@@ -1,0 +1,3 @@
+mixin omg
+			int			health
+			float		val default:42.0f
