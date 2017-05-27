@@ -206,7 +206,7 @@ int registerGlobal(const char* name, GlobalInfo info);
 
 // TODO: could be reworked to compare integers in a switch instead of strcmp-ing like crazy
 #define HARDLY_DESERIALIZE_VARIABLE(key, var)                                                      \
-    if(strcmp(val.get_object_key(i), key) == 0)                                                    \
+    if(strcmp(val.get_object_key(i).data(), key) == 0)                                             \
     deserialize(var, val.get_object_value(i))
 
 template <class T>

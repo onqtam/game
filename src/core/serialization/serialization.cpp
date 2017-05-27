@@ -26,7 +26,7 @@ SERIALIZATION_PUBLIC void serialize(bool data, JsonData& out) {
 }
 
 SERIALIZATION_PUBLIC void deserialize(int& data, const sajson::value& val) { data = val.get_integer_value(); }
-SERIALIZATION_PUBLIC void deserialize(float& data, const sajson::value& val) { data = val.get_float_value(); }
+SERIALIZATION_PUBLIC void deserialize(float& data, const sajson::value& val) { data = float(val.get_double_value()); }
 SERIALIZATION_PUBLIC void deserialize(double& data, const sajson::value& val) { data = val.get_double_value(); }
 SERIALIZATION_PUBLIC void deserialize(bool& data, const sajson::value& val) {
     data = (val.get_type() == sajson::TYPE_TRUE);

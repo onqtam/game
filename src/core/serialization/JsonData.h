@@ -18,7 +18,7 @@ public:
     std::vector<char>& getData() { return data; }
     void reserve(size_t size) { data.reserve(size); }
 
-    sajson::document parse() { return sajson::parse(sajson::string(data.data(), data.size())); }
+    sajson::document parse() { return sajson::parse(sajson::dynamic_allocation(), sajson::string(data.data(), data.size())); }
 
     void addComma() { data.push_back(','); }
     void addNull() { data.push_back('\0'); }
