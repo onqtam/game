@@ -77,7 +77,7 @@ if(NOT TOOLCHAIN STREQUAL "js")
         set(GLEW_LINK_LIBRARIES opengl32)
     endif()
 else()
-    include_directories("emscripten/emscripten/1.37.0/system/include")
+    include_directories("emscripten/emscripten/1.37.9/system/include")
     set(WITH_PLUGINS OFF)
     
     ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2)

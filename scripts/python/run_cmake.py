@@ -51,8 +51,8 @@ if args.g == 'js':
     command.append('-DCMAKE_EXPORT_COMPILE_COMMANDS=ON')
     command.append('-DCMAKE_BUILD_TYPE=Debug')
     command.append('-DTOOLCHAIN=js')
-    command.append('-DEMSCRIPTEN_ROOT=' + os.getcwd() + '/../../emscripten/emscripten/1.37.0')
-    command.append('-DCMAKE_TOOLCHAIN_FILE=' + os.getcwd() + '/../../emscripten/emscripten/1.37.0\cmake\Modules\Platform\Emscripten.cmake')
+    command.append('-DEMSCRIPTEN_ROOT=' + os.getcwd() + '/../../emscripten/emscripten/1.37.9')
+    command.append('-DCMAKE_TOOLCHAIN_FILE=' + os.getcwd() + '/../../emscripten/emscripten/1.37.9\cmake\Modules\Platform\Emscripten.cmake')
     command.append('-Wno-dev')
     
     subprocess.check_call(command)
