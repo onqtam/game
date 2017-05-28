@@ -20,6 +20,6 @@
 	path = third_party/sajson
 	url = https://github.com/iboB/sajson.git
 [submodule "third_party/bgfx"]
-	path = third_party/bgfx
+	path = third_party/bgfx.cmake
 	url = https://github.com/JoshuaBrookover/bgfx.cmake.git
 	ignore = dirty
