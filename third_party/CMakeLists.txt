@@ -25,34 +25,9 @@ ucm_add_target(NAME ppk_assert TYPE STATIC SOURCES "${ppk_assert.sources}")
 set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
-set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
-set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
-set(BGFX_CUSTOM_TARGETS ON  CACHE BOOL "" FORCE)
-set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
-set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
-set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
-
-if(NOT TOOLCHAIN STREQUAL "js")
-    set(BGFX_BUILD_TOOLS    ON)
-    set(BGFX_BUILD_EXAMPLES ON)
-endif()
-
 add_subdirectory(bgfx)
 
 if(NOT TOOLCHAIN STREQUAL "js")
-    # LIBRARY glew
-    ucm_add_dirs("${GLEW_DIR}/include/" TO glew.sources REC TRIM_FILTER 3)
-    ucm_add_files("${GLEW_DIR}/src/glew.c" TO glew.sources)
-    add_library(glew STATIC ${glew.sources})
-    target_link_libraries(glew "${GLEW_LINK_LIBRARIES}")
-    set_target_properties(glew PROPERTIES FOLDER "third_party")
-    
-    #if(NOT MSVC)
-    #    # for when building as SHARED because of this: http://stackoverflow.com/questions/38673228 - but still didn't work
-    #    target_compile_options(glew PRIVATE "-nostdlib")
-    #endif()
-
     # LIBRARY glfw
     add_subdirectory(glfw)
     set_target_properties(glfw PROPERTIES FOLDER "third_party")

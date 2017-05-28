@@ -1,18 +1,11 @@
 bin/
 build/
 third_party/boost*
-third_party/glew*
+
+tools/ninja.exe
+tools/vswhere.exe
 
 emscripten/
-
-*.exe
-*.dll
-*.ilk
-*.pdb
-*.exp
-*.lib
-*.so
-*.a
 
 *.pyc
 *.bak

@@ -4,12 +4,6 @@ include_directories("./")
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
-if(NOT TOOLCHAIN STREQUAL "js")
-    add_definitions(-DENTRY_CONFIG_USE_GLFW=1)
-else()
-    ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
-endif()
-
 add_mix_dirs(TO utils_src "utils" FILTER_POP 2)
 add_library(utils STATIC ${utils_src})
 add_fPIC_to_target(utils)
@@ -88,7 +82,6 @@ target_link_libraries(game serialization)
 target_link_libraries(game doctest_runner)
 
 if(NOT TOOLCHAIN STREQUAL "js")
-    target_link_libraries(game glew)
     target_link_libraries(game glfw)
     target_link_libraries(game file_watcher)
     target_link_libraries(game ${GLFW_LIBRARIES})

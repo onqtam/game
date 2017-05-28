@@ -19,13 +19,25 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
+set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
+set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
+set(BGFX_CUSTOM_TARGETS ON  CACHE BOOL "" FORCE)
+set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
+set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
+set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
+
+if(NOT TOOLCHAIN STREQUAL "js")
+    set(BGFX_BUILD_TOOLS    ON)
+    set(BGFX_BUILD_EXAMPLES ON)
+endif()
+
 # overwrite these after the inclusion of ucm
 set(UCM_UNITY_BUILD OFF)
 set(UCM_NO_COTIRE_FOLDER ON)
 
 option(WITH_PLUGINS "Compile plugins as separate .dll files instead of merging them with the executable" ON)
-
-set(WITH_PLUGINS ON CACHE BOOL "" FORCE)
+#set(WITH_PLUGINS ON CACHE BOOL "" FORCE)
 
 #===================================================================================================
 #== OUTPUT DIRS ====================================================================================
@@ -51,7 +63,6 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 #===================================================================================================
 
 set(BOOST_DIR "boost_1_64_0")
-set(GLEW_DIR "glew-2.0.0")
 
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
@@ -65,22 +76,14 @@ include_directories("third_party/glm")
 include_directories("third_party/${BOOST_DIR}")
 include_directories("third_party/doctest")
 
-if(NOT TOOLCHAIN STREQUAL "js")
-    include_directories("third_party/glfw/include")
-    include_directories("third_party/${GLEW_DIR}/include")
-    
-    # use -DGLEW_STATIC for static link with glew
-    add_definitions(-DGLEW_BUILD)
-    if(UNIX)
-        set(GLEW_LINK_LIBRARIES GL)
-    else()
-        set(GLEW_LINK_LIBRARIES opengl32)
-    endif()
-else()
+if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")
     set(WITH_PLUGINS OFF)
-    
     ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2)
+    ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
+else()
+    include_directories("third_party/glfw/include")
+    add_definitions(-DENTRY_CONFIG_USE_GLFW=1)
 endif()
 
 if(${WITH_PLUGINS})

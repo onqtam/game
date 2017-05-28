@@ -58,9 +58,3 @@ if not os.path.exists('third_party/boost_1_' + boost_minor + '_0'):
     url = 'http://sourceforge.net/projects/boost/files/boost/1.' + boost_minor + '.0/boost_1_' + boost_minor + '_0.zip/download'
     downloadAndExtractZip(url, "third_party/boost.zip", "third_party")
     os.remove("third_party/boost.zip")
-
-glew_ver = "2.0.0"
-if not os.path.exists("third_party/glew-" + glew_ver):
-    url = 'https://sourceforge.net/projects/glew/files/glew/2.0.0/glew-' + glew_ver + '.zip/download'
-    downloadAndExtractZip(url, "third_party/glew.zip", "third_party")
-    os.remove("third_party/glew.zip")
