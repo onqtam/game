@@ -29,3 +29,6 @@
 [submodule "third_party/bimg"]
 	path = third_party/bimg
 	url = https://github.com/bkaradzic/bimg.git
+[submodule "third_party/bgfx.cmake"]
+	path = third_party/bgfx.cmake
+	url = https://github.com/JoshuaBrookover/bgfx.cmake.git
