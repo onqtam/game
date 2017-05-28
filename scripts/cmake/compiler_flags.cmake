@@ -43,14 +43,6 @@ if(MSVC)
     ucm_add_linker_flags(CONFIG Release /LTCG)
 endif()
 
-if(TOOLCHAIN STREQUAL "js")
-    ucm_add_flags(--emrun -s USE_GLFW=3 -s LEGACY_GL_EMULATION=1 -s NO_EXIT_RUNTIME=1)
-    add_definitions(-DDOCTEST_CONFIG_NO_POSIX_SIGNALS) # sigaltstack missing in js environment
-
-    # add this because dynamix uses it
-    include_directories("${EMSCRIPTEN_ROOT}/system/lib/libcxxabi/include")
-endif()
-
 add_definitions(-DDYNAMIX_DYNLIB)
 ucm_add_flags(-DDYNAMIX_NO_MSG_THROW CONFIG Release)
 
