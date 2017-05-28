@@ -85,7 +85,8 @@ if(TOOLCHAIN STREQUAL "js")
     set(WITH_PLUGINS OFF)
     #ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2)
     ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
-    #ucm_add_flags(--emrun -s NO_EXIT_RUNTIME=1)
+    ucm_add_flags(--emrun)
+    #ucm_add_flags(-s NO_EXIT_RUNTIME=1)
     
     add_definitions(-DDOCTEST_CONFIG_NO_POSIX_SIGNALS) # sigaltstack missing in js environment
 
