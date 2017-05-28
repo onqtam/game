@@ -18,6 +18,8 @@ HARDLY_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HARDLY_SUPPRESS_WARNINGS_END
 
+#include <bgfx/bgfx.h>
+
 static GLFWwindow* window;
 
 static void errorCallback(int error, const char* description) {

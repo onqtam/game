@@ -25,40 +25,6 @@ ucm_add_target(NAME ppk_assert TYPE STATIC SOURCES "${ppk_assert.sources}")
 set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
-# LIBRARY boost.program_options
-#add_dir_rec_2(boost.program.options.sources "${BOOST_DIR}/libs/program_options/src" 3)
-#add_dir_rec_2(boost.program.options.sources "${BOOST_DIR}/boost/program_options" 3)
-#add_file_2(boost.program.options.sources "${BOOST_DIR}/boost/program_options.hpp" 2)
-#add_library(boost.program_options SHARED ${boost.program.options.sources})
-#if(UNIX)
-#    set_target_properties(boost.program_options PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-#endif()
-
-# LIBRARY boost.system
-#add_dir_rec_2(boost.system.sources "${BOOST_DIR}/libs/system/src" 3)
-#add_dir_rec_2(boost.system.sources "${BOOST_DIR}/boost/system" 3)
-#add_library(boost.system STATIC ${boost.system.sources})
-#if(UNIX)
-#    set_target_properties(boost.system PROPERTIES COMPILE_FLAGS "-fPIC")
-#endif()
-
-# LIBRARY boost.filesystem
-#add_dir_rec_2(boost.filesystem.sources "${BOOST_DIR}/libs/filesystem/src" 3)
-#add_dir_rec_2(boost.filesystem.sources "${BOOST_DIR}/boost/filesystem" 3)
-#add_library(boost.filesystem ${boost.filesystem.sources})
-#target_link_libraries(boost.filesystem boost.system)
-#if(UNIX)
-#    set_target_properties(boost.filesystem PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-#endif()
-
-# LIBRARY librocket
-#add_subdirectory(librocket)
-#if(UNIX)
-#    set_target_properties(RocketCore PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-#    set_target_properties(RocketControls PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-#    set_target_properties(RocketDebugger PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-#endif()
-
 set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
 set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)

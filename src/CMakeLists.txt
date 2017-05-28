@@ -4,6 +4,12 @@ include_directories("./")
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
+if(NOT TOOLCHAIN STREQUAL "js")
+    add_definitions(-DENTRY_CONFIG_USE_GLFW=1)
+else()
+    ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
+endif()
+
 add_mix_dirs(TO utils_src "utils" FILTER_POP 2)
 add_library(utils STATIC ${utils_src})
 add_fPIC_to_target(utils)
@@ -20,7 +26,14 @@ add_fPIC_to_target(registry)
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
 ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
-ucm_add_files(TO SOURCES "main.cpp")
+#ucm_add_files(TO SOURCES "main.cpp")
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/00-helloworld/helloworld.cpp" FILTER_POP 6)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/bgfx_utils.cpp" FILTER_POP 6)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/entry/cmd.cpp" FILTER_POP 7)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/entry/input.cpp" FILTER_POP 7)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/entry/entry.cpp" FILTER_POP 7)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/entry/entry_glfw.cpp" FILTER_POP 7)
+ucm_add_files(TO SOURCES "../third_party/bgfx/bgfx/examples/common/entry/entry_asmjs.cpp" FILTER_POP 7)
 
 add_mix_dirs(TO SOURCES "core")
 ucm_remove_directories(FROM SOURCES "core/serialization")
@@ -62,6 +75,9 @@ mixify_target(game)
 foreach(plugin ${PLUGINS})
     add_dependencies(game ${plugin})
 endforeach()
+
+target_link_libraries(game bgfx ib-compress)
+target_include_directories(game PUBLIC ${BGFX_DIR}/examples/common ${BGFX_DIR}/3rdparty)
 
 target_link_libraries(game messages)
 target_link_libraries(game dynamix)

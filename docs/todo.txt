@@ -36,6 +36,7 @@ https://github.com/nholthaus/units
 - make a proper release config - with LTO, no plugins, etc.
 - ability to have only the game code in the solution - no third parties
 - be able to build everything in release except for gameplay code (debug iterators?)
+- unity builds
 
 == codegen:
 - syntax highlighting for .mix files in VS
