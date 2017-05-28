@@ -41,6 +41,9 @@ if args.setup_emscripten:
 msg("updating submodules")
 
 os.system("git submodule update --init --recursive --depth 100")
+os.system("git submodule deinit third_party/bgfx.cmake/bgfx")
+os.system("git submodule deinit third_party/bgfx.cmake/bx")
+os.system("git submodule deinit third_party/bgfx.cmake/bimg")
 
 make_dir("tools")
 

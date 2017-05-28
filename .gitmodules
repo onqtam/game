@@ -19,9 +19,6 @@
 [submodule "third_party/sajson"]
 	path = third_party/sajson
 	url = https://github.com/iboB/sajson.git
-[submodule "third_party/bgfx.cmake"]
-	path = third_party/bgfx.cmake
-	url = https://github.com/JoshuaBrookover/bgfx.git
 [submodule "third_party/bgfx"]
 	path = third_party/bgfx
 	url = https://github.com/bkaradzic/bgfx.git
