@@ -83,8 +83,6 @@ if(TOOLCHAIN STREQUAL "js")
     ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
 endif()
 
-add_definitions(-DBGFX_CONFIG_RENDERER_OPENGL=1)
-
 if(${WITH_PLUGINS})
     add_definitions(-DHARDLY_WITH_PLUGINS)
 endif()
