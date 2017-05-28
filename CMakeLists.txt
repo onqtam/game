@@ -27,6 +27,10 @@ set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
 set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
 set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
 
+set(BGFX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bgfx" CACHE STRING "Location of bgfx.")
+set(BX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bx" CACHE STRING "Location of bx.")
+set(BIMG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bimg" CACHE STRING "Location of bimg.")
+
 if(NOT TOOLCHAIN STREQUAL "js")
     set(BGFX_BUILD_TOOLS    ON)
     set(BGFX_BUILD_EXAMPLES ON)
