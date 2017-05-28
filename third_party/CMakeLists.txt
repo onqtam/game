@@ -25,7 +25,7 @@ ucm_add_target(NAME ppk_assert TYPE STATIC SOURCES "${ppk_assert.sources}")
 set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
-add_subdirectory(bgfx)
+add_subdirectory(bgfx.cmake)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw
