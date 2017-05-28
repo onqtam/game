@@ -82,6 +82,8 @@ target_link_libraries(game serialization)
 target_link_libraries(game doctest_runner)
 
 if(NOT TOOLCHAIN STREQUAL "js")
+    target_compile_definitions(game PRIVATE "-DENTRY_CONFIG_USE_GLFW=1")
+    target_include_directories(game PRIVATE ../third_party/glfw/include)
     target_link_libraries(game glfw)
     target_link_libraries(game file_watcher)
     target_link_libraries(game ${GLFW_LIBRARIES})

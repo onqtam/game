@@ -81,10 +81,9 @@ if(TOOLCHAIN STREQUAL "js")
     set(WITH_PLUGINS OFF)
     ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2)
     ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
-else()
-    include_directories("third_party/glfw/include")
-    add_definitions(-DENTRY_CONFIG_USE_GLFW=1)
 endif()
+
+add_definitions(-DBGFX_CONFIG_RENDERER_OPENGL=1)
 
 if(${WITH_PLUGINS})
     add_definitions(-DHARDLY_WITH_PLUGINS)
