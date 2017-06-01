@@ -83,12 +83,12 @@ include_directories("third_party/doctest")
 if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")
     set(WITH_PLUGINS OFF)
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)
-        ucm_add_flags(-s TOTAL_MEMORY=167772160) # 160 MB - must be a multiple of 16 MB
-        #ucm_add_flags(-s SAFE_HEAP=1)
-    endif()
+    ucm_add_flags(-s TOTAL_MEMORY=335544320) # 320 MB - must be a multiple of 16 MB
     ucm_add_flags(--emrun)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        #ucm_add_flags(-s SAFE_HEAP=1)
+        ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)
+    endif()
     
     add_definitions(-DDOCTEST_CONFIG_NO_POSIX_SIGNALS) # sigaltstack missing in js environment
 
