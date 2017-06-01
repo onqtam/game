@@ -28,6 +28,7 @@ class ExampleHelloWorld : public entry::AppI
 #ifndef EMSCRIPTEN
     PluginManager pluginManager;
 #endif // EMSCRIPTEN
+    global_mixin_allocator alloc;
     Application app;
 
     void init(int _argc, char** _argv) BX_OVERRIDE {
@@ -44,7 +45,6 @@ class ExampleHelloWorld : public entry::AppI
         //if(context.shouldExit())
         //    return res;
 
-        global_mixin_allocator alloc;
         dynamix::set_global_allocator(&alloc);
 
         app.init();
