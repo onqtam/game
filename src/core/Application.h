@@ -4,7 +4,7 @@
 
 class Application
 {
-    HARDLY_SCOPED_SINGLETON(Application, int main(int, char**));
+    HARDLY_SCOPED_SINGLETON(Application, class ExampleHelloWorld);
 
     ObjectManager m_objectManager;
 

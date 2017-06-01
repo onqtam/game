@@ -1,69 +1,7 @@
-#ifdef EMSCRIPTEN
-#include <emscripten/emscripten.h>
-#endif // EMSCRIPTEN
-
 #include "core/Application.h"
 #include "core/PluginManager.h"
 #include "utils/utils.h"
 #include "utils/preprocessor.h"
-
-HARDLY_SUPPRESS_WARNINGS
-#include <GL/glew.h>
-#if defined(_WIN32)
-#include <GL/wglew.h>
-#elif !defined(EMSCRIPTEN) && (!defined(__APPLE__) || defined(GLEW_APPLE_GLX))
-#include <GL/glxew.h>
-#endif
-
-#include <GLFW/glfw3.h>
-HARDLY_SUPPRESS_WARNINGS_END
-
-#include <bgfx/bgfx.h>
-
-static GLFWwindow* window;
-
-static void errorCallback(int error, const char* description) {
-    fprintf(stderr, "%s\nWith error: %d\n", description, error);
-}
-
-static void renderGame() {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    double ratio;
-    int    width, height;
-
-    glfwGetFramebufferSize(window, &width, &height);
-    ratio = width / double(height);
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio, ratio, -1., 1., 1., -1.);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glRotatef(float(glfwGetTime()) * 50.f, 0.f, 0.f, 1.f);
-    glBegin(GL_TRIANGLES);
-    glColor3f(1.f, 0.f, 0.f);
-    glVertex3f(-0.6f, -0.4f, 0.f);
-    glColor3f(0.f, 1.f, 0.f);
-    glVertex3f(0.6f, -0.4f, 0.f);
-    glColor3f(0.f, 0.f, 1.f);
-    glVertex3f(0.f, 0.6f, 0.f);
-    glEnd();
-
-    Application::get().update();
-
-#ifdef EMSCRIPTEN
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-
-    if(glfwWindowShouldClose(window))
-        glfwTerminate();
-#endif // EMSCRIPTEN
-}
 
 // TODO: use a smarter allocator - the important methods here are for the mixin data
 class global_mixin_allocator : public dynamix::global_allocator
@@ -80,63 +18,102 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
-int main(int argc, char** argv) {
+#include <bx/uint32_t.h>
+#include "common.h"
+#include "bgfx_utils.h"
+#include "logo.h"
+
+class ExampleHelloWorld : public entry::AppI
+{
 #ifndef EMSCRIPTEN
     PluginManager pluginManager;
-    pluginManager.init();
 #endif // EMSCRIPTEN
-
-    doctest::Context context(argc, argv);
-    int              res = context.run();
-
-    if(context.shouldExit())
-        return res;
-
-    glfwSetErrorCallback(errorCallback);
-
-    if(!glfwInit()) {
-        fputs("Failed to initialize GLFW3!", stderr);
-        exit(EXIT_FAILURE);
-    }
-
-    window = glfwCreateWindow(640, 480, "Hardly game", nullptr, nullptr);
-
-    if(!window) {
-        fputs("Failed to create GLFW3 window!", stderr);
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glfwMakeContextCurrent(window);
-
-    GLenum err = glewInit();
-    if(GLEW_OK != err) {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-
-    global_mixin_allocator alloc;
-    dynamix::set_global_allocator(&alloc);
-
     Application app;
-    app.init();
 
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(renderGame, 0, 1);
-#else  // EMSCRIPTEN
-    while(!glfwWindowShouldClose(window)) {
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-
-        renderGame();
-
-        if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GL_TRUE);
-    }
+    void init(int _argc, char** _argv) BX_OVERRIDE {
+#ifndef EMSCRIPTEN
+        pluginManager.init();
 #endif // EMSCRIPTEN
 
-    return res;
-}
+        Args args(_argc, _argv);
+
+        doctest::Context context(_argc, _argv);
+        //int              res = 
+            context.run();
+
+        //if(context.shouldExit())
+        //    return res;
+
+        global_mixin_allocator alloc;
+        dynamix::set_global_allocator(&alloc);
+
+        app.init();
+
+        m_width  = 1280;
+        m_height = 720;
+        m_debug  = BGFX_DEBUG_TEXT;
+        m_reset  = BGFX_RESET_VSYNC;
+
+        bgfx::init(args.m_type, args.m_pciId);
+        bgfx::reset(m_width, m_height, m_reset);
+
+        // Enable debug text.
+        bgfx::setDebug(m_debug);
+
+        // Set view 0 clear state.
+        bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    }
+
+    virtual int shutdown() BX_OVERRIDE {
+        // Shutdown bgfx.
+        bgfx::shutdown();
+
+        return 0;
+    }
+
+    bool update() BX_OVERRIDE {
+        if(!entry::processEvents(m_width, m_height, m_debug, m_reset)) {
+            Application::get().update();
+
+            // Set view 0 default viewport.
+            bgfx::setViewRect(0, 0, 0, uint16_t(m_width), uint16_t(m_height));
+
+            // This dummy draw call is here to make sure that view 0 is cleared
+            // if no other draw calls are submitted to view 0.
+            bgfx::touch(0);
+
+            // Use debug font to print information about this example.
+            bgfx::dbgTextClear();
+            bgfx::dbgTextImage(bx::uint16_max(uint16_t(m_width / 2 / 8), 20) - 20,
+                               bx::uint16_max(uint16_t(m_height / 2 / 16), 6) - 6, 40, 12, s_logo,
+                               160);
+            bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/00-helloworld");
+            bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Initialization and debug text.");
+
+            bgfx::dbgTextPrintf(0, 4, 0x0f, "Color can be changed with ANSI "
+                                            "\x1b[9;me\x1b[10;ms\x1b[11;mc\x1b[12;ma\x1b[13;mp\x1b["
+                                            "14;me\x1b[0m code too.");
+
+            const bgfx::Stats* stats = bgfx::getStats();
+            bgfx::dbgTextPrintf(
+                    0, 6, 0x0f,
+                    "Backbuffer %dW x %dH in pixels, debug text %dW x %dH in characters.",
+                    stats->width, stats->height, stats->textWidth, stats->textHeight);
+
+            // Advance to next frame. Rendering thread will be kicked to
+            // process submitted rendering primitives.
+            bgfx::frame();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    uint32_t m_width;
+    uint32_t m_height;
+    uint32_t m_debug;
+    uint32_t m_reset;
+};
+
+ENTRY_IMPLEMENT_MAIN(ExampleHelloWorld);

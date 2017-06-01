@@ -25,12 +25,25 @@ ucm_add_target(NAME ppk_assert TYPE STATIC SOURCES "${ppk_assert.sources}")
 set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
+set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
+set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
+set(BGFX_CUSTOM_TARGETS ON  CACHE BOOL "" FORCE)
+set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
+set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
+set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(bgfx.cmake)
 include(bgfx.cmake/cmake/3rdparty/ib-compress.cmake)
-include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
+#include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw
+    set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_INSTALL        OFF CACHE BOOL "" FORCE)
+    
     add_subdirectory(glfw)
     set_target_properties(glfw PROPERTIES FOLDER "third_party")
     
