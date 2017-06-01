@@ -32,7 +32,6 @@ https://github.com/nholthaus/units
 == build system:
 - shared precompiled headers for plugins...?
 - hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
-- add ability to specify configs for emscripten/gcc/ninja builds
 - make a proper release config - with LTO, no plugins, etc.
 - ability to have only the game code in the solution - no third parties
 - be able to build everything in release except for gameplay code (debug iterators?)
@@ -125,10 +124,13 @@ https://github.com/nholthaus/units
     - zmq
     - nanomsk - https://github.com/nanomsg/nanomsg
     - asio
+    https://github.com/networkprotocol/reliable.io
 - miscellaneous
     - google breakpad - to send crash report from a remote system
     - sqlite - light sql using normal files
-    - small random number generator: http://burtleburtle.net/bob/rand/smallprng.html
+    - small random number generator:
+        http://burtleburtle.net/bob/rand/smallprng.html
+        https://github.com/imneme/pcg-cpp
     - physicsFS - virtual fs (forget about the physics in the name) for accessing files from multiple zipz and easier asset management
     - bitfields
         - http://preshing.com/20150324/safe-bitfields-in-cpp/

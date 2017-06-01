@@ -26,6 +26,8 @@ set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
 add_subdirectory(bgfx.cmake)
+include(bgfx.cmake/cmake/3rdparty/ib-compress.cmake)
+include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw
