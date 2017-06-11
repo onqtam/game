@@ -68,7 +68,7 @@ if(TOOLCHAIN STREQUAL "js")
     ucm_add_flags(--emrun)
     #ucm_add_flags(-s USE_WEBGL2=1 -s FULL_ES3=1)
     #ucm_add_flags(-s PRECISE_F32=1)
-    #ucm_add_flags(--preload-file "path/to/preload/")
+    ucm_add_flags(--preload-file "${CMAKE_CURRENT_SOURCE_DIR}/data@/") # @/ means "mount at root"
     #ucm_add_flags(--memory-init-file 1) # present in release builds anyway
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         #ucm_add_flags(-s SAFE_HEAP=1)

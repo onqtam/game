@@ -4,9 +4,6 @@
 
 #include "utils/glm_proxy.h"
 
-// changes the current working directory
-void setCWDToExePath();
-
 namespace Utils
 {
 

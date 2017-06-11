@@ -33,9 +33,14 @@ set(BGFX_USE_OVR        OFF CACHE BOOL "" FORCE)
 set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
 set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
 
+if(NOT TOOLCHAIN STREQUAL "js")
+    set(BGFX_BUILD_TOOLS    ON CACHE BOOL "" FORCE)
+    set(BGFX_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
+endif()
+
 add_subdirectory(bgfx.cmake)
 include(bgfx.cmake/cmake/3rdparty/ib-compress.cmake)
-#include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
+include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw

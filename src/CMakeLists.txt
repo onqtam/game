@@ -1,6 +1,7 @@
 #ucm_add_flags(${hardly_compiler_flags})
 
 include_directories("./")
+include_directories("./bgfx_common")
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -25,12 +26,7 @@ ucm_add_files(TO SOURCES "main.cpp")
 #ucm_add_files(TO SOURCES "../third_party/bgfx/examples/17-drawstress/drawstress.cpp" FILTER_POP 5)
 #ucm_add_files(TO SOURCES "../third_party/bgfx/examples/00-helloworld/helloworld.cpp" FILTER_POP 5)
 
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/bgfx_utils.cpp" FILTER_POP 5)
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/entry/cmd.cpp" FILTER_POP 6)
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/entry/input.cpp" FILTER_POP 6)
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/entry/entry.cpp" FILTER_POP 6)
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/entry/entry_glfw.cpp" FILTER_POP 6)
-ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/entry/entry_asmjs.cpp" FILTER_POP 6)
+add_mix_dirs(TO SOURCES "bgfx_common" RECURSIVE)
 
 #ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/imgui/imgui.cpp" FILTER_POP 6)
 #ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/imgui/ocornut_imgui.cpp" FILTER_POP 6)
@@ -85,11 +81,9 @@ foreach(plugin ${PLUGINS})
     add_dependencies(game ${plugin})
 endforeach()
 
-target_link_libraries(game bgfx ib-compress
-#ocornut-imgui
-)
+target_link_libraries(game bgfx ib-compress ocornut-imgui)
 target_include_directories(game PUBLIC
-    ${BGFX_DIR}/examples/common
+    #${BGFX_DIR}/examples/common
     ${BGFX_DIR}/examples/00-helloworld
     ${BGFX_DIR}/3rdparty
 )

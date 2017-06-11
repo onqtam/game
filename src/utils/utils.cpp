@@ -20,23 +20,6 @@ using namespace std;
 
 #endif // _WIN32
 
-#if defined(_MSC_VER)
-// Changes the current working directory to the one of the exe
-// Used to fix the CWD when started from VS
-void setCWDToExePath() {
-    TCHAR path[MAX_PATH];
-    GetModuleFileName(nullptr, path, MAX_PATH);
-
-    string spath = path;
-    size_t pos   = spath.find_last_of("\\/");
-    if(pos != std::string::npos) {
-        SetCurrentDirectory(spath.substr(0, pos).c_str());
-    }
-}
-#else  // _MSC_VER
-void     setCWDToExePath() {}
-#endif // _MSC_VER
-
 namespace Utils
 {
 // taken from http://www.emoticode.net/c/simple-wildcard-string-compare-globbing-function.html

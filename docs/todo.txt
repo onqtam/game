@@ -12,10 +12,6 @@
 
 
 
-less clone depth for submodules
-
-
-
 integrate typesafe stuff
 https://github.com/Microsoft/GSL
 https://github.com/foonathan/type_safe
@@ -46,7 +42,7 @@ https://github.com/nholthaus/units
 - check if vs 2015 - need to set cwd
 - filesystem watcher for added files - touches root cmake file (in python)
 - decouple rendering/logic in separate threads
-- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone)
+- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
 - optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
 - mark a function to be without optimizations - __attribute__((optnone)) / __attribute__((optimize("O0"))) / #pragma optimize("", off)
 
