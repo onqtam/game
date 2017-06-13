@@ -29,7 +29,7 @@ addons:
 
 compiler: clang
 os: linux
-sudo apt-get install xorg-dev
+
 matrix:
   include:
     # GCC 6
