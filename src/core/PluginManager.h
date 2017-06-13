@@ -8,6 +8,8 @@ HARDLY_SUPPRESS_WARNINGS
 #include <FileWatcher/FileWatcher.h>
 HARDLY_SUPPRESS_WARNINGS_END
 
+extern "C" int _main_(int, char**);
+
 class PluginManager : public FW::FileWatchListener
 {
     HARDLY_SCOPED_SINGLETON(PluginManager, int _main_(int, char**));

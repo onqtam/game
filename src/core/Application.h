@@ -2,6 +2,8 @@
 
 #include "ObjectManager.h"
 
+extern "C" int _main_(int, char**);
+
 class Application
 {
     HARDLY_SCOPED_SINGLETON(Application, int _main_(int, char**));

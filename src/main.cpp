@@ -34,7 +34,7 @@ class global_mixin_allocator : public dynamix::global_allocator
 #include "entry/entry_p.h"
 #include "bgfx_utils.h"
 #include "logo.h"
-#include "bigg_imgui.h"
+//#include "bigg_imgui.h"
 
 uint32_t                 m_width;
 uint32_t                 m_height;
