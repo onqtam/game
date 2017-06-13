@@ -1,4 +1,4 @@
-libgl1-mesa-devsudo: false
+sudo: false
 language: c++
 
 notifications:
