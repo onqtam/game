@@ -1,4 +1,4 @@
-sudo: false
+libgl1-mesa-devsudo: false
 language: c++
 
 notifications:
@@ -29,7 +29,7 @@ addons:
 
 compiler: clang
 os: linux
-
+sudo apt-get install xorg-dev
 matrix:
   include:
     # GCC 6
@@ -37,14 +37,14 @@ matrix:
       compiler: gcc
       addons: &gcc6
         apt:
-          packages: [             "g++-6", "valgrind", "libsdl1.2-dev", "libxxf86vm-dev", "build-essential", "binutils"]
+          packages: [             "g++-6", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
           sources: *apt_sources
 
     # Clang 4.0
     - env: COMPILER=clang++-4.0
       addons: &clang4
         apt:
-          packages: ["clang-4.0", "g++-6", "valgrind", "libsdl1.2-dev", "libxxf86vm-dev", "build-essential", "binutils"]
+          packages: ["clang-4.0", "g++-6", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
           sources: *apt_sources
 
   allow_failures:

@@ -10,5 +10,4 @@ Sometime in the distant future (1-2 years) shall go private when progress starts
 
 Use the ```r``` python script in the root of the repository to build the project (it has help).
 
-For ubuntu you will need the following packages:
-xorg-dev libglu1-mesa-dev libx11-dev libsdl1.2-dev libxxf86vm-dev build-essential binutils
+Required packages for ubuntu: ```xorg-dev libx11-dev libgl1-mesa-dev```
