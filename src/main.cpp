@@ -28,12 +28,13 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
-//#include "ocornut-imgui/imgui.h"
+#include "ocornut-imgui/imgui.h"
 #include <bx/uint32_t.h>
 #include "common.h"
 #include "entry/entry_p.h"
 #include "bgfx_utils.h"
 #include "logo.h"
+#include "bigg_imgui.h"
 
 uint32_t                 m_width;
 uint32_t                 m_height;
