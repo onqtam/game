@@ -77,6 +77,9 @@ before_script:
   - ${CXX} --version
 
 script:
+  # hack because of recursive submodule trouble - see the git errors here: https://travis-ci.org/onqtam/game/jobs/242351186
+  - git clone https://github.com/onqtam/game.git
+  - cd game
   - python ./r -s
   - python ./r -b gcc
 
