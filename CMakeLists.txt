@@ -52,11 +52,7 @@ set(BOOST_DIR "boost_1_64_0")
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
 
-include_directories("third_party/ppk_assert")
-include_directories("third_party/dynamix/include")
-include_directories("third_party/glm")
 include_directories("third_party/${BOOST_DIR}")
-include_directories("third_party/doctest")
 
 if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")
@@ -66,7 +62,6 @@ if(TOOLCHAIN STREQUAL "js")
     #ucm_add_flags(-s USE_WEBGL2=1 -s FULL_ES3=1)
     #ucm_add_flags(-s PRECISE_F32=1)
     ucm_add_flags(--preload-file "${CMAKE_CURRENT_SOURCE_DIR}/data@/") # @/ means "mount at root"
-    #ucm_add_flags(--memory-init-file 1) # present in release builds anyway
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         #ucm_add_flags(-s SAFE_HEAP=1)
         ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)

@@ -7,6 +7,8 @@ add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbo
 
 add_mix_dirs(TO utils_src "utils" FILTER_POP 2)
 add_library(utils STATIC ${utils_src})
+target_link_libraries(utils PUBLIC doctest)
+target_link_libraries(utils PUBLIC ppk_assert)
 add_fPIC_to_target(utils)
 
 add_mix_dirs(TO serialization_src "core/serialization" FILTER_POP 2)
@@ -16,7 +18,7 @@ target_link_libraries(serialization sajson)
 
 add_mix_dirs(TO registry_src "core/registry" FILTER_POP 2)
 add_library(registry STATIC ${registry_src})
-target_link_libraries(registry utils sajson)
+target_link_libraries(registry PUBLIC utils sajson dynamix)
 add_fPIC_to_target(registry)
 
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
@@ -50,6 +52,7 @@ add_library(messages SHARED ${messages_src})
 target_link_libraries(messages dynamix sajson)
 
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
+target_link_libraries(doctest_runner PUBLIC doctest)
 
 # ========= PLUGINS =============
 

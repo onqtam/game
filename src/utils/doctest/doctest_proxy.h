@@ -7,7 +7,7 @@
 #endif // DOCTEST_CONFIG_SUPER_FAST_ASSERTS
 
 // no guard for including the doctest header itself because it should support multiple inclusion
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 #ifndef MY_PROXY_MACROS
 #define MY_PROXY_MACROS

@@ -27,15 +27,22 @@ add_fPIC_to_target(imgui)
 # LIBRARY dynamix
 ucm_add_dirs("dynamix/include/dynamix" "dynamix/src" RECURSIVE TO dynamix.sources REC FILTER_POP 1)
 ucm_add_target(NAME dynamix TYPE SHARED CPP_PER_UNITY 20 SOURCES "${dynamix.sources}")
+target_include_directories(dynamix INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dynamix/include)
 set_target_properties(dynamix PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(dynamix)
 
 # LIBRARY ppk_assert
 ucm_add_dirs("ppk_assert" TO ppk_assert.sources)
-ucm_add_target(NAME ppk_assert TYPE STATIC SOURCES "${ppk_assert.sources}")
+add_library(ppk_assert STATIC "${ppk_assert.sources}")
+target_include_directories(ppk_assert PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ppk_assert)
 set_target_properties(ppk_assert PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(ppk_assert)
 
+# LIBRARY doctest
+set(DOCTEST_WITH_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(doctest)
+
+# LIBRARY bgfx
 set(BGFX_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
 set(BGFX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
@@ -45,8 +52,8 @@ set(BGFX_AMALGAMATED    OFF CACHE BOOL "" FORCE)
 set(BX_AMALGAMATED      OFF CACHE BOOL "" FORCE)
 
 if(NOT TOOLCHAIN STREQUAL "js")
-    set(BGFX_BUILD_TOOLS    ON CACHE BOOL "" FORCE)
-    set(BGFX_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
+    #set(BGFX_BUILD_TOOLS    ON CACHE BOOL "" FORCE)
+    #set(BGFX_BUILD_EXAMPLES ON CACHE BOOL "" FORCE)
 endif()
 
 add_subdirectory(bgfx.cmake)
