@@ -7,7 +7,6 @@
 #include <windows.h>
 #endif // _WIN32
 
-
 #include "core/Application.h"
 #include "core/PluginManager.h"
 #include "utils/utils.h"
@@ -34,7 +33,12 @@ class global_mixin_allocator : public dynamix::global_allocator
 #include "entry/entry_p.h"
 #include "bgfx_utils.h"
 #include "logo.h"
-//#include "bigg_imgui.h"
+#include "bigg_imgui.h"
+
+#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb/stb_rect_pack.h>
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb/stb_truetype.h>
 
 uint32_t                 m_width;
 uint32_t                 m_height;
@@ -91,6 +95,13 @@ bool update();
 static void em_update() { update(); }
 #endif // EMSCRIPTEN
 
+//namespace ImGui
+//{
+//void PushFont(Font::Enum) {
+//    //PushFont(s_ctx.m_font[_font]);
+//}
+//} // namespace ImGui
+
 int _main_(int _argc, char** _argv) {
 #ifndef EMSCRIPTEN
 // set cwd to data folder
@@ -124,6 +135,8 @@ int _main_(int _argc, char** _argv) {
 
     bgfx::init(args.m_type, args.m_pciId);
     bgfx::reset(m_width, m_height, m_reset);
+
+    imguiInit();
 
     // Enable debug text.
     bgfx::setDebug(m_debug);
@@ -173,12 +186,27 @@ int _main_(int _argc, char** _argv) {
     return res;
 }
 
+void imguiEvents(float dt) {
+    ImGuiIO& io  = ImGui::GetIO();
+    io.DeltaTime = dt;
+    int w, h;
+    io.DisplaySize = ImVec2((float)m_width, (float)m_height);
+    io.MousePos    = ImVec2(-1, -1);
+    for(int i = 0; i < 3; i++) {
+        //io.MouseDown[ i ] = mMousePressed[ i ] || glfwGetMouseButton( mWindow, i ) != 0;
+        //mMousePressed[ i ] = false;
+    }
+    //	io.MouseWheel = mMouseWheel;
+    //	mMouseWheel = 0.0f;
+    //	glfwSetInputMode( mWindow, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL );
+    //	io.ClipboardUserData = mWindow;
+    //#ifdef _WIN32
+    //	io.ImeWindowHandle = glfwGetWin32Window( mWindow );
+    //#endif
+}
+
 bool update() {
     if(!entry::processEvents(m_width, m_height, m_debug, m_reset)) {
-        //ImGui::ShowTestWindow();
-
-        Application::get().update();
-
         int64_t        now       = bx::getHPCounter();
         static int64_t last      = now;
         const int64_t  frameTime = now - last;
@@ -187,6 +215,13 @@ bool update() {
         const double toMs        = 1000.0 / freq;
 
         float time = (float)((now - m_timeOffset) / double(bx::getHPFrequency()));
+
+        imguiEvents(time);
+        ImGui::NewFrame();
+
+        ImGui::ShowTestWindow();
+
+        Application::get().update(); // use time
 
         // Use debug font to print information about this example.
         bgfx::dbgTextClear();
@@ -251,36 +286,11 @@ bool update() {
             }
         }
 
+        ImGui::Render();
+
         // Advance to next frame. Rendering thread will be kicked to
         // process submitted rendering primitives.
         bgfx::frame();
-
-        //// Set view 0 default viewport.
-        //bgfx::setViewRect(0, 0, 0, uint16_t(m_width), uint16_t(m_height));
-
-        //// This dummy draw call is here to make sure that view 0 is cleared
-        //// if no other draw calls are submitted to view 0.
-        //bgfx::touch(0);
-
-        //// Use debug font to print information about this example.
-        //bgfx::dbgTextClear();
-        //bgfx::dbgTextImage(bx::uint16_max(uint16_t(m_width / 2 / 8), 20) - 20,
-        //                   bx::uint16_max(uint16_t(m_height / 2 / 16), 6) - 6, 40, 12, s_logo, 160);
-        //bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/00-helloworld");
-        //bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Initialization and debug text.");
-
-        //bgfx::dbgTextPrintf(0, 4, 0x0f, "Color can be changed with ANSI "
-        //                                "\x1b[9;me\x1b[10;ms\x1b[11;mc\x1b[12;ma\x1b[13;mp\x1b["
-        //                                "14;me\x1b[0m code too.");
-
-        //const bgfx::Stats* stats = bgfx::getStats();
-        //bgfx::dbgTextPrintf(0, 6, 0x0f,
-        //                    "Backbuffer %dW x %dH in pixels, debug text %dW x %dH in characters.",
-        //                    stats->width, stats->height, stats->textWidth, stats->textHeight);
-
-        //// Advance to next frame. Rendering thread will be kicked to
-        //// process submitted rendering primitives.
-        //bgfx::frame();
 
         return true;
     }

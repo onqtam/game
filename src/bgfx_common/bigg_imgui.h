@@ -4,8 +4,8 @@ static bgfx::UniformHandle imguiFontUniform;
 static bgfx::ProgramHandle imguiProgram;
 static void                imguiRender( ImDrawData* drawData );
 static void                imguiShutdown();
-static const char*         imguiGetClipboardText( void* userData );
-static void                imguiSetClipboardText( void* userData, const char* text );
+//static const char*         imguiGetClipboardText( void* userData );
+//static void                imguiSetClipboardText( void* userData, const char* text );
 
 static void imguiInit()
 {
@@ -33,28 +33,28 @@ static void imguiInit()
 	// Setup render callback
 	io.RenderDrawListsFn = imguiRender;
 
-	// Key mapping
-	io.KeyMap[ ImGuiKey_Tab ] = GLFW_KEY_TAB;
-	io.KeyMap[ ImGuiKey_LeftArrow ] = GLFW_KEY_LEFT;
-	io.KeyMap[ ImGuiKey_RightArrow ] = GLFW_KEY_RIGHT;
-	io.KeyMap[ ImGuiKey_UpArrow ] = GLFW_KEY_UP;
-	io.KeyMap[ ImGuiKey_DownArrow ] = GLFW_KEY_DOWN;
-	io.KeyMap[ ImGuiKey_PageUp ] = GLFW_KEY_PAGE_UP;
-	io.KeyMap[ ImGuiKey_PageDown ] = GLFW_KEY_PAGE_DOWN;
-	io.KeyMap[ ImGuiKey_Home ] = GLFW_KEY_HOME;
-	io.KeyMap[ ImGuiKey_End ] = GLFW_KEY_END;
-	io.KeyMap[ ImGuiKey_Delete ] = GLFW_KEY_DELETE;
-	io.KeyMap[ ImGuiKey_Backspace ] = GLFW_KEY_BACKSPACE;
-	io.KeyMap[ ImGuiKey_Enter ] = GLFW_KEY_ENTER;
-	io.KeyMap[ ImGuiKey_Escape ] = GLFW_KEY_ESCAPE;
-	io.KeyMap[ ImGuiKey_A ] = GLFW_KEY_A;
-	io.KeyMap[ ImGuiKey_C ] = GLFW_KEY_C;
-	io.KeyMap[ ImGuiKey_V ] = GLFW_KEY_V;
-	io.KeyMap[ ImGuiKey_X ] = GLFW_KEY_X;
-	io.KeyMap[ ImGuiKey_Y ] = GLFW_KEY_Y;
-	io.KeyMap[ ImGuiKey_Z ] = GLFW_KEY_Z;
-	io.SetClipboardTextFn = imguiSetClipboardText;
-	io.GetClipboardTextFn = imguiGetClipboardText;
+	//// Key mapping
+	//io.KeyMap[ ImGuiKey_Tab ] = GLFW_KEY_TAB;
+	//io.KeyMap[ ImGuiKey_LeftArrow ] = GLFW_KEY_LEFT;
+	//io.KeyMap[ ImGuiKey_RightArrow ] = GLFW_KEY_RIGHT;
+	//io.KeyMap[ ImGuiKey_UpArrow ] = GLFW_KEY_UP;
+	//io.KeyMap[ ImGuiKey_DownArrow ] = GLFW_KEY_DOWN;
+	//io.KeyMap[ ImGuiKey_PageUp ] = GLFW_KEY_PAGE_UP;
+	//io.KeyMap[ ImGuiKey_PageDown ] = GLFW_KEY_PAGE_DOWN;
+	//io.KeyMap[ ImGuiKey_Home ] = GLFW_KEY_HOME;
+	//io.KeyMap[ ImGuiKey_End ] = GLFW_KEY_END;
+	//io.KeyMap[ ImGuiKey_Delete ] = GLFW_KEY_DELETE;
+	//io.KeyMap[ ImGuiKey_Backspace ] = GLFW_KEY_BACKSPACE;
+	//io.KeyMap[ ImGuiKey_Enter ] = GLFW_KEY_ENTER;
+	//io.KeyMap[ ImGuiKey_Escape ] = GLFW_KEY_ESCAPE;
+	//io.KeyMap[ ImGuiKey_A ] = GLFW_KEY_A;
+	//io.KeyMap[ ImGuiKey_C ] = GLFW_KEY_C;
+	//io.KeyMap[ ImGuiKey_V ] = GLFW_KEY_V;
+	//io.KeyMap[ ImGuiKey_X ] = GLFW_KEY_X;
+	//io.KeyMap[ ImGuiKey_Y ] = GLFW_KEY_Y;
+	//io.KeyMap[ ImGuiKey_Z ] = GLFW_KEY_Z;
+	//io.SetClipboardTextFn = imguiSetClipboardText;
+	//io.GetClipboardTextFn = imguiGetClipboardText;
 }
 
 static void imguiRender( ImDrawData* drawData )
@@ -108,7 +108,7 @@ static void imguiRender( ImDrawData* drawData )
 				bgfx::setScissor( xx, yy, uint16_t( bx::fmin( cmd->ClipRect.z, 65535.0f ) - xx ), uint16_t( bx::fmin( cmd->ClipRect.w, 65535.0f ) - yy ) );
 				bgfx::setState( state );
 				bgfx::setTexture( 0, imguiFontUniform, th );
-				bgfx::setVertexBuffer( &tvb, 0, numVertices );
+				bgfx::setVertexBuffer(0, &tvb, 0, numVertices );
 				bgfx::setIndexBuffer( &tib, offset, cmd->ElemCount );
 				bgfx::submit( 0, imguiProgram );
 			}
@@ -126,12 +126,12 @@ static void imguiShutdown()
 	ImGui::Shutdown();
 }
 
-static const char* imguiGetClipboardText( void* userData )
-{
-	return glfwGetClipboardString( ( GLFWwindow* )userData );
-}
-
-static void imguiSetClipboardText( void* userData, const char* text )
-{
-	glfwSetClipboardString( ( GLFWwindow* )userData, text );
-}
+//static const char* imguiGetClipboardText( void* userData )
+//{
+//	return glfwGetClipboardString( ( GLFWwindow* )userData );
+//}
+//
+//static void imguiSetClipboardText( void* userData, const char* text )
+//{
+//	glfwSetClipboardString( ( GLFWwindow* )userData, text );
+//}

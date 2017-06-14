@@ -81,7 +81,7 @@ foreach(plugin ${PLUGINS})
     add_dependencies(game ${plugin})
 endforeach()
 
-target_link_libraries(game bgfx ib-compress ocornut-imgui)
+target_link_libraries(game bgfx ib-compress)
 target_include_directories(game PUBLIC
     #${BGFX_DIR}/examples/common
     ${BGFX_DIR}/examples/00-helloworld
@@ -91,6 +91,7 @@ target_include_directories(game PUBLIC
 target_link_libraries(game messages)
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)
+target_link_libraries(game imgui)
 target_link_libraries(game registry)
 target_link_libraries(game utils)
 target_link_libraries(game serialization)

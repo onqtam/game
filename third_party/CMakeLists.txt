@@ -13,6 +13,13 @@ ucm_add_flags(${third_party_compiler_flags})
 #add_library(glm STATIC ${glm.sources})
 #set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
 
+# LIBRARY imgui
+ucm_add_dirs("imgui" TO imgui.sources REC FILTER_POP 1)
+add_library(imgui STATIC "${imgui.sources}")
+target_include_directories(imgui INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+set_target_properties(imgui PROPERTIES FOLDER "third_party")
+add_fPIC_to_target(imgui)
+
 # LIBRARY dynamix
 ucm_add_dirs("dynamix/include/dynamix" "dynamix/src" RECURSIVE TO dynamix.sources REC FILTER_POP 1)
 ucm_add_target(NAME dynamix TYPE SHARED CPP_PER_UNITY 20 SOURCES "${dynamix.sources}")
@@ -40,7 +47,6 @@ endif()
 
 add_subdirectory(bgfx.cmake)
 include(bgfx.cmake/cmake/3rdparty/ib-compress.cmake)
-include(bgfx.cmake/cmake/3rdparty/ocornut-imgui.cmake)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw
