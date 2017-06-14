@@ -7,8 +7,7 @@ add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbo
 
 add_mix_dirs(TO utils_src "utils" FILTER_POP 2)
 add_library(utils STATIC ${utils_src})
-target_link_libraries(utils PUBLIC doctest)
-target_link_libraries(utils PUBLIC ppk_assert)
+target_link_libraries(utils PUBLIC doctest glm ppk_assert)
 add_fPIC_to_target(utils)
 
 add_mix_dirs(TO serialization_src "core/serialization" FILTER_POP 2)

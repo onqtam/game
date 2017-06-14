@@ -13,6 +13,10 @@ ucm_add_flags(${third_party_compiler_flags})
 #add_library(glm STATIC ${glm.sources})
 #set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
 
+# LIBRARY glm
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+
 # LIBRARY sajson
 add_library(sajson INTERFACE)
 target_include_directories(sajson INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
