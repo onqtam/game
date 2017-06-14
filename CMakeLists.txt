@@ -52,12 +52,9 @@ set(BOOST_DIR "boost_1_64_0")
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
 
-include_directories("third_party")
-#include_directories("third_party/stb")
 include_directories("third_party/ppk_assert")
 include_directories("third_party/dynamix/include")
 include_directories("third_party/glm")
-#include_directories("third_party/format")
 include_directories("third_party/${BOOST_DIR}")
 include_directories("third_party/doctest")
 

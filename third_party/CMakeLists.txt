@@ -13,6 +13,10 @@ ucm_add_flags(${third_party_compiler_flags})
 #add_library(glm STATIC ${glm.sources})
 #set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
 
+# LIBRARY sajson
+add_library(sajson INTERFACE)
+target_include_directories(sajson INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 # LIBRARY imgui
 ucm_add_dirs("imgui" TO imgui.sources REC FILTER_POP 1)
 add_library(imgui STATIC "${imgui.sources}")

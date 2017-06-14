@@ -12,10 +12,11 @@ add_fPIC_to_target(utils)
 add_mix_dirs(TO serialization_src "core/serialization" FILTER_POP 2)
 ucm_add_target(NAME serialization TYPE SHARED SOURCES "${serialization_src}")
 add_fPIC_to_target(serialization)
+target_link_libraries(serialization sajson)
 
 add_mix_dirs(TO registry_src "core/registry" FILTER_POP 2)
 add_library(registry STATIC ${registry_src})
-target_link_libraries(registry utils)
+target_link_libraries(registry utils sajson)
 add_fPIC_to_target(registry)
 
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
@@ -46,7 +47,7 @@ add_mix_dirs(TO SOURCES "mixins/mixins")
 
 add_mix_dirs(TO messages_src "mixins/messages")
 add_library(messages SHARED ${messages_src})
-target_link_libraries(messages dynamix)
+target_link_libraries(messages dynamix sajson)
 
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
 
