@@ -30,9 +30,7 @@ const bgfx::Memory* loadMemory(const char* filename) {
     return nullptr;
 }
 
-bgfx::ShaderHandle loadShader(const char* shader) {
-    return bgfx::createShader(loadMemory(shader));
-}
+bgfx::ShaderHandle loadShader(const char* shader) { return bgfx::createShader(loadMemory(shader)); }
 
 bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName) {
     bgfx::ShaderHandle vs = loadShader(vsName);
@@ -108,9 +106,10 @@ void Application::imguiEvents(float dt) {
 #endif
 }
 
+static void update() { Application::get().update(); }
+
 int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint16_t vendorId,
-                           uint16_t deviceId, bgfx::CallbackI* callback,
-                           bx::AllocatorI* allocator) {
+                     uint16_t deviceId, bgfx::CallbackI* callback, bx::AllocatorI* allocator) {
     // Initialize the glfw
     if(!glfwInit()) {
         return -1;
@@ -154,30 +153,16 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     initialize(argc, argv);
 
     // Loop until the user closes the window
-    float lastTime = 0;
-    float dt;
-    float time;
     while(!glfwWindowShouldClose(mWindow)) {
-        time     = (float)glfwGetTime();
-        dt       = time - lastTime;
-        lastTime = time;
-
-        glfwPollEvents();
-        imguiEvents(dt);
-        ImGui::NewFrame();
-
-        update(dt);
-        ImGui::Render();
-        bgfx::frame();
-
-        int w, h;
-        glfwGetWindowSize(mWindow, &w, &h);
-        if(w != mWidth || h != mHeight) {
-            mWidth  = w;
-            mHeight = h;
-            reset(mReset);
-        }
     }
+
+#ifdef EMSCRIPTEN
+    emscripten_set_main_loop(update, 0, 1);
+#else  // EMSCRIPTEN
+    while(!glfwWindowShouldClose(mWindow)) {
+        update();
+    }
+#endif // EMSCRIPTEN
 
     // Shutdown application and glfw
     int ret = shutdown();
@@ -187,15 +172,18 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     return ret;
 }
 
+int Application::shutdown() const { return 0; }
+
 void Application::reset(uint32_t flags) {
     mReset = flags;
     bgfx::reset(mWidth, mHeight, mReset);
     onReset();
 }
 
-uint32_t Application::getWidth() { return mWidth; }
-
-uint32_t Application::getHeight() { return mHeight; }
+void Application::onReset() const {
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
+}
 
 void PosColorVertex::init() {
     ms_decl.begin()
@@ -203,4 +191,5 @@ void PosColorVertex::init() {
             .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
             .end();
 };
+
 bgfx::VertexDecl PosColorVertex::ms_decl;

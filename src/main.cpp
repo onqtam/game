@@ -34,14 +34,20 @@ void Application::initialize(int argc, char** argv) {
     m_objectManager.init();
 }
 
-void Application::onReset() {
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
-    bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
-}
+void Application::update() {
+    time     = (float)glfwGetTime();
+    dt       = time - lastTime;
+    lastTime = time;
 
-void Application::update(float dt) {
-    static float time = 0;
-    time += dt;
+    glfwPollEvents();
+    imguiEvents(dt);
+    ImGui::NewFrame();
+
+    // update game stuff
+
+
+
+
 
 #ifndef EMSCRIPTEN
     PluginManager::get().update();
@@ -81,6 +87,24 @@ void Application::update(float dt) {
             bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
             bgfx::submit(0, mProgram);
         }
+    }
+
+
+
+    // render
+
+    ImGui::Render();
+    bgfx::frame();
+
+    if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(mWindow, GL_TRUE);
+
+    int w, h;
+    glfwGetWindowSize(mWindow, &w, &h);
+    if(w != mWidth || h != mHeight) {
+        mWidth  = w;
+        mHeight = h;
+        reset(mReset);
     }
 }
 

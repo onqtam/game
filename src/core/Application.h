@@ -16,8 +16,6 @@ class Application
 {
     HARDLY_SCOPED_SINGLETON(Application, int main(int, char**));
 
-    ObjectManager m_objectManager;
-
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow*, double xoffset, double yoffset);
     static void keyCallback(GLFWwindow*, int key, int, int action, int mods);
@@ -31,23 +29,27 @@ public:
             bgfx::CallbackI* callback = NULL, bx::AllocatorI* allocator = NULL);
 
     void reset(uint32_t flags = 0);
-    uint32_t getWidth();
-    uint32_t getHeight();
+    uint32_t getWidth() const { return mWidth; }
+    uint32_t getHeight() const { return mHeight; }
 
     void initialize(int argc, char** argv);
-    void update(float dt);
-    int  shutdown() { return 0; }
-    void onReset();
-
-protected:
-    GLFWwindow* mWindow;
+    void update();
+    int  shutdown() const;
+    void onReset() const;
 
 private:
-    uint32_t mReset;
-    uint32_t mWidth;
-    uint32_t mHeight;
-    bool     mMousePressed[3] = {false, false, false};
-    float    mMouseWheel      = 0.0f;
+    GLFWwindow* mWindow;
+    uint32_t    mReset;
+    uint32_t    mWidth;
+    uint32_t    mHeight;
+    bool        mMousePressed[3] = {false, false, false};
+    float       mMouseWheel      = 0.0f;
+
+    float lastTime = 0.f;
+    float dt       = 0.f;
+    float time     = 0.f;
+
+    ObjectManager m_objectManager;
 };
 
 // vertex declarations
