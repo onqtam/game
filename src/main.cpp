@@ -41,12 +41,13 @@ void Application::update() {
     dt       = time - lastTime;
     lastTime = time;
 
-    //glfwSwapBuffers(mWindow);
     glfwPollEvents();
     imguiEvents(dt);
     ImGui::NewFrame();
 
-// update game stuff
+    // update game stuff
+
+    ImGui::ShowTestWindow(NULL);
 
 #ifndef EMSCRIPTEN
     PluginManager::get().update();

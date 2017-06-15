@@ -40,8 +40,8 @@ public:
 private:
     GLFWwindow* mWindow;
     uint32_t    mReset;
-    uint32_t    mWidth;
-    uint32_t    mHeight;
+    uint32_t    mWidth           = 1280;
+    uint32_t    mHeight          = 768;
     bool        mMousePressed[3] = {false, false, false};
     float       mMouseWheel      = 0.0f;
 

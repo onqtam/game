@@ -64,7 +64,7 @@ if(TOOLCHAIN STREQUAL "js")
     #ucm_add_flags(-s PRECISE_F32=1)
     ucm_add_flags(--preload-file "${CMAKE_CURRENT_SOURCE_DIR}/data@/") # @/ means "mount at root"
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        #ucm_add_flags(-s SAFE_HEAP=1)
+        ucm_add_flags(-s SAFE_HEAP=1)
         ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)
     endif()
     

@@ -118,16 +118,12 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
         return -1;
     }
 
-// Create a window
-#ifndef EMSCRIPTEN
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#endif // EMSCRIPTEN
-    mWindow = glfwCreateWindow(1280, 768, "game", NULL, NULL);
+    // Create a window
+    mWindow = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
     if(!mWindow) {
         glfwTerminate();
         return -1;
     }
-    //glfwMakeContextCurrent(mWindow);
 
     // Setup input callbacks
     glfwSetWindowUserPointer(mWindow, this);
@@ -183,7 +179,7 @@ void Application::reset(uint32_t flags) {
 }
 
 void Application::onReset() const {
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
 }
 
