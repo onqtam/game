@@ -25,23 +25,6 @@ ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/17-drawstress/drawstress.cpp" FILTER_POP 5)
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/00-helloworld/helloworld.cpp" FILTER_POP 5)
-
-add_mix_dirs(TO SOURCES "bgfx_common" RECURSIVE)
-
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/imgui/imgui.cpp" FILTER_POP 6)
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/imgui/ocornut_imgui.cpp" FILTER_POP 6)
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/nanovg/nanovg_bgfx.cpp" FILTER_POP 6)
-#ucm_add_files(TO SOURCES "../third_party/bgfx/examples/common/nanovg/nanovg.cpp" FILTER_POP 6)
-
-#add_executable(game ${SOURCES})
-#target_link_libraries(game example-common bgfx-vertexdecl)
-#target_include_directories(game PUBLIC ${BGFX_DIR}/examples/common ${BGFX_DIR}/3rdparty)
-#target_include_directories(game PUBLIC ${BGFX_DIR}/include)
-#target_include_directories(game PUBLIC ${BIMG_DIR}/include)
-#target_include_directories(game PUBLIC ${BX_DIR}/include)
-
 add_mix_dirs(TO SOURCES "core")
 ucm_remove_directories(FROM SOURCES "core/serialization")
 add_mix_dirs(TO SOURCES "mixins/mixins")
@@ -85,11 +68,6 @@ foreach(plugin ${PLUGINS})
 endforeach()
 
 target_link_libraries(game bgfx ib-compress)
-target_include_directories(game PUBLIC
-    #${BGFX_DIR}/examples/common
-    ${BGFX_DIR}/examples/00-helloworld
-    ${BGFX_DIR}/3rdparty
-)
 
 target_link_libraries(game messages)
 target_link_libraries(game dynamix)

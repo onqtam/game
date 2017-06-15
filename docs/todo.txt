@@ -31,6 +31,9 @@ https://github.com/nholthaus/units
 - be able to build everything in release except for gameplay code (debug iterators?)
 - unity builds
 
+== assets:
+- https://github.com/tlorach/Bak3d
+
 == codegen:
 - syntax highlighting for .mix files in VS
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...

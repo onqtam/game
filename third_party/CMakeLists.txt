@@ -31,7 +31,7 @@ add_fPIC_to_target(imgui)
 # LIBRARY dynamix
 ucm_add_dirs("dynamix/include/dynamix" "dynamix/src" RECURSIVE TO dynamix.sources REC FILTER_POP 1)
 ucm_add_target(NAME dynamix TYPE SHARED CPP_PER_UNITY 20 SOURCES "${dynamix.sources}")
-target_include_directories(dynamix INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dynamix/include)
+target_include_directories(dynamix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/dynamix/include)
 set_target_properties(dynamix PROPERTIES FOLDER "third_party")
 add_fPIC_to_target(dynamix)
 
