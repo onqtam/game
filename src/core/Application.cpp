@@ -8,8 +8,11 @@
 #endif
 #include <bx/fpumath.h>
 #include <bgfx/platform.h>
+#ifdef EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#else // EMSCRIPTEN
 #include <GLFW/glfw3native.h>
-#include <glm/glm.hpp>
+#endif // EMSCRIPTEN
 #include <fstream>
 
 #include "bigg_assets.h"
@@ -116,7 +119,9 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     }
 
     // Create a window
+#ifndef EMSCRIPTEN
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#endif // EMSCRIPTEN
     mWindow = glfwCreateWindow(1280, 768, "game", NULL, NULL);
     if(!mWindow) {
         glfwTerminate();
@@ -157,7 +162,7 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     }
 
 #ifdef EMSCRIPTEN
-    emscripten_set_main_loop(update, 0, 1);
+    emscripten_set_main_loop(::update, 0, 1);
 #else  // EMSCRIPTEN
     while(!glfwWindowShouldClose(mWindow)) {
         update();

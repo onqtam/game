@@ -1,7 +1,9 @@
 #ucm_add_flags(${hardly_compiler_flags})
 
 include_directories("./")
-include_directories("./bgfx_common")
+include_directories("../third_party/dynamix/include")
+include_directories("../third_party/ppk_assert")
+include_directories("../third_party/doctest/doctest")
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -71,6 +73,7 @@ target_link_libraries(game bgfx ib-compress)
 
 target_link_libraries(game messages)
 target_link_libraries(game dynamix)
+target_link_libraries(game glm)
 target_link_libraries(game ppk_assert)
 target_link_libraries(game imgui)
 target_link_libraries(game registry)
@@ -79,7 +82,6 @@ target_link_libraries(game serialization)
 target_link_libraries(game doctest_runner)
 
 if(NOT TOOLCHAIN STREQUAL "js")
-    target_compile_definitions(game PRIVATE "-DENTRY_CONFIG_USE_GLFW=1")
     target_include_directories(game PRIVATE ../third_party/glfw/include)
     target_link_libraries(game glfw)
     target_link_libraries(game file_watcher)

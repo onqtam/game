@@ -12,12 +12,12 @@
 
 HARDLY_SUPPRESS_WARNINGS
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_access.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/norm.hpp>
+#include "D:/game/third_party/glm/glm/glm.hpp"
+#include "D:/game/third_party/glm/glm/gtc/quaternion.hpp"
+#include "D:/game/third_party/glm/glm/gtc/matrix_access.hpp"
+#include "D:/game/third_party/glm/glm/gtc/matrix_transform.hpp"
+#include "D:/game/third_party/glm/glm/gtc/type_ptr.hpp"
+#include "D:/game/third_party/glm/glm/gtx/norm.hpp"
 
 HARDLY_SUPPRESS_WARNINGS_END
 

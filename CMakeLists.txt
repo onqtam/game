@@ -58,6 +58,7 @@ if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")
     set(WITH_PLUGINS OFF)
     ucm_add_flags(-s TOTAL_MEMORY=268435456) # 256 MB - must be a multiple of 16 MB
+    ucm_add_flags(-s USE_GLFW=3)
     ucm_add_flags(--emrun)
     #ucm_add_flags(-s USE_WEBGL2=1 -s FULL_ES3=1)
     #ucm_add_flags(-s PRECISE_F32=1)
