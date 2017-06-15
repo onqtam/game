@@ -78,6 +78,8 @@ void Application::charCallback(GLFWwindow*, unsigned int c) {
     }
 }
 
+void Application::cursorPosCallback(GLFWwindow*, double, double) {}
+
 void Application::imguiEvents(float dt) {
     ImGuiIO& io  = ImGui::GetIO();
     io.DeltaTime = dt;
@@ -88,13 +90,13 @@ void Application::imguiEvents(float dt) {
     io.DisplaySize = ImVec2((float)w, (float)h);
     io.DisplayFramebufferScale =
             ImVec2(w > 0 ? ((float)displayW / w) : 0, h > 0 ? ((float)displayH / h) : 0);
-    if(glfwGetWindowAttrib(mWindow, GLFW_FOCUSED)) {
+    //if(glfwGetWindowAttrib(mWindow, GLFW_FOCUSED)) {
         double mouse_x, mouse_y;
         glfwGetCursorPos(mWindow, &mouse_x, &mouse_y);
         io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
-    } else {
-        io.MousePos = ImVec2(-1, -1);
-    }
+    //} else {
+    //    io.MousePos = ImVec2(-1, -1);
+    //}
     for(int i = 0; i < 3; i++) {
         io.MouseDown[i]  = mMousePressed[i] || glfwGetMouseButton(mWindow, i) != 0;
         mMousePressed[i] = false;
@@ -131,6 +133,7 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     glfwSetScrollCallback(mWindow, scrollCallback);
     glfwSetKeyCallback(mWindow, keyCallback);
     glfwSetCharCallback(mWindow, charCallback);
+    glfwSetCursorPosCallback(mWindow, cursorPosCallback);
 
     // Setup bgfx
     bgfx::PlatformData platformData;

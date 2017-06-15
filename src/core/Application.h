@@ -20,6 +20,7 @@ class Application
     static void scrollCallback(GLFWwindow*, double xoffset, double yoffset);
     static void keyCallback(GLFWwindow*, int key, int, int action, int mods);
     static void charCallback(GLFWwindow*, unsigned int c);
+    static void cursorPosCallback(GLFWwindow*, double x, double y);
 
     void imguiEvents(float dt);
 
