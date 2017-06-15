@@ -9,7 +9,7 @@ from utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", choices = ['msvc', 'gcc', 'js', 'nj'], required = True, help = "builds the generated build files")
-parser.add_argument("-c", choices = ['debug', 'release'], default = "debug", help = "config to build/generate for")
+parser.add_argument("-c", choices = ['debug', 'release'], default = "release", help = "config to build/generate for")
 args = parser.parse_args()
 
 make = "make"

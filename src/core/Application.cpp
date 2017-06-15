@@ -118,7 +118,7 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
         return -1;
     }
 
-    // Create a window
+// Create a window
 #ifndef EMSCRIPTEN
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif // EMSCRIPTEN
@@ -127,6 +127,7 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
         glfwTerminate();
         return -1;
     }
+    //glfwMakeContextCurrent(mWindow);
 
     // Setup input callbacks
     glfwSetWindowUserPointer(mWindow, this);
@@ -157,16 +158,12 @@ int Application::run(int argc, char** argv, bgfx::RendererType::Enum type, uint1
     reset();
     initialize(argc, argv);
 
-    // Loop until the user closes the window
-    while(!glfwWindowShouldClose(mWindow)) {
-    }
-
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(::update, 0, 1);
 #else  // EMSCRIPTEN
-    while(!glfwWindowShouldClose(mWindow)) {
+    // Loop until the user closes the window
+    while(!glfwWindowShouldClose(mWindow))
         update();
-    }
 #endif // EMSCRIPTEN
 
     // Shutdown application and glfw

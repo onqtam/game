@@ -21,7 +21,7 @@ parser.add_argument("--re",                 action = "store_true",              
 parser.add_argument("--fm",                 action = "store_true",                      help = "clang-formats everything in the git diff")
 parser.add_argument("-g",                   choices = generators,                       help = "runs cmake for one of the generators")
 parser.add_argument("-b",                   choices = generators,                       help = "builds the generated build files")
-parser.add_argument("-c",                   choices = ['debug', 'release'], default = "debug", help = "config to build/generate for")
+parser.add_argument("-c",                   choices = ['debug', 'release'], default = "release", help = "config to build/generate for")
 parser.add_argument("--cmake", nargs = argparse.REMAINDER, metavar="f", default = [],   help = "flags for cmake when generating - should be last")
 args = parser.parse_args()
 
