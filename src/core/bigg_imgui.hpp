@@ -28,12 +28,7 @@ static void imguiInit() {
     imguiFontUniform = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
 
     // Create shader program
-    vs_ocornut_imgui();
-    bgfx::ShaderHandle vs =
-            bgfx::createShader(bgfx::makeRef(vs_ocornut_imgui(), vs_ocornut_imgui_len()));
-    bgfx::ShaderHandle fs =
-            bgfx::createShader(bgfx::makeRef(fs_ocornut_imgui(), fs_ocornut_imgui_len()));
-    imguiProgram = bgfx::createProgram(vs, fs, true);
+    imguiProgram = loadProgram("shaders/glsl/vs_ocornut_imgui.bin", "shaders/glsl/fs_ocornut_imgui.bin");
 
     // Setup render callback
     io.RenderDrawListsFn = imguiRender;

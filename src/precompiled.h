@@ -41,7 +41,7 @@ HARDLY_SUPPRESS_WARNINGS
 
 #include <boost/optional.hpp>
 
-#include <D:/game/third_party/dynamix/include/dynamix/dynamix.hpp>
+#include <dynamix/dynamix.hpp>
 
 #include <ppk_assert.h>
 

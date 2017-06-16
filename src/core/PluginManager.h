@@ -10,7 +10,7 @@ HARDLY_SUPPRESS_WARNINGS_END
 
 class PluginManager : public FW::FileWatchListener
 {
-    HARDLY_SCOPED_SINGLETON(PluginManager, int main(int, char**));
+    HARDLY_SCOPED_SINGLETON(PluginManager, class Application);
 
 private:
     struct LoadedPlugin

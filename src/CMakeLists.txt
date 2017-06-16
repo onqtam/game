@@ -1,9 +1,15 @@
 #ucm_add_flags(${hardly_compiler_flags})
 
 include_directories("./")
-include_directories("../third_party/dynamix/include")
-include_directories("../third_party/ppk_assert")
-include_directories("../third_party/doctest/doctest")
+
+if(TOOLCHAIN STREQUAL "js")
+    # this is needed because the creation of the pch cant find the include paths even when
+    # target_include_directories is used (or interface stuff from target_link_libraries)
+    include_directories("../third_party/dynamix/include")
+    include_directories("../third_party/ppk_assert")
+    include_directories("../third_party/doctest/doctest")
+    include_directories("../third_party/glm")
+endif()
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -28,7 +34,6 @@ ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
 add_mix_dirs(TO SOURCES "core")
-ucm_remove_directories(FROM SOURCES "core/serialization")
 add_mix_dirs(TO SOURCES "mixins/mixins")
 
 add_mix_dirs(TO messages_src "mixins/messages")

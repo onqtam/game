@@ -1,9 +1,7 @@
 
 
 
-- integrate bgfx
-- integrate imgui
-- shader pipeline
+- shader pipeline - and dont force opengl
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
 - asset pipeline from Kosta
