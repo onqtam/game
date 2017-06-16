@@ -62,6 +62,17 @@ endif()
 
 add_subdirectory(bgfx.cmake)
 include(bgfx.cmake/cmake/3rdparty/ib-compress.cmake)
+set_target_properties(bgfx          PROPERTIES FOLDER "third_party/bgfx")
+set_target_properties(bx            PROPERTIES FOLDER "third_party/bgfx")
+set_target_properties(bimg          PROPERTIES FOLDER "third_party/bgfx")
+set_target_properties(edtaa3        PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(etc1          PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(etc2          PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(ib-compress   PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(iqa           PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(nvtt          PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(pvrtc         PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+set_target_properties(squish        PROPERTIES FOLDER "third_party/bgfx/3rdparty")
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw

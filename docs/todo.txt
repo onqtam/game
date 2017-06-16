@@ -45,6 +45,9 @@ https://github.com/nholthaus/units
 - optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
 - mark a function to be without optimizations - __attribute__((optnone)) / __attribute__((optimize("O0"))) / #pragma optimize("", off)
 
+== graphics:
+https://github.com/andr3wmac/lightmapper_bgfx
+
 == profiler:
 - the one from chobo
 - http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
@@ -96,6 +99,7 @@ https://github.com/nholthaus/units
     - nuklear
 - physics
     - bullet
+    https://github.com/InteractiveComputerGraphics/PositionBasedDynamics
 - compression
     - zlib - the big beast
     - miniz - tiny zlib implementation
