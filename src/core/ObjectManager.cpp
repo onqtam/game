@@ -85,23 +85,19 @@ void ObjectManager::init() {
     serialize(m_object, state);
     state.endObject();
 
-    const sajson::document& doc  = state.parse();
+    const sajson::document& doc = state.parse();
     PPK_ASSERT(doc.is_valid());
     const sajson::value root = doc.get_root();
     deserialize(m_object, root);
 
-
-    
     // Setup vertex declarations
     PosColorVertex::init();
 
-    
-    mProgram = loadProgram("shaders/glsl/vs_cubes.bin", "shaders/glsl/fs_cubes.bin");
+    mProgram = loadProgram("vs_cubes", "fs_cubes");
     mVbh     = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
                                     PosColorVertex::ms_decl);
     mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
     bgfx::setDebug(BGFX_DEBUG_TEXT);
-
 }
 
 void ObjectManager::update() {
@@ -120,8 +116,8 @@ void ObjectManager::update() {
     ImGui::ShowTestWindow(NULL);
 
     Application& app = Application::get();
-    float dt = app.getDt();
-    
+    float        dt  = app.getDt();
+
     bgfx::dbgTextClear();
     bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/01-cube");
     ;

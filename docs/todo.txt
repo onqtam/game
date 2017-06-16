@@ -22,6 +22,7 @@ https://github.com/nholthaus/units
     - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 == build system:
+- warnings
 - shared precompiled headers for plugins...?
 - hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
 - make a proper release config - with LTO, no plugins, etc.

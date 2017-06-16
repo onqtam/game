@@ -57,8 +57,7 @@ static void imguiInit() {
     imguiFontUniform = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
 
     // Create shader program
-    imguiProgram =
-            loadProgram("shaders/glsl/vs_ocornut_imgui.bin", "shaders/glsl/fs_ocornut_imgui.bin");
+    imguiProgram = loadProgram("vs_ocornut_imgui", "fs_ocornut_imgui");
 
     // Setup render callback
     io.RenderDrawListsFn = imguiRender;
@@ -289,7 +288,7 @@ int Application::run(int argc, char** argv) {
     platformData.nwh = glfwGetCocoaWindow(mWindow);
 #endif // __APPLE__
     bgfx::setPlatformData(platformData);
-    bgfx::init(bgfx::RendererType::OpenGL);
+    bgfx::init(bgfx::RendererType::OpenGL); // can also not specify opengl - will choose automatically
 
     // Setup ImGui
     imguiInit();
