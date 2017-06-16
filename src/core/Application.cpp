@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "PluginManager.h"
+#include "ObjectManager.h"
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
 
@@ -7,6 +8,7 @@
 #include <bgfx/platform.h>
 #include <bx/fpumath.h>
 
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 
 #ifdef EMSCRIPTEN
@@ -207,34 +209,35 @@ void Application::cursorPosCallback(GLFWwindow*, double, double) {}
 
 HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
 
-void Application::imguiEvents(float dt) {
-    ImGuiIO& io  = ImGui::GetIO();
-    io.DeltaTime = dt;
+static void imguiEvents(float dt) {
+    Application& app = Application::get();
+    ImGuiIO&     io  = ImGui::GetIO();
+    io.DeltaTime     = dt;
     int w, h;
     int displayW, displayH;
-    glfwGetWindowSize(mWindow, &w, &h);
-    glfwGetFramebufferSize(mWindow, &displayW, &displayH);
+    glfwGetWindowSize(app.mWindow, &w, &h);
+    glfwGetFramebufferSize(app.mWindow, &displayW, &displayH);
     io.DisplaySize = ImVec2((float)w, (float)h);
     io.DisplayFramebufferScale =
             ImVec2(w > 0 ? ((float)displayW / w) : 0, h > 0 ? ((float)displayH / h) : 0);
-    //if(glfwGetWindowAttrib(mWindow, GLFW_FOCUSED)) {
+    //if(glfwGetWindowAttrib(app.mWindow, GLFW_FOCUSED)) {
     double mouse_x, mouse_y;
-    glfwGetCursorPos(mWindow, &mouse_x, &mouse_y);
+    glfwGetCursorPos(app.mWindow, &mouse_x, &mouse_y);
     io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
     //} else {
     //    io.MousePos = ImVec2(-1, -1);
     //}
     for(int i = 0; i < 3; i++) {
-        io.MouseDown[i]  = mMousePressed[i] || glfwGetMouseButton(mWindow, i) != 0;
-        mMousePressed[i] = false;
+        io.MouseDown[i]      = app.mMousePressed[i] || glfwGetMouseButton(app.mWindow, i) != 0;
+        app.mMousePressed[i] = false;
     }
-    io.MouseWheel = mMouseWheel;
-    mMouseWheel   = 0.0f;
-    glfwSetInputMode(mWindow, GLFW_CURSOR,
+    io.MouseWheel   = app.mMouseWheel;
+    app.mMouseWheel = 0.0f;
+    glfwSetInputMode(app.mWindow, GLFW_CURSOR,
                      io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
-    io.ClipboardUserData = mWindow;
+    io.ClipboardUserData = app.mWindow;
 #ifdef _WIN32
-    io.ImeWindowHandle = glfwGetWin32Window(mWindow);
+    io.ImeWindowHandle = glfwGetWin32Window(app.mWindow);
 #endif // _WIN32
 }
 
@@ -249,6 +252,7 @@ int Application::run(int argc, char** argv) {
     PluginManager pluginManager;
     pluginManager.init();
 #endif // EMSCRIPTEN
+    ObjectManager objectManager;
 
     // run tests
     doctest::Context context(argc, argv);
@@ -292,7 +296,7 @@ int Application::run(int argc, char** argv) {
 
     // Initialize the application
     reset();
-    m_objectManager.init();
+    objectManager.init();
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -327,7 +331,7 @@ void Application::update() {
 #endif // EMSCRIPTEN
 
     // update game stuff
-    m_objectManager.update();
+    ObjectManager::get().update();
 
     // render
     ImGui::Render();

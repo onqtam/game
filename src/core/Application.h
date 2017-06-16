@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include "utils/singleton.h"
 
-#include "core/ObjectManager.h"
+struct GLFWwindow;
 
 class Application
 {
@@ -14,7 +14,7 @@ class Application
     static void charCallback(GLFWwindow*, unsigned int c);
     static void cursorPosCallback(GLFWwindow*, double x, double y);
 
-    void imguiEvents(float dt);
+    friend void imguiEvents(float dt);
 
 public:
     uint32_t getWidth() const { return mWidth; }
@@ -36,6 +36,4 @@ private:
     float lastTime = 0.f;
     float dt       = 0.f;
     float time     = 0.f;
-
-    ObjectManager m_objectManager;
 };
