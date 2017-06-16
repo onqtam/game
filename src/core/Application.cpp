@@ -117,7 +117,7 @@ static void imguiRender(ImDrawData* drawData) {
             } else if(0 != cmd->ElemCount) {
                 uint64_t state = BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_MSAA;
                 bgfx::TextureHandle th = imguiFontTexture;
-                if(cmd->TextureId != NULL) {
+                if(cmd->TextureId != nullptr) {
                     union
                     {
                         ImTextureID ptr;
@@ -240,18 +240,34 @@ void imguiEvents(float dt) {
 
 HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
 
+// TODO: use a smarter allocator - the important methods here are for the mixin data
+class global_mixin_allocator : public dynamix::global_allocator
+{
+    char* alloc_mixin_data(size_t count) override { return new char[count * mixin_data_size]; }
+    void dealloc_mixin_data(char* ptr) override { delete[] ptr; }
+
+    void alloc_mixin(size_t mixin_size, size_t mixin_alignment, char*& out_buffer,
+                     size_t& out_mixin_offset) override {
+        const size_t size = calculate_mem_size_for_mixin(mixin_size, mixin_alignment);
+        out_buffer        = new char[size];
+        out_mixin_offset  = calculate_mixin_offset(out_buffer, mixin_alignment);
+    }
+    void dealloc_mixin(char* ptr) override { delete[] ptr; }
+};
+
 int Application::run(int argc, char** argv) {
 #ifndef EMSCRIPTEN
-// set cwd to data folder
 #ifdef _WIN32
-    SetCurrentDirectory((Utils::getPathToExe() + "../../../data").c_str());
-#else  // _WIN32
-    chdir((Utils::getPathToExe() + "../../../data").c_str());
+#define HA_SET_DATA_CWD SetCurrentDirectory
+#else // _WIN32
+#define HA_SET_DATA_CWD chdir
 #endif // _WIN32
+    // set cwd to data folder - this is done for emscripten with the --preload-file flag
+    HA_SET_DATA_CWD((Utils::getPathToExe() + "../../../data").c_str());
+    // load plugins first so tests in them get executed as well
     PluginManager pluginManager;
     pluginManager.init();
 #endif // EMSCRIPTEN
-    ObjectManager objectManager;
 
     // run tests
     doctest::Context context(argc, argv);
@@ -259,7 +275,11 @@ int Application::run(int argc, char** argv) {
     if(context.shouldExit())
         return tests_res;
 
-    // Initialize the glfw
+    // setup global dynamix allocator before any objects are created
+    global_mixin_allocator alloc;
+    dynamix::set_global_allocator(&alloc);
+
+    // Initialize glfw
     if(!glfwInit())
         return -1;
 
@@ -288,13 +308,16 @@ int Application::run(int argc, char** argv) {
     platformData.nwh = glfwGetCocoaWindow(mWindow);
 #endif // __APPLE__
     bgfx::setPlatformData(platformData);
-    bgfx::init(bgfx::RendererType::OpenGL); // can also not specify opengl - will choose automatically
+    bgfx::init(bgfx::RendererType::OpenGL); // can also not specify opengl at all
 
     // Setup ImGui
     imguiInit();
 
     // Initialize the application
     reset();
+
+    // create game
+    ObjectManager objectManager;
     objectManager.init();
 
 #ifdef EMSCRIPTEN
@@ -306,6 +329,7 @@ int Application::run(int argc, char** argv) {
 #endif // EMSCRIPTEN
 
     // Shutdown in reverse order of initialization
+    objectManager.shutdown();
     imguiShutdown();
     bgfx::shutdown();
     glfwTerminate();

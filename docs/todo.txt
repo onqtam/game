@@ -1,7 +1,10 @@
 
 
 
-- shader pipeline - and dont force opengl
+- shader pipeline
+- scroll is broken for imgui in browser
+- load geometry
+- static object factory
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
 - asset pipeline from Kosta

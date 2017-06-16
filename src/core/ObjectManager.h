@@ -16,6 +16,7 @@ private:
 public:
     void init();
     void update();
+    int  shutdown();
 
     // TODO: optimize this to not use std::string as key
     void addMixin(dynamix::object& obj, const char* mixin);

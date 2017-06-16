@@ -113,7 +113,7 @@ void ObjectManager::update() {
     //for(auto& global : globals)
     //    cout << global.first << endl;
 
-    ImGui::ShowTestWindow(NULL);
+    ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.getDt();
@@ -154,6 +154,13 @@ void ObjectManager::update() {
             bgfx::submit(0, mProgram);
         }
     }
+}
+
+int ObjectManager::shutdown() {
+    bgfx::destroyIndexBuffer(mIbh);
+    bgfx::destroyVertexBuffer(mVbh);
+    bgfx::destroyProgram(mProgram);
+    return 0;
 }
 
 void ObjectManager::addMixin(dynamix::object& obj, const char* mixin) {
