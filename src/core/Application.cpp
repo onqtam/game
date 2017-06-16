@@ -1,10 +1,13 @@
 #include "Application.h"
 #include "PluginManager.h"
 #include "utils/utils.h"
+#include "core/GraphicsHelpers.h"
 
-#include <bx/fpumath.h>
-#include <bgfx/platform.h>
 #include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+#include <bx/fpumath.h>
+
+#include <imgui.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -17,13 +20,6 @@
 #endif // __APPLE__
 #include <GLFW/glfw3native.h>
 #endif // EMSCRIPTEN
-
-#include <imgui.h>
-#include <fstream>
-
-const bgfx::Memory* loadMemory(const char* filename);
-bgfx::ShaderHandle loadShader(const char* shader);
-bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName);
 
 // =================================================================================================
 // == IMGUI ========================================================================================
@@ -169,10 +165,8 @@ static void imguiSetClipboardText(void* userData, const char* text) {
 }
 
 // =================================================================================================
-// == APPLICATION ==================================================================================
+// == APPLICATION INPUT ============================================================================
 // =================================================================================================
-
-HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
 
 void Application::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     Application* app = (Application*)glfwGetWindowUserPointer(window);
@@ -207,6 +201,12 @@ void Application::charCallback(GLFWwindow*, unsigned int c) {
 
 void Application::cursorPosCallback(GLFWwindow*, double, double) {}
 
+// =================================================================================================
+// == APPLICATION IMPLEMENTATION ===================================================================
+// =================================================================================================
+
+HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
+
 void Application::imguiEvents(float dt) {
     ImGuiIO& io  = ImGui::GetIO();
     io.DeltaTime = dt;
@@ -235,7 +235,7 @@ void Application::imguiEvents(float dt) {
     io.ClipboardUserData = mWindow;
 #ifdef _WIN32
     io.ImeWindowHandle = glfwGetWin32Window(mWindow);
-#endif
+#endif // _WIN32
 }
 
 int Application::run(int argc, char** argv) {
@@ -250,6 +250,7 @@ int Application::run(int argc, char** argv) {
     pluginManager.init();
 #endif // EMSCRIPTEN
 
+    // run tests
     doctest::Context context(argc, argv);
     int              tests_res = context.run();
     if(context.shouldExit())
@@ -284,7 +285,6 @@ int Application::run(int argc, char** argv) {
     platformData.nwh = glfwGetCocoaWindow(mWindow);
 #endif // __APPLE__
     bgfx::setPlatformData(platformData);
-
     bgfx::init(bgfx::RendererType::OpenGL);
 
     // Setup ImGui
@@ -292,7 +292,7 @@ int Application::run(int argc, char** argv) {
 
     // Initialize the application
     reset();
-    initialize(argc, argv);
+    m_objectManager.init();
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -302,54 +302,11 @@ int Application::run(int argc, char** argv) {
         update();
 #endif // EMSCRIPTEN
 
-    // Shutdown application and glfw
-    int ret = shutdown();
+    // Shutdown in reverse order of initialization
     imguiShutdown();
     bgfx::shutdown();
     glfwTerminate();
-    return tests_res + ret;
-}
-
-bgfx::ProgramHandle      mProgram;
-bgfx::VertexBufferHandle mVbh;
-bgfx::IndexBufferHandle  mIbh;
-
-// vertex declarations
-struct PosColorVertex
-{
-    float                   x;
-    float                   y;
-    float                   z;
-    uint32_t                abgr;
-    static void             init();
-    static bgfx::VertexDecl ms_decl;
-};
-
-static PosColorVertex s_cubeVertices[] = {
-        {-1.0f, 1.0f, 1.0f, 0xff000000},   {1.0f, 1.0f, 1.0f, 0xff0000ff},
-        {-1.0f, -1.0f, 1.0f, 0xff00ff00},  {1.0f, -1.0f, 1.0f, 0xff00ffff},
-        {-1.0f, 1.0f, -1.0f, 0xffff0000},  {1.0f, 1.0f, -1.0f, 0xffff00ff},
-        {-1.0f, -1.0f, -1.0f, 0xffffff00}, {1.0f, -1.0f, -1.0f, 0xffffffff},
-};
-static const uint16_t s_cubeTriList[] = {
-        0, 1, 2, 1, 3, 2, 4, 6, 5, 5, 6, 7, 0, 2, 4, 4, 2, 6,
-        1, 5, 3, 5, 7, 3, 0, 4, 1, 4, 5, 1, 2, 3, 6, 6, 3, 7,
-};
-static const uint16_t s_cubeTriStrip[] = {
-        0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
-};
-
-void Application::initialize(int argc, char** argv) {
-    // Setup vertex declarations
-    PosColorVertex::init();
-
-    mProgram = loadProgram("shaders/glsl/vs_cubes.bin", "shaders/glsl/fs_cubes.bin");
-    mVbh     = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
-                                    PosColorVertex::ms_decl);
-    mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
-    bgfx::setDebug(BGFX_DEBUG_TEXT);
-
-    m_objectManager.init();
+    return tests_res;
 }
 
 void Application::update() {
@@ -357,62 +314,30 @@ void Application::update() {
     dt       = time - lastTime;
     lastTime = time;
 
+    // events
     glfwPollEvents();
+
+    // imgui
     imguiEvents(dt);
     ImGui::NewFrame();
 
-    // update game stuff
-
-    ImGui::ShowTestWindow(NULL);
-
 #ifndef EMSCRIPTEN
+    // reload plugins
     PluginManager::get().update();
 #endif // EMSCRIPTEN
-    //m_objectManager.update();
 
-    bgfx::dbgTextClear();
-    bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/01-cube");
-    ;
-    bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Rendering simple static mesh.");
-    bgfx::dbgTextPrintf(0, 3, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
-
-    float at[3]  = {0.0f, 0.0f, 0.0f};
-    float eye[3] = {0.0f, 0.0f, -35.0f};
-
-    // Set view and projection matrix for view 0.
-    float view[16];
-    bx::mtxLookAt(view, eye, at);
-    float proj[16];
-    bx::mtxProj(proj, 60.0f, float(getWidth()) / float(getHeight()), 0.1f, 100.0f,
-                bgfx::getCaps()->homogeneousDepth);
-    bgfx::setViewTransform(0, view, proj);
-
-    // Set view 0 default viewport.
-    bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
-    bgfx::touch(0);
-    for(uint32_t yy = 0; yy < 11; ++yy) {
-        for(uint32_t xx = 0; xx < 11; ++xx) {
-            float mtx[16];
-            bx::mtxRotateXY(mtx, time + xx * 0.21f, time + yy * 0.37f);
-            mtx[12] = -15.0f + float(xx) * 3.0f;
-            mtx[13] = -15.0f + float(yy) * 3.0f;
-            mtx[14] = 0.0f;
-            bgfx::setTransform(mtx);
-            bgfx::setVertexBuffer(0, mVbh);
-            bgfx::setIndexBuffer(mIbh);
-            bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-            bgfx::submit(0, mProgram);
-        }
-    }
+    // update game stuff
+    m_objectManager.update();
 
     // render
-
     ImGui::Render();
     bgfx::frame();
 
+    // check if should close
     if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(mWindow, GL_TRUE);
 
+    // handle resizing
     int w, h;
     glfwGetWindowSize(mWindow, &w, &h);
     if(w != mWidth || h != mHeight) {
@@ -422,44 +347,9 @@ void Application::update() {
     }
 }
 
-int Application::shutdown() const { return 0; }
-
 void Application::reset(uint32_t flags) {
     mReset = flags;
     bgfx::reset(mWidth, mHeight, mReset);
-    onReset();
-}
-
-void Application::onReset() const {
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
-}
-
-void PosColorVertex::init() {
-    ms_decl.begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
-};
-
-bgfx::VertexDecl PosColorVertex::ms_decl;
-
-const bgfx::Memory* loadMemory(const char* filename) {
-    std::ifstream   file(filename, std::ios::binary | std::ios::ate);
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    const bgfx::Memory* mem = bgfx::alloc(uint32_t(size + 1));
-    if(file.read((char*)mem->data, size)) {
-        mem->data[mem->size - 1] = '\0';
-        return mem;
-    }
-    return nullptr;
-}
-
-bgfx::ShaderHandle loadShader(const char* shader) { return bgfx::createShader(loadMemory(shader)); }
-
-bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName) {
-    bgfx::ShaderHandle vs = loadShader(vsName);
-    bgfx::ShaderHandle fs = loadShader(fsName);
-    return bgfx::createProgram(vs, fs, true);
 }

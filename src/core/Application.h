@@ -17,16 +17,13 @@ class Application
     void imguiEvents(float dt);
 
 public:
-    int run(int argc, char** argv);
-
-    void reset(uint32_t flags = 0);
     uint32_t getWidth() const { return mWidth; }
     uint32_t getHeight() const { return mHeight; }
+    float    getDt() const { return dt; }
 
-    void initialize(int argc, char** argv);
+    int run(int argc, char** argv);
     void update();
-    int  shutdown() const;
-    void onReset() const;
+    void reset(uint32_t flags = 0);
 
 private:
     GLFWwindow* mWindow;
