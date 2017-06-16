@@ -203,13 +203,7 @@ void Application::charCallback(GLFWwindow*, unsigned int c) {
 
 void Application::cursorPosCallback(GLFWwindow*, double, double) {}
 
-// =================================================================================================
-// == APPLICATION IMPLEMENTATION ===================================================================
-// =================================================================================================
-
-HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
-
-static void imguiEvents(float dt) {
+void imguiEvents(float dt) {
     Application& app = Application::get();
     ImGuiIO&     io  = ImGui::GetIO();
     io.DeltaTime     = dt;
@@ -240,6 +234,12 @@ static void imguiEvents(float dt) {
     io.ImeWindowHandle = glfwGetWin32Window(app.mWindow);
 #endif // _WIN32
 }
+
+// =================================================================================================
+// == APPLICATION IMPLEMENTATION ===================================================================
+// =================================================================================================
+
+HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
 
 int Application::run(int argc, char** argv) {
 #ifndef EMSCRIPTEN

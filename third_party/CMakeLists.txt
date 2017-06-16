@@ -73,6 +73,13 @@ set_target_properties(iqa           PROPERTIES FOLDER "third_party/bgfx/3rdparty
 set_target_properties(nvtt          PROPERTIES FOLDER "third_party/bgfx/3rdparty")
 set_target_properties(pvrtc         PROPERTIES FOLDER "third_party/bgfx/3rdparty")
 set_target_properties(squish        PROPERTIES FOLDER "third_party/bgfx/3rdparty")
+if(TOOLCHAIN STREQUAL "js")
+    # remove BGFX_CONFIG_DEBUG for emscripten builds - otherwise all harmless checks in bgfx that
+    # fail would crash the app from a debugBreak() - this gets added by bgfx.cmake/cmake/bgfx.cmake
+    get_target_property(bgfx_cd bgfx COMPILE_DEFINITIONS)
+    string(REPLACE "$<$<CONFIG:Debug>:BGFX_CONFIG_DEBUG=1>" "" bgfx_cd "${bgfx_cd}")
+    set_target_properties(bgfx PROPERTIES COMPILE_DEFINITIONS "${bgfx_cd}")
+endif()
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glfw
