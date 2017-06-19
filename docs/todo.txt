@@ -1,12 +1,12 @@
 
 
 
-- scroll is broken for imgui in browser
-- load geometry
-- static object factory
+- camera
+- static mesh factory
+- shader compiler - write my own cmake (also should probably have a committed binary from a release build which to use)
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
-- asset pipeline from Kosta
+- asset pipeline from Kosta - must have
 
 
 
@@ -14,7 +14,6 @@ integrate typesafe stuff
 https://github.com/Microsoft/GSL
 https://github.com/foonathan/type_safe
 https://github.com/nholthaus/units
-
 
 
 

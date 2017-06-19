@@ -23,6 +23,9 @@ bgfx::ProgramHandle      mProgram;
 bgfx::VertexBufferHandle mVbh;
 bgfx::IndexBufferHandle  mIbh;
 
+Mesh*               m_mesh;
+bgfx::ProgramHandle m_program;
+
 // vertex declarations
 struct PosColorVertex
 {
@@ -98,6 +101,9 @@ void ObjectManager::init() {
                                     PosColorVertex::ms_decl);
     mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
     bgfx::setDebug(BGFX_DEBUG_TEXT);
+
+    m_mesh    = meshLoad("meshes/bunny.bin");
+    m_program = loadProgram("mesh_vs", "mesh_fs");
 }
 
 void ObjectManager::update() {
@@ -154,9 +160,23 @@ void ObjectManager::update() {
             bgfx::submit(0, mProgram);
         }
     }
+
+    float mtx1[16];
+    bx::mtxRotateXY(mtx1, 0.0f, time * 0.37f);
+
+    float mtx2[16];
+    bx::mtxScale(mtx2, 10.0f);
+
+    float mtx[16];
+    bx::mtxMul(mtx, mtx2, mtx1);
+
+    meshSubmit(m_mesh, 0, m_program, mtx);
 }
 
 int ObjectManager::shutdown() {
+    bgfx::destroyProgram(m_program);
+    meshUnload(m_mesh);
+
     bgfx::destroyIndexBuffer(mIbh);
     bgfx::destroyVertexBuffer(mVbh);
     bgfx::destroyProgram(mProgram);

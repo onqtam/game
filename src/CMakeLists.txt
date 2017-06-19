@@ -5,12 +5,12 @@ include_directories("./")
 # == SHADERS =======================================================================================
 
 if(NOT TOOLCHAIN STREQUAL "js")
-    FILE(GLOB shaders_vs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_vs.sc)
+    FILE(GLOB_RECURSE shaders_vs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_vs.sc)
     foreach(vs ${shaders_vs})
         add_shader(${vs} VERTEX   OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
     endforeach()
     
-    FILE(GLOB shaders_fs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_fs.sc)
+    FILE(GLOB_RECURSE shaders_fs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_fs.sc)
     foreach(fs ${shaders_fs})
         add_shader(${fs} FRAGMENT OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
     endforeach()

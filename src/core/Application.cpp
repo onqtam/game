@@ -177,6 +177,10 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
 
 void Application::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     Application* app = (Application*)glfwGetWindowUserPointer(window);
+#ifdef EMSCRIPTEN
+    yoffset *=
+            -0.01; // fix emscripten/glfw bug - probably related to this: https://github.com/kripken/emscripten/issues/3171
+#endif             // EMSCRIPTEN
     app->mMouseWheel += (float)yoffset;
 }
 
@@ -211,6 +215,7 @@ void imguiEvents(float dt) {
     glfwGetWindowSize(app.mWindow, &w, &h);
     glfwGetFramebufferSize(app.mWindow, &displayW, &displayH);
     io.DisplaySize = ImVec2((float)w, (float)h);
+    io.IniFilename = ""; //"imgui.ini";
     io.DisplayFramebufferScale =
             ImVec2(w > 0 ? ((float)displayW / w) : 0, h > 0 ? ((float)displayH / h) : 0);
     //if(glfwGetWindowAttrib(app.mWindow, GLFW_FOCUSED)) {
