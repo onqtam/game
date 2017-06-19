@@ -2,6 +2,25 @@
 
 include_directories("./")
 
+# == SHADERS =======================================================================================
+
+if(NOT TOOLCHAIN STREQUAL "js")
+    FILE(GLOB shaders_vs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_vs.sc)
+    foreach(vs ${shaders_vs})
+        add_shader(${vs} VERTEX   OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
+    endforeach()
+    
+    FILE(GLOB shaders_fs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_fs.sc)
+    foreach(fs ${shaders_fs})
+        add_shader(${fs} FRAGMENT OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
+    endforeach()
+    
+    # add the shaders to the project so they are actually included in the build...
+    set(SOURCES ${shaders_vs} ${shaders_fs})
+endif()
+
+# == GAME ==========================================================================================
+
 if(TOOLCHAIN STREQUAL "js")
     # this is needed because the creation of the pch cant find the include paths even when
     # target_include_directories is used (or interface stuff from target_link_libraries)

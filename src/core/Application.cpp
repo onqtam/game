@@ -57,7 +57,7 @@ static void imguiInit() {
     imguiFontUniform = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
 
     // Create shader program
-    imguiProgram = loadProgram("vs_ocornut_imgui", "fs_ocornut_imgui");
+    imguiProgram = loadProgram("ocornut_imgui_vs", "ocornut_imgui_fs");
 
     // Setup render callback
     io.RenderDrawListsFn = imguiRender;

@@ -93,7 +93,7 @@ void ObjectManager::init() {
     // Setup vertex declarations
     PosColorVertex::init();
 
-    mProgram = loadProgram("vs_cubes", "fs_cubes");
+    mProgram = loadProgram("cubes_vs", "cubes_fs");
     mVbh     = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
                                     PosColorVertex::ms_decl);
     mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
