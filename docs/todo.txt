@@ -1,7 +1,6 @@
 
 
 
-- shader pipeline
 - scroll is broken for imgui in browser
 - load geometry
 - static object factory
