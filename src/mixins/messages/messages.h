@@ -6,6 +6,7 @@
 HARDLY_SUPPRESS_WARNINGS
 
 #include <dynamix/dynamix.hpp>
+#include <glm/glm.hpp>
 #include <sajson/include/sajson.h>
 #include <dynamix/gen/no_arity_message_macros.hpp>
 
@@ -28,7 +29,7 @@ DYNAMIX_EXPORTED_MULTICAST_MESSAGE_1(MESSAGES_PUBLIC, void, deserialize, const s
 DYNAMIX_EXPORTED_MESSAGE_1(MESSAGES_PUBLIC, void, set_id, int, id)
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(MESSAGES_PUBLIC, int, get_id)
 
-DYNAMIX_EXPORTED_MESSAGE_1(MESSAGES_PUBLIC, void, add_value, int, value)
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(MESSAGES_PUBLIC, int, get_value)
+DYNAMIX_EXPORTED_MESSAGE_1(MESSAGES_PUBLIC, void, set_pos, const glm::vec3&, pos)
+DYNAMIX_EXPORTED_CONST_MESSAGE_0(MESSAGES_PUBLIC, const glm::vec3&, get_pos)
 
 HARDLY_SUPPRESS_WARNINGS_END

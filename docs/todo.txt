@@ -1,12 +1,15 @@
 
-
+callbacks for events or just inspecting the current input state
+naming convention - underscores?
 
 - camera
+- controls
+- make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
 - static mesh factory
-- shader compiler - write my own cmake (also should probably have a committed binary from a release build which to use)
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
 - asset pipeline from Kosta - must have
+
 
 
 
@@ -15,7 +18,8 @@ https://github.com/Microsoft/GSL
 https://github.com/foonathan/type_safe
 https://github.com/nholthaus/units
 
-
+== bugs:
+gcc cannot build shaders - it hangs
 
 == engine:
 - on floating point:
@@ -49,6 +53,10 @@ https://github.com/nholthaus/units
 
 == graphics:
 https://github.com/andr3wmac/lightmapper_bgfx
+- shader compiler
+    - should probably have a committed binary from a release build which to use
+    - write my own cmake
+    - build a shader with different defines
 
 == profiler:
 - the one from chobo

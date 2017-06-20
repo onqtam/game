@@ -13,6 +13,7 @@
 
 HARDLY_SUPPRESS_WARNINGS
 #include <sajson/include/sajson.h>
+#include <glm/glm/glm.hpp>
 HARDLY_SUPPRESS_WARNINGS_END
 
 #include <string>
@@ -29,3 +30,6 @@ SERIALIZATION_PUBLIC void deserialize(int& data, const sajson::value& val);
 SERIALIZATION_PUBLIC void deserialize(float& data, const sajson::value& val);
 SERIALIZATION_PUBLIC void deserialize(double& data, const sajson::value& val);
 SERIALIZATION_PUBLIC void deserialize(bool& data, const sajson::value& val);
+
+SERIALIZATION_PUBLIC void serialize(const glm::vec3& data, JsonData& out);
+SERIALIZATION_PUBLIC void deserialize(glm::vec3& data, const sajson::value& val);

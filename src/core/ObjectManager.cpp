@@ -4,8 +4,6 @@
 #include <iostream>
 
 #include "mixins/messages/messages.h"
-//#include "mixins/mixins/common_mixin_fwd.h"
-//#include "mixins/mixins/exe_mixin_fwd.h"
 
 #include "core/registry/registry.h"
 #include "serialization/JsonData.h"
@@ -65,10 +63,10 @@ void ObjectManager::init() {
     for(auto& mixin : mixins)
         cout << mixin.first << endl;
 
-    addMixin(m_object, "common_mixin");
-    //addMixin(m_object, "exe_mixin");
+    dynamix::object& m_object = get_object(new_object());
 
-    set_id(m_object, 42);
+    m_camera = new_object();
+    addMixin(get_object(m_camera), "camera");
 
     addMixin(m_object, "dummy");
 
@@ -181,6 +179,17 @@ int ObjectManager::shutdown() {
     bgfx::destroyVertexBuffer(mVbh);
     bgfx::destroyProgram(mProgram);
     return 0;
+}
+
+int ObjectManager::new_object() {
+    auto it = m_objects.emplace(m_curr_id, dynamix::object());
+    addMixin(it.first->second, "common");
+    set_id(it.first->second, m_curr_id);
+    return m_curr_id++;
+}
+
+dynamix::object& ObjectManager::get_object(int id) {
+    return m_objects[id];
 }
 
 void ObjectManager::addMixin(dynamix::object& obj, const char* mixin) {

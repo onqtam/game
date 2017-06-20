@@ -15,6 +15,8 @@ if(NOT TOOLCHAIN STREQUAL "js")
         add_shader(${fs} FRAGMENT OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
     endforeach()
     
+    #shaderc.exe -f D:/game/data/shaders/raw/cubes/cubes_fs.sc -i D:/game/third_party/bgfx/src -o D:/game/data/shaders/gles/cubes_fs.bin --platform android --type fragment
+    
     # add the shaders to the project so they are actually included in the build...
     set(SOURCES ${shaders_vs} ${shaders_fs})
 endif()
@@ -57,7 +59,7 @@ add_mix_dirs(TO SOURCES "mixins/mixins")
 
 add_mix_dirs(TO messages_src "mixins/messages")
 add_library(messages SHARED ${messages_src})
-target_link_libraries(messages dynamix sajson)
+target_link_libraries(messages dynamix sajson glm)
 
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
 target_link_libraries(doctest_runner PUBLIC doctest)
