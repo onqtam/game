@@ -1,10 +1,9 @@
 
 callbacks for events or just inspecting the current input state
-naming convention - underscores?
+naming convention - underscores? and for files? no caps?
 
 - camera
 - controls
-- make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
 - static mesh factory
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
@@ -27,9 +26,9 @@ gcc cannot build shaders - it hangs
     - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 == build system:
+- make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
 - warnings
 - shared precompiled headers for plugins...?
-- hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
 - make a proper release config - with LTO, no plugins, etc.
 - ability to have only the game code in the solution - no third parties
 - be able to build everything in release except for gameplay code (debug iterators?)
@@ -153,7 +152,8 @@ https://github.com/andr3wmac/lightmapper_bgfx
     - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
 
 == plugin hot swap system:
-- on demand reloading - instead of automatic polling
+- hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
+- optional on demand reloading - instead of automatic polling
 - background compiler process
 - catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
 - serialization and field mapping to be only by name and not type - so a float could go to a double

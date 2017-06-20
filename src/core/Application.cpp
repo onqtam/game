@@ -173,6 +173,10 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
     Application* app = (Application*)glfwGetWindowUserPointer(window);
     if(action == GLFW_PRESS && button >= 0 && button < 3)
         app->mMousePressed[button] = true;
+
+    InputEvent ev;
+    ev.button = {InputEvent::MOUSE_BUTTON, button, action};
+    Application::get().addInputEvent(ev);
 }
 
 void Application::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -182,6 +186,10 @@ void Application::scrollCallback(GLFWwindow* window, double xoffset, double yoff
             -0.01; // fix emscripten/glfw bug - probably related to this: https://github.com/kripken/emscripten/issues/3171
 #endif             // EMSCRIPTEN
     app->mMouseWheel += (float)yoffset;
+
+    InputEvent ev;
+    ev.motion = {InputEvent::MOUSE_MOTION, 0.0, 0.0, 0.0, 0.0, yoffset};
+    Application::get().addInputEvent(ev);
 }
 
 void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
@@ -196,6 +204,10 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
     io.KeyAlt   = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+
+    InputEvent ev;
+    ev.key = {InputEvent::KEYPRESS, key, action, mods};
+    Application::get().addInputEvent(ev);
 }
 
 void Application::charCallback(GLFWwindow*, unsigned int c) {
@@ -204,7 +216,16 @@ void Application::charCallback(GLFWwindow*, unsigned int c) {
         io.AddInputCharacter((unsigned short)c);
 }
 
-void Application::cursorPosCallback(GLFWwindow*, double, double) {}
+void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
+    static double last_x = 0.0;
+    static double last_y = 0.0;
+    InputEvent    ev;
+    ev.motion = {InputEvent::MOUSE_MOTION, x, y, x - last_x, y - last_y, 0.0};
+    last_x    = x;
+    last_y    = y;
+
+    Application::get().addInputEvent(ev);
+}
 
 void imguiEvents(float dt) {
     Application& app = Application::get();
@@ -214,17 +235,12 @@ void imguiEvents(float dt) {
     int displayW, displayH;
     glfwGetWindowSize(app.mWindow, &w, &h);
     glfwGetFramebufferSize(app.mWindow, &displayW, &displayH);
-    io.DisplaySize = ImVec2((float)w, (float)h);
-    io.IniFilename = ""; //"imgui.ini";
-    io.DisplayFramebufferScale =
-            ImVec2(w > 0 ? ((float)displayW / w) : 0, h > 0 ? ((float)displayH / h) : 0);
-    //if(glfwGetWindowAttrib(app.mWindow, GLFW_FOCUSED)) {
+    io.DisplaySize             = ImVec2((float)w, (float)h);
+    io.IniFilename             = ""; //"imgui.ini";
+    io.DisplayFramebufferScale = ImVec2((float)displayW / w, (float)displayH / h);
     double mouse_x, mouse_y;
     glfwGetCursorPos(app.mWindow, &mouse_x, &mouse_y);
     io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
-    //} else {
-    //    io.MousePos = ImVec2(-1, -1);
-    //}
     for(int i = 0; i < 3; i++) {
         io.MouseDown[i]      = app.mMousePressed[i] || glfwGetMouseButton(app.mWindow, i) != 0;
         app.mMousePressed[i] = false;
@@ -341,16 +357,27 @@ int Application::run(int argc, char** argv) {
     return tests_res;
 }
 
+void Application::processEvents() {
+    // events
+    glfwPollEvents();
+
+    for(size_t i = 0; i < m_inputs.size(); ++i) {
+        // m_inputs[i]
+    }
+    m_inputs.clear();
+
+    // imgui
+    imguiEvents(dt);
+}
+
 void Application::update() {
     time     = (float)glfwGetTime();
     dt       = time - lastTime;
     lastTime = time;
 
-    // events
-    glfwPollEvents();
+    processEvents();
 
     // imgui
-    imguiEvents(dt);
     ImGui::NewFrame();
 
 #ifndef EMSCRIPTEN

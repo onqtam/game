@@ -64,32 +64,32 @@ void ObjectManager::init() {
         cout << mixin.first << endl;
 
     dynamix::object& m_object = get_object(new_object());
+    addMixin(m_object, "dummy");
 
     m_camera = new_object();
     addMixin(get_object(m_camera), "camera");
 
-    addMixin(m_object, "dummy");
 
-    dynamix::object o1, o2, o3, o4;
+    //dynamix::object o1, o2, o3, o4;
 
-    addMixin(o1, "dummy");
-    addMixin(o2, "dummy");
-    addMixin(o3, "dummy");
-    remMixin(o1, "dummy");
-    addMixin(o4, "dummy");
+    //addMixin(o1, "dummy");
+    //addMixin(o2, "dummy");
+    //addMixin(o3, "dummy");
+    //remMixin(o1, "dummy");
+    //addMixin(o4, "dummy");
 
-    addMixin(m_object, "trololo");
+    //addMixin(m_object, "trololo");
 
-    JsonData state;
-    state.reserve(1000);
-    state.startObject();
-    serialize(m_object, state);
-    state.endObject();
+    //JsonData state;
+    //state.reserve(1000);
+    //state.startObject();
+    //serialize(m_object, state);
+    //state.endObject();
 
-    const sajson::document& doc = state.parse();
-    PPK_ASSERT(doc.is_valid());
-    const sajson::value root = doc.get_root();
-    deserialize(m_object, root);
+    //const sajson::document& doc = state.parse();
+    //PPK_ASSERT(doc.is_valid());
+    //const sajson::value root = doc.get_root();
+    //deserialize(m_object, root);
 
     // Setup vertex declarations
     PosColorVertex::init();

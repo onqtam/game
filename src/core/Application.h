@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/singleton.h"
+#include "InputEvent.h"
 
 struct GLFWwindow;
 
@@ -16,16 +17,22 @@ class Application
 
     friend void imguiEvents(float dt);
 
+    void addInputEvent(const InputEvent& ev) { m_inputs.push_back(ev); }
+
 public:
     uint32_t getWidth() const { return mWidth; }
     uint32_t getHeight() const { return mHeight; }
     float    getDt() const { return dt; }
 
     int run(int argc, char** argv);
+    void processEvents();
     void update();
     void reset(uint32_t flags = 0);
 
 private:
+
+    std::vector<InputEvent> m_inputs;
+
     GLFWwindow* mWindow;
     uint32_t    mReset;
     uint32_t    mWidth           = 1280;
