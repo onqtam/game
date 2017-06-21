@@ -154,7 +154,7 @@ void PluginManager::init() {
     }
 
     // start the file watcher
-    fileWatcher.addWatch("./", this, false);
+    fileWatcher.addWatch(Utils::getPathToExe(), this, false);
 }
 
 void PluginManager::update() { fileWatcher.update(); }

@@ -14,7 +14,7 @@
 
 using namespace dynamix;
 
-class camera : public camera_gen, public InputEventListener<camera>
+class camera : public camera_gen//, public InputEventListener<camera>
 {
     HARDLY_MESSAGES_IN_MIXIN(common)
 public:
@@ -24,7 +24,7 @@ public:
         glm::vec3 pos = get_pos(dm_this);
 
         float at[3]  = {0.0f, 0.0f, 0.0f};
-        float eye[3] = {0.0f, 0.0f, -35.0f};
+        float eye[3] = {0.0f, 0.0f, -65.0f};
 
         //return glm::lookAt(glm::vec3(pos.x, pos.y + 30, pos.z), glm::vec3(pos.x, pos.y - 30, pos.z), glm::vec3(0, 1, 0));
 
@@ -40,8 +40,11 @@ public:
     const glm::mat4& get_projection_matrix() {
         float proj[16];
         bx::mtxProj(proj, 60.0f,
-                    float(Application::get().getWidth()) / float(Application::get().getHeight()),
+                    float(1280) / float(768),
                     0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth);
+        //bx::mtxProj(proj, 60.0f,
+        //            float(Application::get().getWidth()) / float(Application::get().getHeight()),
+        //            0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth);
         return glm::mat4(proj[0], proj[1], proj[2], proj[3],   //
                          proj[4], proj[5], proj[6], proj[7],   //
                          proj[8], proj[9], proj[10], proj[11], //
