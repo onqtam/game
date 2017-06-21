@@ -1,8 +1,8 @@
+#include "common_gen.h"
+
 #include "core/registry/registry.h"
 
 #include "mixins/messages/messages.h"
-
-#include "common_gen.h"
 
 #include <iostream>
 
@@ -23,4 +23,4 @@ public:
 
 void common::trace(std::ostream& o) const { o << " object with id " << id << std::endl; }
 
-HARDLY_MIXIN(common, get_id_msg& set_id_msg& priority(1000, trace_msg));
+HARDLY_MIXIN(common, get_id_msg& set_id_msg& get_pos_msg& set_pos_msg& priority(1000, trace_msg));

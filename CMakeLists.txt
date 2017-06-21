@@ -53,6 +53,7 @@ set(BOOST_DIR "boost_1_64_0")
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
 
 include_directories("third_party/${BOOST_DIR}")
+include_directories("third_party/glm")
 
 if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")

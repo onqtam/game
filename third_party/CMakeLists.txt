@@ -3,26 +3,25 @@ ucm_add_flags(${third_party_compiler_flags})
 # LIBRARY format
 #add_subdirectory(format)
 
-#ucm_add_files("format/format.h" "format/format.cc" TO format.sources TRIM_FILTER 1)
+#ucm_add_files("format/format.h" "format/format.cc" TO format.sources FILTER_POP 1)
 #add_library(format STATIC ${format.sources})
 
 # LIBRARY glm
-#ucm_add_dirs("glm/glm" TO glm.sources REC TRIM_FILTER 2)
-#ucm_remove_files("glm/glm/detail/glm.cpp" "glm/glm/detail/dummy.cpp" TO glm.sources)
-
-#add_library(glm STATIC ${glm.sources})
-#set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
-
-# LIBRARY glm
-add_library(glm INTERFACE)
-target_include_directories(glm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+ucm_add_dirs("glm/glm" TO glm.sources RECURSIVE FILTER_POP 2)
+ucm_remove_files("glm/glm/detail/glm.cpp" "glm/glm/detail/dummy.cpp" FROM glm.sources)
+add_library(glm STATIC ${glm.sources})
+#add_library(glm INTERFACE)
+#target_sources(glm INTERFACE ${glm.sources})
+#target_include_directories(glm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(glm PROPERTIES FOLDER "third_party")
 
 # LIBRARY sajson
 add_library(sajson INTERFACE)
 target_include_directories(sajson INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # LIBRARY imgui
-ucm_add_dirs("imgui" TO imgui.sources REC FILTER_POP 1)
+ucm_add_dirs("imgui" TO imgui.sources FILTER_POP 1)
 add_library(imgui STATIC "${imgui.sources}")
 target_include_directories(imgui INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 set_target_properties(imgui PROPERTIES FOLDER "third_party")

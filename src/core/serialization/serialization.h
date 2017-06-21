@@ -10,10 +10,10 @@
 #endif
 
 #include "utils/suppress_warnings.h"
+#include "utils/glm_proxy.h"
 
 HARDLY_SUPPRESS_WARNINGS
 #include <sajson/include/sajson.h>
-#include <glm/glm/glm.hpp>
 HARDLY_SUPPRESS_WARNINGS_END
 
 #include <string>

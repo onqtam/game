@@ -29,14 +29,13 @@ if(TOOLCHAIN STREQUAL "js")
     include_directories("../third_party/dynamix/include")
     include_directories("../third_party/ppk_assert")
     include_directories("../third_party/doctest/doctest")
-    include_directories("../third_party/glm")
 endif()
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
 add_mix_dirs(TO utils_src "utils" FILTER_POP 2)
 add_library(utils STATIC ${utils_src})
-target_link_libraries(utils PUBLIC doctest glm ppk_assert)
+target_link_libraries(utils PUBLIC doctest ppk_assert)
 add_fPIC_to_target(utils)
 
 add_mix_dirs(TO serialization_src "core/serialization" FILTER_POP 2)
@@ -55,11 +54,11 @@ ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
 add_mix_dirs(TO SOURCES "core")
-add_mix_dirs(TO SOURCES "mixins/mixins")
+#add_mix_dirs(TO SOURCES "mixins/mixins")
 
 add_mix_dirs(TO messages_src "mixins/messages")
 add_library(messages SHARED ${messages_src})
-target_link_libraries(messages dynamix sajson glm)
+target_link_libraries(messages dynamix sajson)
 
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
 target_link_libraries(doctest_runner PUBLIC doctest)
@@ -71,6 +70,11 @@ add_mixin(NAME dummy ${dummy_src} LINK_TO messages)
 
 add_mix_dirs(TO omg_src "plugins/omg" FILTER_POP 2)
 add_mixin(NAME omg ${omg_src} LINK_TO messages)
+
+add_mix_dirs(TO mixins.src "mixins/mixins" FILTER_POP 1)
+add_mixin(NAME mixins ${mixins.src} LINK_TO messages)
+
+target_link_libraries(mixins bgfx bx)
 
 # ========= PLUGINS END =========
 
@@ -99,7 +103,6 @@ target_link_libraries(game bgfx ib-compress)
 
 target_link_libraries(game messages)
 target_link_libraries(game dynamix)
-target_link_libraries(game glm)
 target_link_libraries(game ppk_assert)
 target_link_libraries(game imgui)
 target_link_libraries(game registry)

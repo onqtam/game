@@ -1,5 +1,5 @@
 
-naming convention - underscores? and for files? no caps?
+namespaces for messages - domains?
 
 - camera
 - controls
@@ -12,10 +12,9 @@ naming convention - underscores? and for files? no caps?
 extend dynamix::object to be able to inherit a user type
 
 
-integrate typesafe stuff
-https://github.com/Microsoft/GSL
-https://github.com/foonathan/type_safe
-https://github.com/nholthaus/units
+== questions:
+naming convention - underscores? and for files? no caps?
+glm/yama/bgfx math?
 
 == bugs:
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
@@ -36,6 +35,7 @@ CI - appveyor emscripten build fails for some reason
 - be able to build everything in release except for gameplay code (debug iterators?)
 - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
 - unity builds
+- consider including parts of glm as needed and not the entire thing - also read the manual again
 
 == assets:
 - https://github.com/tlorach/Bak3d
@@ -46,7 +46,6 @@ CI - appveyor emscripten build fails for some reason
 - look into https://github.com/macton/DDLParser
 
 == random:
-- check if vs 2015 - need to set cwd
 - filesystem watcher for added files - touches root cmake file (in python)
 - decouple rendering/logic in separate threads
 - test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
@@ -55,10 +54,10 @@ CI - appveyor emscripten build fails for some reason
 
 == graphics:
 https://github.com/andr3wmac/lightmapper_bgfx
-- shader compiler
-    - should probably have a committed binary from a release build which to use
-    - write my own cmake
-    - build a shader with different defines
+shader compiler
+    should probably have a committed binary from a release build which to use
+    write my own cmake
+    build a shader with different defines
 
 == profiler:
 - the one from chobo
@@ -104,6 +103,10 @@ https://github.com/andr3wmac/lightmapper_bgfx
 - checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
 
 == libraries:
+integrate typesafe stuff
+    https://github.com/Microsoft/GSL
+    https://github.com/foonathan/type_safe
+    https://github.com/nholthaus/units
 - UI
     - librocket
     - turbobadger

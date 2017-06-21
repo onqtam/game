@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "mixins/messages/messages.h"
+#include "mixins/messages/messages_camera.h"
 
 #include "core/registry/registry.h"
 #include "serialization/JsonData.h"
@@ -128,18 +129,14 @@ void ObjectManager::update() {
     bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Rendering simple static mesh.");
     bgfx::dbgTextPrintf(0, 3, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
-    //get_object(m_camera);
-
-    float at[3]  = {0.0f, 0.0f, 0.0f};
-    float eye[3] = {0.0f, 0.0f, -35.0f};
-
     // Set view and projection matrix for view 0.
-    float view[16];
-    bx::mtxLookAt(view, eye, at);
-    float proj[16];
-    bx::mtxProj(proj, 60.0f, float(app.getWidth()) / float(app.getHeight()), 0.1f, 100.0f,
-                bgfx::getCaps()->homogeneousDepth);
-    bgfx::setViewTransform(0, view, proj);
+    
+    glm::mat4 view = get_view_matrix(get_object(m_camera));
+    glm::mat4 proj = get_projection_matrix(get_object(m_camera));
+
+    bgfx::setViewTransform(0, (float*)&view, (float*)&proj);
+
+    //glm::perspective
 
     // Set view 0 default viewport.
     bgfx::setViewRect(0, 0, 0, uint16_t(app.getWidth()), uint16_t(app.getHeight()));
