@@ -19,8 +19,9 @@ public:
     void init();
     void update();
     int  shutdown();
-
-    int new_object();
+    
+    int new_object_id();
+    dynamix::object& new_object();
     dynamix::object& get_object(int id);
 
     // TODO: optimize this to not use std::string as key

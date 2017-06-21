@@ -63,10 +63,10 @@ void ObjectManager::init() {
     for(auto& mixin : mixins)
         cout << mixin.first << endl;
 
-    dynamix::object& m_object = get_object(new_object());
+    dynamix::object& m_object = new_object();
     addMixin(m_object, "dummy");
 
-    m_camera = new_object();
+    m_camera = new_object_id();
     addMixin(get_object(m_camera), "camera");
 
 
@@ -128,6 +128,8 @@ void ObjectManager::update() {
     bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Rendering simple static mesh.");
     bgfx::dbgTextPrintf(0, 3, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
+    //get_object(m_camera);
+
     float at[3]  = {0.0f, 0.0f, 0.0f};
     float eye[3] = {0.0f, 0.0f, -35.0f};
 
@@ -181,11 +183,15 @@ int ObjectManager::shutdown() {
     return 0;
 }
 
-int ObjectManager::new_object() {
+int ObjectManager::new_object_id() {
     auto it = m_objects.emplace(m_curr_id, dynamix::object());
     addMixin(it.first->second, "common");
     set_id(it.first->second, m_curr_id);
     return m_curr_id++;
+}
+
+dynamix::object& ObjectManager::new_object() {
+    return get_object(new_object_id());
 }
 
 dynamix::object& ObjectManager::get_object(int id) {

@@ -1,4 +1,4 @@
-#ifndef EMSCRIPTEN
+#ifdef HARDLY_WITH_PLUGINS
 
 #include "PluginManager.h"
 
@@ -40,8 +40,8 @@ static const int   plugin_ext_len     = 3;
 #define CloseDynlib dlclose
 #define GetProc dlsym
 #define CopyDynlib(src, dst)                                                                       \
-    (!system((string("cp ") + Utils::getPathToExe() + src + " " + Utils::getPathToExe() +          \
-              dst).c_str()))
+    (!system((string("cp ") + Utils::getPathToExe() + src + " " + Utils::getPathToExe() + dst)     \
+                     .c_str()))
 
 #define cast_to_dynlib(x) x
 
@@ -126,10 +126,6 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
 }
 
 void PluginManager::init() {
-#ifndef HARDLY_WITH_PLUGINS
-    return;
-#endif // HARDLY_WITH_PLUGINS
-
     const auto plugin_dlls = getOriginalPlugins();
 
     for(const auto& curr : plugin_dlls) {
@@ -196,4 +192,4 @@ vector<string> getOriginalPlugins() {
     return names;
 }
 
-#endif // EMSCRIPTEN
+#endif // HARDLY_WITH_PLUGINS

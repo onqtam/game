@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef EMSCRIPTEN
+#ifdef HARDLY_WITH_PLUGINS
 
 #include "utils/singleton.h"
 
@@ -32,4 +32,4 @@ public:
     void update();
 };
 
-#endif // EMSCRIPTEN
+#endif // HARDLY_WITH_PLUGINS

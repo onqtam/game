@@ -2,6 +2,7 @@
 
 #include "utils/suppress_warnings.h"
 #include "core/serialization/JsonData.h"
+#include "core/InputEvent.h"
 
 HARDLY_SUPPRESS_WARNINGS
 
@@ -25,6 +26,8 @@ DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(MESSAGES_PUBLIC, void, trace, std::os
 
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(MESSAGES_PUBLIC, void, serialize, JsonData&, out)
 DYNAMIX_EXPORTED_MULTICAST_MESSAGE_1(MESSAGES_PUBLIC, void, deserialize, const sajson::value&, in)
+
+DYNAMIX_EXPORTED_MESSAGE_1(MESSAGES_PUBLIC, void, process_event, const InputEvent&, ev)
 
 DYNAMIX_EXPORTED_MESSAGE_1(MESSAGES_PUBLIC, void, set_id, int, id)
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(MESSAGES_PUBLIC, int, get_id)

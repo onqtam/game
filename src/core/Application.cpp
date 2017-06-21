@@ -4,6 +4,8 @@
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
 
+#include "mixins/messages/messages.h"
+
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/fpumath.h>
@@ -175,7 +177,7 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
         app->mMousePressed[button] = true;
 
     InputEvent ev;
-    ev.button = {InputEvent::MOUSE_BUTTON, button, action};
+    ev.button = {InputEvent::BUTTON, button, action};
     Application::get().addInputEvent(ev);
 }
 
@@ -188,7 +190,7 @@ void Application::scrollCallback(GLFWwindow* window, double xoffset, double yoff
     app->mMouseWheel += (float)yoffset;
 
     InputEvent ev;
-    ev.motion = {InputEvent::MOUSE_MOTION, 0.0, 0.0, 0.0, 0.0, yoffset};
+    ev.motion = {InputEvent::SCROLL, yoffset};
     Application::get().addInputEvent(ev);
 }
 
@@ -206,7 +208,7 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
     InputEvent ev;
-    ev.key = {InputEvent::KEYPRESS, key, action, mods};
+    ev.key = {InputEvent::KEY, key, action, mods};
     Application::get().addInputEvent(ev);
 }
 
@@ -220,7 +222,7 @@ void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
     static double last_x = 0.0;
     static double last_y = 0.0;
     InputEvent    ev;
-    ev.motion = {InputEvent::MOUSE_MOTION, x, y, x - last_x, y - last_y, 0.0};
+    ev.motion = {InputEvent::MOTION, x, y, x - last_x, y - last_y};
     last_x    = x;
     last_y    = y;
 
@@ -276,6 +278,13 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
+void Application::addInputEventListener(int in) { m_inputEventListeners.push_back(in); }
+void Application::removeInputEventListener(int in) {
+    auto it = std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in);
+    PPK_ASSERT(it != m_inputEventListeners.end());
+    m_inputEventListeners.erase(it);
+}
+
 int Application::run(int argc, char** argv) {
 #ifndef EMSCRIPTEN
 #ifdef _WIN32
@@ -285,10 +294,13 @@ int Application::run(int argc, char** argv) {
 #endif // _WIN32
     // set cwd to data folder - this is done for emscripten with the --preload-file flag
     HA_SET_DATA_CWD((Utils::getPathToExe() + "../../../data").c_str());
+#endif // EMSCRIPTEN
+
+#ifdef HARDLY_WITH_PLUGINS
     // load plugins first so tests in them get executed as well
     PluginManager pluginManager;
     pluginManager.init();
-#endif // EMSCRIPTEN
+#endif // HARDLY_WITH_PLUGINS
 
     // run tests
     doctest::Context context(argc, argv);
@@ -358,32 +370,32 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::processEvents() {
-    // events
     glfwPollEvents();
 
-    for(size_t i = 0; i < m_inputs.size(); ++i) {
-        // m_inputs[i]
-    }
+    for(size_t i = 0; i < m_inputs.size(); ++i)
+        for(auto& curr : m_inputEventListeners)
+            process_event(ObjectManager::get().get_object(curr), m_inputs[i]);
+
     m_inputs.clear();
 
-    // imgui
     imguiEvents(dt);
 }
 
 void Application::update() {
+#ifdef HARDLY_WITH_PLUGINS
+    // reload plugins
+    PluginManager::get().update();
+#endif // HARDLY_WITH_PLUGINS
+
     time     = (float)glfwGetTime();
     dt       = time - lastTime;
     lastTime = time;
 
+    // events
     processEvents();
 
     // imgui
     ImGui::NewFrame();
-
-#ifndef EMSCRIPTEN
-    // reload plugins
-    PluginManager::get().update();
-#endif // EMSCRIPTEN
 
     // update game stuff
     ObjectManager::get().update();

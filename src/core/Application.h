@@ -24,14 +24,18 @@ public:
     uint32_t getHeight() const { return mHeight; }
     float    getDt() const { return dt; }
 
+    void addInputEventListener(int in);
+    void removeInputEventListener(int in);
+
     int run(int argc, char** argv);
     void processEvents();
     void update();
     void reset(uint32_t flags = 0);
 
 private:
-
+    
     std::vector<InputEvent> m_inputs;
+    std::vector<int> m_inputEventListeners;
 
     GLFWwindow* mWindow;
     uint32_t    mReset;

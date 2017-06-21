@@ -1,5 +1,4 @@
 
-callbacks for events or just inspecting the current input state
 naming convention - underscores? and for files? no caps?
 
 - camera
@@ -10,6 +9,7 @@ naming convention - underscores? and for files? no caps?
 - asset pipeline from Kosta - must have
 
 
+extend dynamix::object to be able to inherit a user type
 
 
 integrate typesafe stuff
@@ -18,7 +18,9 @@ https://github.com/foonathan/type_safe
 https://github.com/nholthaus/units
 
 == bugs:
-gcc cannot build shaders - it hangs
+gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
+CI - travis builds fail because of submodule issues...?
+CI - appveyor emscripten build fails for some reason
 
 == engine:
 - on floating point:
@@ -32,6 +34,7 @@ gcc cannot build shaders - it hangs
 - make a proper release config - with LTO, no plugins, etc.
 - ability to have only the game code in the solution - no third parties
 - be able to build everything in release except for gameplay code (debug iterators?)
+- faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
 - unity builds
 
 == assets:
