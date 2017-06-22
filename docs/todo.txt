@@ -1,7 +1,4 @@
 
-
-make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
-
 - camera
 - controls
 - static mesh factory
@@ -17,6 +14,9 @@ extend dynamix::object to be able to inherit a user type
 namespaces for messages - domains?
 naming convention - underscores? and for files? no caps?
 glm/yama/bgfx math?
+
+== tips & tricks:
+MSVC - set the following in Debugging/Command for ALL_BUILD so F5 works: $(ProjectDir)../../bin/msvc/$(Configuration)/game.exe
 
 == bugs:
 currently it crashes on exit - the common mixin gets removed from objects before others which might need it

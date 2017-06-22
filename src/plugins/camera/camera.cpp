@@ -14,9 +14,7 @@
 
 #include <iostream>
 
-test_case("") {
-    check_eq(1, 2);
-}
+test_case("") {}
 
 using namespace dynamix;
 
@@ -30,7 +28,7 @@ public:
         set_pos(dm_this, glm::vec3(0, 30, 0));
         glm::vec3 pos = get_pos(dm_this);
         
-        PPK_ASSERT(false);
+        //PPK_ASSERT(false);
         return glm::lookAtLH(glm::vec3(pos.x, pos.y, pos.z), glm::vec3(pos.x, pos.y - 1, pos.z), glm::vec3(0, 0, 1));
         
 
