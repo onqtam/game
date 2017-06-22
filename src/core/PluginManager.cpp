@@ -136,19 +136,19 @@ void PluginManager::init() {
         const auto plugin = LoadDynlib(copied.c_str());
         PPK_ASSERT(plugin);
 
-        // add to the list of registered mixins for the executable
-        const auto getMixinsProc = GetProc(plugin, "getMixins");
-        PPK_ASSERT(getMixinsProc);
-        const auto& mixins = reinterpret_cast<get_mixins_proc>(getMixinsProc)();
-        for(auto& mixin : mixins)
-            registerMixin(mixin.first.c_str(), mixin.second);
+        //// add to the list of registered mixins for the executable
+        //const auto getMixinsProc = GetProc(plugin, "getMixins");
+        //PPK_ASSERT(getMixinsProc);
+        //const auto& mixins = reinterpret_cast<get_mixins_proc>(getMixinsProc)();
+        //for(auto& mixin : mixins)
+        //    registerMixin(mixin.first.c_str(), mixin.second);
 
         // register the globals from the plugin to the globals of the executable
-        const auto getGlobalsProc = GetProc(plugin, "getGlobals");
-        PPK_ASSERT(getGlobalsProc);
-        const auto& globals = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
-        for(auto& global : globals)
-            registerGlobal(global.first.c_str(), global.second);
+        //const auto getGlobalsProc = GetProc(plugin, "getGlobals");
+        //PPK_ASSERT(getGlobalsProc);
+        //const auto& globals = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
+        //for(auto& global : globals)
+        //    registerGlobal(global.first.c_str(), global.second);
 
         plugins.push_back({plugin, curr, copied});
     }

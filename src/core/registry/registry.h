@@ -42,11 +42,9 @@ struct MixinInfo
 typedef std::map<std::string, MixinInfo> MixinInfoMap;
 typedef MixinInfoMap& (*get_mixins_proc)();
 
-HARDLY_SUPPRESS_WARNINGS
-extern "C" SYMBOL_EXPORT MixinInfoMap& getMixins();
-HARDLY_SUPPRESS_WARNINGS_END
+HAPI MixinInfoMap& getMixins();
 
-int registerMixin(const char* name, MixinInfo info);
+HAPI int registerMixin(const char* name, MixinInfo info);
 
 template <typename T>
 struct UpdatableMixin
@@ -155,11 +153,9 @@ struct GlobalInfo
 typedef std::map<std::string, GlobalInfo> GlobalInfoMap;
 typedef GlobalInfoMap& (*get_globals_proc)();
 
-HARDLY_SUPPRESS_WARNINGS
-extern "C" SYMBOL_EXPORT GlobalInfoMap& getGlobals();
-HARDLY_SUPPRESS_WARNINGS_END
+HAPI GlobalInfoMap& getGlobals();
 
-int registerGlobal(const char* name, GlobalInfo info);
+HAPI int registerGlobal(const char* name, GlobalInfo info);
 
 // TODO: figure out how to escape the file - so it can be used as a json key
 // perhaps using cmake? http://stackoverflow.com/questions/1706346/file-macro-manipulation-handling-at-compile-time

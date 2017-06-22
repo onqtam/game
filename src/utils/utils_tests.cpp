@@ -1,5 +1,4 @@
 #include "utils.h"
-#include "utils/doctest/doctest_proxy.h"
 #include "preprocessor.h"
 
 using namespace Utils;

@@ -3,6 +3,7 @@
 #include <string>
 
 #include "utils/glm_proxy.h"
+#include "visibility.h"
 
 namespace Utils
 {
@@ -100,6 +101,6 @@ char* itoa_fast(T value, char* dst) {
     return dst;
 }
 
-int setPPKAssertHandler();
+HAPI int setPPKAssertHandler();
 
 } // namespace Utils

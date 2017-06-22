@@ -1,21 +1,21 @@
 #include "core/registry/registry.h"
 
-extern "C" SYMBOL_EXPORT MixinInfoMap& getMixins() {
+HAPI MixinInfoMap& getMixins() {
     static MixinInfoMap data;
     return data;
 }
 
-int registerMixin(const char* name, MixinInfo info) {
+HAPI int registerMixin(const char* name, MixinInfo info) {
     getMixins()[name] = info;
     return 0;
 }
 
-extern "C" SYMBOL_EXPORT GlobalInfoMap& getGlobals() {
+HAPI GlobalInfoMap& getGlobals() {
     static GlobalInfoMap data;
     return data;
 }
 
-int registerGlobal(const char* name, GlobalInfo info) {
+HAPI int registerGlobal(const char* name, GlobalInfo info) {
     getGlobals()[name] = info;
     return 0;
 }

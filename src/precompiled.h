@@ -41,5 +41,12 @@ HARDLY_SUPPRESS_WARNINGS
 
 #include <ppk_assert.h>
 
+#include <sajson/include/sajson.h>
+
+#include <bgfx/bgfx.h>
+#include <bx/bx.h>
+
+#include <imgui.h>
+
 HARDLY_SUPPRESS_WARNINGS_END
 
