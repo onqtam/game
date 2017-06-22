@@ -69,8 +69,6 @@ add_mixin(NAME omg ${omg_src})
 add_mix_dirs(TO camera.src "plugins/camera" FILTER_POP 2)
 add_mixin(NAME camera ${camera.src})
 
-#target_link_libraries(camera bgfx bx)
-
 # ========= PLUGINS END =========
 
 if(NOT MINGW)

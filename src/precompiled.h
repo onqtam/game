@@ -34,6 +34,7 @@
 #include "utils/suppress_warnings.h"
 #include "utils/doctest/doctest_proxy.h"
 #include "utils/glm_proxy.h"
+#include "utils/visibility.h"
 
 HARDLY_SUPPRESS_WARNINGS
 

@@ -10,11 +10,13 @@
 #include <bx/fpumath.h>
 #include <bgfx/bgfx.h>
 
-#include <iostream>
-
 #include "utils/doctest/doctest_proxy.h"
 
-test_case("") {}
+#include <iostream>
+
+test_case("") {
+    check_eq(1, 2);
+}
 
 using namespace dynamix;
 
@@ -27,9 +29,11 @@ public:
     glm::mat4 get_view_matrix() {
         set_pos(dm_this, glm::vec3(0, 30, 0));
         glm::vec3 pos = get_pos(dm_this);
-
+        
+        PPK_ASSERT(false);
         return glm::lookAtLH(glm::vec3(pos.x, pos.y, pos.z), glm::vec3(pos.x, pos.y - 1, pos.z), glm::vec3(0, 0, 1));
         
+
         //float at[3]  = {0.0f, 0.0f, 0.0f};
         //float eye[3] = {0.0f, 40.0f, 0.0f};
         //float up[3]  = {0.0f, 0.0f, 1.0f};
