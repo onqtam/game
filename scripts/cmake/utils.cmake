@@ -114,7 +114,6 @@ function(add_mixin)
     target_link_libraries(${ARG_NAME} game)
     target_link_libraries(${ARG_NAME} ppk_assert)
     target_link_libraries(${ARG_NAME} registry)
-    target_link_libraries(${ARG_NAME} serialization)
     
     foreach(lib "${ARG_LINK_TO}")
         target_link_libraries(${ARG_NAME} ${lib})
