@@ -51,27 +51,25 @@ ucm_add_files(TO SOURCES "main.cpp")
 add_mix_dirs(TO SOURCES "core")
 add_mix_dirs(TO SOURCES "utils")
 #add_mix_dirs(TO SOURCES "core/registry")
-#add_mix_dirs(TO SOURCES "mixins/mixins")
+add_mix_dirs(TO SOURCES "mixins/messages")
+add_mix_dirs(TO SOURCES "mixins/mixins")
 
-add_mix_dirs(TO messages_src "mixins/messages")
-add_library(messages SHARED ${messages_src})
-target_link_libraries(messages dynamix sajson)
-
+# this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
 target_link_libraries(doctest_runner PUBLIC doctest)
 
 # ========= PLUGINS =============
 
 add_mix_dirs(TO dummy_src "plugins/dummy" FILTER_POP 2)
-add_mixin(NAME dummy ${dummy_src} LINK_TO messages)
+add_mixin(NAME dummy ${dummy_src})
 
 add_mix_dirs(TO omg_src "plugins/omg" FILTER_POP 2)
-add_mixin(NAME omg ${omg_src} LINK_TO messages)
+add_mixin(NAME omg ${omg_src})
 
-add_mix_dirs(TO mixins.src "mixins/mixins" FILTER_POP 1)
-add_mixin(NAME mixins ${mixins.src} LINK_TO messages)
+add_mix_dirs(TO camera.src "plugins/camera" FILTER_POP 2)
+add_mixin(NAME camera ${camera.src})
 
-target_link_libraries(mixins bgfx bx)
+#target_link_libraries(camera bgfx bx)
 
 # ========= PLUGINS END =========
 
@@ -100,7 +98,6 @@ mixify_target(game)
 
 target_link_libraries(game bgfx ib-compress)
 
-target_link_libraries(game messages)
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)
 target_link_libraries(game imgui)

@@ -115,7 +115,6 @@ function(add_mixin)
     target_link_libraries(${ARG_NAME} ppk_assert)
     target_link_libraries(${ARG_NAME} registry)
     target_link_libraries(${ARG_NAME} serialization)
-    target_link_libraries(${ARG_NAME} doctest_runner)
     
     foreach(lib "${ARG_LINK_TO}")
         target_link_libraries(${ARG_NAME} ${lib})

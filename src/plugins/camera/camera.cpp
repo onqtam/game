@@ -12,15 +12,19 @@
 
 #include <iostream>
 
+#include "utils/doctest/doctest_proxy.h"
+
+test_case("") {}
+
 using namespace dynamix;
 
-class camera : public camera_gen, public InputEventListener<camera>
+class camera : public camera_gen//, public InputEventListener<camera>
 {
     HARDLY_MESSAGES_IN_MIXIN(common)
 public:
     void process_event(const InputEvent& ev) { std::cout << "event!\n"; }
 
-    const glm::mat4& get_view_matrix() {
+    glm::mat4 get_view_matrix() {
         set_pos(dm_this, glm::vec3(0, 30, 0));
         glm::vec3 pos = get_pos(dm_this);
 
@@ -39,7 +43,7 @@ public:
         //                 view[12], view[13], view[14], view[15]);
     }
 
-    const glm::mat4& get_projection_matrix() {
+    glm::mat4 get_projection_matrix() {
         float proj[16];
         //bx::mtxProj(proj, 60.0f,
         //            float(1280) / float(768),

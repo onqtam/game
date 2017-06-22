@@ -11,5 +11,6 @@ emscripten/
 *.bak
 
 err.txt
+game.bat
 
 *_gen.h

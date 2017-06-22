@@ -2,8 +2,6 @@
 
 make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
 
-fix camera messages to not return references to temp objects
-
 - camera
 - controls
 - static mesh factory
@@ -21,6 +19,7 @@ naming convention - underscores? and for files? no caps?
 glm/yama/bgfx math?
 
 == bugs:
+currently it crashes on exit - the common mixin gets removed from objects before others which might need it
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - travis builds fail because of submodule issues...?
 CI - appveyor emscripten build fails for some reason

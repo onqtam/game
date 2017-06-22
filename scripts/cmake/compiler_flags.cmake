@@ -29,6 +29,8 @@ if(MSVC)
     #ucm_add_flags(/std:c++latest) # breaks stuff because c++17 removed deprecated stuff - should delay the upgrade
     
     # TODO: not sure if this should be set globally
+    #ucm_add_linker_flags(/ignore:4217) # locally defined symbol 'symbol' imported in function 'function'
+    #ucm_add_linker_flags(/ignore:4049) # locally defined symbol 'symbol' imported
     ucm_add_linker_flags(/ignore:4221) # This object file does not define any previously undefined public symbols,
                                        # so it will not be used by any link operation that consumes this library
     
