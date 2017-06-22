@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils/visibility.h"
+
 struct KeyEvent
 {
     int type; // InputEvent::KEY

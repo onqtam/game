@@ -32,14 +32,10 @@
 #include <unordered_set>
 
 #include "utils/suppress_warnings.h"
-
-HARDLY_SUPPRESS_WARNINGS
-
-//#include <format.h>
-
+#include "utils/doctest/doctest_proxy.h"
 #include "utils/glm_proxy.h"
 
-#include <boost/optional.hpp>
+HARDLY_SUPPRESS_WARNINGS
 
 #include <dynamix/dynamix.hpp>
 
@@ -47,4 +43,3 @@ HARDLY_SUPPRESS_WARNINGS
 
 HARDLY_SUPPRESS_WARNINGS_END
 
-#include "utils/doctest/doctest_proxy.h"

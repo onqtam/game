@@ -93,11 +93,13 @@ else()
     endforeach()
 endif()
 
+set_target_properties(game PROPERTIES ENABLE_EXPORTS ON)
+
 mixify_target(game)
 
-foreach(plugin ${PLUGINS})
-    add_dependencies(game ${plugin})
-endforeach()
+#foreach(plugin ${PLUGINS})
+#    add_dependencies(game ${plugin})
+#endforeach()
 
 target_link_libraries(game bgfx ib-compress)
 

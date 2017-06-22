@@ -1,11 +1,13 @@
 #pragma once
 
+#include "visibility.h"
+
 // clang-format off
 #define HARDLY_SCOPED_SINGLETON(the_class, the_friend)                                             \
     private:                                                                                       \
-        static the_class* s_instance;                                                              \
+        static HAPI the_class* s_instance;                                                         \
         the_class() {                                                                              \
-            PPK_ASSERT(s_instance == nullptr);                                                  \
+            PPK_ASSERT(s_instance == nullptr);                                                     \
             s_instance = this;                                                                     \
         }                                                                                          \
         ~the_class() { s_instance = nullptr; }                                                     \

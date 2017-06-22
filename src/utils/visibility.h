@@ -12,3 +12,13 @@
 #define SYMBOL_EXPORT __attribute__((visibility("default")))
 #define SYMBOL_IMPORT
 #endif // _WIN32
+
+#ifdef HARDLY_WITH_PLUGINS
+#ifdef HARDLY_PLUGIN
+#define HAPI SYMBOL_IMPORT
+#else // HARDLY_PLUGIN
+#define HAPI SYMBOL_EXPORT
+#endif // HARDLY_PLUGIN
+#else  // HARDLY_WITH_PLUGINS
+#define HAPI
+#endif // HARDLY_WITH_PLUGINS
