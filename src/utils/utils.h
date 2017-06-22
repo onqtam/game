@@ -101,6 +101,4 @@ char* itoa_fast(T value, char* dst) {
     return dst;
 }
 
-HAPI int setPPKAssertHandler();
-
 } // namespace Utils

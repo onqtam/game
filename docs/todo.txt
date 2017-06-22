@@ -2,6 +2,8 @@
 
 make the plugins link to the main executable - managers, etc... and move from static to dynamic libs? or?
 
+fix camera messages to not return references to temp objects
+
 - camera
 - controls
 - static mesh factory

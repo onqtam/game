@@ -4,14 +4,14 @@
 
 #include "core/serialization/JsonData.h"
 #include "utils/suppress_warnings.h"
-#include "utils/doctest/doctest_proxy.h"
+//#include "utils/doctest/doctest_proxy.h"
 
 HARDLY_SUPPRESS_WARNINGS
 
 #include <dynamix/dynamix.hpp>
 #include <sajson/include/sajson.h>
 
-#include <ppk_assert.h>
+//#include <ppk_assert.h>
 
 HARDLY_SUPPRESS_WARNINGS_END
 
@@ -42,9 +42,11 @@ struct MixinInfo
 typedef std::map<std::string, MixinInfo> MixinInfoMap;
 typedef MixinInfoMap& (*get_mixins_proc)();
 
-HAPI MixinInfoMap& getMixins();
+HARDLY_SUPPRESS_WARNINGS
+extern "C" SYMBOL_EXPORT MixinInfoMap& getMixins();
+HARDLY_SUPPRESS_WARNINGS_END
 
-HAPI int registerMixin(const char* name, MixinInfo info);
+int registerMixin(const char* name, MixinInfo info);
 
 template <typename T>
 struct UpdatableMixin
@@ -153,9 +155,11 @@ struct GlobalInfo
 typedef std::map<std::string, GlobalInfo> GlobalInfoMap;
 typedef GlobalInfoMap& (*get_globals_proc)();
 
-HAPI GlobalInfoMap& getGlobals();
+HARDLY_SUPPRESS_WARNINGS
+extern "C" SYMBOL_EXPORT GlobalInfoMap& getGlobals();
+HARDLY_SUPPRESS_WARNINGS_END
 
-HAPI int registerGlobal(const char* name, GlobalInfo info);
+int registerGlobal(const char* name, GlobalInfo info);
 
 // TODO: figure out how to escape the file - so it can be used as a json key
 // perhaps using cmake? http://stackoverflow.com/questions/1706346/file-macro-manipulation-handling-at-compile-time

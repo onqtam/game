@@ -113,6 +113,7 @@ function(add_mixin)
     target_link_libraries(${ARG_NAME} dynamix)
     target_link_libraries(${ARG_NAME} game)
     target_link_libraries(${ARG_NAME} ppk_assert)
+    target_link_libraries(${ARG_NAME} registry)
     target_link_libraries(${ARG_NAME} serialization)
     target_link_libraries(${ARG_NAME} doctest_runner)
     

@@ -38,6 +38,11 @@ ucm_add_target(NAME serialization TYPE SHARED SOURCES "${serialization_src}")
 add_fPIC_to_target(serialization)
 target_link_libraries(serialization sajson)
 
+add_mix_dirs(TO registry_src "core/registry" FILTER_POP 2)
+add_library(registry STATIC ${registry_src})
+target_link_libraries(registry sajson dynamix)
+add_fPIC_to_target(registry)
+
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
 ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
@@ -45,7 +50,7 @@ ucm_add_files(TO SOURCES "main.cpp")
 
 add_mix_dirs(TO SOURCES "core")
 add_mix_dirs(TO SOURCES "utils")
-add_mix_dirs(TO SOURCES "core/registry")
+#add_mix_dirs(TO SOURCES "core/registry")
 #add_mix_dirs(TO SOURCES "mixins/mixins")
 
 add_mix_dirs(TO messages_src "mixins/messages")
@@ -99,6 +104,7 @@ target_link_libraries(game messages)
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)
 target_link_libraries(game imgui)
+target_link_libraries(game registry)
 target_link_libraries(game serialization)
 target_link_libraries(game doctest_runner)
 
