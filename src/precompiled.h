@@ -36,9 +36,9 @@
 #include "utils/glm_proxy.h"
 #include "utils/visibility.h"
 
-HARDLY_SUPPRESS_WARNINGS
+#include "core/Entity.h"
 
-#include <dynamix/dynamix.hpp>
+HARDLY_SUPPRESS_WARNINGS
 
 #include <ppk_assert.h>
 

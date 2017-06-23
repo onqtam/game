@@ -7,9 +7,6 @@
 - asset pipeline from Kosta - must have
 
 
-extend dynamix::object to be able to inherit a user type
-
-
 == questions:
 namespaces for messages - domains?
 naming convention - underscores? and for files? no caps?
@@ -105,6 +102,7 @@ shader compiler
 - checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
 
 == libraries:
+https://github.com/mattiasgustavsson/libs
 integrate typesafe stuff
     https://github.com/Microsoft/GSL
     https://github.com/foonathan/type_safe
@@ -190,9 +188,14 @@ integrate typesafe stuff
     //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
 
 == dynamix:
-- make dynamix::object extentable - by inheriting from user types (also think about the constructor)
-- add isCopyable() to object - to check if all current mixins have copy operations
+- make dynamix::object extentable - by inheriting from user types
+    - see the "extend_object" branch in my fork of dynamix...
+    - alternatively just inherit from it and use the resulting type
 - forward declaring messages - for better link times - or maybe not - might lead to slower messages
+- currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message implementations are dropped it can become 2 pointers
+- ability to put messages in namespaces
+    - easiest with alternative macros with an additional parameter - the namespace
+    - maybe with some hacky preprocessor magic - defining namespaces and undefining them around message declarations/definitions
 - moving stuff like this back into the header so it can get inlined with optimizations:
     https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
     or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...

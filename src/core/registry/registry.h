@@ -3,13 +3,7 @@
 #include <map>
 
 #include "core/serialization/JsonData.h"
-#include "utils/suppress_warnings.h"
-
-HARDLY_SUPPRESS_WARNINGS
-
-#include <dynamix/dynamix.hpp>
-
-HARDLY_SUPPRESS_WARNINGS_END
+#include "core/Entity.h"
 
 #include "utils/preprocessor.h"
 #include "utils/visibility.h"
@@ -21,9 +15,9 @@ HARDLY_SUPPRESS_WARNINGS_END
 // ==  MIXINS ======================================================================================
 // =================================================================================================
 
-typedef std::map<dynamix::object*, JsonData> ObjectJsonMap;
+typedef std::map<Entity*, JsonData> ObjectJsonMap;
 typedef void (*load_unload_proc)(ObjectJsonMap&);
-typedef void (*mutate_proc)(dynamix::object*);
+typedef void (*mutate_proc)(Entity*);
 typedef void (*update_proc)();
 
 struct MixinInfo
@@ -120,12 +114,11 @@ load_unload_proc getUnloadProc() {
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
     DYNAMIX_DECLARE_MIXIN(n);                                                                      \
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
-    static int HARDLY_CAT_1(_mixin_register_, n) =                                                 \
-            registerMixin(#n, /* force new line for format */                                      \
-                          {[](dynamix::object* o) { dynamix::mutate(o).add<n>(); },                \
-                           [](dynamix::object* o) { dynamix::mutate(o).remove<n>(); },             \
-                           HARDLY_MIXIN_IN_PLUGIN_LOAD(n), HARDLY_MIXIN_IN_PLUGIN_UNLOAD(n),       \
-                           getUpdateProc<n>()})
+    static int HARDLY_CAT_1(_mixin_register_, n) = registerMixin(                                  \
+            #n, /* force new line for format */                                                    \
+            {[](Entity* o) { dynamix::mutate(o).add<n>(); },                                       \
+             [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HARDLY_MIXIN_IN_PLUGIN_LOAD(n),    \
+             HARDLY_MIXIN_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
 #define HARDLY_MIXIN(n, features)                                                                  \
     PluginInstances<HARDLY_CAT_1(n, _gen)> HARDLY_CAT_1(n, _gen)::instances;                       \
@@ -206,14 +199,14 @@ int registerGlobal(const char* name, GlobalInfo info);
     deserialize(var, val.get_object_value(i))
 
 template <class T>
-using PluginInstances = std::vector<std::pair<dynamix::object*, T*>>;
+using PluginInstances = std::vector<std::pair<Entity*, T*>>;
 
 #define HARDLY_TRACK_INSTANCES(type)                                                               \
     static PluginInstances<type> instances;                                                        \
-    type() { instances.push_back(std::make_pair(dm_this, this)); }                                 \
+    type() { instances.push_back(std::make_pair(&ha_this, this)); }                                \
     ~type() {                                                                                      \
         PluginInstances<type>::iterator it =                                                       \
-                find(instances.begin(), instances.end(), std::make_pair(dm_this, this));           \
+                find(instances.begin(), instances.end(), std::make_pair(&ha_this, this));          \
         if(it + 1 != instances.end())                                                              \
             *it = *(instances.end() - 1);                                                          \
         instances.pop_back();                                                                      \

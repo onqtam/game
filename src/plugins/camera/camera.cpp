@@ -26,8 +26,8 @@ public:
     }
 
     glm::mat4 get_view_matrix() {
-        set_pos(dm_this, glm::vec3(0, 70, 0));
-        glm::vec3 pos = get_pos(dm_this);
+        set_pos(ha_this, glm::vec3(0, 70, 0));
+        glm::vec3 pos = get_pos(ha_this);
         
         //PPK_ASSERT(false);
         return glm::lookAtLH(glm::vec3(pos.x, pos.y, pos.z), glm::vec3(pos.x, pos.y - 1, pos.z), glm::vec3(0, 0, 1));

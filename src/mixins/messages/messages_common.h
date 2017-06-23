@@ -4,6 +4,5 @@
 #include "utils/visibility.h"
 
 HARDLY_SUPPRESS_WARNINGS
-#include <dynamix/dynamix.hpp>
 //#include <dynamix/gen/no_arity_message_macros.hpp>
 HARDLY_SUPPRESS_WARNINGS_END

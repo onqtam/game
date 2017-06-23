@@ -11,7 +11,7 @@ class ObjectManager
 private:
     int m_curr_id = 0;
 
-    std::map<int, dynamix::object> m_objects;
+    std::map<int, Entity> m_objects;
     
     int m_camera = -1;
 
@@ -21,10 +21,10 @@ public:
     int  shutdown();
     
     int new_object_id();
-    dynamix::object& new_object();
-    dynamix::object& get_object(int id);
+    Entity& new_object();
+    Entity& get_object(int id);
 
     // TODO: optimize this to not use std::string as key
-    void addMixin(dynamix::object& obj, const char* mixin);
-    void remMixin(dynamix::object& obj, const char* mixin);
+    void addMixin(Entity& obj, const char* mixin);
+    void remMixin(Entity& obj, const char* mixin);
 };

@@ -64,14 +64,14 @@ void ObjectManager::init() {
     for(auto& mixin : mixins)
         cout << mixin.first << endl;
 
-    dynamix::object& m_object = new_object();
+    Entity& m_object = new_object();
     addMixin(m_object, "dummy");
 
     m_camera = new_object_id();
     addMixin(get_object(m_camera), "camera");
 
 
-    //dynamix::object o1, o2, o3, o4;
+    //Entity o1, o2, o3, o4;
 
     //addMixin(o1, "dummy");
     //addMixin(o2, "dummy");
@@ -181,27 +181,26 @@ int ObjectManager::shutdown() {
 }
 
 int ObjectManager::new_object_id() {
-    auto it = m_objects.emplace(m_curr_id, dynamix::object());
+    auto it = m_objects.emplace(m_curr_id, Entity(m_curr_id));
     addMixin(it.first->second, "common");
-    set_id(it.first->second, m_curr_id);
     return m_curr_id++;
 }
 
-dynamix::object& ObjectManager::new_object() {
+Entity& ObjectManager::new_object() {
     return get_object(new_object_id());
 }
 
-dynamix::object& ObjectManager::get_object(int id) {
+Entity& ObjectManager::get_object(int id) {
     return m_objects[id];
 }
 
-void ObjectManager::addMixin(dynamix::object& obj, const char* mixin) {
+void ObjectManager::addMixin(Entity& obj, const char* mixin) {
     auto& mixins = getMixins();
     PPK_ASSERT(mixins.find(mixin) != mixins.end());
     mixins[mixin].add(&obj);
 }
 
-void ObjectManager::remMixin(dynamix::object& obj, const char* mixin) {
+void ObjectManager::remMixin(Entity& obj, const char* mixin) {
     auto& mixins = getMixins();
     PPK_ASSERT(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(&obj);

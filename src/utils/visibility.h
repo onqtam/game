@@ -13,6 +13,8 @@
 #define SYMBOL_IMPORT
 #endif // _WIN32
 
+// TODO: think about just using WINDOWS_EXPORT_ALL_SYMBOLS in cmake instead of manually annotating what to export from the executable
+
 #ifdef HARDLY_WITH_PLUGINS
 #ifdef HARDLY_PLUGIN
 #define HAPI SYMBOL_IMPORT
