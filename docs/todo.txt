@@ -31,11 +31,12 @@ CI - appveyor emscripten build fails for some reason
 - warnings
 - shared precompiled headers for plugins...?
 - make a proper release config - with LTO, no plugins, etc.
-- ability to have only the game code in the solution - no third parties
 - be able to build everything in release except for gameplay code (debug iterators?)
 - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
 - unity builds
 - consider including parts of glm as needed and not the entire thing - also read the manual again
+questionable:
+- ability to have only the game code in the solution - no third parties
 
 == assets:
 - https://github.com/tlorach/Bak3d
