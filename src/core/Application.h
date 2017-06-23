@@ -32,9 +32,8 @@ public:
     void reset(uint32_t flags = 0);
 
 private:
-    
     std::vector<InputEvent> m_inputs;
-    std::vector<int> m_inputEventListeners;
+    std::vector<int>        m_inputEventListeners;
 
     GLFWwindow* mWindow;
     uint32_t    mReset;

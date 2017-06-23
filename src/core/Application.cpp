@@ -7,7 +7,6 @@
 #include "core/messages/messages.h"
 
 #include <bgfx/platform.h>
-#include <bx/fpumath.h>
 
 #include <GLFW/glfw3.h>
 
@@ -134,10 +133,10 @@ static void imguiRender(ImDrawData* drawData) {
                     state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA);
                 }
-                const uint16_t xx = uint16_t(bx::fmax(cmd->ClipRect.x, 0.0f));
-                const uint16_t yy = uint16_t(bx::fmax(cmd->ClipRect.y, 0.0f));
-                bgfx::setScissor(xx, yy, uint16_t(bx::fmin(cmd->ClipRect.z, 65535.0f) - xx),
-                                 uint16_t(bx::fmin(cmd->ClipRect.w, 65535.0f) - yy));
+                const uint16_t xx = uint16_t(Utils::Max(cmd->ClipRect.x, 0.0f));
+                const uint16_t yy = uint16_t(Utils::Max(cmd->ClipRect.y, 0.0f));
+                bgfx::setScissor(xx, yy, uint16_t(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
+                                 uint16_t(Utils::Min(cmd->ClipRect.w, 65535.0f) - yy));
                 bgfx::setState(state);
                 bgfx::setTexture(0, imguiFontUniform, th);
                 bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
@@ -314,12 +313,27 @@ int Application::run(int argc, char** argv) {
     if(!glfwInit())
         return -1;
 
+#ifndef EMSCRIPTEN
+    int           num_monitors = 0;
+    GLFWmonitor** monitors     = glfwGetMonitors(&num_monitors);
+    //GLFWmonitor*     monitor = glfwGetPrimaryMonitor();
+    GLFWmonitor*       monitor = monitors[num_monitors - 1];
+    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
+    mWidth                     = mode->width;
+    mHeight                    = mode->height;
+#endif // EMSCRIPTEN
+
     // Create a window
     mWindow = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
     if(!mWindow) {
         glfwTerminate();
         return -1;
     }
+
+#ifndef EMSCRIPTEN
+    // Simulating fullscreen the way bgfx does... by placing the window in 0,0
+    glfwSetWindowMonitor(mWindow, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
+#endif // EMSCRIPTEN
 
     // Setup input callbacks
     glfwSetWindowUserPointer(mWindow, this);

@@ -1,6 +1,4 @@
 
-- camera
-- controls
 - static mesh factory
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo

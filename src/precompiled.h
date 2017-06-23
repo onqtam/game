@@ -35,6 +35,7 @@
 #include "utils/visibility.h"
 #include "utils/preprocessor.h"
 #include "utils/singleton.h"
+#include "utils/doctest/doctest_proxy.h"
 
 HARDLY_SUPPRESS_WARNINGS
 
@@ -65,9 +66,6 @@ HARDLY_SUPPRESS_WARNINGS
 
 HARDLY_SUPPRESS_WARNINGS_END
 
-#include "core/Entity.h"
-#include "utils/doctest/doctest_proxy.h"
-
 using glm::int8;
 using glm::int16;
 using glm::int32;
@@ -76,3 +74,5 @@ using glm::uint8;
 using glm::uint16;
 using glm::uint32;
 using glm::uint64;
+
+#include "core/Entity.h"
