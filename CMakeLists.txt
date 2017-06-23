@@ -24,6 +24,11 @@ include(third_party/ucm/cmake/ucm.cmake)
 include(scripts/cmake/compiler_flags.cmake)
 include(scripts/cmake/utils.cmake)
 
+# copy a .user file that will make F5 work (will start the main executable) - see https://stackoverflow.com/questions/44699100
+if(MSVC AND NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/ALL_BUILD.vcxproj.user")
+    file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/ALL_BUILD.vcxproj.user" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
+
 #===================================================================================================
 #== OUTPUT DIRS ====================================================================================
 #===================================================================================================

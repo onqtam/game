@@ -1,4 +1,6 @@
 
+- fix/simplify includes across the board
+- figure out why the plugins have the mixins folders too :|
 - camera
 - controls
 - static mesh factory
@@ -13,7 +15,6 @@ naming convention - underscores? and for files? no caps?
 glm/yama/bgfx math?
 
 == tips & tricks:
-MSVC - set the following in Debugging/Command for ALL_BUILD so F5 works: $(ProjectDir)../../bin/msvc/$(Configuration)/game.exe
 
 == bugs:
 currently it crashes on exit - the common mixin gets removed from objects before others which might need it
