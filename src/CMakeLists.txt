@@ -23,7 +23,7 @@ endif()
 
 # == GAME ==========================================================================================
 
-if(TOOLCHAIN STREQUAL "js")
+#if(TOOLCHAIN STREQUAL "js")
     # this is needed because the creation of the pch cant find the include paths even when
     # target_include_directories is used (or interface stuff from target_link_libraries)
     include_directories("../third_party/dynamix/include")
@@ -33,7 +33,7 @@ if(TOOLCHAIN STREQUAL "js")
     include_directories("../third_party/bx/include")
     include_directories("../third_party/imgui")
     include_directories("../third_party/doctest/doctest")
-endif()
+#endif()
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -60,31 +60,30 @@ target_link_libraries(doctest_runner PUBLIC doctest)
 
 # ========= PLUGINS =============
 
-add_mix_dirs(TO dummy_src "plugins/dummy" FILTER_POP 2)
-add_mixin(NAME dummy ${dummy_src})
-
-add_mix_dirs(TO omg_src "plugins/omg" FILTER_POP 2)
-add_mixin(NAME omg ${omg_src})
-
-add_mix_dirs(TO camera.src "plugins/camera" FILTER_POP 2)
-add_mixin(NAME camera ${camera.src})
+add_mix_dirs(TO plugin_src "plugins/dummy" FILTER_POP 2)
+add_mix_dirs(TO plugin_src "plugins/omg" FILTER_POP 2)
+add_mix_dirs(TO plugin_src "plugins/camera" FILTER_POP 2)
+add_plugin(NAME plugin ${plugin_src})
 
 # ========= PLUGINS END =========
 
-if(NOT MINGW)
-    ucm_add_target(NAME game TYPE EXECUTABLE CPP_PER_UNITY 10 PCH_FILE "precompiled.h" SOURCES "${SOURCES};${PLUGIN_SOURCES}" UNITY_EXCLUDED "precompiled.cpp")
-else()
-    ucm_add_target(NAME game TYPE EXECUTABLE UNITY SOURCES "${SOURCES};${PLUGIN_SOURCES}")
-    
-    # We get the sources from the target instead of using ${SOURCES} because the target may have been made into a unity
-    get_target_property(sources_for_game_target game SOURCES)
-    # For MinGW we just insert the "precompiled.h" header as a prefix header just like cotire does. We cannot use a real
-    # pch because there is a bug in g++(4.8.2)/mingw toolchain (cc1plus.exe crashes with big pch (around 150mb and above))
-    # http://sourceforge.net/mailarchive/message.php?msg_id=30821409
-    foreach(curr_source ${sources_for_game_target})
-        ucm_include_file_in_sources(${curr_source} HEADER precompiled.h)
-    endforeach()
-endif()
+add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
+add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h" "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp")
+
+#if(NOT MINGW)
+#    ucm_add_target(NAME game TYPE EXECUTABLE CPP_PER_UNITY 10 PCH_FILE "precompiled.h" SOURCES "${SOURCES};${PLUGIN_SOURCES}" UNITY_EXCLUDED "precompiled.cpp")
+#else()
+#    ucm_add_target(NAME game TYPE EXECUTABLE UNITY SOURCES "${SOURCES};${PLUGIN_SOURCES}")
+#    
+#    # We get the sources from the target instead of using ${SOURCES} because the target may have been made into a unity
+#    get_target_property(sources_for_game_target game SOURCES)
+#    # For MinGW we just insert the "precompiled.h" header as a prefix header just like cotire does. We cannot use a real
+#    # pch because there is a bug in g++(4.8.2)/mingw toolchain (cc1plus.exe crashes with big pch (around 150mb and above))
+#    # http://sourceforge.net/mailarchive/message.php?msg_id=30821409
+#    foreach(curr_source ${sources_for_game_target})
+#        ucm_include_file_in_sources(${curr_source} HEADER precompiled.h)
+#    endforeach()
+#endif()
 
 set_target_properties(game PROPERTIES ENABLE_EXPORTS ON)
 

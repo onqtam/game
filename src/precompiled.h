@@ -45,7 +45,6 @@ HARDLY_SUPPRESS_WARNINGS
 #include <sajson/include/sajson.h>
 
 #include <bgfx/bgfx.h>
-#include <bx/bx.h>
 
 #include <imgui.h>
 

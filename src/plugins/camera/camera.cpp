@@ -12,7 +12,7 @@
 
 #include "utils/doctest/doctest_proxy.h"
 
-#include <iostream>
+//#include <iostream>
 
 test_case("") {}
 
@@ -22,10 +22,11 @@ class camera : public camera_gen//, public InputEventListener<camera>
 {
     HARDLY_MESSAGES_IN_MIXIN(common)
 public:
-    void process_event(const InputEvent& ev) { std::cout << "event!\n"; }
+    void process_event(const InputEvent& ev) { //std::cout << "event!\n"; 
+    }
 
     glm::mat4 get_view_matrix() {
-        set_pos(dm_this, glm::vec3(0, 30, 0));
+        set_pos(dm_this, glm::vec3(0, 70, 0));
         glm::vec3 pos = get_pos(dm_this);
         
         //PPK_ASSERT(false);
