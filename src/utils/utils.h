@@ -1,10 +1,5 @@
 #pragma once
 
-#include <string>
-
-#include "utils/glm_proxy.h"
-#include "visibility.h"
-
 namespace Utils
 {
 

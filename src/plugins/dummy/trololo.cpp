@@ -1,4 +1,4 @@
-#include "mixins/messages/messages.h"
+#include "core/messages/messages.h"
 #include <iostream>
 
 #include "trololo_gen.h"

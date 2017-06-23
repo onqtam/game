@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utils/singleton.h"
 #include "InputEvent.h"
 
 struct GLFWwindow;

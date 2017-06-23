@@ -1,9 +1,4 @@
 #include "utils.h"
-HARDLY_SUPPRESS_WARNINGS
-#include <ppk_assert.h>
-HARDLY_SUPPRESS_WARNINGS_END
-
-#include "preprocessor.h"
 
 using namespace std;
 

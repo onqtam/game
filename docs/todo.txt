@@ -1,6 +1,4 @@
 
-- fix/simplify includes across the board
-- figure out why the plugins have the mixins folders too :|
 - camera
 - controls
 - static mesh factory
@@ -29,6 +27,7 @@ CI - appveyor emscripten build fails for some reason
 
 == build system:
 - warnings
+- remove as much as possible from emscripten build (like doctest for example)
 - shared precompiled headers for plugins...?
 - make a proper release config - with LTO, no plugins, etc.
 - be able to build everything in release except for gameplay code (debug iterators?)

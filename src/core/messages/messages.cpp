@@ -1,4 +1,3 @@
-#define BUILDING_MESSAGES
 #include "messages.h"
 #include "messages_camera.h"
 

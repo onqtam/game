@@ -1,7 +1,7 @@
 #include "InputEvent.h"
 
 #include "core/Application.h"
-#include "mixins/messages/messages.h"
+#include "core/messages/messages.h"
 
 HAPI void InputEventListener_add(void* in) {
     Application::get().addInputEventListener(Entity::cast_to_entity(in).id());

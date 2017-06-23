@@ -2,8 +2,6 @@
 
 #ifdef HARDLY_WITH_PLUGINS
 
-#include "utils/singleton.h"
-
 HARDLY_SUPPRESS_WARNINGS
 #include <FileWatcher/FileWatcher.h>
 HARDLY_SUPPRESS_WARNINGS_END

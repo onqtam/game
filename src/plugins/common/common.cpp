@@ -2,7 +2,7 @@
 
 #include "core/registry/registry.h"
 
-#include "mixins/messages/messages.h"
+#include "core/messages/messages.h"
 
 #include <iostream>
 
@@ -19,6 +19,6 @@ public:
     const glm::vec3&              get_pos() const { return pos; }
 };
 
-void common::trace(std::ostream& o) const { o << " object with id " << id << std::endl; }
+void common::trace(std::ostream& o) const { o << " object with id " << ha_this.id() << std::endl; }
 
 HARDLY_MIXIN(common, get_pos_msg& set_pos_msg& priority(1000, trace_msg));

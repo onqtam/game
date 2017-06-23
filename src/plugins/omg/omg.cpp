@@ -1,4 +1,4 @@
-#include "mixins/messages/messages.h"
+#include "core/messages/messages.h"
 #include <iostream>
 
 #include "omg_gen.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "utils/singleton.h"
-
 class ObjectManager
 {
     HARDLY_SCOPED_SINGLETON(ObjectManager, class Application);

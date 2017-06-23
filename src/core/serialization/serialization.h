@@ -2,20 +2,6 @@
 
 #include "JsonData.h"
 
-#include "utils/visibility.h"
-
-#include "utils/suppress_warnings.h"
-#include "utils/glm_proxy.h"
-
-HARDLY_SUPPRESS_WARNINGS
-#include <sajson/include/sajson.h>
-HARDLY_SUPPRESS_WARNINGS_END
-
-#include <string>
-#include <vector>
-#include <list>
-#include <map>
-
 HAPI void serialize(int data, JsonData& out);
 HAPI void serialize(float data, JsonData& out);
 HAPI void serialize(double data, JsonData& out);

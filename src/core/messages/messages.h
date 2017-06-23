@@ -1,11 +1,7 @@
 #pragma once
 
-#include "messages_common.h"
-
 #include "core/serialization/JsonData.h"
 #include "core/InputEvent.h"
-
-#include "utils/glm_proxy.h"
 
 HARDLY_SUPPRESS_WARNINGS
 

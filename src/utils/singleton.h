@@ -1,7 +1,5 @@
 #pragma once
 
-#include "visibility.h"
-
 // clang-format off
 #define HARDLY_SCOPED_SINGLETON(the_class, the_friend)                                             \
     private:                                                                                       \

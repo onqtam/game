@@ -1,5 +1,4 @@
 
 
 mixin common
-			int			id
 			glm::vec3	pos	default:{0,0,0}

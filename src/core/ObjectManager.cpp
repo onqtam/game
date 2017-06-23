@@ -3,15 +3,13 @@
 
 #include <iostream>
 
-#include "mixins/messages/messages.h"
-#include "mixins/messages/messages_camera.h"
+#include "core/messages/messages.h"
+#include "core/messages/messages_camera.h"
 
 #include "core/registry/registry.h"
 #include "serialization/JsonData.h"
 
-#include <bgfx/bgfx.h>
 #include <bx/fpumath.h>
-#include <imgui.h>
 #include "core/GraphicsHelpers.h"
 
 using namespace std;

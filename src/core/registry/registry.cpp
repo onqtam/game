@@ -1,3 +1,5 @@
+#include "precompiled.h"
+// include this after "precompiled.h" because the registry target is one of the few that doesn't use the same shared pch
 #include "core/registry/registry.h"
 
 #ifdef _WIN32

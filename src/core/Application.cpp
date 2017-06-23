@@ -4,14 +4,12 @@
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
 
-#include "mixins/messages/messages.h"
+#include "core/messages/messages.h"
 
-#include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <bx/fpumath.h>
 
 #include <GLFW/glfw3.h>
-#include <imgui.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>

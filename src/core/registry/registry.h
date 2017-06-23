@@ -1,12 +1,7 @@
 #pragma once
 
-#include <map>
-
 #include "core/serialization/JsonData.h"
-#include "core/Entity.h"
 
-#include "utils/preprocessor.h"
-#include "utils/visibility.h"
 #include "utils/utils.h"
 
 #include "core/PagedMixinAllocator.h"
