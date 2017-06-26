@@ -321,6 +321,7 @@ int Application::run(int argc, char** argv) {
     const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
     mWidth                     = mode->width;
     mHeight                    = mode->height;
+    glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 #endif // EMSCRIPTEN
 
 
@@ -332,7 +333,6 @@ int Application::run(int argc, char** argv) {
     }
 
 #ifndef EMSCRIPTEN
-    glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     // Simulating fullscreen the way bgfx does... by placing the window in 0,0
     glfwSetWindowMonitor(mWindow, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
 #endif // EMSCRIPTEN
