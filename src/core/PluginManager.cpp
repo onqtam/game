@@ -57,11 +57,12 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
                                      FW::Action action) {
     // if an original plugin .dll has been modified
     if(action == FW::Action::Modified && Utils::endsWith(filename, orig_plugin_tail)) {
-        auto plugin_iter = find_if(plugins.begin(), plugins.end(), [&](const LoadedPlugin& curr) {
-            return Utils::endsWith(curr.name_orig, filename);
-        });
+        auto plugin_iter =
+                find_if(m_plugins.begin(), m_plugins.end(), [&](const LoadedPlugin& curr) {
+                    return Utils::endsWith(curr.name_orig, filename);
+                });
         // a copy of it should already be loaded
-        if(plugin_iter != plugins.end()) {
+        if(plugin_iter != m_plugins.end()) {
             auto plugin = *plugin_iter;
 
             std::map<std::string, ObjectJsonMap> mixinPersistence;
@@ -150,14 +151,14 @@ void PluginManager::init() {
         for(auto& global : globals)
             registerGlobal(global.first.c_str(), global.second);
 
-        plugins.push_back({plugin, curr, copied});
+        m_plugins.push_back({plugin, curr, copied});
     }
 
     // start the file watcher
-    fileWatcher.addWatch(Utils::getPathToExe(), this, false);
+    m_fileWatcher.addWatch(Utils::getPathToExe(), this, false);
 }
 
-void PluginManager::update() { fileWatcher.update(); }
+void PluginManager::update() { m_fileWatcher.update(); }
 
 vector<string> getOriginalPlugins() {
     const string spath = Utils::getPathToExe();

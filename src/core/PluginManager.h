@@ -18,9 +18,9 @@ private:
         std::string name_copy;
     };
 
-    FW::FileWatcher fileWatcher;
+    FW::FileWatcher m_fileWatcher;
 
-    std::vector<LoadedPlugin> plugins;
+    std::vector<LoadedPlugin> m_plugins;
 
 public:
     void handleFileAction(FW::WatchID watchid, const FW::String& dir, const FW::String& filename,

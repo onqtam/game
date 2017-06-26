@@ -91,8 +91,8 @@ static void imguiRender(ImDrawData* drawData) {
         bgfx::TransientIndexBuffer  tib;
 
         const ImDrawList* drawList    = drawData->CmdLists[ii];
-        uint32          numVertices = (uint32)drawList->VtxBuffer.size();
-        uint32          numIndices  = (uint32)drawList->IdxBuffer.size();
+        uint32            numVertices = (uint32)drawList->VtxBuffer.size();
+        uint32            numIndices  = (uint32)drawList->IdxBuffer.size();
 
         if(!bgfx::getAvailTransientVertexBuffer(numVertices, imguiVertexDecl) ||
            !bgfx::getAvailTransientIndexBuffer(numIndices)) {
@@ -171,7 +171,7 @@ static void imguiSetClipboardText(void* userData, const char* text) {
 void Application::mouseButtonCallback(GLFWwindow* window, int button, int action, int) {
     Application* app = (Application*)glfwGetWindowUserPointer(window);
     if(action == GLFW_PRESS && button >= 0 && button < 3)
-        app->mMousePressed[button] = true;
+        app->m_mousePressed[button] = true;
 
     InputEvent ev;
     ev.button = {InputEvent::BUTTON, button, action};
@@ -184,7 +184,7 @@ void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     yoffset *=
             -0.01; // fix emscripten/glfw bug - probably related to this: https://github.com/kripken/emscripten/issues/3171
 #endif             // EMSCRIPTEN
-    app->mMouseWheel += (float)yoffset;
+    app->m_mouseWheel += (float)yoffset;
 
     InputEvent ev;
     ev.motion = {InputEvent::SCROLL, yoffset};
@@ -232,25 +232,25 @@ void imguiEvents(float dt) {
     io.DeltaTime     = dt;
     int w, h;
     int displayW, displayH;
-    glfwGetWindowSize(app.mWindow, &w, &h);
-    glfwGetFramebufferSize(app.mWindow, &displayW, &displayH);
+    glfwGetWindowSize(app.m_window, &w, &h);
+    glfwGetFramebufferSize(app.m_window, &displayW, &displayH);
     io.DisplaySize             = ImVec2((float)w, (float)h);
     io.IniFilename             = ""; //"imgui.ini";
     io.DisplayFramebufferScale = ImVec2((float)displayW / w, (float)displayH / h);
     double mouse_x, mouse_y;
-    glfwGetCursorPos(app.mWindow, &mouse_x, &mouse_y);
+    glfwGetCursorPos(app.m_window, &mouse_x, &mouse_y);
     io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
     for(int i = 0; i < 3; i++) {
-        io.MouseDown[i]      = app.mMousePressed[i] || glfwGetMouseButton(app.mWindow, i) != 0;
-        app.mMousePressed[i] = false;
+        io.MouseDown[i]       = app.m_mousePressed[i] || glfwGetMouseButton(app.m_window, i) != 0;
+        app.m_mousePressed[i] = false;
     }
-    io.MouseWheel   = app.mMouseWheel;
-    app.mMouseWheel = 0.0f;
-    glfwSetInputMode(app.mWindow, GLFW_CURSOR,
+    io.MouseWheel    = app.m_mouseWheel;
+    app.m_mouseWheel = 0.0f;
+    glfwSetInputMode(app.m_window, GLFW_CURSOR,
                      io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
-    io.ClipboardUserData = app.mWindow;
+    io.ClipboardUserData = app.m_window;
 #ifdef _WIN32
-    io.ImeWindowHandle = glfwGetWin32Window(app.mWindow);
+    io.ImeWindowHandle = glfwGetWin32Window(app.m_window);
 #endif // _WIN32
 }
 
@@ -319,40 +319,39 @@ int Application::run(int argc, char** argv) {
     //GLFWmonitor*     monitor = glfwGetPrimaryMonitor();
     GLFWmonitor*       monitor = monitors[num_monitors - 1];
     const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
-    mWidth                     = mode->width;
-    mHeight                    = mode->height;
+    m_width                    = mode->width;
+    m_height                   = mode->height;
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 #endif // EMSCRIPTEN
 
-
     // Create a window
-    mWindow = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
-    if(!mWindow) {
+    m_window = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
+    if(!m_window) {
         glfwTerminate();
         return -1;
     }
 
 #ifndef EMSCRIPTEN
     // Simulating fullscreen the way bgfx does... by placing the window in 0,0
-    glfwSetWindowMonitor(mWindow, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
+    glfwSetWindowMonitor(m_window, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
 #endif // EMSCRIPTEN
 
     // Setup input callbacks
-    glfwSetWindowUserPointer(mWindow, this);
-    glfwSetMouseButtonCallback(mWindow, mouseButtonCallback);
-    glfwSetScrollCallback(mWindow, scrollCallback);
-    glfwSetKeyCallback(mWindow, keyCallback);
-    glfwSetCharCallback(mWindow, charCallback);
-    glfwSetCursorPosCallback(mWindow, cursorPosCallback);
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+    glfwSetScrollCallback(m_window, scrollCallback);
+    glfwSetKeyCallback(m_window, keyCallback);
+    glfwSetCharCallback(m_window, charCallback);
+    glfwSetCursorPosCallback(m_window, cursorPosCallback);
 
     // Setup bgfx
     bgfx::PlatformData platformData;
     memset(&platformData, 0, sizeof(platformData));
 #ifdef _WIN32
-    platformData.nwh = glfwGetWin32Window(mWindow);
+    platformData.nwh = glfwGetWin32Window(m_window);
 #endif // _WIN32
 #ifdef __APPLE__
-    platformData.nwh = glfwGetCocoaWindow(mWindow);
+    platformData.nwh = glfwGetCocoaWindow(m_window);
 #endif // __APPLE__
     bgfx::setPlatformData(platformData);
     bgfx::init(bgfx::RendererType::OpenGL); // can also not specify opengl at all
@@ -371,7 +370,7 @@ int Application::run(int argc, char** argv) {
     emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
 #else  // EMSCRIPTEN
     // Loop until the user closes the window
-    while(!glfwWindowShouldClose(mWindow))
+    while(!glfwWindowShouldClose(m_window))
         update();
 #endif // EMSCRIPTEN
 
@@ -392,7 +391,7 @@ void Application::processEvents() {
 
     m_inputs.clear();
 
-    imguiEvents(dt);
+    imguiEvents(m_dt);
 }
 
 void Application::update() {
@@ -401,9 +400,9 @@ void Application::update() {
     PluginManager::get().update();
 #endif // HARDLY_WITH_PLUGINS
 
-    time     = (float)glfwGetTime();
-    dt       = time - lastTime;
-    lastTime = time;
+    m_time     = (float)glfwGetTime();
+    m_dt       = m_time - m_lastTime;
+    m_lastTime = m_time;
 
     // events
     processEvents();
@@ -419,22 +418,22 @@ void Application::update() {
     bgfx::frame();
 
     // check if should close
-    if(glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(mWindow, GL_TRUE);
+    if(glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(m_window, GL_TRUE);
 
     // handle resizing
     int w, h;
-    glfwGetWindowSize(mWindow, &w, &h);
-    if(uint32(w) != mWidth || uint32(h) != mHeight) {
-        mWidth  = w;
-        mHeight = h;
-        reset(mReset);
+    glfwGetWindowSize(m_window, &w, &h);
+    if(uint32(w) != m_width || uint32(h) != m_height) {
+        m_width  = w;
+        m_height = h;
+        reset(m_reset);
     }
 }
 
 void Application::reset(uint32 flags) {
-    mReset = flags;
-    bgfx::reset(mWidth, mHeight, mReset);
+    m_reset = flags;
+    bgfx::reset(m_width, m_height, m_reset);
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
 }

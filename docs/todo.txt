@@ -1,7 +1,10 @@
 
 - static mesh factory
 - ingame editor
-- gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
+    - picking
+    - entity explorer
+    - entity properties
+    - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
 - asset pipeline from Kosta - must have
 
 
