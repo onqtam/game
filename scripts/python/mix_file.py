@@ -92,9 +92,9 @@ for type in types:
     gen.writeln("struct " + name_gen)
     gen.writeln("{")
     if types[type]["is_mixin"]:
-        gen.writeln("HARDLY_TYPE_MIXINABLE(" + name_gen + ");", tabs = 1)
+        gen.writeln("HA_TYPE_MIXINABLE(" + name_gen + ");", tabs = 1)
     else:
-        gen.writeln("HARDLY_TYPE_SERIALIZABLE(" + name_gen + ");", tabs = 1)
+        gen.writeln("HA_TYPE_SERIALIZABLE(" + name_gen + ");", tabs = 1)
     
     visibility = ""
     for field in types[type]["fields"]:
@@ -119,7 +119,7 @@ for type in types:
     serialize += strln("inline void serialize(const " + name_gen + "& src, JsonData& out) {")
     serialize += strln("out.startObject();", tabs = 1)
     for field in types[type]["fields"]:
-        serialize += strln("HARDLY_SERIALIZE_VARIABLE(\"" + field.hash + "\", src." + field.name + ");", tabs = 1)
+        serialize += strln("HA_SERIALIZE_VARIABLE(\"" + field.hash + "\", src." + field.name + ");", tabs = 1)
     serialize += strln("out.endObject();", tabs = 1)
     serialize += strln("}")
     serialize += strln("")
@@ -128,7 +128,7 @@ for type in types:
     serialize += strln("const size_t val_len = val.get_length();", tabs = 1)
     serialize += strln("for(size_t i = 0; i < val_len; ++i) {", tabs = 1)
     for field in types[type]["fields"]:
-        serialize += strln("HARDLY_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
+        serialize += strln("HA_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
     serialize += strln("}", tabs = 1)
     serialize += strln("}")
 

@@ -1,14 +1,14 @@
 #pragma once
 
-#ifdef HARDLY_WITH_PLUGINS
+#ifdef HA_WITH_PLUGINS
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 #include <FileWatcher/FileWatcher.h>
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 class PluginManager : public FW::FileWatchListener
 {
-    HARDLY_SCOPED_SINGLETON(PluginManager, class Application);
+    HA_SCOPED_SINGLETON(PluginManager, class Application);
 
     struct LoadedPlugin
     {
@@ -27,4 +27,4 @@ class PluginManager : public FW::FileWatchListener
     void update();
 };
 
-#endif // HARDLY_WITH_PLUGINS
+#endif // HA_WITH_PLUGINS

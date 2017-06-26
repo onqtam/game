@@ -3,7 +3,7 @@
 #===================================================================================================
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    ucm_add_flags(CXX -std=c++14 -m64)
+    ucm_add_flags(CXX -std=c++1z -m64)
     
     #ucm_add_flags(CONFIG Release -ffast-math -flto)
     #ucm_add_linker_flags(-Wl,--no-undefined) # problematic for glfw?!

@@ -37,7 +37,7 @@
 #include "utils/singleton.h"
 #include "utils/doctest/doctest_proxy.h"
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 
 #define DYNAMIX_NO_DM_THIS
 #include <dynamix/dynamix.hpp>
@@ -45,10 +45,10 @@ HARDLY_SUPPRESS_WARNINGS
 #include <ppk_assert.h>
 
 #ifdef _MSC_VER
-// oddly enough these are not silenced by HARDLY_SUPPRESS_WARNINGS and have to be listed explicitly
+// oddly enough these are not silenced by HA_SUPPRESS_WARNINGS and have to be listed explicitly
 #pragma warning(disable : 4702) // unreachable code
 #pragma warning(disable : 4715) // not all control paths return a value
-#endif // _MSC_VER
+#endif                          // _MSC_VER
 #include <sajson/include/sajson.h>
 
 #include <bgfx/bgfx.h>
@@ -61,7 +61,6 @@ HARDLY_SUPPRESS_WARNINGS
 #define GLM_FORCE_PURE
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_NO_CTOR_INIT
-//#define GLM_MESSAGES
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_access.hpp>
@@ -69,7 +68,7 @@ HARDLY_SUPPRESS_WARNINGS
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 using glm::int8;
 using glm::int16;

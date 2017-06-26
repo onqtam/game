@@ -7,7 +7,7 @@ using namespace std;
 
 class dummy : public dummy_gen, public UpdatableMixin<dummy>
 {
-    HARDLY_MESSAGES_IN_MIXIN(dummy)
+    HA_MESSAGES_IN_MIXIN(dummy)
 public:
     void trace(ostream& o) const { o << "\twith a :(        35       plugin mixin" << endl; }
 
@@ -16,8 +16,8 @@ public:
     static int a;
 };
 
-HARDLY_MIXIN(dummy, trace_msg);
+HA_MIXIN_DEFINE(dummy, trace_msg);
 
-HARDLY_GLOBAL_MEMBER(int, dummy, a) = 5;
-HARDLY_GLOBAL(int, a) = 5;
-HARDLY_GLOBAL_STATIC(int, b);
+HA_GLOBAL_MEMBER(int, dummy, a) = 5;
+HA_GLOBAL(int, a) = 5;
+HA_GLOBAL_STATIC(int, b);

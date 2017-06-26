@@ -51,6 +51,9 @@ struct InputEventListener
 {
     InputEventListener() { InputEventListener_add(static_cast<T*>(this)); }
     ~InputEventListener() { InputEventListener_remove(static_cast<T*>(this)); }
+    InputEventListener(const InputEventListener&) = default;
+    InputEventListener& operator=(const InputEventListener&) = default;
+
     friend void InputEventListener_add(void* in);
     friend void InputEventListener_remove(void* in);
 };

@@ -9,15 +9,15 @@
 #include "core/registry/registry.h"
 //#include "serialization/JsonData.h"
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 #include <bx/fpumath.h>
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 #include "core/GraphicsHelpers.h"
 
 using namespace std;
 
-HARDLY_SCOPED_SINGLETON_IMPLEMENT(ObjectManager);
+HA_SCOPED_SINGLETON_IMPLEMENT(ObjectManager);
 
 bgfx::ProgramHandle      mProgram;
 bgfx::VertexBufferHandle mVbh;

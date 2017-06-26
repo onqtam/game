@@ -2,7 +2,7 @@
 
 class HAPI ObjectManager
 {
-    HARDLY_SCOPED_SINGLETON(ObjectManager, class Application);
+    HA_SCOPED_SINGLETON(ObjectManager, class Application);
     
     friend class PluginManager;
 

@@ -81,7 +81,7 @@ if(TOOLCHAIN STREQUAL "js")
 endif()
 
 if(${WITH_PLUGINS})
-    add_definitions(-DHARDLY_WITH_PLUGINS)
+    add_definitions(-DHA_WITH_PLUGINS)
 endif()
 
 #===================================================================================================

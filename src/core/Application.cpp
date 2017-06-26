@@ -6,7 +6,7 @@
 
 #include "core/messages/messages.h"
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 
 #include <bgfx/platform.h>
 
@@ -24,7 +24,7 @@ HARDLY_SUPPRESS_WARNINGS
 #include <GLFW/glfw3native.h>
 #endif // EMSCRIPTEN
 
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 // =================================================================================================
 // == IMGUI ========================================================================================
@@ -262,7 +262,7 @@ void imguiEvents(float dt) {
 // == APPLICATION IMPLEMENTATION ===================================================================
 // =================================================================================================
 
-HARDLY_SCOPED_SINGLETON_IMPLEMENT(Application);
+HA_SCOPED_SINGLETON_IMPLEMENT(Application);
 
 // TODO: use a smarter allocator - the important methods here are for the mixin data
 class global_mixin_allocator : public dynamix::global_allocator
@@ -297,11 +297,11 @@ int Application::run(int argc, char** argv) {
     HA_SET_DATA_CWD((Utils::getPathToExe() + "../../../data").c_str());
 #endif // EMSCRIPTEN
 
-#ifdef HARDLY_WITH_PLUGINS
+#ifdef HA_WITH_PLUGINS
     // load plugins first so tests in them get executed as well
     PluginManager pluginManager;
     pluginManager.init();
-#endif // HARDLY_WITH_PLUGINS
+#endif // HA_WITH_PLUGINS
 
     // run tests
     doctest::Context context(argc, argv);
@@ -399,10 +399,10 @@ void Application::processEvents() {
 }
 
 void Application::update() {
-#ifdef HARDLY_WITH_PLUGINS
+#ifdef HA_WITH_PLUGINS
     // reload plugins
     PluginManager::get().update();
-#endif // HARDLY_WITH_PLUGINS
+#endif // HA_WITH_PLUGINS
 
     m_time     = (float)glfwGetTime();
     m_dt       = m_time - m_lastTime;

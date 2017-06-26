@@ -78,8 +78,8 @@ test_case("[utils] numDigits") {
 }
 
 test_case("[utils] itoa_fast") {
-#define itoa_fast_check_eq(x) check_eq(strcmp(itoa_fast(HARDLY_CAT_1(x, LL), dest), #x), 0)
-#define itoa_fast_check_ne(x) check_ne(strcmp(itoa_fast(HARDLY_CAT_1(x, LL), dest), #x), 0)
+#define itoa_fast_check_eq(x) check_eq(strcmp(itoa_fast(HA_CAT_1(x, LL), dest), #x), 0)
+#define itoa_fast_check_ne(x) check_ne(strcmp(itoa_fast(HA_CAT_1(x, LL), dest), #x), 0)
     char dest[24];
     itoa_fast_check_eq(0);
     itoa_fast_check_eq(12);

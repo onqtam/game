@@ -11,7 +11,7 @@ using namespace dynamix;
 
 class common : public common_gen
 {
-    HARDLY_MESSAGES_IN_MIXIN(common)
+    HA_MESSAGES_IN_MIXIN(common)
 public:
     void trace(std::ostream& o) const;
 
@@ -21,4 +21,4 @@ public:
 
 void common::trace(std::ostream& o) const { o << " object with id " << ha_this.id() << std::endl; }
 
-HARDLY_MIXIN(common, get_pos_msg& set_pos_msg& priority(1000, trace_msg));
+HA_MIXIN_DEFINE(common, get_pos_msg& set_pos_msg& priority(1000, trace_msg));

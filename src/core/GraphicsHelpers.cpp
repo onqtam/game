@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 
 #include <bx/bx.h>
 #include <bx/string.h>
@@ -17,11 +17,11 @@ HARDLY_SUPPRESS_WARNINGS
 #include <tinystl/vector.h>
 #include <tinystl/string.h>
 
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 namespace stl = tinystl;
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 
 bx::DefaultAllocator g_allocator;
 
@@ -364,4 +364,4 @@ void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, co
     _mesh->submit(_id, _program, _mtx, _state);
 }
 
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END

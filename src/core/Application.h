@@ -6,7 +6,7 @@ struct GLFWwindow;
 
 class HAPI Application
 {
-    HARDLY_SCOPED_SINGLETON(Application, int main(int, char**));
+    HA_SCOPED_SINGLETON(Application, int main(int, char**));
 
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow*, double xoffset, double yoffset);

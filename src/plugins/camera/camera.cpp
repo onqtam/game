@@ -12,7 +12,7 @@ class HA_EMPTY_BASE camera : public camera_gen,
                              public InputEventListener<camera>,
                              public UpdatableMixin<camera>
 {
-    HARDLY_MESSAGES_IN_MIXIN(common)
+    HA_MESSAGES_IN_MIXIN(common)
 public:
     camera() { set_pos(ha_this, glm::vec3(0, 50, 0)); }
 
@@ -43,4 +43,4 @@ public:
     }
 };
 
-HARDLY_MIXIN(camera, process_event_msg& get_view_matrix_msg& get_projection_matrix_msg);
+HA_MIXIN_DEFINE(camera, process_event_msg& get_view_matrix_msg& get_projection_matrix_msg);

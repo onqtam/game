@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif // _WIN32
 
-extern "C" SYMBOL_EXPORT MixinInfoMap& getMixins() {
+extern "C" HA_EXPORT MixinInfoMap& getMixins() {
     static MixinInfoMap data;
     return data;
 }
@@ -17,7 +17,7 @@ int registerMixin(const char* name, MixinInfo info) {
     return 0;
 }
 
-extern "C" SYMBOL_EXPORT GlobalInfoMap& getGlobals() {
+extern "C" HA_EXPORT GlobalInfoMap& getGlobals() {
     static GlobalInfoMap data;
     return data;
 }
@@ -35,12 +35,12 @@ static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
     char buf[2048];
 
     size_t num_written =
-            snprintf(buf, HARDLY_COUNT_OF(buf),
+            snprintf(buf, HA_COUNT_OF(buf),
                      "Assert failed!\nFile: %s\nLine: %d\nFunction: %s\nExpression: %s", file, line,
                      function, expression);
 
     if(message)
-        snprintf(buf + num_written, HARDLY_COUNT_OF(buf) - num_written, "Message: %s\n", message);
+        snprintf(buf + num_written, HA_COUNT_OF(buf) - num_written, "Message: %s\n", message);
 
     fprintf(stderr, "%s", buf);
 

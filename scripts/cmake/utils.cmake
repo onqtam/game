@@ -227,7 +227,7 @@ function(add_plugin)
     endif()
     
     target_compile_definitions(${ARG_NAME} PRIVATE
-        HARDLY_PLUGIN # this will affect the macros used for registering mixins - for supporting plugin reloading
+        HA_PLUGIN # this will affect the macros used for registering mixins - for supporting plugin reloading
     )
     
     mixify_target(${ARG_NAME})

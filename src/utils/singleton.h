@@ -1,7 +1,7 @@
 #pragma once
 
 // clang-format off
-#define HARDLY_SCOPED_SINGLETON(the_class, the_friend)                                             \
+#define HA_SCOPED_SINGLETON(the_class, the_friend)                                                 \
     private:                                                                                       \
         static the_class* s_instance;                                                              \
         the_class() {                                                                              \
@@ -16,5 +16,5 @@
     private:                                                                                       \
     friend the_friend
 
-#define HARDLY_SCOPED_SINGLETON_IMPLEMENT(the_class) the_class* the_class::s_instance = nullptr
+#define HA_SCOPED_SINGLETON_IMPLEMENT(the_class) the_class* the_class::s_instance = nullptr
 // clang-format on

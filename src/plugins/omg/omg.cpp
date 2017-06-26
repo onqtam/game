@@ -7,9 +7,9 @@ using namespace std;
 
 class omg : public omg_gen
 {
-    HARDLY_MESSAGES_IN_MIXIN(omg)
+    HA_MESSAGES_IN_MIXIN(omg)
 public:
     void trace(ostream& o) const { o << "\twith a OMG plugin mixin" << endl; }
 };
 
-HARDLY_MIXIN(omg, trace_msg);
+HA_MIXIN_DEFINE(omg, trace_msg);

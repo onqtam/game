@@ -1,4 +1,4 @@
-#ifdef HARDLY_WITH_PLUGINS
+#ifdef HA_WITH_PLUGINS
 
 #include "PluginManager.h"
 
@@ -11,13 +11,13 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-HARDLY_SUPPRESS_WARNINGS
+HA_SUPPRESS_WARNINGS
 
 #include <Windows.h>
 #include <tchar.h>
 #include <strsafe.h>
 
-HARDLY_SUPPRESS_WARNINGS_END
+HA_SUPPRESS_WARNINGS_END
 
 typedef HMODULE    DynamicLib;
 static const char* orig_plugin_tail   = "_plugin.dll";
@@ -56,7 +56,7 @@ using namespace std;
 
 static vector<string> getOriginalPlugins();
 
-HARDLY_SCOPED_SINGLETON_IMPLEMENT(PluginManager);
+HA_SCOPED_SINGLETON_IMPLEMENT(PluginManager);
 
 void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::String& filename,
                                      FW::Action action) {
@@ -198,4 +198,4 @@ vector<string> getOriginalPlugins() {
     return names;
 }
 
-#endif // HARDLY_WITH_PLUGINS
+#endif // HA_WITH_PLUGINS

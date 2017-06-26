@@ -3,8 +3,8 @@
 // clang-format off
 
 #if defined(__clang__)
-#define HARDLY_SUPPRESS_WARNINGS_END _Pragma("clang diagnostic pop")
-#define HARDLY_SUPPRESS_WARNINGS \
+#define HA_SUPPRESS_WARNINGS_END _Pragma("clang diagnostic pop")
+#define HA_SUPPRESS_WARNINGS \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wgnu-anonymous-struct\"") \
     _Pragma("clang diagnostic ignored \"-Wnested-anon-types\"") \
@@ -30,8 +30,8 @@
 #endif // __clang__
 
 #if defined(__GNUC__) && !defined(__clang__)
-#define HARDLY_SUPPRESS_WARNINGS_END _Pragma("GCC diagnostic pop")
-#define HARDLY_SUPPRESS_WARNINGS \
+#define HA_SUPPRESS_WARNINGS_END _Pragma("GCC diagnostic pop")
+#define HA_SUPPRESS_WARNINGS \
     _Pragma("GCC diagnostic push") \
     _Pragma("GCC diagnostic ignored \"-Wconversion\"") \
     _Pragma("GCC diagnostic ignored \"-Weffc++\"") \
@@ -56,8 +56,8 @@
 #endif // __GNUC__
 
 #ifdef _MSC_VER
-#define HARDLY_SUPPRESS_WARNINGS_END __pragma(warning(pop))
-#define HARDLY_SUPPRESS_WARNINGS __pragma(warning(push, 0))
+#define HA_SUPPRESS_WARNINGS_END __pragma(warning(pop))
+#define HA_SUPPRESS_WARNINGS __pragma(warning(push, 0))
 #endif // _MSC_VER
 
 // clang-format on
