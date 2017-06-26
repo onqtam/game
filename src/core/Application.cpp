@@ -424,6 +424,7 @@ void Application::update() {
     int w, h;
     glfwGetWindowSize(mWindow, &w, &h);
     if(w != mWidth || h != mHeight) {
+        printf("FROM APP: %d %d\n", w, h);
         mWidth  = w;
         mHeight = h;
         reset(mReset);

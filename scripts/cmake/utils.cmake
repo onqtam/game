@@ -98,38 +98,44 @@ endfunction()
 
 # add_precompiled_header
 #
-# Sets a precompiled header for a given target
-# Args:
-# TARGET_NAME - Name of the target. Only valid after add_library or add_executable
-# PRECOMPILED_HEADER - Header file to precompile
-# PRECOMPILED_SOURCE - MSVC specific source to do the actual precompilation. Ignored on other platforms
+# Sets a precompiled header to be used for a given target.
+# Calling this is essential for iOS applications.
+# * msvc: Sets compile options to enable creation and use of a precompiled header.
+#   You need to have a cpp file with the same name as the precompiled header, only
+#   having .cpp extension. That file has to be added to the target prior to calling the macro.
+# * gcc: Creates a precompiled header in a subdirectory in the build directory.
+# * clang: todo
 #
-# Example Usage
-# add_executable(myproj
-#   src/myproj.pch.h
-#   src/myproj.pch.cpp
-#   src/main.cpp
-#   ...
-#   src/z.cpp
-#   )
-# add_precompiled_header(myproj src/myproj.pch.h src/myproj.pch.cpp)
-#
+function(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER)
+    # my addition to the chobo pch macro - also changed it from a macro to a function (idk why but otherwise it didnt work...)
+    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.h")
+        file(WRITE  ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.h "#include \"${PRECOMPILED_HEADER}\"\n")
+        file(WRITE  ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.cpp "#include \"precompiled_${TARGET_NAME}.h\"\n")
+    endif()
+    set(PRECOMPILED_HEADER ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.h)
+    set(PRECOMPILED_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.cpp)
+    target_sources(${TARGET_NAME} PRIVATE ${PRECOMPILED_SOURCE})
+    SOURCE_GROUP("" FILES ${PRECOMPILED_SOURCE})
 
-macro(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURCE)
+    # from here on goes the chobo
     get_filename_component(PRECOMPILED_HEADER_NAME ${PRECOMPILED_HEADER} NAME)
-    if(MSVC)
-        get_filename_component(PRECOMPILED_HEADER_PATH ${PRECOMPILED_HEADER} DIRECTORY)
-        target_include_directories(${TARGET_NAME} PRIVATE ${PRECOMPILED_HEADER_PATH}) # fixes occasional IntelliSense glitches
 
+    if(MSVC)
+        get_filename_component(PRECOMPILED_HEADER_INCLUDE ${PRECOMPILED_HEADER} NAME)
         get_filename_component(PRECOMPILED_HEADER_WE ${PRECOMPILED_HEADER} NAME_WE)
-        set(PRECOMPILED_BINARY "$(IntDir)/${PRECOMPILED_HEADER_WE}.pch")
+
+        if(CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "NMake Makefiles")
+            set(PRECOMPILED_BINARY "${CMAKE_CURRENT_BINARY_DIR}/${PRECOMPILED_HEADER_WE}.pch")
+        else()
+            set(PRECOMPILED_BINARY "$(IntDir)/${PRECOMPILED_HEADER_WE}.pch")
+        endif()
 
         get_target_property(SOURCE_FILES ${TARGET_NAME} SOURCES)
         set(SOURCE_FILE_FOUND FALSE)
         foreach(SOURCE_FILE ${SOURCE_FILES})
-            if(SOURCE_FILE MATCHES \\.\(c|cc|cxx|cpp\)$)
-                if(${PRECOMPILED_SOURCE} MATCHES ${SOURCE_FILE})
-                    # Set source file to generate header
+            set(PCH_COMPILE_FLAGS "")
+            if(SOURCE_FILE MATCHES \\.\(cc|cxx|cpp\)$)
+                if(SOURCE_FILE STREQUAL ${PRECOMPILED_SOURCE})
                     set_source_files_properties(
                         ${SOURCE_FILE}
                         PROPERTIES
@@ -137,27 +143,29 @@ macro(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURCE)
                         OBJECT_OUTPUTS "${PRECOMPILED_BINARY}")
                     set(SOURCE_FILE_FOUND TRUE)
                 else()
-                    # Set and automatically include precompiled header
                     set_source_files_properties(
                         ${SOURCE_FILE}
-                        PROPERTI
-                        COMPILE_FLAGS "/Yu\"${PRECOMPILED_HEADER_NAME}\" /Fp\"${PRECOMPILED_BINARY}\" /FI\"${PRECOMPILED_HEADER_NAME}\""
+                        PROPERTIES
+                        COMPILE_FLAGS "/Yu\"${PRECOMPILED_HEADER_NAME}\" /Fp\"${PRECOMPILED_BINARY}\" /FI\"${PRECOMPILED_HEADER_INCLUDE}\""
                         OBJECT_DEPENDS "${PRECOMPILED_BINARY}")
                 endif()
             endif()
         endforeach()
         if(NOT SOURCE_FILE_FOUND)
             message(FATAL_ERROR "A source file for ${PRECOMPILED_HEADER} was not found. Required for MSVC builds.")
-        endif()
-    elseif(CMAKE_GENERATOR STREQUAL Xcode)
+        endif(NOT SOURCE_FILE_FOUND)
+    # elseif(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    elseif (APPLE AND NOT CMAKE_GENERATOR STREQUAL "Ninja")
         set_target_properties(
             ${TARGET_NAME}
             PROPERTIES
             XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${PRECOMPILED_HEADER}"
             XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
             )
-    elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # elseif(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    else()
         # Create and set output directory.
+        get_filename_component(PRECOMPILED_HEADER_NAME ${PRECOMPILED_HEADER} NAME)
         set(OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/${PRECOMPILED_HEADER_NAME}.gch")
         make_directory(${OUTPUT_DIR})
         set(OUTPUT_NAME "${OUTPUT_DIR}/${PRECOMPILED_HEADER_NAME}.gch")
@@ -165,14 +173,14 @@ macro(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURCE)
         # Gather compiler options, definitions, etc.
         string(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" CXX_FLAGS)
         set(COMPILER_FLAGS "${${CXX_FLAGS}} ${CMAKE_CXX_FLAGS}")
-        get_directory_property(DIRECTORY_FLAGS INCLUDE_DIRECTORIES)
+        get_target_property(DIRECTORY_FLAGS ${TARGET_NAME} INCLUDE_DIRECTORIES)
         foreach(item ${DIRECTORY_FLAGS})
             list(APPEND COMPILER_FLAGS "-I${item}")
-        endforeach()
-        get_directory_property(DIRECTORY_FLAGS COMPILE_DEFINITIONS)
+        endforeach(item)
+        get_target_property(DIRECTORY_FLAGS ${TARGET_NAME} COMPILE_DEFINITIONS)
         foreach(item ${DIRECTORY_FLAGS})
             list(APPEND COMPILER_FLAGS "-D${item}")
-        endforeach()
+        endforeach(item)
 
         # Add a custom target for building the precompiled header.
         separate_arguments(COMPILER_FLAGS)
@@ -183,10 +191,8 @@ macro(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURCE)
         add_custom_target(${TARGET_NAME}_gch DEPENDS ${OUTPUT_NAME})
         add_dependencies(${TARGET_NAME} ${TARGET_NAME}_gch)
         set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_FLAGS "-include ${PRECOMPILED_HEADER_NAME} -Winvalid-pch")
-    else()
-        message(FATAL_ERROR "Unknown generator for add_precompiled_header.")
     endif()
-endmacro(add_precompiled_header)
+endfunction()
 
 # adds a plugin with supposedly .mix files in it - so it also mixifies it
 function(add_plugin)
@@ -199,8 +205,8 @@ function(add_plugin)
         return()
     endif()
     
-    add_library(${ARG_NAME} SHARED "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp" ${ARG_UNPARSED_ARGUMENTS})
-    add_precompiled_header(${ARG_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h" "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp")
+    add_library(${ARG_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
+    add_precompiled_header(${ARG_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
     
     #et_target_properties(${ARG_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
     #set_target_properties(${ARG_NAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)

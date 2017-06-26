@@ -39,7 +39,7 @@ target_link_libraries(registry sajson dynamix)
 add_fPIC_to_target(registry)
 
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
-ucm_add_files(TO SOURCES "precompiled.cpp")
+#ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
@@ -63,7 +63,7 @@ add_plugin(NAME camera ${plugin_camera})
 # ========= PLUGINS END =========
 
 add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
-add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h" "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp")
+add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 
 set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
 
