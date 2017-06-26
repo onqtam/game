@@ -50,6 +50,8 @@
     _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"") \
     _Pragma("GCC diagnostic ignored \"-Wignored-qualifiers\"") \
     _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
+    _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
+
 
 #endif // __GNUC__
 

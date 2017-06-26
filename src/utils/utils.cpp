@@ -2,11 +2,15 @@
 
 using namespace std;
 
+HARDLY_SUPPRESS_WARNINGS
+
 #ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 #include <tchar.h>
+
 
 #else // _WIN32
 
@@ -14,6 +18,8 @@ using namespace std;
 #include <unistd.h>
 
 #endif // _WIN32
+
+HARDLY_SUPPRESS_WARNINGS_END
 
 namespace Utils
 {

@@ -6,8 +6,6 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
 
-test_case("") {}
-
 using namespace dynamix;
 
 class camera : public camera_gen, public InputEventListener<camera>
@@ -35,6 +33,7 @@ public:
     glm::mat4 get_projection_matrix() {
         uint32 w = Application::get().getWidth();
         uint32 h = Application::get().getHeight();
+        //Application::get().addInputEventListener(-1);
         return glm::perspectiveLH(1.f, float(w) / float(h), 0.1f, 100.0f);
     }
 };

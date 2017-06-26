@@ -6,6 +6,8 @@
 
 #include "core/messages/messages.h"
 
+HARDLY_SUPPRESS_WARNINGS
+
 #include <bgfx/platform.h>
 
 #include <GLFW/glfw3.h>
@@ -21,6 +23,8 @@
 #endif // __APPLE__
 #include <GLFW/glfw3native.h>
 #endif // EMSCRIPTEN
+
+HARDLY_SUPPRESS_WARNINGS_END
 
 // =================================================================================================
 // == IMGUI ========================================================================================

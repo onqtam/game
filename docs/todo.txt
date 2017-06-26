@@ -1,10 +1,16 @@
 
+- fix the engine/plugin linking problems once and for all :|
+- move more stuff to private in managers - so only their creators can call those things
+
+- level
 - static mesh factory
 - ingame editor
     - picking
     - entity explorer
     - entity properties
+    - undo/redo
     - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
+- spatial queries about objects
 - asset pipeline from Kosta - must have
 
 

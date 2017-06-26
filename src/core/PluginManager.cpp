@@ -10,9 +10,14 @@
 #ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
+
+HARDLY_SUPPRESS_WARNINGS
+
 #include <Windows.h>
 #include <tchar.h>
 #include <strsafe.h>
+
+HARDLY_SUPPRESS_WARNINGS_END
 
 typedef HMODULE    DynamicLib;
 static const char* orig_plugin_tail   = "_plugin.dll";

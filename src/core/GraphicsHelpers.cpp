@@ -1,6 +1,9 @@
 #include "GraphicsHelpers.h"
 
 #include <fstream>
+
+HARDLY_SUPPRESS_WARNINGS
+
 #include <bx/bx.h>
 #include <bx/string.h>
 #include <bx/crtimpl.h>
@@ -13,25 +16,30 @@
 #include <tinystl/allocator.h>
 #include <tinystl/vector.h>
 #include <tinystl/string.h>
+
+HARDLY_SUPPRESS_WARNINGS_END
+
 namespace stl = tinystl;
+
+HARDLY_SUPPRESS_WARNINGS
 
 bx::DefaultAllocator g_allocator;
 
-bx::AllocatorI* getAllocator() { return &g_allocator; }
+static bx::AllocatorI* getAllocator() { return &g_allocator; }
 
-bx::FileReaderI* getFileReader() {
+static bx::FileReaderI* getFileReader() {
     static bx::FileReaderI* s_fileReader = BX_NEW(&g_allocator, bx::FileReader);
     return s_fileReader;
 }
 
-void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _filePath,
-           uint32* _size) {
+static void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _filePath,
+                  uint32* _size) {
     if(bx::open(_reader, _filePath)) {
         uint32 size = (uint32)bx::getSize(_reader);
-        void*    data = BX_ALLOC(_allocator, size);
+        void*  data = BX_ALLOC(_allocator, size);
         bx::read(_reader, data, size);
         bx::close(_reader);
-        if(NULL != _size) {
+        if(nullptr != _size) {
             *_size = size;
         }
         return data;
@@ -39,18 +47,13 @@ void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _fi
         //DBG("Failed to open: %s.", _filePath);
     }
 
-    if(NULL != _size) {
+    if(nullptr != _size) {
         *_size = 0;
     }
 
-    return NULL;
+    return nullptr;
 }
-
-void* load(const char* _filePath, uint32* _size) {
-    return load(getFileReader(), getAllocator(), _filePath, _size);
-}
-
-void unload(void* _ptr) { BX_FREE(getAllocator(), _ptr); }
+static void unload(void* _ptr) { BX_FREE(getAllocator(), _ptr); }
 
 const bgfx::Memory* loadMemory(const char* filename) {
     std::ifstream   file(filename, std::ios::binary | std::ios::ate);
@@ -95,23 +98,21 @@ bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName) {
     return bgfx::createProgram(vs, fs, true);
 }
 
-static void imageReleaseCb(void* _ptr, void* _userData) {
-    BX_UNUSED(_ptr);
+static void imageReleaseCb(void*, void* _userData) {
     bimg::ImageContainer* imageContainer = (bimg::ImageContainer*)_userData;
     bimg::imageFree(imageContainer);
 }
 
-bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath, uint32 _flags,
-                                uint8_t _skip, bgfx::TextureInfo* _info) {
-    BX_UNUSED(_skip);
+static bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
+                                       uint32 _flags, uint8_t, bgfx::TextureInfo* _info) {
     bgfx::TextureHandle handle = BGFX_INVALID_HANDLE;
 
     uint32 size;
-    void*    data = load(_reader, getAllocator(), _filePath, &size);
-    if(NULL != data) {
+    void*  data = load(_reader, getAllocator(), _filePath, &size);
+    if(nullptr != data) {
         bimg::ImageContainer* imageContainer = bimg::imageParse(getAllocator(), data, size);
 
-        if(NULL != imageContainer) {
+        if(nullptr != imageContainer) {
             const bgfx::Memory* mem = bgfx::makeRef(imageContainer->m_data, imageContainer->m_size,
                                                     imageReleaseCb, imageContainer);
             unload(data);
@@ -128,7 +129,7 @@ bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
                         bgfx::TextureFormat::Enum(imageContainer->m_format), _flags, mem);
             }
 
-            if(NULL != _info) {
+            if(nullptr != _info) {
                 bgfx::calcTextureSize(*_info, uint16_t(imageContainer->m_width),
                                       uint16_t(imageContainer->m_height),
                                       uint16_t(imageContainer->m_depth), imageContainer->m_cubeMap,
@@ -208,7 +209,7 @@ struct Mesh
 
         bx::AllocatorI* allocator = getAllocator();
 
-        uint32  chunk;
+        uint32    chunk;
         bx::Error err;
         while(4 == bx::read(_reader, chunk, &err) && err.isOk()) {
             switch(chunk) {
@@ -336,7 +337,7 @@ struct Mesh
     GroupArray                 m_groups;
 };
 
-Mesh* meshLoad(bx::ReaderSeekerI* _reader) {
+static Mesh* meshLoad(bx::ReaderSeekerI* _reader) {
     Mesh* mesh = new Mesh;
     mesh->load(_reader);
     return mesh;
@@ -350,7 +351,7 @@ Mesh* meshLoad(const char* _filePath) {
         return mesh;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void meshUnload(Mesh* _mesh) {
@@ -362,3 +363,5 @@ void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, co
                 uint64_t _state) {
     _mesh->submit(_id, _program, _mtx, _state);
 }
+
+HARDLY_SUPPRESS_WARNINGS_END
