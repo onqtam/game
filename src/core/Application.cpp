@@ -191,7 +191,7 @@ void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     app->m_mouseWheel += (float)yoffset;
 
     InputEvent ev;
-    ev.motion = {InputEvent::SCROLL, yoffset};
+    ev.scroll = {InputEvent::SCROLL, yoffset};
     Application::get().addInputEvent(ev);
 }
 
