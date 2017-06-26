@@ -34,7 +34,13 @@ public:
     // len should NOT include the null terminating character
     void append(const char* text, size_t len) {
         const size_t old_size = data.size();
-        data.resize(old_size + len);
+        const size_t sum      = old_size + len;
+        if(sum > data.capacity())
+            if(sum < data.capacity() * 2)
+                data.reserve(data.capacity() * 2);
+            else
+                data.reserve(sum);
+        data.resize(sum);
         memcpy(data.data() + old_size, text, len);
     }
 

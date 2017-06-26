@@ -47,3 +47,10 @@ template <typename T, size_t N>
 char (&_ArraySizeHelper(T (&array)[N]))[N];
 #define HARDLY_COUNT_OF(array) (sizeof(_ArraySizeHelper(array)))
 #endif // _MSC_VER
+
+// https://blogs.msdn.microsoft.com/vcblog/2016/03/30/optimizing-the-layout-of-empty-base-classes-in-vs2015-update-2-3/
+#ifdef _MSC_VER
+#define HA_EMPTY_BASE __declspec(empty_bases)
+#else // _MSC_VER
+#define HA_EMPTY_BASE
+#endif // _MSC_VER

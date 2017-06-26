@@ -28,7 +28,7 @@ if(MSVC)
     
     # https://blogs.msdn.microsoft.com/vcblog/2016/10/05/faster-c-build-cycle-in-vs-15-with-debugfastlink/
     
-    #ucm_add_flags(/std:c++latest) # breaks stuff because c++17 removed deprecated stuff - should delay the upgrade
+    ucm_add_flags(/std:c++latest)
     
     # TODO: not sure if this should be set globally
     #ucm_add_linker_flags(/ignore:4217) # locally defined symbol 'symbol' imported in function 'function'
