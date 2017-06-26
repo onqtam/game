@@ -7,7 +7,7 @@
 #include "core/messages/messages_camera.h"
 
 #include "core/registry/registry.h"
-#include "serialization/JsonData.h"
+//#include "serialization/JsonData.h"
 
 HARDLY_SUPPRESS_WARNINGS
 #include <bx/fpumath.h>

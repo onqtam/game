@@ -1,6 +1,4 @@
 
-- fix the engine/plugin linking problems once and for all :|
-- move more stuff to private in managers - so only their creators can call those things
 
 - level
 - static mesh factory

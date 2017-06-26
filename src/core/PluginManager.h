@@ -10,7 +10,6 @@ class PluginManager : public FW::FileWatchListener
 {
     HARDLY_SCOPED_SINGLETON(PluginManager, class Application);
 
-private:
     struct LoadedPlugin
     {
         void*       plugin;
@@ -21,11 +20,9 @@ private:
     FW::FileWatcher m_fileWatcher;
 
     std::vector<LoadedPlugin> m_plugins;
-
-public:
+    
     void handleFileAction(FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
                           FW::Action action) override;
-
     void init();
     void update();
 };

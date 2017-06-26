@@ -3,11 +3,13 @@
 // clang-format off
 #define HARDLY_SCOPED_SINGLETON(the_class, the_friend)                                             \
     private:                                                                                       \
-        static HAPI the_class* s_instance;                                                         \
+        static the_class* s_instance;                                                              \
         the_class() {                                                                              \
             PPK_ASSERT(s_instance == nullptr);                                                     \
             s_instance = this;                                                                     \
         }                                                                                          \
+        the_class(const the_class&) = delete;                                                      \
+        the_class& operator=(const the_class&) = delete;                                           \
         ~the_class() { s_instance = nullptr; }                                                     \
     public:                                                                                        \
         static the_class& get() { return *s_instance; }                                            \

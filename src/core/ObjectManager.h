@@ -1,9 +1,9 @@
 #pragma once
 
-class ObjectManager
+class HAPI ObjectManager
 {
     HARDLY_SCOPED_SINGLETON(ObjectManager, class Application);
-
+    
     friend class PluginManager;
 
 private:
@@ -12,11 +12,12 @@ private:
     std::map<int, Entity> m_objects;
     
     int m_camera = -1;
-
-public:
+    
     void init();
     void update();
     int  shutdown();
+
+public:
     
     int new_object_id();
     Entity& new_object();

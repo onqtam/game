@@ -24,6 +24,8 @@ if(MSVC)
     ucm_add_flags(CONFIG Debug      /Ob1              /D_ITERATOR_DEBUG_LEVEL=2)
     ucm_add_flags(CONFIG Release    /Gw /GL /fp:fast  /D_ITERATOR_DEBUG_LEVEL=0)
     
+    ucm_add_flags(/wd4251) # identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+    
     # https://blogs.msdn.microsoft.com/vcblog/2016/10/05/faster-c-build-cycle-in-vs-15-with-debugfastlink/
     
     #ucm_add_flags(/std:c++latest) # breaks stuff because c++17 removed deprecated stuff - should delay the upgrade

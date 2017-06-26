@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-class Application
+class HAPI Application
 {
     HARDLY_SCOPED_SINGLETON(Application, int main(int, char**));
 
@@ -18,6 +18,11 @@ class Application
 
     void addInputEvent(const InputEvent& ev) { m_inputs.push_back(ev); }
 
+    int run(int argc, char** argv);
+    void processEvents();
+    void update();
+    void reset(uint32 flags = 0);
+
 public:
     uint32 getWidth() const { return m_width; }
     uint32 getHeight() const { return m_height; }
@@ -25,11 +30,6 @@ public:
 
     void addInputEventListener(int in);
     void removeInputEventListener(int in);
-
-    int run(int argc, char** argv);
-    void processEvents();
-    void update();
-    void reset(uint32 flags = 0);
 
 private:
     std::vector<InputEvent> m_inputs;
