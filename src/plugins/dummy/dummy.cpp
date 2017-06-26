@@ -11,7 +11,7 @@ class dummy : public dummy_gen, public UpdatableMixin<dummy>
 public:
     void trace(ostream& o) const { o << "\twith a :(        35       plugin mixin" << endl; }
 
-    void update() { cout << "UPDATE CALLED! 8" << endl; }
+    void update(float) { cout << "UPDATE CALLED! 8" << endl; }
 
     static int a;
 };

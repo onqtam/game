@@ -17,7 +17,7 @@ set(UCM_UNITY_BUILD         OFF CACHE BOOL "" FORCE)
 set(UCM_NO_COTIRE_FOLDER    OFF CACHE BOOL "" FORCE)
 
 option(WITH_PLUGINS "Compile plugins as separate .dll files instead of merging them with the executable" ON)
-#set(WITH_PLUGINS ON CACHE BOOL "" FORCE)
+#set(WITH_PLUGINS OFF CACHE BOOL "" FORCE)
 
 set(COTIRE_PCH_MEMORY_SCALING_FACTOR 500)
 include(third_party/ucm/cmake/ucm.cmake)
@@ -74,7 +74,7 @@ if(TOOLCHAIN STREQUAL "js")
         ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)
     endif()
     
-    add_definitions(-DDOCTEST_CONFIG_NO_POSIX_SIGNALS) # sigaltstack missing in js environment
+    add_definitions(-DDOCTEST_CONFIG_DISABLE)
 
     # add this because dynamix uses it
     include_directories("${EMSCRIPTEN_ROOT}/system/lib/libcxxabi/include")

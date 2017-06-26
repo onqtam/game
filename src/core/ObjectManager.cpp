@@ -19,12 +19,12 @@ using namespace std;
 
 HA_SCOPED_SINGLETON_IMPLEMENT(ObjectManager);
 
-bgfx::ProgramHandle      mProgram;
-bgfx::VertexBufferHandle mVbh;
-bgfx::IndexBufferHandle  mIbh;
+static bgfx::ProgramHandle      mProgram;
+static bgfx::VertexBufferHandle mVbh;
+static bgfx::IndexBufferHandle  mIbh;
 
-Mesh*               m_mesh;
-bgfx::ProgramHandle m_program;
+static Mesh*               m_mesh;
+static bgfx::ProgramHandle m_program;
 
 // vertex declarations
 struct PosColorVertex
@@ -115,10 +115,15 @@ void ObjectManager::update() {
     //for(auto& global : globals)
     //    cout << global.first << endl;
 
+
+
     ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.getDt();
+
+    auto& mixins = getMixins();
+    mixins["camera"].update(dt);
 
     bgfx::dbgTextClear();
     bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/01-cube");

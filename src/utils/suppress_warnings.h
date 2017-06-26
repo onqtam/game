@@ -26,6 +26,9 @@
     _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"") \
     _Pragma("clang diagnostic ignored \"-Wignored-qualifiers\"") \
     _Pragma("clang diagnostic ignored \"-Wunused-parameter\"") \
+    _Pragma("clang diagnostic ignored \"-Wcast-align\"") \
+    _Pragma("clang diagnostic ignored \"-Wgnu-zero-variadic-macro-arguments\"") \
+    _Pragma("clang diagnostic ignored \"-Wnon-virtual-dtor\"") \
 
 #endif // __clang__
 

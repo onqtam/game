@@ -25,8 +25,8 @@ public:
         }
     }
 
-    void update() {
-        Application::get().getDt();
+    void update(float dt) {
+        //printf("%f\n", dt);
     }
 
     glm::mat4 get_view_matrix() {

@@ -188,7 +188,7 @@ void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     yoffset *=
             -0.01; // fix emscripten/glfw bug - probably related to this: https://github.com/kripken/emscripten/issues/3171
 #endif             // EMSCRIPTEN
-    app->m_mouseWheel += (float)yoffset;
+    app->m_mouseWheel += float(yoffset);
 
     InputEvent ev;
     ev.scroll = {InputEvent::SCROLL, yoffset};
@@ -238,12 +238,12 @@ void imguiEvents(float dt) {
     int displayW, displayH;
     glfwGetWindowSize(app.m_window, &w, &h);
     glfwGetFramebufferSize(app.m_window, &displayW, &displayH);
-    io.DisplaySize             = ImVec2((float)w, (float)h);
+    io.DisplaySize             = ImVec2(float(w), float(h));
     io.IniFilename             = ""; //"imgui.ini";
-    io.DisplayFramebufferScale = ImVec2((float)displayW / w, (float)displayH / h);
+    io.DisplayFramebufferScale = ImVec2(float(displayW) / w, float(displayH) / h);
     double mouse_x, mouse_y;
     glfwGetCursorPos(app.m_window, &mouse_x, &mouse_y);
-    io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
+    io.MousePos = ImVec2(float(mouse_x), float(mouse_y));
     for(int i = 0; i < 3; i++) {
         io.MouseDown[i]       = app.m_mousePressed[i] || glfwGetMouseButton(app.m_window, i) != 0;
         app.m_mousePressed[i] = false;
@@ -404,7 +404,7 @@ void Application::update() {
     PluginManager::get().update();
 #endif // HA_WITH_PLUGINS
 
-    m_time     = (float)glfwGetTime();
+    m_time     = float(glfwGetTime());
     m_dt       = m_time - m_lastTime;
     m_lastTime = m_time;
 

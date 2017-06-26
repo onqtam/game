@@ -1,5 +1,10 @@
 
 
+- camera movement with mouse
+- world
+- objects
+
+
 - static mesh factory
 - level
     - save

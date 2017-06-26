@@ -13,7 +13,7 @@
 typedef std::map<Entity*, JsonData> ObjectJsonMap;
 typedef void (*load_unload_proc)(ObjectJsonMap&);
 typedef void (*mutate_proc)(Entity*);
-typedef void (*update_proc)();
+typedef void (*update_proc)(float dt);
 
 struct MixinInfo
 {
@@ -36,14 +36,14 @@ int registerMixin(const char* name, MixinInfo info);
 template <typename T>
 struct UpdatableMixin
 {
-    static void call_update() {
+    static void call_update(float dt) {
         const auto& allocator  = PagedMixinAllocator<T>::get();
         const auto& flags      = allocator.getAllocatedFlags();
         const auto  flags_size = flags.size();
 
         for(size_t i = 0; i < flags_size; ++i)
             if(flags[i])
-                allocator[i].update();
+                allocator[i].update(dt);
     }
 };
 
