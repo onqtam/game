@@ -35,7 +35,6 @@ public:
     glm::mat4 get_projection_matrix() {
         uint32 w = Application::get().getWidth();
         uint32 h = Application::get().getHeight();
-        printf("%d %d\n", w, h);
         return glm::perspectiveLH(1.f, float(w) / float(h), 0.1f, 100.0f);
     }
 };

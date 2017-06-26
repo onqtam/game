@@ -323,6 +323,7 @@ int Application::run(int argc, char** argv) {
     mHeight                    = mode->height;
 #endif // EMSCRIPTEN
 
+
     // Create a window
     mWindow = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
     if(!mWindow) {
@@ -331,6 +332,7 @@ int Application::run(int argc, char** argv) {
     }
 
 #ifndef EMSCRIPTEN
+    glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     // Simulating fullscreen the way bgfx does... by placing the window in 0,0
     glfwSetWindowMonitor(mWindow, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
 #endif // EMSCRIPTEN
@@ -424,7 +426,6 @@ void Application::update() {
     int w, h;
     glfwGetWindowSize(mWindow, &w, &h);
     if(w != mWidth || h != mHeight) {
-        printf("FROM APP: %d %d\n", w, h);
         mWidth  = w;
         mHeight = h;
         reset(mReset);

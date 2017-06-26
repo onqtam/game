@@ -1,5 +1,4 @@
 
-- fix crash when app is unfocused (native build, fullscreen-ed)
 - static mesh factory
 - ingame editor
 - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo

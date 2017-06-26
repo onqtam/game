@@ -227,8 +227,12 @@ function(add_plugin)
     # but with a copy on post-build file watchers see just 1 notification for modification
     if(MSVC)
         set_target_properties(${ARG_NAME} PROPERTIES OUTPUT_NAME ${ARG_NAME}_plugin_msvc_orig)
+        set(config_dir $<CONFIG>/)
+        if(CMAKE_GENERATOR STREQUAL "Ninja")
+            set(config_dir "")
+        endif()
         add_custom_command(TARGET ${ARG_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${ARG_NAME}>
-            $<TARGET_PROPERTY:${ARG_NAME},LIBRARY_OUTPUT_DIRECTORY>/$<CONFIG>/${ARG_NAME}_plugin.dll)
+            $<TARGET_PROPERTY:${ARG_NAME},LIBRARY_OUTPUT_DIRECTORY>/${config_dir}${ARG_NAME}_plugin.dll)
     endif()
     
     target_compile_definitions(${ARG_NAME} PRIVATE
