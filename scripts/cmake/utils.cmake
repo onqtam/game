@@ -97,15 +97,6 @@ function(mixify_target target)
 endfunction()
 
 # add_precompiled_header
-#
-# Sets a precompiled header to be used for a given target.
-# Calling this is essential for iOS applications.
-# * msvc: Sets compile options to enable creation and use of a precompiled header.
-#   You need to have a cpp file with the same name as the precompiled header, only
-#   having .cpp extension. That file has to be added to the target prior to calling the macro.
-# * gcc: Creates a precompiled header in a subdirectory in the build directory.
-# * clang: todo
-#
 function(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER)
     # my addition to the chobo pch macro - also changed it from a macro to a function (idk why but otherwise it didnt work...)
     if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.h")

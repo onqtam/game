@@ -44,6 +44,9 @@ HARDLY_SUPPRESS_WARNINGS
 
 #include <ppk_assert.h>
 
+// oddly enough these are not silenced by HARDLY_SUPPRESS_WARNINGS and have to be listed explicitly
+#pragma warning(disable : 4702) // unreachable code
+#pragma warning(disable : 4715) // not all control paths return a value
 #include <sajson/include/sajson.h>
 
 #include <bgfx/bgfx.h>

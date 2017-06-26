@@ -6,14 +6,8 @@
 
 
 == questions:
-namespaces for messages - domains?
-naming convention - underscores? and for files? no caps?
-glm/yama/bgfx math?
-
-== tips & tricks:
 
 == bugs:
-currently it crashes on exit - the common mixin gets removed from objects before others which might need it
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - travis builds fail because of submodule issues...?
 CI - appveyor emscripten build fails for some reason
@@ -24,7 +18,6 @@ CI - appveyor emscripten build fails for some reason
     - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 == build system:
-- warnings
 - remove as much as possible from emscripten build (like doctest for example)
 - shared precompiled headers for plugins...?
 - make a proper release config - with LTO, no plugins, etc.
@@ -34,6 +27,8 @@ CI - appveyor emscripten build fails for some reason
 - consider including parts of glm as needed and not the entire thing - also read the manual again
 questionable:
 - ability to have only the game code in the solution - no third parties
+- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
+- optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
 
 == assets:
 - https://github.com/tlorach/Bak3d
@@ -46,8 +41,6 @@ questionable:
 == random:
 - filesystem watcher for added files - touches root cmake file (in python)
 - decouple rendering/logic in separate threads
-- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
-- optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
 - mark a function to be without optimizations - __attribute__((optnone)) / __attribute__((optimize("O0"))) / #pragma optimize("", off)
 
 == graphics:
@@ -198,11 +191,3 @@ integrate typesafe stuff
 - moving stuff like this back into the header so it can get inlined with optimizations:
     https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
     or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...
-
-
-== other engines:
-https://github.com/mosra/magnum
-https://github.com/urho3d/Urho3D
-https://github.com/nem0/LumixEngine
-https://github.com/bkaradzic/bgfx
-https://github.com/floooh/oryol

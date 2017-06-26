@@ -19,8 +19,8 @@ class Application
     void addInputEvent(const InputEvent& ev) { m_inputs.push_back(ev); }
 
 public:
-    uint32_t getWidth() const { return mWidth; }
-    uint32_t getHeight() const { return mHeight; }
+    uint32 getWidth() const { return mWidth; }
+    uint32 getHeight() const { return mHeight; }
     float    getDt() const { return dt; }
 
     void addInputEventListener(int in);
@@ -29,16 +29,16 @@ public:
     int run(int argc, char** argv);
     void processEvents();
     void update();
-    void reset(uint32_t flags = 0);
+    void reset(uint32 flags = 0);
 
 private:
     std::vector<InputEvent> m_inputs;
     std::vector<int>        m_inputEventListeners;
 
     GLFWwindow* mWindow;
-    uint32_t    mReset;
-    uint32_t    mWidth           = 1280;
-    uint32_t    mHeight          = 768;
+    uint32    mReset;
+    uint32    mWidth           = 1280;
+    uint32    mHeight          = 768;
     bool        mMousePressed[3] = {false, false, false};
     float       mMouseWheel      = 0.0f;
 

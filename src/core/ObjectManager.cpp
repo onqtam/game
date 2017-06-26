@@ -29,7 +29,7 @@ struct PosColorVertex
     float                   x;
     float                   y;
     float                   z;
-    uint32_t                abgr;
+    uint32                abgr;
     static void             init();
     static bgfx::VertexDecl ms_decl;
 };
@@ -141,8 +141,8 @@ void ObjectManager::update() {
     bgfx::touch(0);
     static float time = 0.f;
     time += dt;
-    for(uint32_t yy = 0; yy < 11; ++yy) {
-        for(uint32_t xx = 0; xx < 11; ++xx) {
+    for(uint32 yy = 0; yy < 11; ++yy) {
+        for(uint32 xx = 0; xx < 11; ++xx) {
             float mtx[16];
             bx::mtxRotateXY(mtx, time + xx * 0.21f, time + yy * 0.37f);
             mtx[12] = -15.0f + float(xx) * 3.0f;

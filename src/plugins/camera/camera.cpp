@@ -19,8 +19,8 @@ public:
     void process_event(const InputEvent& ev) {
         if(ev.type == InputEvent::MOTION) {
             glm::vec3 pos = get_pos(ha_this);
-            pos.x += ev.motion.dx * 0.01;
-            pos.z += ev.motion.dy * 0.01;
+            pos.x += float(ev.motion.dx) * 0.01f;
+            pos.z += float(ev.motion.dy) * 0.01f;
             set_pos(ha_this, pos);
         }
     }

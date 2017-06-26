@@ -25,9 +25,9 @@ bx::FileReaderI* getFileReader() {
 }
 
 void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _filePath,
-           uint32_t* _size) {
+           uint32* _size) {
     if(bx::open(_reader, _filePath)) {
-        uint32_t size = (uint32_t)bx::getSize(_reader);
+        uint32 size = (uint32)bx::getSize(_reader);
         void*    data = BX_ALLOC(_allocator, size);
         bx::read(_reader, data, size);
         bx::close(_reader);
@@ -46,7 +46,7 @@ void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _fi
     return NULL;
 }
 
-void* load(const char* _filePath, uint32_t* _size) {
+void* load(const char* _filePath, uint32* _size) {
     return load(getFileReader(), getAllocator(), _filePath, _size);
 }
 
@@ -56,7 +56,7 @@ const bgfx::Memory* loadMemory(const char* filename) {
     std::ifstream   file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    const bgfx::Memory* mem = bgfx::alloc(uint32_t(size + 1));
+    const bgfx::Memory* mem = bgfx::alloc(uint32(size + 1));
     if(file.read((char*)mem->data, size)) {
         mem->data[mem->size - 1] = '\0';
         return mem;
@@ -101,12 +101,12 @@ static void imageReleaseCb(void* _ptr, void* _userData) {
     bimg::imageFree(imageContainer);
 }
 
-bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath, uint32_t _flags,
+bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath, uint32 _flags,
                                 uint8_t _skip, bgfx::TextureInfo* _info) {
     BX_UNUSED(_skip);
     bgfx::TextureHandle handle = BGFX_INVALID_HANDLE;
 
-    uint32_t size;
+    uint32 size;
     void*    data = load(_reader, getAllocator(), _filePath, &size);
     if(NULL != data) {
         bimg::ImageContainer* imageContainer = bimg::imageParse(getAllocator(), data, size);
@@ -141,7 +141,7 @@ bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
     return handle;
 }
 
-bgfx::TextureHandle loadTexture(const char* _name, uint32_t _flags, uint8_t _skip,
+bgfx::TextureHandle loadTexture(const char* _name, uint32 _flags, uint8_t _skip,
                                 bgfx::TextureInfo* _info) {
     return loadTexture(getFileReader(), _name, _flags, _skip, _info);
 }
@@ -163,10 +163,10 @@ struct Sphere
 
 struct Primitive
 {
-    uint32_t m_startIndex;
-    uint32_t m_numIndices;
-    uint32_t m_startVertex;
-    uint32_t m_numVertices;
+    uint32 m_startIndex;
+    uint32 m_numIndices;
+    uint32 m_startVertex;
+    uint32 m_numVertices;
 
     Sphere m_sphere;
     Aabb   m_aabb;
@@ -208,7 +208,7 @@ struct Mesh
 
         bx::AllocatorI* allocator = getAllocator();
 
-        uint32_t  chunk;
+        uint32  chunk;
         bx::Error err;
         while(4 == bx::read(_reader, chunk, &err) && err.isOk()) {
             switch(chunk) {
@@ -230,7 +230,7 @@ struct Mesh
                 } break;
 
                 case BGFX_CHUNK_MAGIC_IB: {
-                    uint32_t numIndices;
+                    uint32 numIndices;
                     read(_reader, numIndices);
                     const bgfx::Memory* mem = bgfx::alloc(numIndices * 2);
                     read(_reader, mem->data, mem->size);
@@ -238,12 +238,12 @@ struct Mesh
                 } break;
 
                 case BGFX_CHUNK_MAGIC_IBC: {
-                    uint32_t numIndices;
+                    uint32 numIndices;
                     bx::read(_reader, numIndices);
 
                     const bgfx::Memory* mem = bgfx::alloc(numIndices * 2);
 
-                    uint32_t compressedSize;
+                    uint32 compressedSize;
                     bx::read(_reader, compressedSize);
 
                     void* compressedIndices = BX_ALLOC(allocator, compressedSize);
@@ -269,7 +269,7 @@ struct Mesh
                     uint16_t num;
                     read(_reader, num);
 
-                    for(uint32_t ii = 0; ii < num; ++ii) {
+                    for(uint32 ii = 0; ii < num; ++ii) {
                         read(_reader, len);
 
                         stl::string name;

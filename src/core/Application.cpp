@@ -91,8 +91,8 @@ static void imguiRender(ImDrawData* drawData) {
         bgfx::TransientIndexBuffer  tib;
 
         const ImDrawList* drawList    = drawData->CmdLists[ii];
-        uint32_t          numVertices = (uint32_t)drawList->VtxBuffer.size();
-        uint32_t          numIndices  = (uint32_t)drawList->IdxBuffer.size();
+        uint32          numVertices = (uint32)drawList->VtxBuffer.size();
+        uint32          numIndices  = (uint32)drawList->IdxBuffer.size();
 
         if(!bgfx::getAvailTransientVertexBuffer(numVertices, imguiVertexDecl) ||
            !bgfx::getAvailTransientIndexBuffer(numIndices)) {
@@ -108,7 +108,7 @@ static void imguiRender(ImDrawData* drawData) {
         ImDrawIdx* indices = (ImDrawIdx*)tib.data;
         memcpy(indices, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
 
-        uint32_t offset = 0;
+        uint32 offset = 0;
         for(const ImDrawCmd *cmd = drawList->CmdBuffer.begin(), *cmdEnd = drawList->CmdBuffer.end();
             cmd != cmdEnd; ++cmd) {
             if(cmd->UserCallback) {
@@ -168,7 +168,7 @@ static void imguiSetClipboardText(void* userData, const char* text) {
 // == APPLICATION INPUT ============================================================================
 // =================================================================================================
 
-void Application::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void Application::mouseButtonCallback(GLFWwindow* window, int button, int action, int) {
     Application* app = (Application*)glfwGetWindowUserPointer(window);
     if(action == GLFW_PRESS && button >= 0 && button < 3)
         app->mMousePressed[button] = true;
@@ -178,7 +178,7 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
     Application::get().addInputEvent(ev);
 }
 
-void Application::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     Application* app = (Application*)glfwGetWindowUserPointer(window);
 #ifdef EMSCRIPTEN
     yoffset *=
@@ -425,14 +425,14 @@ void Application::update() {
     // handle resizing
     int w, h;
     glfwGetWindowSize(mWindow, &w, &h);
-    if(w != mWidth || h != mHeight) {
+    if(uint32(w) != mWidth || uint32(h) != mHeight) {
         mWidth  = w;
         mHeight = h;
         reset(mReset);
     }
 }
 
-void Application::reset(uint32_t flags) {
+void Application::reset(uint32 flags) {
     mReset = flags;
     bgfx::reset(mWidth, mHeight, mReset);
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);

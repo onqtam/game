@@ -1,4 +1,4 @@
-#ucm_add_flags(${hardly_compiler_flags})
+ucm_add_flags(${hardly_compiler_flags})
 
 include_directories("./")
 
