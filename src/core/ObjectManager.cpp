@@ -7,7 +7,6 @@
 #include "core/messages/messages_camera.h"
 
 #include "core/registry/registry.h"
-//#include "serialization/JsonData.h"
 
 HA_SUPPRESS_WARNINGS
 #include <bx/fpumath.h>
@@ -32,7 +31,7 @@ struct PosColorVertex
     float                   x;
     float                   y;
     float                   z;
-    uint32                abgr;
+    uint32                  abgr;
     static void             init();
     static bgfx::VertexDecl ms_decl;
 };
@@ -52,7 +51,7 @@ static PosColorVertex s_cubeVertices[] = {
         {-1.0f, 1.0f, -1.0f, 0xffff0000},  {1.0f, 1.0f, -1.0f, 0xffff00ff},
         {-1.0f, -1.0f, -1.0f, 0xffffff00}, {1.0f, -1.0f, -1.0f, 0xffffffff},
 };
-static const uint16_t s_cubeTriStrip[] = {
+static const uint16 s_cubeTriStrip[] = {
         0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
 };
 
@@ -61,33 +60,32 @@ void ObjectManager::init() {
     for(auto& mixin : mixins)
         cout << mixin.first << endl;
 
-    Entity& m_object = new_object();
-    addMixin(m_object, "dummy");
+    Entity& object1 = newObject();
+    Entity& object2 = newObject();
+    Entity& object3 = newObject();
+    Entity& object4 = newObject();
+    Entity& object5 = newObject();
+    Entity& object6 = newObject();
 
-    m_camera = new_object_id();
-    addMixin(get_object(m_camera), "camera");
+    m_camera       = newObjectId();
+    Entity& camera = getObject(m_camera);
+    addMixin(camera, "camera");
+    camera.setName("camera");
 
+    add_child(camera, object1.id());
+    set_parent(object1, camera.id());
 
-    //Entity o1, o2, o3, o4;
-
-    //addMixin(o1, "dummy");
-    //addMixin(o2, "dummy");
-    //addMixin(o3, "dummy");
-    //remMixin(o1, "dummy");
-    //addMixin(o4, "dummy");
-
-    //addMixin(m_object, "trololo");
-
-    //JsonData state;
-    //state.reserve(1000);
-    //state.startObject();
-    //serialize(m_object, state);
-    //state.endObject();
-
-    //const sajson::document& doc = state.parse();
-    //PPK_ASSERT(doc.is_valid());
-    //const sajson::value root = doc.get_root();
-    //deserialize(m_object, root);
+    add_child(camera, object2.id());
+    set_parent(object2, camera.id());
+    
+    add_child(object1, object3.id());
+    set_parent(object3, object1.id());
+    add_child(object1, object4.id());
+    set_parent(object4, object1.id());
+    add_child(object1, object5.id());
+    set_parent(object5, object1.id());
+    add_child(object1, object6.id());
+    set_parent(object6, object1.id());
 
     // Setup vertex declarations
     PosColorVertex::init();
@@ -115,9 +113,109 @@ void ObjectManager::update() {
     //for(auto& global : globals)
     //    cout << global.first << endl;
 
+    static bool no_titlebar  = false;
+    static bool no_border    = true;
+    static bool no_resize    = false;
+    static bool no_move      = false;
+    static bool no_scrollbar = false;
+    static bool no_collapse  = false;
+    static bool no_menu      = true;
 
+    // Demonstrate the various window flags. Typically you would just use the default.
+    ImGuiWindowFlags window_flags = 0;
+    // clang-format off
+    if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
+    if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
+    if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
+    if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
+    if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
+    if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
+    if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
+    ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
+    // clang-format on
 
-    ImGui::ShowTestWindow();
+    if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
+        if(ImGui::TreeNode("objects")) {
+            //auto hierarchical_id = dynamix::internal::domain::instance().get_mixin_id_by_name("hierarchical");
+
+            static vector<eid> selected;
+
+            for(const auto& obj : m_objects) {
+                // recursive select/deselect
+                std::function<void(eid, bool)> recursiveSelecter = [&](eid root, bool select) {
+                    auto& obj = getObject(root);
+                    auto  it  = std::find(selected.begin(), selected.end(), root);
+                    if(select) {
+                        if(it == selected.end())
+                            selected.push_back(root);
+                    } else {
+                        if(it != selected.end())
+                            selected.erase(it);
+                    }
+                    obj.select(select);
+
+                    // recurse through children
+                    const auto& children = ::get_children(obj);
+                    if(children.size() > 0)
+                        for(const auto& c : children)
+                            recursiveSelecter(c, select);
+                };
+
+                // recursive tree build
+                std::function<void(eid)> buildTree = [&](eid root) {
+                    auto&              obj = getObject(root);
+                    ImGuiTreeNodeFlags node_flags =
+                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
+                            (obj.selected() ? ImGuiTreeNodeFlags_Selected : 0);
+
+                    const auto& children = ::get_children(obj);
+                    if(children.size() == 0)
+                        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+                    bool node_open = ImGui::TreeNodeEx((void*)(intptr_t) int(root), node_flags,
+                                                       obj.name().c_str());
+
+                    if(ImGui::IsItemClicked()) {
+                        bool shouldSelect = !obj.selected();
+
+                        if(ImGui::GetIO().KeyShift) {
+                            recursiveSelecter(root, shouldSelect);
+                        } else if(ImGui::GetIO().KeyCtrl) {
+                            obj.select(shouldSelect);
+                            if(shouldSelect)
+                                selected.push_back(root);
+                            else
+                                selected.erase(std::find(selected.begin(), selected.end(), root));
+                        } else if(!obj.selected()) {
+                            for(auto& it : selected) {
+                                getObject(it).select(false);
+                            }
+                            selected.clear();
+                            obj.select(shouldSelect);
+                            selected.push_back(root);
+                        }
+                    }
+
+                    if(node_open && children.size() > 0) {
+                        for(const auto& c : children)
+                            buildTree(c);
+                        ImGui::TreePop();
+                    }
+                };
+
+                // recurse from those without a parent only
+                if(obj.second.implements(get_parent_msg)) {
+                    if(::get_parent(obj.second) == eid::invalid())
+                        buildTree(obj.second.id());
+                }
+            }
+            ImGui::TreePop();
+        }
+
+        ImGui::End();
+    }
+
+    //ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.dt();
@@ -127,21 +225,18 @@ void ObjectManager::update() {
 
     bgfx::dbgTextClear();
     bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/01-cube");
-    ;
     bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Rendering simple static mesh.");
     bgfx::dbgTextPrintf(0, 3, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     // Set view and projection matrix for view 0.
-    
-    glm::mat4 view = get_view_matrix(get_object(m_camera));
-    glm::mat4 proj = get_projection_matrix(get_object(m_camera));
+
+    glm::mat4 view = get_view_matrix(getObject(m_camera));
+    glm::mat4 proj = get_projection_matrix(getObject(m_camera));
 
     bgfx::setViewTransform(0, (float*)&view, (float*)&proj);
 
-    //glm::perspective
-
     // Set view 0 default viewport.
-    bgfx::setViewRect(0, 0, 0, uint16_t(app.width()), uint16_t(app.height()));
+    bgfx::setViewRect(0, 0, 0, uint16(app.width()), uint16(app.height()));
     bgfx::touch(0);
     static float time = 0.f;
     time += dt;
@@ -182,19 +277,22 @@ int ObjectManager::shutdown() {
     return 0;
 }
 
-int ObjectManager::new_object_id() {
-    auto it = m_objects.emplace(m_curr_id, Entity(m_curr_id));
+eid ObjectManager::newObjectId(const std::string& in_name) {
+    std::string name = in_name;
+    if(name.empty())
+        name = "object_" + std::to_string(int(m_curr_id));
+
+    auto it = m_objects.emplace(m_curr_id, Entity(eid(m_curr_id), name));
     addMixin(it.first->second, "common");
-    return m_curr_id++;
+    addMixin(it.first->second, "hierarchical");
+    return eid(m_curr_id++);
 }
 
-Entity& ObjectManager::new_object() {
-    return get_object(new_object_id());
+Entity& ObjectManager::newObject(const std::string& in_name) {
+    return getObject(newObjectId(in_name));
 }
 
-Entity& ObjectManager::get_object(int id) {
-    return m_objects[id];
-}
+Entity& ObjectManager::getObject(eid id) { return m_objects[id]; }
 
 void ObjectManager::addMixin(Entity& obj, const char* mixin) {
     auto& mixins = getMixins();

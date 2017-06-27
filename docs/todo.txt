@@ -2,6 +2,7 @@
 
 - world
 - objects
+- imgui view of all current objects
 
 
 - static mesh factory
@@ -16,6 +17,12 @@
     - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
 - spatial queries about objects
 - asset pipeline from Kosta - must have
+
+
+== coding standard:
+- always call messages with :: prefix for global scope - to not accidentally call something else - a method for the same message
+    - messages in namespaces needed
+    - or uniform call syntax in c++...
 
 
 == questions:
@@ -194,9 +201,11 @@ integrate typesafe stuff
     //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
 
 == dynamix:
+- prefix everything after _dynamix_internal: with "internal"
 - make dynamix::object extentable - by inheriting from user types
     - see the "extend_object" branch in my fork of dynamix...
     - alternatively just inherit from it and use the resulting type
+- add has/get methods to object class that work with C strings and not just mixin_id / template parameters
 - forward declaring messages - for better link times - or maybe not - might lead to slower messages
 - currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message implementations are dropped it can become 2 pointers
 - ability to put messages in namespaces

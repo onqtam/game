@@ -26,9 +26,8 @@ public:
     }
 
     void update(float dt) {
-        uint32    w   = Application::get().width();
-        uint32    h   = Application::get().height();
-        glm::vec3 pos = get_pos(ha_this);
+        uint32 w = Application::get().width();
+        uint32 h = Application::get().height();
         if(cursor_x < 10)
             move(ha_this, glm::vec3(-k_speed * dt, 0, 0));
         if(cursor_x > w - 10)

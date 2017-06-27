@@ -18,12 +18,12 @@ HAPI void serialize(double data, JsonData& out) {
     out.append(res.c_str(), res.length());
 }
 
-HAPI void serialize(bool data, JsonData& out) {
-    out.append(data ? "true" : "false", data ? 4 : 5);
-}
+HAPI void serialize(bool data, JsonData& out) { out.append(data ? "true" : "false", data ? 4 : 5); }
 
 HAPI void deserialize(int& data, const sajson::value& val) { data = val.get_integer_value(); }
-HAPI void deserialize(float& data, const sajson::value& val) { data = float(val.get_double_value()); }
+HAPI void deserialize(float& data, const sajson::value& val) {
+    data = float(val.get_double_value());
+}
 HAPI void deserialize(double& data, const sajson::value& val) { data = val.get_double_value(); }
 HAPI void deserialize(bool& data, const sajson::value& val) {
     data = (val.get_type() == sajson::TYPE_TRUE);
@@ -43,3 +43,6 @@ HAPI void deserialize(glm::vec3& data, const sajson::value& val) {
     deserialize(data.y, val.get_array_element(1));
     deserialize(data.z, val.get_array_element(2));
 }
+
+HAPI void serialize(eid data, JsonData& out) { serialize(int(data), out); }
+HAPI void deserialize(eid& data, const sajson::value& val) { data = eid(val.get_integer_value()); }

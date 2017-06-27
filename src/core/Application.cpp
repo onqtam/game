@@ -279,8 +279,8 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
-void Application::addInputEventListener(int in) { m_inputEventListeners.push_back(in); }
-void Application::removeInputEventListener(int in) {
+void Application::addInputEventListener(eid in) { m_inputEventListeners.push_back(in); }
+void Application::removeInputEventListener(eid in) {
     auto it = std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in);
     PPK_ASSERT(it != m_inputEventListeners.end());
     m_inputEventListeners.erase(it);
@@ -393,7 +393,7 @@ void Application::processEvents() {
 
     for(size_t i = 0; i < m_inputs.size(); ++i)
         for(auto& curr : m_inputEventListeners)
-            process_event(ObjectManager::get().get_object(curr), m_inputs[i]);
+            process_event(ObjectManager::get().getObject(curr), m_inputs[i]);
 
     m_inputs.clear();
 

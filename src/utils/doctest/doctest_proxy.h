@@ -16,7 +16,7 @@
 
 #define test_case                       DOCTEST_TEST_CASE
 #define test_case_fixture               DOCTEST_TEST_CASE_FIXTURE
-#define type_to_string                  DOCTEST_TYPE_TO_STRING
+//#define type_to_string                  DOCTEST_TYPE_TO_STRING // problematic - collides with doctest::detail::type_to_string<> :D
 #define test_case_template              DOCTEST_TEST_CASE_TEMPLATE
 #define test_case_template_define       DOCTEST_TEST_CASE_TEMPLATE_DEFINE
 #define test_case_template_instantiate  DOCTEST_TEST_CASE_TEMPLATE_INSTANTIATE

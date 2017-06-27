@@ -28,12 +28,12 @@ public:
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }
 
-    void addInputEventListener(int in);
-    void removeInputEventListener(int in);
+    void addInputEventListener(eid in);
+    void removeInputEventListener(eid in);
 
 private:
     std::vector<InputEvent> m_inputs;
-    std::vector<int>        m_inputEventListeners;
+    std::vector<eid>        m_inputEventListeners;
 
     GLFWwindow* m_window;
     uint32      m_reset;

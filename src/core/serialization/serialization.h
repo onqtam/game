@@ -15,6 +15,9 @@ HAPI void deserialize(bool& data, const sajson::value& val);
 HAPI void serialize(const glm::vec3& data, JsonData& out);
 HAPI void deserialize(glm::vec3& data, const sajson::value& val);
 
+HAPI void serialize(eid data, JsonData& out);
+HAPI void deserialize(eid& data, const sajson::value& val);
+
 template <typename T>
 void serialize(const std::vector<T>& data, JsonData& out) {
     out.startArray();
