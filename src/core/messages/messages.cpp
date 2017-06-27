@@ -10,6 +10,7 @@ DYNAMIX_DEFINE_MESSAGE(process_event);
 
 DYNAMIX_DEFINE_MESSAGE(set_pos);
 DYNAMIX_DEFINE_MESSAGE(get_pos);
+DYNAMIX_DEFINE_MESSAGE(move);
 
 // camera
 DYNAMIX_DEFINE_MESSAGE(get_view_matrix);

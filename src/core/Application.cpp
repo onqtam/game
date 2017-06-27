@@ -347,6 +347,8 @@ int Application::run(int argc, char** argv) {
     glfwSetKeyCallback(m_window, keyCallback);
     glfwSetCharCallback(m_window, charCallback);
     glfwSetCursorPosCallback(m_window, cursorPosCallback);
+    
+    glfwSetCursorPos(m_window, getWidth() / 2, getHeight() / 2);
 
     // Setup bgfx
     bgfx::PlatformData platformData;

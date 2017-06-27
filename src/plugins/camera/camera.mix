@@ -1,4 +1,5 @@
 
 
 mixin camera
-	int a
+	float cursor_x
+	float cursor_y

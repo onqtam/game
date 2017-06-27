@@ -46,6 +46,7 @@ questionable:
 
 == assets:
 - https://github.com/tlorach/Bak3d
+- Animation Compression Library - https://github.com/nfrechette/acl
 
 == codegen:
 - syntax highlighting for .mix files in VS
