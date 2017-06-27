@@ -26,8 +26,8 @@ public:
     }
 
     void update(float dt) {
-        uint32    w   = Application::get().getWidth();
-        uint32    h   = Application::get().getHeight();
+        uint32    w   = Application::get().width();
+        uint32    h   = Application::get().height();
         glm::vec3 pos = get_pos(ha_this);
         if(cursor_x < 10)
             move(ha_this, glm::vec3(-k_speed * dt, 0, 0));
@@ -47,8 +47,8 @@ public:
     }
 
     glm::mat4 get_projection_matrix() {
-        uint32 w = Application::get().getWidth();
-        uint32 h = Application::get().getHeight();
+        uint32 w = Application::get().width();
+        uint32 h = Application::get().height();
         return glm::perspectiveLH(1.f, float(w) / float(h), 0.1f, 100.0f);
     }
 };

@@ -54,7 +54,7 @@ static void imguiInit() {
     // Create font
     io.Fonts->AddFontDefault();
     io.Fonts->GetTexDataAsRGBA32(&data, &width, &height);
-    imguiFontTexture = bgfx::createTexture2D((uint16_t)width, (uint16_t)height, false, 1,
+    imguiFontTexture = bgfx::createTexture2D((uint16)width, (uint16)height, false, 1,
                                              bgfx::TextureFormat::BGRA8, 0,
                                              bgfx::copy(data, width * height * 4));
     imguiFontUniform = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
@@ -126,7 +126,7 @@ static void imguiRender(ImDrawData* drawData) {
                         ImTextureID ptr;
                         struct
                         {
-                            uint16_t            flags;
+                            uint16              flags;
                             bgfx::TextureHandle handle;
                         } s;
                     } texture = {cmd->TextureId};
@@ -137,10 +137,10 @@ static void imguiRender(ImDrawData* drawData) {
                     state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA);
                 }
-                const uint16_t xx = uint16_t(Utils::Max(cmd->ClipRect.x, 0.0f));
-                const uint16_t yy = uint16_t(Utils::Max(cmd->ClipRect.y, 0.0f));
-                bgfx::setScissor(xx, yy, uint16_t(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
-                                 uint16_t(Utils::Min(cmd->ClipRect.w, 65535.0f) - yy));
+                const uint16 xx = uint16(Utils::Max(cmd->ClipRect.x, 0.0f));
+                const uint16 yy = uint16(Utils::Max(cmd->ClipRect.y, 0.0f));
+                bgfx::setScissor(xx, yy, uint16(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
+                                 uint16(Utils::Min(cmd->ClipRect.w, 65535.0f) - yy));
                 bgfx::setState(state);
                 bgfx::setTexture(0, imguiFontUniform, th);
                 bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
@@ -329,7 +329,7 @@ int Application::run(int argc, char** argv) {
 #endif // EMSCRIPTEN
 
     // Create a window
-    m_window = glfwCreateWindow(getWidth(), getHeight(), "game", nullptr, nullptr);
+    m_window = glfwCreateWindow(width(), height(), "game", nullptr, nullptr);
     if(!m_window) {
         glfwTerminate();
         return -1;
@@ -337,7 +337,7 @@ int Application::run(int argc, char** argv) {
 
 #ifndef EMSCRIPTEN
     // Simulating fullscreen the way bgfx does... by placing the window in 0,0
-    glfwSetWindowMonitor(m_window, monitor, 0, 0, getWidth(), getHeight(), mode->refreshRate);
+    glfwSetWindowMonitor(m_window, monitor, 0, 0, width(), height(), mode->refreshRate);
 #endif // EMSCRIPTEN
 
     // Setup input callbacks
@@ -347,8 +347,8 @@ int Application::run(int argc, char** argv) {
     glfwSetKeyCallback(m_window, keyCallback);
     glfwSetCharCallback(m_window, charCallback);
     glfwSetCursorPosCallback(m_window, cursorPosCallback);
-    
-    glfwSetCursorPos(m_window, getWidth() / 2, getHeight() / 2);
+
+    glfwSetCursorPos(m_window, width() / 2, height() / 2);
 
     // Setup bgfx
     bgfx::PlatformData platformData;
@@ -441,5 +441,5 @@ void Application::reset(uint32 flags) {
     m_reset = flags;
     bgfx::reset(m_width, m_height, m_reset);
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);
-    bgfx::setViewRect(0, 0, 0, uint16_t(getWidth()), uint16_t(getHeight()));
+    bgfx::setViewRect(0, 0, 0, uint16(width()), uint16(height()));
 }

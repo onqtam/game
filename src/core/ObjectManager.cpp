@@ -120,7 +120,7 @@ void ObjectManager::update() {
     ImGui::ShowTestWindow();
 
     Application& app = Application::get();
-    float        dt  = app.getDt();
+    float        dt  = app.dt();
 
     auto& mixins = getMixins();
     mixins["camera"].update(dt);
@@ -141,7 +141,7 @@ void ObjectManager::update() {
     //glm::perspective
 
     // Set view 0 default viewport.
-    bgfx::setViewRect(0, 0, 0, uint16_t(app.getWidth()), uint16_t(app.getHeight()));
+    bgfx::setViewRect(0, 0, 0, uint16_t(app.width()), uint16_t(app.height()));
     bgfx::touch(0);
     static float time = 0.f;
     time += dt;

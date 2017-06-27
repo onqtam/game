@@ -1,6 +1,5 @@
 
 
-- camera movement with mouse
 - world
 - objects
 
