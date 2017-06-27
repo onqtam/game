@@ -9,29 +9,13 @@ public:
             : m_value(value) {}
     explicit operator int() const { return m_value; }
 
-    //eid& operator++() {
-    //    ++m_value;
-    //    return *this;
-    //}
-
-    //eid operator++(int) {
-    //    eid tmp(*this);
-    //    operator++();
-    //    return tmp;
-    //}
-
     bool operator<(const eid& other) const { return m_value < other.m_value; }
     bool operator==(const eid& other) const { return m_value == other.m_value; }
 
-    bool isValid() const { return m_value != -1; }
+    bool isValid() const { return m_value != int(invalid()); }
 
     static eid invalid() { return eid(-1); }
 };
-
-//inline std::ostream& operator<<(const eid& id, std::ostream& stream) {
-//    stream << int(id);
-//    return stream;
-//}
 
 class Entity : public dynamix::object
 {

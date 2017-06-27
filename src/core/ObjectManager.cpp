@@ -77,7 +77,7 @@ void ObjectManager::init() {
 
     add_child(camera, object2.id());
     set_parent(object2, camera.id());
-    
+
     add_child(object1, object3.id());
     set_parent(object3, object1.id());
     add_child(object1, object4.id());
@@ -132,13 +132,14 @@ void ObjectManager::update() {
     if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
     if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
     ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
     // clang-format on
+
+    static vector<eid> selected;
 
     if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
         if(ImGui::TreeNode("objects")) {
             //auto hierarchical_id = dynamix::internal::domain::instance().get_mixin_id_by_name("hierarchical");
-
-            static vector<eid> selected;
 
             for(const auto& obj : m_objects) {
                 // recursive select/deselect
@@ -211,11 +212,23 @@ void ObjectManager::update() {
             }
             ImGui::TreePop();
         }
-
-        ImGui::End();
     }
+    ImGui::End();
 
-    //ImGui::ShowTestWindow();
+    ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(Application::get().width() - 400, 0), ImGuiSetCond_FirstUseEver);
+
+    if(ImGui::Begin("object properties", nullptr, window_flags)) {
+        for(auto& id : selected) {
+            auto& obj = getObject(id);
+            if(ImGui::TreeNode(obj.name().c_str())) {
+                ImGui::TreePop();
+            }
+        }
+    }
+    ImGui::End();
+
+    ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.dt();

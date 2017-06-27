@@ -1,8 +1,9 @@
 
 
+- imgui view of all current objects
+- view all properties of objects
 - world
 - objects
-- imgui view of all current objects
 
 
 - static mesh factory
