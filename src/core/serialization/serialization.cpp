@@ -40,6 +40,6 @@ HAPI void serialize(const glm::vec3& data, JsonData& out) {
 }
 HAPI void deserialize(glm::vec3& data, const sajson::value& val) {
     deserialize(data.x, val.get_array_element(0));
-    deserialize(data.x, val.get_array_element(1));
-    deserialize(data.x, val.get_array_element(2));
+    deserialize(data.y, val.get_array_element(1));
+    deserialize(data.z, val.get_array_element(2));
 }
