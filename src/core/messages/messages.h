@@ -7,6 +7,8 @@ HA_SUPPRESS_WARNINGS
 
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, trace, std::ostream&, o)
 
+DYNAMIX_EXPORTED_MULTICAST_MESSAGE_0(HAPI, void, imgui_properties)
+
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, serialize, JsonData&, out)
 DYNAMIX_EXPORTED_MULTICAST_MESSAGE_1(HAPI, void, deserialize, const sajson::value&, in)
 

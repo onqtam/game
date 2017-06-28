@@ -2,24 +2,24 @@
 
 #if defined _WIN32 || defined __CYGWIN__
 #ifdef __GNUC__
-#define HA_EXPORT __attribute__((dllexport))
-#define HA_IMPORT __attribute__((dllimport))
+#define HA_SYMBOL_EXPORT __attribute__((dllexport))
+#define HA_SYMBOL_IMPORT __attribute__((dllimport))
 #else // __GNUC__
-#define HA_EXPORT __declspec(dllexport)
-#define HA_IMPORT __declspec(dllimport)
+#define HA_SYMBOL_EXPORT __declspec(dllexport)
+#define HA_SYMBOL_IMPORT __declspec(dllimport)
 #endif // __GNUC__
 #else  // _WIN32
-#define HA_EXPORT __attribute__((visibility("default")))
-#define HA_IMPORT
+#define HA_SYMBOL_EXPORT __attribute__((visibility("default")))
+#define HA_SYMBOL_IMPORT
 #endif // _WIN32
 
 // TODO: think about just using WINDOWS_EXPORT_ALL_SYMBOLS in cmake instead of manually annotating what to export from the executable
 
 #ifdef HA_WITH_PLUGINS
 #ifdef HA_PLUGIN
-#define HAPI HA_IMPORT
+#define HAPI HA_SYMBOL_IMPORT
 #else // HA_PLUGIN
-#define HAPI HA_EXPORT
+#define HAPI HA_SYMBOL_EXPORT
 #endif // HA_PLUGIN
 #else  // HA_WITH_PLUGINS
 #define HAPI

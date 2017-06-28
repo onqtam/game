@@ -141,7 +141,7 @@ void ObjectManager::update() {
         if(ImGui::TreeNode("objects")) {
             //auto hierarchical_id = dynamix::internal::domain::instance().get_mixin_id_by_name("hierarchical");
 
-            for(const auto& obj : m_objects) {
+            for(const auto& curr : m_objects) {
                 // recursive select/deselect
                 std::function<void(eid, bool)> recursiveSelecter = [&](eid root, bool select) {
                     auto& obj = getObject(root);
@@ -173,8 +173,9 @@ void ObjectManager::update() {
                     if(children.size() == 0)
                         node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
+                    auto name      = obj.name() + " (" + std::to_string(int(obj.id())) + ")";
                     bool node_open = ImGui::TreeNodeEx((void*)(intptr_t) int(root), node_flags,
-                                                       obj.name().c_str());
+                                                       name.c_str());
 
                     if(ImGui::IsItemClicked()) {
                         bool shouldSelect = !obj.selected();
@@ -205,9 +206,9 @@ void ObjectManager::update() {
                 };
 
                 // recurse from those without a parent only
-                if(obj.second.implements(get_parent_msg)) {
-                    if(::get_parent(obj.second) == eid::invalid())
-                        buildTree(obj.second.id());
+                if(curr.second.implements(get_parent_msg)) {
+                    if(::get_parent(curr.second) == eid::invalid())
+                        buildTree(curr.second.id());
                 }
             }
             ImGui::TreePop();
@@ -222,6 +223,11 @@ void ObjectManager::update() {
         for(auto& id : selected) {
             auto& obj = getObject(id);
             if(ImGui::TreeNode(obj.name().c_str())) {
+                if(obj.implements(imgui_properties_msg)) {
+                    imgui_properties(obj);
+                }
+                //obj.get_mixin_names
+
                 ImGui::TreePop();
             }
         }
@@ -295,7 +301,7 @@ eid ObjectManager::newObjectId(const std::string& in_name) {
     if(name.empty())
         name = "object_" + std::to_string(int(m_curr_id));
 
-    auto it = m_objects.emplace(m_curr_id, Entity(eid(m_curr_id), name));
+    auto it = m_objects.emplace(eid(m_curr_id), Entity(eid(m_curr_id), name));
     addMixin(it.first->second, "common");
     addMixin(it.first->second, "hierarchical");
     return eid(m_curr_id++);

@@ -28,7 +28,7 @@ typedef std::map<std::string, MixinInfo> MixinInfoMap;
 typedef MixinInfoMap& (*get_mixins_proc)();
 
 HA_SUPPRESS_WARNINGS
-extern "C" HA_EXPORT MixinInfoMap& getMixins();
+extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins();
 HA_SUPPRESS_WARNINGS_END
 
 int registerMixin(const char* name, MixinInfo info);
@@ -139,7 +139,7 @@ typedef std::map<std::string, GlobalInfo> GlobalInfoMap;
 typedef GlobalInfoMap& (*get_globals_proc)();
 
 HA_SUPPRESS_WARNINGS
-extern "C" HA_EXPORT GlobalInfoMap& getGlobals();
+extern "C" HA_SYMBOL_EXPORT GlobalInfoMap& getGlobals();
 HA_SUPPRESS_WARNINGS_END
 
 int registerGlobal(const char* name, GlobalInfo info);

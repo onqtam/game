@@ -53,6 +53,7 @@ HA_SUPPRESS_WARNINGS
 
 #include <bgfx/bgfx.h>
 
+#define IMGUI_API HA_SYMBOL_IMPORT
 #include <imgui.h>
 
 #define GLM_FORCE_INLINE

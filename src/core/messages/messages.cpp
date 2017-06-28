@@ -2,6 +2,7 @@
 #include "messages_camera.h"
 
 DYNAMIX_DEFINE_MESSAGE(trace);
+DYNAMIX_DEFINE_MESSAGE(imgui_properties);
 
 DYNAMIX_DEFINE_MESSAGE(serialize);
 DYNAMIX_DEFINE_MESSAGE(deserialize);

@@ -1,4 +1,4 @@
-ucm_add_flags(${3rdparty_compiler_flags})
+ucm_add_flags(${ha_3rdparty_compiler_flags})
 
 # LIBRARY format
 #add_subdirectory(format)
@@ -22,8 +22,9 @@ target_include_directories(sajson INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # LIBRARY imgui
 ucm_add_dirs("imgui" TO imgui.sources FILTER_POP 1)
-add_library(imgui STATIC "${imgui.sources}")
+add_library(imgui SHARED "${imgui.sources}")
 target_include_directories(imgui INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+target_compile_definitions(imgui PRIVATE "IMGUI_API=${ha_symbol_export}")
 set_target_properties(imgui PROPERTIES FOLDER "3rdparty")
 add_fPIC_to_target(imgui)
 

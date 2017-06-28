@@ -1,7 +1,7 @@
 
-
-- imgui view of all current objects
 - view all properties of objects
+- objects inheriting transformations based on their hierarchical component
+- moving selected objects
 - world
 - objects
 
@@ -27,6 +27,7 @@
 
 
 == questions:
+- prefix with _ all function arguments?
 
 == bugs:
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
@@ -39,7 +40,10 @@ CI - appveyor emscripten build fails for some reason
     - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 == build system:
-- remove as much as possible from emscripten build (like doctest for example)
+- link to third parties dynamically when possible
+- remove as much as possible from emscripten build
+    - doctest
+    - imgui demo
 - shared precompiled headers for plugins...?
 - make a proper release config - with LTO, no plugins, etc.
 - be able to build everything in release except for gameplay code (debug iterators?)
@@ -76,6 +80,7 @@ shader compiler
 - the one from chobo
 - http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
 - https://github.com/catapult-project/catapult
+- https://github.com/seanmiddleditch/yardstick
 
 == logging:
 - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
@@ -135,6 +140,8 @@ integrate typesafe stuff
     - fastlz - fast compression lib
 - crypto
     - https://github.com/jedisct1/libsodium
+- threading
+    https://github.com/seanmiddleditch/jobxx
 - video
     - ogg theora
     - theora play - theora nice API (http://icculus.org/theoraplay/)

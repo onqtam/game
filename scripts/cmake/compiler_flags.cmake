@@ -61,12 +61,20 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
 
+if(WIN32)
+    set(ha_symbol_export "__declspec(dllexport)")
+    set(ha_symbol_import "__declspec(dllimport)")
+else()
+    set(ha_symbol_export "__attribute__((visibility(\"default\")))")
+    set(ha_symbol_import "")
+endif()
+
 #===================================================================================================
 #== HARDLY FLAGS AND DEFINES =======================================================================
 #===================================================================================================
 
 if(MSVC)
-    list(APPEND hardly_compiler_flags
+    list(APPEND ha_compiler_flags
         #/WX
         /W4
     )
@@ -74,7 +82,7 @@ if(MSVC)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    list(APPEND hardly_compiler_flags
+    list(APPEND ha_compiler_flags
         #-Werror
         -pedantic
         #-pedantic-errors
@@ -85,7 +93,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()    
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    list(APPEND hardly_compiler_flags
+    list(APPEND ha_compiler_flags
         -Weverything
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
@@ -105,7 +113,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    list(APPEND hardly_compiler_flags
+    list(APPEND ha_compiler_flags
         -Wall
         -Wextra
         -fdiagnostics-show-option

@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif // _WIN32
 
-extern "C" HA_EXPORT MixinInfoMap& getMixins() {
+extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins() {
     static MixinInfoMap data;
     return data;
 }
@@ -17,7 +17,7 @@ int registerMixin(const char* name, MixinInfo info) {
     return 0;
 }
 
-extern "C" HA_EXPORT GlobalInfoMap& getGlobals() {
+extern "C" HA_SYMBOL_EXPORT GlobalInfoMap& getGlobals() {
     static GlobalInfoMap data;
     return data;
 }

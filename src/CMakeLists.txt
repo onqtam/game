@@ -1,4 +1,4 @@
-ucm_add_flags(${hardly_compiler_flags})
+ucm_add_flags(${ha_compiler_flags})
 
 include_directories("./")
 
@@ -57,6 +57,7 @@ add_mix_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/omg"    FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
 add_plugin(NAME plugin ${plugin_src})
+target_link_libraries(plugin imgui)
 add_mix_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
 add_plugin(NAME camera ${plugin_camera})
 
