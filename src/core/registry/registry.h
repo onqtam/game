@@ -93,6 +93,12 @@ load_unload_proc getUnloadProc() {
     void deserialize(const sajson::value& in) {                                                    \
         ::deserialize(*this, in.get_value_of_key(sajson::string(#name, HA_COUNT_OF(#name) - 1)));  \
     }                                                                                              \
+    void imgui_bind_properties() {                                                                 \
+        if(ImGui::TreeNode(#name)) {                                                                \
+            imgui_bind_property(*this);                                                            \
+            ImGui::TreePop();                                                                      \
+        }                                                                                          \
+    }                                                                                              \
     /* clang-format fix */ private:
 
 #ifdef HA_PLUGIN
@@ -115,10 +121,10 @@ load_unload_proc getUnloadProc() {
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
 #define HA_MIXIN_DEFINE(n, features)                                                               \
-    PluginInstances<HA_CAT_1(n, _gen)> HA_CAT_1(n, _gen)::instances;                       \
-    HA_MIXIN_DEFINE_COMMON(n, serialize_msg& deserialize_msg& features);                           \
-    static_assert(sizeof(n) == sizeof(HA_CAT_1(n, _gen)),                                      \
-                  "Mixin '" #n "' has extended the base!")
+    PluginInstances<HA_CAT_1(n, _gen)> HA_CAT_1(n, _gen)::instances;                               \
+    HA_MIXIN_DEFINE_COMMON(n,                                                                      \
+                           serialize_msg& deserialize_msg& imgui_bind_properties_msg& features);   \
+    static_assert(sizeof(n) == sizeof(HA_CAT_1(n, _gen)), "Mixin '" #n "' has extended the base!")
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, features) HA_MIXIN_DEFINE_COMMON(n, features)
 
@@ -208,7 +214,8 @@ using PluginInstances = std::vector<std::pair<Entity*, T*>>;
 
 #define HA_TYPE_SERIALIZABLE(name)                                                                 \
     friend void serialize(const name& src, JsonData& out);                                         \
-    friend void deserialize(name& dest, const sajson::value& val)
+    friend void deserialize(name& dest, const sajson::value& val);                                 \
+    friend void imgui_bind_property(name& dest)
 
 #define HA_TYPE_MIXINABLE(name)                                                                    \
     HA_TRACK_INSTANCES(name);                                                                      \

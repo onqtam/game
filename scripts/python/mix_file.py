@@ -36,10 +36,10 @@ gen = NewLineFile(sys.argv[2], 'w+')
 
 visibility = "protected:"
 
-includes = ['"core/registry/registry.h"', '"core/serialization/serialization.h"']
+includes = ['"core/registry/registry.h"', '"core/serialization/serialization.h"', '"core/imgui/imgui_stuff.h"']
 aliases = {}
 
-serialize = ""
+functions = ""
 
 current_type = ""
 types = {}
@@ -115,27 +115,32 @@ for type in types:
     gen.writeln("};")
     gen.writeln("")
     
-    serialize += strln("")
-    serialize += strln("inline void serialize(const " + name_gen + "& src, JsonData& out) {")
-    serialize += strln("out.startObject();", tabs = 1)
+    functions += strln("")
+    functions += strln("inline void serialize(const " + name_gen + "& src, JsonData& out) {")
+    functions += strln("out.startObject();", tabs = 1)
     for field in types[type]["fields"]:
-        serialize += strln("HA_SERIALIZE_VARIABLE(\"" + field.hash + "\", src." + field.name + ");", tabs = 1)
-    serialize += strln("out.endObject();", tabs = 1)
-    serialize += strln("}")
-    serialize += strln("")
+        functions += strln("HA_SERIALIZE_VARIABLE(\"" + field.hash + "\", src." + field.name + ");", tabs = 1)
+    functions += strln("out.endObject();", tabs = 1)
+    functions += strln("}")
+    functions += strln("")
     
-    serialize += strln("inline void deserialize(" + name_gen + "& dest, const sajson::value& val) {")
-    serialize += strln("const size_t val_len = val.get_length();", tabs = 1)
-    serialize += strln("for(size_t i = 0; i < val_len; ++i) {", tabs = 1)
+    functions += strln("inline void deserialize(" + name_gen + "& dest, const sajson::value& val) {")
+    functions += strln("const size_t val_len = val.get_length();", tabs = 1)
+    functions += strln("for(size_t i = 0; i < val_len; ++i) {", tabs = 1)
     for field in types[type]["fields"]:
-        serialize += strln("HA_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
-    serialize += strln("}", tabs = 1)
-    serialize += strln("}")
+        functions += strln("HA_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
+    functions += strln("}", tabs = 1)
+    functions += strln("}")
+    
+    functions += strln("inline void imgui_bind_property(" + name_gen + "& obj) {")
+    for field in types[type]["fields"]:
+        functions += strln("imgui_bind_property(\"" + field.name + "\", obj." + field.name + ");", tabs = 1)
+    functions += strln("}")
 
 gen.writeln("//=============================================================================")
 gen.writeln("//=============================================================================")
 gen.writeln("//=============================================================================")
-gen.write(serialize)
+gen.write(functions)
 
 mix.close()
 gen.close()

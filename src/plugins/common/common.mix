@@ -2,6 +2,8 @@
 
 mixin common
 			glm::vec3	pos	default:{0,0,0}
+			glm::vec3	pos2	default:{0,0,0}
+			glm::vec3	pos3	default:{0,0,0}
 #			bool selected default:false
 			
 mixin hierarchical

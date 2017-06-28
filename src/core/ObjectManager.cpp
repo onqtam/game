@@ -223,10 +223,9 @@ void ObjectManager::update() {
         for(auto& id : selected) {
             auto& obj = getObject(id);
             if(ImGui::TreeNode(obj.name().c_str())) {
-                if(obj.implements(imgui_properties_msg)) {
-                    imgui_properties(obj);
+                if(obj.implements(imgui_bind_properties_msg)) {
+                    imgui_bind_properties(obj);
                 }
-                //obj.get_mixin_names
 
                 ImGui::TreePop();
             }
