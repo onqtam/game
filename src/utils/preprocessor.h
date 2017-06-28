@@ -1,6 +1,7 @@
 #pragma once
 
 #define HA_EMPTY()
+#define HA_USE(x)
 #define HA_EXPAND(x) x
 #define HA_TOSTR_IMPL(x) #x
 #define HA_TOSTR(x) HA_TOSTR_IMPL(x)
