@@ -14,7 +14,7 @@ class HAPI ResourceManager : public creator
         std::string name;
 
         void destroy() {
-            PPK_ASSERT(refcount <= 0);
+            hassert(refcount <= 0);
             if(refcount == 0) {
                 HA_SUPPRESS_WARNINGS
                 reinterpret_cast<T*>(data)->~T();
@@ -50,7 +50,7 @@ public:
 
         void release() const {
             if(m_idx != -1) {
-                PPK_ASSERT(this_RM::get().m_resources[m_idx].refcount > 0);
+                hassert(this_RM::get().m_resources[m_idx].refcount > 0);
                 --this_RM::get().m_resources[m_idx].refcount;
             }
         }
@@ -90,7 +90,7 @@ public:
         ~Handle() { release(); }
 
         T& get() {
-            PPK_ASSERT(m_idx != -1);
+            hassert(m_idx != -1);
             HA_SUPPRESS_WARNINGS
             return *reinterpret_cast<T*>(this_RM::get().m_resources[m_idx].data);
             HA_SUPPRESS_WARNINGS_END
@@ -114,7 +114,7 @@ public:
         } else {
             auto  curr_idx = m_next_free;
             auto& curr     = m_resources[curr_idx];
-            PPK_ASSERT(curr.refcount == -1);
+            hassert(curr.refcount == -1);
             creator::create(curr.data, name);
             curr.refcount = 0;
             m_next_free   = curr.next_free;

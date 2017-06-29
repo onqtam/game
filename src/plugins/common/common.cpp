@@ -13,8 +13,8 @@ using namespace dynamix;
 //using namespace std;
 
 static void f() {
-    intHandle ih = intMan::get().get("");
-    ih.get() = 6;
+    intHandle ih  = intMan::get().get("");
+    ih.get()      = 6;
     intHandle ih2 = intMan::get().get("");
     if(ih.get() == ih2.get())
         printf("lala");
@@ -43,24 +43,23 @@ public:
     const std::vector<eid>& get_children() const { return children; }
 
     void set_parent(eid _parent) {
-        
         f();
 
         intMan::get().free();
 
-        PPK_ASSERT(parent == eid::invalid());
+        hassert(parent == eid::invalid());
         parent = _parent;
         //::add_child(ObjectManager::get().getObject(_parent), ha_this.id());
     }
     void add_child(eid child) {
-        //PPK_ASSERT(::get_parent(ObjectManager::get().getObject(child)) == eid::invalid());
-        PPK_ASSERT(std::find(children.begin(), children.end(), child) == children.end());
+        //hassert(::get_parent(ObjectManager::get().getObject(child)) == eid::invalid());
+        hassert(std::find(children.begin(), children.end(), child) == children.end());
         children.push_back(child);
         //::set_parent(ObjectManager::get().getObject(child), ha_this.id());
     }
     void remove_child(eid child) {
         auto it = std::find(children.begin(), children.end(), child);
-        PPK_ASSERT(it != children.end());
+        hassert(it != children.end());
         children.erase(it);
     }
 };

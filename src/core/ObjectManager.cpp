@@ -217,7 +217,8 @@ void ObjectManager::update() {
     ImGui::End();
 
     ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 400), 0), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 400), 0),
+                            ImGuiSetCond_FirstUseEver);
 
     if(ImGui::Begin("object properties", nullptr, window_flags)) {
         for(auto& id : selected) {
@@ -314,12 +315,12 @@ Entity& ObjectManager::getObject(eid id) { return m_objects[id]; }
 
 void ObjectManager::addMixin(Entity& obj, const char* mixin) {
     auto& mixins = getMixins();
-    PPK_ASSERT(mixins.find(mixin) != mixins.end());
+    hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].add(&obj);
 }
 
 void ObjectManager::remMixin(Entity& obj, const char* mixin) {
     auto& mixins = getMixins();
-    PPK_ASSERT(mixins.find(mixin) != mixins.end());
+    hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(&obj);
 }

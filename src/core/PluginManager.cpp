@@ -77,14 +77,14 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
             {
                 // unload
                 const auto getMixinsProc = GetProc(cast_to_dynlib(plugin.plugin), "getMixins");
-                PPK_ASSERT(getMixinsProc);
+                hassert(getMixinsProc);
                 auto& mixins = reinterpret_cast<get_mixins_proc>(getMixinsProc)();
                 for(auto& mixin : mixins)
                     mixin.second.unload(mixinPersistence[mixin.first]);
 
                 // serialize the globals
                 const auto getGlobalsProc = GetProc(cast_to_dynlib(plugin.plugin), "getGlobals");
-                PPK_ASSERT(getGlobalsProc);
+                hassert(getGlobalsProc);
                 const auto& globals = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
                 globalsPersistence.startObject();
                 for(auto& global : globals)
@@ -96,15 +96,15 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
             plugin.plugin = nullptr;
 
             const auto copy_res = CopyDynlib(plugin.name_orig.c_str(), plugin.name_copy.c_str());
-            PPK_ASSERT(copy_res);
+            hassert(copy_res);
 
             plugin.plugin = LoadDynlib(plugin.name_copy.c_str());
-            PPK_ASSERT(plugin.plugin);
+            hassert(plugin.plugin);
 
             {
                 // load
                 const auto getMixinsProc = GetProc(cast_to_dynlib(plugin.plugin), "getMixins");
-                PPK_ASSERT(getMixinsProc);
+                hassert(getMixinsProc);
                 const auto& mixins = reinterpret_cast<get_mixins_proc>(getMixinsProc)();
                 for(auto& mixin : mixins) {
                     mixin.second.load(mixinPersistence[mixin.first]);
@@ -115,10 +115,10 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
 
                 // deserialize the globals
                 const auto getGlobalsProc = GetProc(cast_to_dynlib(plugin.plugin), "getGlobals");
-                PPK_ASSERT(getGlobalsProc);
+                hassert(getGlobalsProc);
                 const auto& globals         = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
                 const sajson::document& doc = globalsPersistence.parse();
-                PPK_ASSERT(doc.is_valid());
+                hassert(doc.is_valid());
                 const sajson::value& root = doc.get_root();
                 for(auto& global : globals) {
                     global.second.deserialize(root);
@@ -137,21 +137,21 @@ void PluginManager::init() {
     for(const auto& curr : plugin_dlls) {
         const string copied   = curr.substr(0, curr.length() - plugin_ext_len) + copied_plugin_tail;
         const auto   copy_res = CopyDynlib(curr.c_str(), copied.c_str());
-        PPK_ASSERT(copy_res);
+        hassert(copy_res);
 
         const auto plugin = LoadDynlib(copied.c_str());
-        PPK_ASSERT(plugin);
+        hassert(plugin);
 
         // add to the list of registered mixins for the executable
         const auto getMixinsProc = GetProc(plugin, "getMixins");
-        PPK_ASSERT(getMixinsProc);
+        hassert(getMixinsProc);
         const auto& mixins = reinterpret_cast<get_mixins_proc>(getMixinsProc)();
         for(auto& mixin : mixins)
             registerMixin(mixin.first.c_str(), mixin.second);
 
         // register the globals from the plugin to the globals of the executable
         const auto getGlobalsProc = GetProc(plugin, "getGlobals");
-        PPK_ASSERT(getGlobalsProc);
+        hassert(getGlobalsProc);
         const auto& globals = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
         for(auto& global : globals)
             registerGlobal(global.first.c_str(), global.second);
@@ -187,7 +187,7 @@ vector<string> getOriginalPlugins() {
     DIR*           dp;
     struct dirent* dirp;
     dp = opendir(spath.c_str());
-    PPK_ASSERT(dp);
+    hassert(dp);
 
     while((dirp = readdir(dp)) != nullptr)
         if(Utils::endsWith(dirp->d_name, orig_plugin_tail))

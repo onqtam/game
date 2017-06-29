@@ -39,7 +39,7 @@ class PagedMixinAllocator : public dynamix::mixin_allocator
 
 public:
     static PagedMixinAllocator& get() {
-        PPK_ASSERT(instance);
+        hassert(instance);
         return *instance;
     }
 
@@ -98,7 +98,7 @@ public:
                 break;
             }
         }
-        PPK_ASSERT(found_page);
+        hassert(found_page);
 
         // update bitfield
         const size_t idx =
@@ -108,7 +108,7 @@ public:
     }
 
     void freePages() {
-        PPK_ASSERT(m_num_allocations == 0);
+        hassert(m_num_allocations == 0);
 
         // free pages
         for(size_t i = 0; i < m_pages.size(); ++i)
@@ -125,8 +125,8 @@ public:
     const std::vector<bool>& getAllocatedFlags() const { return m_allocated_flags; }
 
     Mixin& operator[](size_t idx) const {
-        PPK_ASSERT(idx < m_allocated_flags.size());
-        PPK_ASSERT(m_allocated_flags[idx]);
+        hassert(idx < m_allocated_flags.size());
+        hassert(m_allocated_flags[idx]);
 
         char*        chunk_ptr = m_pages[idx / NUM_IN_PAGE] + (idx % NUM_IN_PAGE) * mixin_buf_size;
         const size_t offset    = calculate_mixin_offset(chunk_ptr, std::alignment_of<Mixin>::value);

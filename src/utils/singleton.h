@@ -5,7 +5,7 @@
     private:                                                                                       \
         static the_class* s_instance;                                                              \
         the_class() {                                                                              \
-            PPK_ASSERT(s_instance == nullptr);                                                     \
+            hassert(s_instance == nullptr);                                                     \
             s_instance = this;                                                                     \
         }                                                                                          \
         the_class(const the_class&) = delete;                                                      \

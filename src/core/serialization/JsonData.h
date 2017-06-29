@@ -50,7 +50,7 @@ public:
 
     template <size_t N>
     void             append(const char (&text)[N]) {
-        PPK_ASSERT(text[N - 1] == '\0');
+        hassert(text[N - 1] == '\0');
         append(text, N - 1);
     }
 };

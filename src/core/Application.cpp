@@ -287,7 +287,7 @@ class global_mixin_allocator : public dynamix::global_allocator
 void Application::addInputEventListener(eid in) { m_inputEventListeners.push_back(in); }
 void Application::removeInputEventListener(eid in) {
     auto it = std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in);
-    PPK_ASSERT(it != m_inputEventListeners.end());
+    hassert(it != m_inputEventListeners.end());
     m_inputEventListeners.erase(it);
 }
 
@@ -374,8 +374,8 @@ int Application::run(int argc, char** argv) {
     reset();
 
     // create game
-    ObjectManager        objectManager;
-    intMan temp;
+    ObjectManager objectManager;
+    intMan        temp;
     objectManager.init();
 
 #ifdef EMSCRIPTEN

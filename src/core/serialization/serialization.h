@@ -37,7 +37,7 @@ void serialize_def(const std::vector<T>& data, JsonData& out) {
 
 template <typename T>
 void deserialize(std::vector<T>& data, const sajson::value& val) {
-    PPK_ASSERT(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(val.get_type() == sajson::TYPE_ARRAY);
     auto len = val.get_length();
     data.resize(len);
     for(size_t i = 0; i < len; ++i)

@@ -43,6 +43,7 @@ HA_SUPPRESS_WARNINGS
 #include <dynamix/dynamix.hpp>
 
 #include <ppk_assert.h>
+#define hassert PPK_ASSERT
 
 #ifdef _MSC_VER
 // oddly enough these are not silenced by HA_SUPPRESS_WARNINGS and have to be listed explicitly

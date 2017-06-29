@@ -78,7 +78,7 @@ string getPathToExe() {
 #endif // _WIN32
     string spath = path;
     size_t pos   = spath.find_last_of("\\/");
-    PPK_ASSERT(pos != std::string::npos);
+    hassert(pos != std::string::npos);
     return spath.substr(0, pos) + "/";
 }
 

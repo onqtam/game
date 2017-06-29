@@ -65,7 +65,7 @@ load_unload_proc getLoadProc() {
         for(auto& curr : in) {
             dynamix::mutate(curr.first).add<T>();
             const sajson::document& doc = curr.second.parse();
-            PPK_ASSERT(doc.is_valid());
+            hassert(doc.is_valid());
             deserialize(*curr.first->get<T>(), doc.get_root());
         }
     };
@@ -114,7 +114,7 @@ load_unload_proc getUnloadProc() {
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
     DYNAMIX_DECLARE_MIXIN(n);                                                                      \
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
-    static int HA_CAT_1(_mixin_register_, n) = registerMixin(                                  \
+    static int HA_CAT_1(_mixin_register_, n) = registerMixin(                                      \
             #n, /* force new line for format */                                                    \
             {[](Entity* o) { dynamix::mutate(o).add<n>(); },                                       \
              [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
