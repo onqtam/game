@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: test this! everything! even the resource copy/assignment shenanigans
+
 template <typename T, typename creator>
 class HAPI ResourceManager : public creator
 {
@@ -15,15 +17,35 @@ class HAPI ResourceManager : public creator
 
         void destroy() {
             hassert(refcount <= 0);
-            if(refcount == 0) {
+            if(refcount != -1) {
                 this_RM::get().destroy(data);
                 refcount = -1;
             }
         }
 
-        Resource()                = default;
-        Resource(const Resource&) = default;
-        Resource& operator=(const Resource&) = default;
+        //Resource()                = default;
+        Resource(const Resource& other)
+                : refcount(other.refcount)
+                , next_free(other.next_free)
+                , name(other.name) {
+            HA_SUPPRESS_WARNINGS
+            if(refcount != -1)
+                new(data) T(*reinterpret_cast<const T*>(other.data)); // call copy ctor
+            HA_SUPPRESS_WARNINGS_END
+        }
+        Resource& operator=(const Resource& other) {
+            if(this != &other) {
+                refcount  = other.refcount;
+                next_free = other.next_free;
+                name      = other.name;
+                HA_SUPPRESS_WARNINGS
+                if(refcount != -1)
+                    reinterpret_cast<T&>(*data) =
+                            reinterpret_cast<const T&>(*other.data); // call assignment operator
+                HA_SUPPRESS_WARNINGS_END
+            }
+            return *this;
+        }
 
         ~Resource() { destroy(); }
     };
@@ -86,7 +108,7 @@ public:
         }
 
         ~Handle() { release(); }
-        
+
         operator T&() { return get(); }
         operator const T&() const { return get(); }
 
@@ -99,7 +121,7 @@ public:
         const T& get() const { return const_cast<Handle*>(this)->get(); }
     };
 
-    template<typename... Args>
+    template <typename... Args>
     Handle get(const std::string& name, Args&&... args) {
         auto it = std::find_if(m_resources.begin(), m_resources.end(), [&](const Resource& res) {
             return res.refcount >= 0 && res.name == name;
