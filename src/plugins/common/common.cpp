@@ -3,12 +3,22 @@
 #include "core/registry/registry.h"
 #include "core/ObjectManager.h"
 
+#include "core/ResourceManager.h"
+
 #include "core/messages/messages.h"
 
 #include <iostream>
 
 using namespace dynamix;
 //using namespace std;
+
+static void f() {
+    intHandle ih = intMan::get().get("");
+    ih.get() = 6;
+    intHandle ih2 = intMan::get().get("");
+    if(ih.get() == ih2.get())
+        printf("lala");
+}
 
 class common : public common_gen
 {
@@ -33,6 +43,11 @@ public:
     const std::vector<eid>& get_children() const { return children; }
 
     void set_parent(eid _parent) {
+        
+        f();
+
+        intMan::get().free();
+
         PPK_ASSERT(parent == eid::invalid());
         parent = _parent;
         //::add_child(ObjectManager::get().getObject(_parent), ha_this.id());

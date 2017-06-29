@@ -41,7 +41,7 @@ void PosColorVertex::init() {
             .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
             .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
             .end();
-};
+}
 
 bgfx::VertexDecl PosColorVertex::ms_decl;
 
@@ -217,7 +217,7 @@ void ObjectManager::update() {
     ImGui::End();
 
     ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(Application::get().width() - 400, 0), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 400), 0), ImGuiSetCond_FirstUseEver);
 
     if(ImGui::Begin("object properties", nullptr, window_flags)) {
         for(auto& id : selected) {
@@ -298,7 +298,7 @@ int ObjectManager::shutdown() {
 eid ObjectManager::newObjectId(const std::string& in_name) {
     std::string name = in_name;
     if(name.empty())
-        name = "object_" + std::to_string(int(m_curr_id));
+        name = "object_" + std::to_string(m_curr_id);
 
     auto it = m_objects.emplace(eid(m_curr_id), Entity(eid(m_curr_id), name));
     addMixin(it.first->second, "common");

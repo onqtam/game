@@ -46,6 +46,9 @@ union InputEvent
     ScrollEvent scroll;
 };
 
+HAPI void InputEventListener_add(void* in);
+HAPI void InputEventListener_remove(void* in);
+
 template <typename T>
 struct InputEventListener
 {
@@ -53,7 +56,4 @@ struct InputEventListener
     ~InputEventListener() { InputEventListener_remove(static_cast<T*>(this)); }
     InputEventListener(const InputEventListener&) = default;
     InputEventListener& operator=(const InputEventListener&) = default;
-
-    friend void InputEventListener_add(void* in);
-    friend void InputEventListener_remove(void* in);
 };

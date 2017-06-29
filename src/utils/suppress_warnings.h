@@ -49,11 +49,13 @@
     _Pragma("GCC diagnostic ignored \"-Wctor-dtor-privacy\"") \
     _Pragma("GCC diagnostic ignored \"-Wpedantic\"") \
     _Pragma("GCC diagnostic ignored \"-Wuseless-cast\"") \
+    _Pragma("GCC diagnostic ignored \"-Wfloat-equal\"") \
     _Pragma("GCC diagnostic ignored \"-Woverflow\"") \
     _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"") \
     _Pragma("GCC diagnostic ignored \"-Wignored-qualifiers\"") \
     _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
     _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
+    _Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"") \
 
 
 #endif // __GNUC__

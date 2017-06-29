@@ -3,6 +3,7 @@
 #include "ObjectManager.h"
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
+#include "core/ResourceManager.h"
 
 #include "core/messages/messages.h"
 
@@ -130,12 +131,16 @@ static void imguiRender(ImDrawData* drawData) {
                             bgfx::TextureHandle handle;
                         } s;
                     } texture = {cmd->TextureId};
+                    HA_SUPPRESS_WARNINGS
                     state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA);
+                    HA_SUPPRESS_WARNINGS_END
                     th = texture.s.handle;
                 } else {
+                    HA_SUPPRESS_WARNINGS
                     state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA);
+                    HA_SUPPRESS_WARNINGS_END
                 }
                 const uint16 xx = uint16(Utils::Max(cmd->ClipRect.x, 0.0f));
                 const uint16 yy = uint16(Utils::Max(cmd->ClipRect.y, 0.0f));
@@ -369,7 +374,8 @@ int Application::run(int argc, char** argv) {
     reset();
 
     // create game
-    ObjectManager objectManager;
+    ObjectManager        objectManager;
+    intMan temp;
     objectManager.init();
 
 #ifdef EMSCRIPTEN

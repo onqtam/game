@@ -19,6 +19,8 @@ HAPI void deserialize(bool& data, const sajson::value& val);
 
 HAPI void serialize_def(const glm::vec3& data, JsonData& out);
 HAPI void deserialize(glm::vec3& data, const sajson::value& val);
+HAPI void serialize_def(const glm::quat& data, JsonData& out);
+HAPI void deserialize(glm::quat& data, const sajson::value& val);
 
 HAPI void serialize_def(eid data, JsonData& out);
 HAPI void deserialize(eid& data, const sajson::value& val);

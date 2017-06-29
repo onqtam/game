@@ -49,7 +49,7 @@ add_mix_dirs(TO SOURCES "core/messages")
 add_mix_dirs(TO SOURCES "utils")
 
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
-add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp)
+add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)
 
 # ========= PLUGINS =============
 
@@ -57,7 +57,6 @@ add_mix_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/omg"    FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
 add_plugin(NAME plugin ${plugin_src})
-target_link_libraries(plugin imgui)
 add_mix_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
 add_plugin(NAME camera ${plugin_camera})
 

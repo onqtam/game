@@ -94,7 +94,7 @@ load_unload_proc getUnloadProc() {
         ::deserialize(*this, in.get_value_of_key(sajson::string(#name, HA_COUNT_OF(#name) - 1)));  \
     }                                                                                              \
     void imgui_bind_properties() {                                                                 \
-        if(ImGui::TreeNode(#name)) {                                                                \
+        if(ImGui::TreeNode(#name)) {                                                               \
             imgui_bind_property(*this);                                                            \
             ImGui::TreePop();                                                                      \
         }                                                                                          \

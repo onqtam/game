@@ -109,6 +109,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         
         # disable these for now...
         -Wno-sign-conversion
+        -Wno-old-style-cast
     )
 endif()
 
@@ -152,6 +153,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         # disable these for now...
         -Wno-sign-conversion
         -Wno-conversion
+        -Wno-old-style-cast
         
         # optimizations related
         #-Wstack-protector # requires -fstack-protector-all

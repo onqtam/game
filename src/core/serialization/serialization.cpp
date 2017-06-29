@@ -44,5 +44,23 @@ HAPI void deserialize(glm::vec3& data, const sajson::value& val) {
     deserialize(data.z, val.get_array_element(2));
 }
 
+HAPI void serialize(const glm::quat& data, JsonData& out) {
+    out.startArray();
+    serialize(data.x, out);
+    out.addComma();
+    serialize(data.y, out);
+    out.addComma();
+    serialize(data.z, out);
+    out.addComma();
+    serialize(data.w, out);
+    out.endArray();
+}
+HAPI void deserialize(glm::quat& data, const sajson::value& val) {
+    deserialize(data.x, val.get_array_element(0));
+    deserialize(data.y, val.get_array_element(1));
+    deserialize(data.z, val.get_array_element(2));
+    deserialize(data.w, val.get_array_element(3));
+}
+
 HAPI void serialize(eid data, JsonData& out) { serialize(int(data), out); }
 HAPI void deserialize(eid& data, const sajson::value& val) { data = eid(val.get_integer_value()); }
