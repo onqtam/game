@@ -375,7 +375,7 @@ int Application::run(int argc, char** argv) {
 
     // create game
     ObjectManager objectManager;
-    intMan        temp;
+    //intMan        temp;
     objectManager.init();
 
 #ifdef EMSCRIPTEN

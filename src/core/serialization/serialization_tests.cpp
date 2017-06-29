@@ -19,9 +19,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
     T                   data_out;
     const sajson::value root = doc.get_root();
     deserialize(data_out, root.get_object_value(0));
-HA_SUPPRESS_WARNINGS
     check_eq(data_in, data_out);
-HA_SUPPRESS_WARNINGS_END
 }
 
 // helpers for the counting of serialization routine tests
@@ -48,6 +46,6 @@ HA_SERIALIZE_TEST(eid, eid(1));
 // helpers for the counting of serialization routine tests
 const int num_serialize_tests = (__COUNTER__ - serialize_tests_counter_start - 1) / 2;
 #ifdef _MSC_VER
-// currently counts properly only on msvc...
+// currently counts properly only on msvc... num_serialize_definitions is 0 on gcc
 static_assert(num_serialize_tests == num_serialize_definitions, "forgot a serialization test?");
 #endif // _MSC_VER

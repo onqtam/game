@@ -16,9 +16,7 @@ class HAPI ResourceManager : public creator
         void destroy() {
             hassert(refcount <= 0);
             if(refcount == 0) {
-                HA_SUPPRESS_WARNINGS
-                reinterpret_cast<T*>(data)->~T();
-                HA_SUPPRESS_WARNINGS_END
+                this_RM::get().destroy(data);
                 refcount = -1;
             }
         }
@@ -88,6 +86,9 @@ public:
         }
 
         ~Handle() { release(); }
+        
+        operator T&() { return get(); }
+        operator const T&() const { return get(); }
 
         T& get() {
             hassert(m_idx != -1);
@@ -98,7 +99,8 @@ public:
         const T& get() const { return const_cast<Handle*>(this)->get(); }
     };
 
-    Handle get(const std::string& name) {
+    template<typename... Args>
+    Handle get(const std::string& name, Args&&... args) {
         auto it = std::find_if(m_resources.begin(), m_resources.end(), [&](const Resource& res) {
             return res.refcount >= 0 && res.name == name;
         });
@@ -107,7 +109,7 @@ public:
 
         if(m_next_free == -1) {
             m_resources.emplace_back();
-            creator::create(m_resources.back().data, name);
+            creator::create(m_resources.back().data, name, std::forward<Args>(args)...);
             m_resources.back().refcount = 0;
             m_resources.back().name     = name;
             return int16(m_resources.size() - 1);
@@ -115,7 +117,7 @@ public:
             auto  curr_idx = m_next_free;
             auto& curr     = m_resources[curr_idx];
             hassert(curr.refcount == -1);
-            creator::create(curr.data, name);
+            creator::create(curr.data, name, std::forward<Args>(args)...);
             curr.refcount = 0;
             m_next_free   = curr.next_free;
             return curr_idx;
@@ -136,18 +138,3 @@ public:
 
 template <typename T, typename creator>
 ResourceManager<T, creator>* ResourceManager<T, creator>::s_instance = nullptr;
-
-#define HA_RESOURCE_MANAGER(type, creator)                                                         \
-    template class ResourceManager<type, creator>;                                                 \
-    typedef ResourceManager<type, creator>         HA_CAT_1(type, Man);                            \
-    typedef ResourceManager<type, creator>::Handle HA_CAT_1(type, Handle)
-
-struct intCreator
-{
-    int create(char* storage, const std::string&) {
-        new(storage) int();
-        return 0;
-    }
-};
-
-HA_RESOURCE_MANAGER(int, intCreator); // produces intMan and intHandle

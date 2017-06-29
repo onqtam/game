@@ -1,15 +1,60 @@
 #pragma once
 
-const bgfx::Memory* loadMemory(const char* filename);
-bgfx::ShaderHandle loadShader(const char* shader);
-bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName);
+#include "core/ResourceManager.h"
 
-bgfx::TextureHandle loadTexture(const char* _name, uint32 _flags = BGFX_TEXTURE_NONE,
+HAPI const bgfx::Memory* loadMemory(const char* filename);
+HAPI bgfx::ShaderHandle loadShader(const char* shader);
+HAPI bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName);
+
+HAPI bgfx::TextureHandle loadTexture(const char* _name, uint32 _flags = BGFX_TEXTURE_NONE,
                                 uint8_t _skip = 0, bgfx::TextureInfo* _info = nullptr);
 
 struct Mesh;
 
-Mesh* meshLoad(const char* _filePath);
-void meshUnload(Mesh* _mesh);
-void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, const float* _mtx,
+HAPI Mesh* meshLoad(const char* _filePath);
+HAPI void meshUnload(Mesh* _mesh);
+HAPI void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, const float* _mtx,
                 uint64_t _state = BGFX_STATE_MASK);
+
+// =============== GRAPHICAL RESOURCE MANAGERS =================
+
+struct ProgramHandleCreator
+{
+    void create(void* storage, const std::string& name) {
+        new(storage) bgfx::ProgramHandle(
+                loadProgram((name + "_vs").c_str(), (name + "mesh_fs").c_str()));
+    }
+    void destroy(void* storage) {
+        bgfx::destroyProgram(*static_cast<bgfx::ProgramHandle*>(storage));
+    }
+};
+
+template class ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>;
+#define ShaderMan ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>::get()
+typedef ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>::Handle ShaderHandle;
+
+struct TextureCreator
+{
+    void create(void* storage, const std::string& name) {
+        new(storage) bgfx::TextureHandle(loadTexture(name.c_str()));
+    }
+    void destroy(void* storage) {
+        bgfx::destroyTexture(*static_cast<bgfx::TextureHandle*>(storage));
+    }
+};
+
+template class ResourceManager<bgfx::TextureHandle, TextureCreator>;
+#define TextureMan ResourceManager<bgfx::TextureHandle, TextureCreator>::get()
+typedef ResourceManager<bgfx::TextureHandle, TextureCreator>::Handle TextureHandle;
+
+struct MeshCreator
+{
+    void create(void* storage, const std::string& name) {
+        new(storage) Mesh*(meshLoad(name.c_str()));
+    }
+    void destroy(void* storage) { meshUnload(static_cast<Mesh*>(storage)); }
+};
+
+template class ResourceManager<Mesh*, MeshCreator>;
+#define MeshMan ResourceManager<Mesh*, MeshCreator>::get()
+typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;
