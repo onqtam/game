@@ -2,7 +2,6 @@
 
 #include "PluginManager.h"
 
-#include "ObjectManager.h"
 #include "core/registry/registry.h"
 #include "utils/utils.h"
 #include "serialization/serialization.h"

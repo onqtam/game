@@ -5,6 +5,7 @@
 
 #include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
+#include "core/messages/messages_rendering.h"
 
 #include "core/registry/registry.h"
 
@@ -21,9 +22,6 @@ HA_SCOPED_SINGLETON_IMPLEMENT(ObjectManager);
 static bgfx::ProgramHandle      mProgram;
 static bgfx::VertexBufferHandle mVbh;
 static bgfx::IndexBufferHandle  mIbh;
-
-static Mesh*               m_mesh;
-static bgfx::ProgramHandle m_program;
 
 // vertex declarations
 struct PosColorVertex
@@ -87,6 +85,9 @@ void ObjectManager::init() {
     add_child(object1, object6.id());
     set_parent(object6, object1.id());
 
+    Entity& bunny = newObject();
+    addMixin(bunny, "mesh");
+
     // Setup vertex declarations
     PosColorVertex::init();
 
@@ -95,9 +96,6 @@ void ObjectManager::init() {
                                     PosColorVertex::ms_decl);
     mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
     bgfx::setDebug(BGFX_DEBUG_TEXT);
-
-    m_mesh    = meshLoad("meshes/bunny.bin");
-    m_program = loadProgram("mesh_vs", "mesh_fs");
 }
 
 void ObjectManager::update() {
@@ -283,13 +281,16 @@ void ObjectManager::update() {
     float mtx[16];
     bx::mtxMul(mtx, mtx2, mtx1);
 
-    meshSubmit(m_mesh, 0, m_program, mtx);
+    std::vector<renderPart> renderData;
+
+    for(const auto& obj : m_objects)
+        if(obj.second.implements(get_rendering_parts_msg))
+            get_rendering_parts(obj.second, renderData);
+    for(const auto& data : renderData)
+        meshSubmit(data.mesh.get(), 0, data.shader.get(), mtx);
 }
 
 int ObjectManager::shutdown() {
-    bgfx::destroyProgram(m_program);
-    meshUnload(m_mesh);
-
     bgfx::destroyIndexBuffer(mIbh);
     bgfx::destroyVertexBuffer(mVbh);
     bgfx::destroyProgram(mProgram);

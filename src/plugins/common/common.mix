@@ -9,3 +9,7 @@ mixin common
 mixin hierarchical
 			eid parent
 			std::vector<eid> children
+
+mixin mesh
+			MeshHandle _mesh
+			ShaderHandle _shader

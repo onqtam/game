@@ -1,5 +1,6 @@
 #include "messages.h"
 #include "messages_camera.h"
+#include "messages_rendering.h"
 
 DYNAMIX_DEFINE_MESSAGE(trace);
 DYNAMIX_DEFINE_MESSAGE(imgui_bind_properties);
@@ -22,3 +23,6 @@ DYNAMIX_DEFINE_MESSAGE(remove_child);
 // camera
 DYNAMIX_DEFINE_MESSAGE(get_view_matrix);
 DYNAMIX_DEFINE_MESSAGE(get_projection_matrix);
+
+// rendering
+DYNAMIX_DEFINE_MESSAGE(get_rendering_parts);

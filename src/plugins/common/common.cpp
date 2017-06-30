@@ -6,6 +6,7 @@
 #include "core/GraphicsHelpers.h"
 
 #include "core/messages/messages.h"
+#include "core/messages/messages_rendering.h"
 
 #include <iostream>
 
@@ -26,6 +27,22 @@ public:
 };
 
 HA_MIXIN_DEFINE(common, get_pos_msg& set_pos_msg& move_msg& priority(1000, trace_msg));
+
+class mesh : public mesh_gen
+{
+    HA_MESSAGES_IN_MIXIN(mesh)
+public:
+    mesh() {
+        _mesh   = MeshMan::get().get("meshes/bunny.bin");
+        _shader = ShaderMan::get().get("mesh");
+    }
+
+    void get_rendering_parts(std::vector<renderPart>& out) const {
+        out.push_back({_mesh, _shader});
+    }
+};
+
+HA_MIXIN_DEFINE(mesh, get_rendering_parts_msg);
 
 class hierarchical : public hierarchical_gen
 {

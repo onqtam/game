@@ -9,5 +9,5 @@ struct c_string
             : data(in) {}
     bool operator<(const c_string& other) const { return strcmp(data, other.data) < 0; }
     operator const char*() const { return data; }
-    size_t length() { return strlen(data); }
+    size_t length() const { return strlen(data); }
 };

@@ -64,3 +64,9 @@ HAPI void deserialize(glm::quat& data, const sajson::value& val) {
 
 HAPI void serialize(eid data, JsonData& out) { serialize(int(data), out); }
 HAPI void deserialize(eid& data, const sajson::value& val) { data = eid(val.get_integer_value()); }
+
+HAPI void serialize(MeshHandle data, JsonData& out) { serialize(*reinterpret_cast<int*>(&data), out); }
+HAPI void deserialize(MeshHandle& data, const sajson::value& val) { data = MeshHandle(int16(val.get_integer_value())); }
+
+HAPI void serialize(ShaderHandle data, JsonData& out) { serialize(*reinterpret_cast<int*>(&data), out); }
+HAPI void deserialize(ShaderHandle& data, const sajson::value& val) { data = ShaderHandle(int16(val.get_integer_value())); }

@@ -374,20 +374,24 @@ int Application::run(int argc, char** argv) {
     reset();
 
     // create game
-    ObjectManager objectManager;
-    //intMan        temp;
-    objectManager.init();
+    {
+        MeshMan       meshMan;
+        ShaderMan     shaderMan;
+        ObjectManager objectManager;
+        objectManager.init();
 
 #ifdef EMSCRIPTEN
-    emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
+        emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
 #else  // EMSCRIPTEN
-    // Loop until the user closes the window
-    while(!glfwWindowShouldClose(m_window))
-        update();
+        // Loop until the user closes the window
+        while(!glfwWindowShouldClose(m_window))
+            update();
 #endif // EMSCRIPTEN
 
-    // Shutdown in reverse order of initialization
-    objectManager.shutdown();
+        // Shutdown in reverse order of initialization
+        objectManager.shutdown();
+    }
+
     imguiShutdown();
     bgfx::shutdown();
     glfwTerminate();

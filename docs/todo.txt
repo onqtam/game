@@ -165,6 +165,9 @@ integrate typesafe stuff
     - nanomsk - https://github.com/nanomsg/nanomsg
     - asio
     https://github.com/networkprotocol/reliable.io
+    https://github.com/networkprotocol/netcode.io
+    https://github.com/networkprotocol/yojimbo
+    https://github.com/HumbleNet/HumbleNet
 - miscellaneous
     - google breakpad - to send crash report from a remote system
     - sqlite - light sql using normal files

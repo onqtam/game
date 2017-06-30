@@ -5,8 +5,6 @@
 template <typename T, typename creator>
 class HAPI ResourceManager : public creator
 {
-    typedef ResourceManager<T, creator> this_RM;
-
     // max refcount is 2^15 and max different resources are 2^15
     struct Resource
     {
@@ -16,14 +14,14 @@ class HAPI ResourceManager : public creator
         std::string name;
 
         void destroy() {
-            hassert(refcount <= 0);
+            hassert(refcount == 0 || refcount == -1);
             if(refcount != -1) {
-                this_RM::get().destroy(data);
+                ResourceManager::get().destroy(data);
                 refcount = -1;
             }
         }
 
-        //Resource()                = default;
+        Resource() = default;
         Resource(const Resource& other)
                 : refcount(other.refcount)
                 , next_free(other.next_free)
@@ -65,22 +63,26 @@ public:
 
         void lease() const {
             if(m_idx != -1)
-                ++this_RM::get().m_resources[m_idx].refcount;
+                ++ResourceManager::get().m_resources[m_idx].refcount;
         }
 
         void release() const {
             if(m_idx != -1) {
-                hassert(this_RM::get().m_resources[m_idx].refcount > 0);
-                --this_RM::get().m_resources[m_idx].refcount;
+                hassert(ResourceManager::get().m_resources[m_idx].refcount > 0);
+                --ResourceManager::get().m_resources[m_idx].refcount;
             }
         }
 
-        Handle(int16 idx = -1)
+    public:
+        Handle()
+                : m_idx(-1) {}
+
+        // I wish this could be private but the serialization routines need it to construct a handle from an integer
+        Handle(int16 idx)
                 : m_idx(idx) {
             lease();
         }
 
-    public:
         Handle(Handle&& other) noexcept
                 : m_idx(other.m_idx) {
             other.m_idx = -1;
@@ -107,15 +109,20 @@ public:
             return *this;
         }
 
+        bool operator==(const Handle& other) const { return m_idx == other.m_idx; }
+        bool operator<(const Handle& other) const { return m_idx < other.m_idx; }
+
         ~Handle() { release(); }
 
-        operator T&() { return get(); }
-        operator const T&() const { return get(); }
+        // TODO: make these explicit? or leave them implicit? a bit dangerous... should stick to get()
+        // a handle to a Mesh* already got passed to a function taking bool because it was the best overload... o_O
+        //operator T&() { return get(); }
+        //operator const T&() const { return get(); }
 
         T& get() {
             hassert(m_idx != -1);
             HA_SUPPRESS_WARNINGS
-            return *reinterpret_cast<T*>(this_RM::get().m_resources[m_idx].data);
+            return *reinterpret_cast<T*>(ResourceManager::get().m_resources[m_idx].data);
             HA_SUPPRESS_WARNINGS_END
         }
         const T& get() const { return const_cast<Handle*>(this)->get(); }

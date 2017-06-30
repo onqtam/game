@@ -2,6 +2,8 @@
 
 #include "JsonData.h"
 
+#include "core/GraphicsHelpers.h"
+
 // helpers for the counting of serialization routines
 #define serialize_def_impl(in) serialize
 #define serialize_def serialize_def_impl(__COUNTER__)
@@ -24,6 +26,12 @@ HAPI void deserialize(glm::quat& data, const sajson::value& val);
 
 HAPI void serialize_def(eid data, JsonData& out);
 HAPI void deserialize(eid& data, const sajson::value& val);
+
+HAPI void serialize_def(MeshHandle data, JsonData& out);
+HAPI void deserialize(MeshHandle& data, const sajson::value& val);
+
+HAPI void serialize_def(ShaderHandle data, JsonData& out);
+HAPI void deserialize(ShaderHandle& data, const sajson::value& val);
 
 template <typename T>
 void serialize_def(const std::vector<T>& data, JsonData& out) {

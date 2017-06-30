@@ -22,7 +22,7 @@ struct ProgramHandleCreator
 {
     void create(void* storage, const std::string& name) {
         new(storage) bgfx::ProgramHandle(
-                loadProgram((name + "_vs").c_str(), (name + "mesh_fs").c_str()));
+                loadProgram((name + "_vs").c_str(), (name + "_fs").c_str()));
     }
     void destroy(void* storage) {
         bgfx::destroyProgram(*static_cast<bgfx::ProgramHandle*>(storage));
@@ -30,7 +30,7 @@ struct ProgramHandleCreator
 };
 
 template class ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>;
-#define ShaderMan ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>::get()
+typedef ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator> ShaderMan;
 typedef ResourceManager<bgfx::ProgramHandle, ProgramHandleCreator>::Handle ShaderHandle;
 
 struct TextureCreator
@@ -44,7 +44,7 @@ struct TextureCreator
 };
 
 template class ResourceManager<bgfx::TextureHandle, TextureCreator>;
-#define TextureMan ResourceManager<bgfx::TextureHandle, TextureCreator>::get()
+typedef ResourceManager<bgfx::TextureHandle, TextureCreator> TextureMan;
 typedef ResourceManager<bgfx::TextureHandle, TextureCreator>::Handle TextureHandle;
 
 struct MeshCreator
@@ -56,5 +56,5 @@ struct MeshCreator
 };
 
 template class ResourceManager<Mesh*, MeshCreator>;
-#define MeshMan ResourceManager<Mesh*, MeshCreator>::get()
+typedef ResourceManager<Mesh*, MeshCreator> MeshMan;
 typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;

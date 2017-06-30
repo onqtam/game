@@ -40,6 +40,8 @@ HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
 HA_SERIALIZE_TEST(glm::vec3, {1, 2, 3});
 HA_SERIALIZE_TEST(glm::quat, {1, 2, 3, 4});
 HA_SERIALIZE_TEST(eid, eid(1));
+HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
+HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
 
 #undef HA_SERIALIZE_TEST
 
