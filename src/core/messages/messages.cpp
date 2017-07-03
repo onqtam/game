@@ -2,16 +2,22 @@
 #include "messages_camera.h"
 #include "messages_rendering.h"
 
-DYNAMIX_DEFINE_MESSAGE(trace);
+// common
 DYNAMIX_DEFINE_MESSAGE(imgui_bind_properties);
-
 DYNAMIX_DEFINE_MESSAGE(serialize);
 DYNAMIX_DEFINE_MESSAGE(deserialize);
 
+// event
 DYNAMIX_DEFINE_MESSAGE(process_event);
 
+// transform
 DYNAMIX_DEFINE_MESSAGE(set_pos);
+DYNAMIX_DEFINE_MESSAGE(set_scl);
+DYNAMIX_DEFINE_MESSAGE(set_rot);
 DYNAMIX_DEFINE_MESSAGE(get_pos);
+DYNAMIX_DEFINE_MESSAGE(get_scl);
+DYNAMIX_DEFINE_MESSAGE(get_rot);
+DYNAMIX_DEFINE_MESSAGE(get_model_transform);
 DYNAMIX_DEFINE_MESSAGE(move);
 
 DYNAMIX_DEFINE_MESSAGE(get_parent);

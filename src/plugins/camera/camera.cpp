@@ -6,8 +6,6 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
 
-using namespace dynamix;
-
 const float k_speed = 20.f;
 
 class HA_EMPTY_BASE camera : public camera_gen,
@@ -49,7 +47,7 @@ public:
     glm::mat4 get_projection_matrix() {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
-        return glm::perspectiveLH(1.f, float(w) / float(h), 0.1f, 100.0f);
+        return glm::perspectiveLH(glm::radians(45.0f), float(w) / float(h), 0.1f, 100.0f);
     }
 };
 

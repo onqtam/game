@@ -87,6 +87,7 @@ void ObjectManager::init() {
 
     Entity& bunny = newObject();
     addMixin(bunny, "mesh");
+    set_scl(bunny, glm::vec3(20, 20, 20));
 
     // Setup vertex declarations
     PosColorVertex::init();
@@ -99,8 +100,6 @@ void ObjectManager::init() {
 }
 
 void ObjectManager::update() {
-    //cout << " ====== trace ====== " << endl;
-    //trace(m_object, cout);
 
     //auto& mixins = getMixins();
     //for(auto& mixin : mixins)
@@ -268,18 +267,9 @@ void ObjectManager::update() {
             bgfx::setVertexBuffer(0, mVbh);
             bgfx::setIndexBuffer(mIbh);
             bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-            bgfx::submit(0, mProgram);
+            //bgfx::submit(0, mProgram);
         }
     }
-
-    float mtx1[16];
-    bx::mtxRotateXY(mtx1, 0.0f, time * 0.37f);
-
-    float mtx2[16];
-    bx::mtxScale(mtx2, 10.0f);
-
-    float mtx[16];
-    bx::mtxMul(mtx, mtx2, mtx1);
 
     std::vector<renderPart> renderData;
 
@@ -287,7 +277,7 @@ void ObjectManager::update() {
         if(obj.second.implements(get_rendering_parts_msg))
             get_rendering_parts(obj.second, renderData);
     for(const auto& data : renderData)
-        meshSubmit(data.mesh.get(), 0, data.shader.get(), mtx);
+        meshSubmit(data.mesh.get(), 0, data.shader.get(), (float*)&data.transform);
 }
 
 int ObjectManager::shutdown() {
@@ -303,7 +293,7 @@ eid ObjectManager::newObjectId(const std::string& in_name) {
         name = "object_" + std::to_string(m_curr_id);
 
     auto it = m_objects.emplace(eid(m_curr_id), Entity(eid(m_curr_id), name));
-    addMixin(it.first->second, "common");
+    addMixin(it.first->second, "transform");
     addMixin(it.first->second, "hierarchical");
     return eid(m_curr_id++);
 }

@@ -1,9 +1,9 @@
 
 
-mixin common
+mixin transform
 			glm::vec3	pos			default:{0,0,0}
-			glm::vec3	scale		default:{1,1,1}
-			glm::quat	rotation	default:{0,0,0,1}
+			glm::vec3	scl			default:{1,1,1}
+			glm::quat	rot			default:{0,0,0,1}
 #			bool selected default:false
 			
 mixin hierarchical

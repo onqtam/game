@@ -1,8 +1,5 @@
 
 
-- world
-- editor
-
 - view all properties of objects
 - objects inheriting transformations based on their hierarchical component
 - moving selected objects
@@ -19,7 +16,10 @@
     - entity explorer
     - entity properties
     - undo/redo
-    - gizmos - probably this: https://github.com/CedricGuillemet/ImGuizmo
+    - gizmos
+        https://github.com/CedricGuillemet/ImGuizmo
+        https://github.com/ddiakopoulos/tinygizmo
+        https://github.com/john-chapman/im3d
 - spatial queries about objects
 - asset pipeline from Kosta - must have
 

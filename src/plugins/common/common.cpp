@@ -8,25 +8,32 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
-#include <iostream>
-
-using namespace dynamix;
 //using namespace std;
 
-class common : public common_gen
+class transform : public transform_gen
 {
-    HA_MESSAGES_IN_MIXIN(common)
+    HA_MESSAGES_IN_MIXIN(transform)
 public:
-    void trace(std::ostream& o) const { o << " object with id " << int(ha_this.id()) << std::endl; }
-
     void set_pos(const glm::vec3& in) { pos = in; }
+    void set_scl(const glm::vec3& in) { scl = in; }
+    void set_rot(const glm::quat& in) { rot = in; }
+
+    const glm::vec3& get_pos() const { return pos; }
+    const glm::vec3& get_scl() const { return scl; }
+    const glm::quat& get_rot() const { return rot; }
+
     void move(const glm::vec3& in) { pos += in; }
-    const glm::vec3&           get_pos() const { return pos; }
+
+    glm::mat4 get_model_transform() const {
+        glm::mat4 t = glm::translate(glm::mat4(1.f), pos);
+        //glm::mat4 r = glm::toMat4(rot);
+        return glm::scale(t, scl); // t * r
+    }
 
     //void select(bool _in) { selected = _in; }
 };
 
-HA_MIXIN_DEFINE(common, get_pos_msg& set_pos_msg& move_msg& priority(1000, trace_msg));
+HA_MIXIN_DEFINE(transform, Interface_transform);
 
 class mesh : public mesh_gen
 {
@@ -38,7 +45,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, _shader});
+        out.push_back({_mesh, _shader, get_model_transform(ha_this)});
     }
 };
 
@@ -52,7 +59,6 @@ public:
     const std::vector<eid>& get_children() const { return children; }
 
     void set_parent(eid _parent) {
-
         hassert(parent == eid::invalid());
         parent = _parent;
         //::add_child(ObjectManager::get().getObject(_parent), ha_this.id());
@@ -70,5 +76,4 @@ public:
     }
 };
 
-HA_MIXIN_DEFINE(hierarchical,
-                get_parent_msg& get_children_msg& set_parent_msg& add_child_msg& remove_child_msg);
+HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
