@@ -74,9 +74,18 @@ load_unload_proc getLoadProc() {
 template <typename T>
 load_unload_proc getUnloadProc() {
     return [](ObjectJsonMap& out) {
-        for(auto& instance : T::instances) {
-            out[instance.first].reserve(200); // for small mixins - just 1 allocation
-            serialize(*instance.second, out[instance.first]);
+
+        const auto& allocator  = PagedMixinAllocator<T>::get();
+        const auto& flags      = allocator.getAllocatedFlags();
+        const auto  flags_size = flags.size();
+
+        for(size_t i = 0; i < flags_size; ++i) {
+            if(flags[i]) {
+                auto& mixin  = allocator[i];
+                auto& entity = Entity::cast_to_entity(&mixin);
+                out[&entity].reserve(200); // for small mixins - just 1 allocation
+                serialize(mixin, out[&entity]);
+            }
         }
         for(auto& curr : out)
             dynamix::mutate(curr.first).remove<T>();
@@ -121,7 +130,6 @@ load_unload_proc getUnloadProc() {
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
 #define HA_MIXIN_DEFINE(n, features)                                                               \
-    PluginInstances<HA_CAT_1(n, _gen)> HA_CAT_1(n, _gen)::instances;                               \
     HA_MIXIN_DEFINE_COMMON(n,                                                                      \
                            serialize_msg& deserialize_msg& imgui_bind_properties_msg& features);   \
     static_assert(sizeof(n) ==                                                                     \
@@ -199,27 +207,7 @@ int registerGlobal(const char* name, GlobalInfo info);
     if(strcmp(val.get_object_key(i).data(), key) == 0)                                             \
     deserialize(var, val.get_object_value(i))
 
-template <class T>
-using PluginInstances = std::vector<std::pair<Entity*, T*>>;
-
-#define HA_TRACK_INSTANCES(type)                                                                   \
-    static PluginInstances<type> instances;                                                        \
-    type() { instances.push_back(std::make_pair(&ha_this, this)); }                                \
-    ~type() {                                                                                      \
-        PluginInstances<type>::iterator it =                                                       \
-                find(instances.begin(), instances.end(), std::make_pair(&ha_this, this));          \
-        if(it + 1 != instances.end())                                                              \
-            *it = *(instances.end() - 1);                                                          \
-        instances.pop_back();                                                                      \
-    }                                                                                              \
-    type(const type&) = default;                                                                   \
-    type& operator=(const type&) = default
-
-#define HA_TYPE_SERIALIZABLE(name)                                                                 \
+#define HA_FRIENDS_OF_TYPE(name)                                                                 \
     friend void serialize(const name& src, JsonData& out);                                         \
     friend void deserialize(name& dest, const sajson::value& val);                                 \
     friend void imgui_bind_property(name& dest)
-
-#define HA_TYPE_MIXINABLE(name)                                                                    \
-    HA_TRACK_INSTANCES(name);                                                                      \
-    HA_TYPE_SERIALIZABLE(name)

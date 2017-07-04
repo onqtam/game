@@ -1,10 +1,10 @@
 
 
-mixin dummy
+type dummy
 			int			health
 			float		val default:42.0f
 
-mixin omg
+type omg
 			int			sad					# this is some epic shit
 
 type asd

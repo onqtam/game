@@ -1,11 +1,13 @@
 #pragma once
 
+// can perhaps rework this to not use macros at all - https://stackoverflow.com/a/4173298/3162383
+
 // clang-format off
 #define HA_SCOPED_SINGLETON(the_class, the_friend)                                                 \
     private:                                                                                       \
         static the_class* s_instance;                                                              \
         the_class() {                                                                              \
-            hassert(s_instance == nullptr);                                                     \
+            hassert(s_instance == nullptr);                                                        \
             s_instance = this;                                                                     \
         }                                                                                          \
         the_class(const the_class&) = delete;                                                      \

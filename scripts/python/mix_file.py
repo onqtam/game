@@ -52,9 +52,9 @@ for line in mix:
         includes.append(words[1])
     elif words[0] == "name" and len(words) > 1:
         name = words[1]
-    elif (words[0] == "mixin" or words[0] == "type") and len(words) > 1:
+    elif words[0] == "type" and len(words) > 1:
         current_type = words[1]
-        types[current_type] = {"is_mixin" : (words[0] == "mixin"), "fields" : []}
+        types[current_type] = {"fields" : []}
     elif words[0] == "public:" or words[0] == "private:" or words[0] == "protected:":
         visibility = words[0]
     elif words[0] == "alias" and len(words) > 2:
@@ -91,10 +91,7 @@ for type in types:
 
     gen.writeln("struct " + name_gen)
     gen.writeln("{")
-    if types[type]["is_mixin"]:
-        gen.writeln("HA_TYPE_MIXINABLE(" + name_gen + ");", tabs = 1)
-    else:
-        gen.writeln("HA_TYPE_SERIALIZABLE(" + name_gen + ");", tabs = 1)
+    gen.writeln("HA_FRIENDS_OF_TYPE(" + name_gen + ");", tabs = 1)
     
     visibility = ""
     for field in types[type]["fields"]:

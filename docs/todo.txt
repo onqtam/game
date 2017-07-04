@@ -56,6 +56,9 @@ CI - appveyor emscripten build fails for some reason
 - be able to build everything in release except for gameplay code (debug iterators?)
 - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
 - unity builds
+- move to python3
+- make all the _gen.h files depend on the mix_file.py script so they get regenerated when it gets changed
+    - sadly MAIN_DEPENDENCY is only one and using DEPENDS yields the addition of a CMake Rules folder for the target
 - consider including parts of glm as needed and not the entire thing - also read the manual again
 questionable:
 - ability to have only the game code in the solution - no third parties

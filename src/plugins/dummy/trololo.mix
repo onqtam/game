@@ -1,9 +1,0 @@
-
-
-mixin trololo
-			bool		alive
-			float		val default:42.0f
-
-
-
-

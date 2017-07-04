@@ -1,15 +1,15 @@
 
 
-mixin transform
+type transform
 			glm::vec3	pos			default:{0,0,0}
 			glm::vec3	scl			default:{1,1,1}
 			glm::quat	rot			default:{0,0,0,1}
 #			bool selected default:false
 			
-mixin hierarchical
+type hierarchical
 			eid parent
 			std::vector<eid> children
 
-mixin mesh
+type mesh
 			MeshHandle _mesh
 			ShaderHandle _shader
