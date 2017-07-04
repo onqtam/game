@@ -85,9 +85,9 @@ void ObjectManager::init() {
     add_child(object1, object6.id());
     set_parent(object6, object1.id());
 
-    Entity& bunny = newObject();
-    addMixin(bunny, "mesh");
-    set_scl(bunny, glm::vec3(20, 20, 20));
+    //Entity& bunny = newObject();
+    //addMixin(bunny, "mesh");
+    //set_scl(bunny, glm::vec3(20, 20, 20));
 
     // Setup vertex declarations
     PosColorVertex::init();
@@ -267,7 +267,7 @@ void ObjectManager::update() {
             bgfx::setVertexBuffer(0, mVbh);
             bgfx::setIndexBuffer(mIbh);
             bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-            //bgfx::submit(0, mProgram);
+            bgfx::submit(0, mProgram);
         }
     }
 

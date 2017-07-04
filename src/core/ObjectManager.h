@@ -9,13 +9,14 @@ private:
 
     std::map<eid, Entity> m_objects;
 
-    eid m_camera;
 
     void init();
     void update();
     int  shutdown();
 
 public:
+    eid m_camera;
+
     eid newObjectId(const std::string& name = std::string());
     Entity& newObject(const std::string& name = std::string());
     Entity& getObject(eid id);

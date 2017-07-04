@@ -7,9 +7,6 @@ DYNAMIX_DEFINE_MESSAGE(imgui_bind_properties);
 DYNAMIX_DEFINE_MESSAGE(serialize);
 DYNAMIX_DEFINE_MESSAGE(deserialize);
 
-// event
-DYNAMIX_DEFINE_MESSAGE(process_event);
-
 // transform
 DYNAMIX_DEFINE_MESSAGE(set_pos);
 DYNAMIX_DEFINE_MESSAGE(set_scl);

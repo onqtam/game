@@ -15,9 +15,10 @@ lots of resources about optimization:
 
 
 opengl:
-- http://docs.gl/
-- https://learnopengl.com/
-- http://antongerdelan.net/opengl/
+http://docs.gl/
+https://learnopengl.com/
+http://antongerdelan.net/opengl/
+http://www.opengl-tutorial.org/
 
 math:
 - https://github.com/Pomax/BezierInfo-2

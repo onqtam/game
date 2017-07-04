@@ -185,6 +185,8 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
     InputEvent ev;
     ev.button = {InputEvent::BUTTON, button, action};
     Application::get().addInputEvent(ev);
+
+    Application::get().gizmo_state.mouse_left = (action != GLFW_RELEASE);
 }
 
 void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
@@ -216,6 +218,12 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     InputEvent ev;
     ev.key = {InputEvent::KEY, key, action, mods};
     Application::get().addInputEvent(ev);
+
+    if (key == GLFW_KEY_LEFT_CONTROL) Application::get().gizmo_state.hotkey_ctrl = (action != GLFW_RELEASE);
+    if (key == GLFW_KEY_L) Application::get().gizmo_state.hotkey_local = (action != GLFW_RELEASE);
+    if (key == GLFW_KEY_T) Application::get().gizmo_state.hotkey_translate = (action != GLFW_RELEASE);
+    if (key == GLFW_KEY_R) Application::get().gizmo_state.hotkey_rotate = (action != GLFW_RELEASE);
+    if (key == GLFW_KEY_S) Application::get().gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 }
 
 void Application::charCallback(GLFWwindow*, unsigned int c) {
@@ -233,6 +241,8 @@ void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
     last_y    = y;
 
     Application::get().addInputEvent(ev);
+
+    Application::get().gizmo_state.cursor = minalg::float2(x, y);
 }
 
 void imguiEvents(float dt) {
@@ -284,8 +294,8 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
-void Application::addInputEventListener(eid in) { m_inputEventListeners.push_back(in); }
-void Application::removeInputEventListener(eid in) {
+void Application::addInputEventListener(InputEventListener* in) { m_inputEventListeners.push_back(in); }
+void Application::removeInputEventListener(InputEventListener* in) {
     auto it = std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in);
     hassert(it != m_inputEventListeners.end());
     m_inputEventListeners.erase(it);
@@ -370,6 +380,42 @@ int Application::run(int argc, char** argv) {
     // Setup ImGui
     imguiInit();
 
+    gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
+        const std::vector<glm::vec3>& verts =
+                reinterpret_cast<const std::vector<glm::vec3>&>(r.vertices);
+        const std::vector<glm::uvec3>& tris =
+                reinterpret_cast<const std::vector<glm::uvec3>&>(r.triangles);
+
+        static bgfx::ProgramHandle      mProgram;
+        static bgfx::VertexBufferHandle mVbh;
+        static bgfx::IndexBufferHandle  mIbh;
+
+        static bgfx::VertexDecl ms_decl;
+
+        static bool inited = false;
+        if(!inited) {
+            inited = true;
+            mProgram = loadProgram("gizmo_vs", "gizmo_fs");
+            ms_decl.begin()
+                    .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+                    .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
+                    .add(bgfx::Attrib::Color0, 3, bgfx::AttribType::Float)
+                    .end();
+        } else {
+            bgfx::destroyIndexBuffer(mIbh);
+            bgfx::destroyVertexBuffer(mVbh);
+        }
+
+        glm::mat4 mtx = glm::mat4(1.f);
+        bgfx::setTransform((float*)&mtx);
+        mVbh = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(glm::vec3)), ms_decl);
+        mIbh = bgfx::createIndexBuffer(bgfx::makeRef(&tris[0], tris.size() * sizeof(glm::uvec3)));
+        bgfx::setVertexBuffer(0, mVbh);
+        bgfx::setIndexBuffer(mIbh);
+        bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
+        bgfx::submit(0, mProgram);
+    };
+
     // Initialize the application
     reset();
 
@@ -403,7 +449,7 @@ void Application::processEvents() {
 
     for(size_t i = 0; i < m_inputs.size(); ++i)
         for(auto& curr : m_inputEventListeners)
-            process_event(ObjectManager::get().getObject(curr), m_inputs[i]);
+            curr->process_event(m_inputs[i]);
 
     m_inputs.clear();
 
@@ -428,6 +474,19 @@ void Application::update() {
 
     // update game stuff
     ObjectManager::get().update();
+
+    gizmo_state.viewport_size = minalg::float2(width(), height());
+    gizmo_state.cam.near_clip = 0.1f;
+    gizmo_state.cam.far_clip  = 1000.f;
+    gizmo_state.cam.yfov      = glm::radians(45.0f);
+    glm::vec3 pos = get_pos(ObjectManager::get().getObject(ObjectManager::get().m_camera));
+    glm::quat rot = get_rot(ObjectManager::get().getObject(ObjectManager::get().m_camera));
+    gizmo_state.cam.position    = minalg::float3(pos.x, pos.y, pos.z);
+    gizmo_state.cam.orientation = minalg::float4(rot.x, rot.y, rot.z, rot.w);
+
+    gizmo_ctx.update(gizmo_state);
+    tinygizmo::transform_gizmo("xform-example-gizmo", gizmo_ctx, transform);
+    gizmo_ctx.draw();
 
     // render
     ImGui::Render();

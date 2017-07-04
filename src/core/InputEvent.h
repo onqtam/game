@@ -46,14 +46,18 @@ union InputEvent
     ScrollEvent scroll;
 };
 
-HAPI void InputEventListener_add(void* in);
-HAPI void InputEventListener_remove(void* in);
+struct InputEventListener;
+HAPI void InputEventListener_add(InputEventListener* in);
+HAPI void InputEventListener_remove(InputEventListener* in);
 
-template <typename T>
+// TODO: rework this shit to use a common interface - events dont need to be passed through dynamix messages!
+
 struct InputEventListener
 {
-    InputEventListener() { InputEventListener_add(static_cast<T*>(this)); }
-    ~InputEventListener() { InputEventListener_remove(static_cast<T*>(this)); }
+    InputEventListener() { InputEventListener_add(this); }
+    ~InputEventListener() { InputEventListener_remove(this); }
     InputEventListener(const InputEventListener&) = default;
     InputEventListener& operator=(const InputEventListener&) = default;
+
+    virtual void process_event(const InputEvent& ev) = 0;
 };

@@ -27,6 +27,7 @@ public:
     glm::mat4 get_model_transform() const {
         glm::mat4 t = glm::translate(glm::mat4(1.f), pos);
         //glm::mat4 r = glm::toMat4(rot);
+        // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-create-a-quaternion-in-c-
         return glm::scale(t, scl); // t * r
     }
 

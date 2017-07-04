@@ -68,6 +68,7 @@ HA_SUPPRESS_WARNINGS
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
 
 HA_SUPPRESS_WARNINGS_END

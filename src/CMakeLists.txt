@@ -42,6 +42,8 @@ add_fPIC_to_target(registry)
 #ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
+ucm_add_files(TO SOURCES "tiny-gizmo.cpp")
+ucm_add_files(TO SOURCES "tiny-gizmo.hpp")
 
 add_mix_dirs(TO SOURCES "core")
 add_mix_dirs(TO SOURCES "core/serialization")

@@ -2,6 +2,8 @@
 
 #include "InputEvent.h"
 
+#include "../tiny-gizmo.hpp"
+
 struct GLFWwindow;
 
 class HAPI Application
@@ -28,12 +30,16 @@ public:
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }
 
-    void addInputEventListener(eid in);
-    void removeInputEventListener(eid in);
+    void addInputEventListener(InputEventListener* in);
+    void removeInputEventListener(InputEventListener* in);
 
 private:
-    std::vector<InputEvent> m_inputs;
-    std::vector<eid>        m_inputEventListeners;
+    std::vector<InputEvent>          m_inputs;
+    std::vector<InputEventListener*> m_inputEventListeners;
+
+    tinygizmo::gizmo_application_state gizmo_state;
+    tinygizmo::gizmo_context           gizmo_ctx;
+    tinygizmo::rigid_transform         transform;
 
     GLFWwindow* m_window;
     uint32      m_reset;

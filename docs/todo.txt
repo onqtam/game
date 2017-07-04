@@ -39,6 +39,8 @@ gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - travis builds fail because of submodule issues...?
 CI - appveyor emscripten build fails for some reason
 
+
+
 == engine:
 - on floating point:
     - http://msdn.microsoft.com/en-us/library/vstudio/e9b52ceh(v=vs.110).aspx
@@ -63,6 +65,7 @@ questionable:
 == assets:
 - https://github.com/tlorach/Bak3d
 - Animation Compression Library - https://github.com/nfrechette/acl
+- https://github.com/mp3butcher/Cal3D/
 
 == codegen:
 - syntax highlighting for .mix files in VS
@@ -231,3 +234,4 @@ integrate typesafe stuff
 - moving stuff like this back into the header so it can get inlined with optimizations:
     https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
     or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...
+    even checking if a mixin is implemented has no chance of getting inlined! :(

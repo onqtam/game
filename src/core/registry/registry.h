@@ -124,7 +124,10 @@ load_unload_proc getUnloadProc() {
     PluginInstances<HA_CAT_1(n, _gen)> HA_CAT_1(n, _gen)::instances;                               \
     HA_MIXIN_DEFINE_COMMON(n,                                                                      \
                            serialize_msg& deserialize_msg& imgui_bind_properties_msg& features);   \
-    static_assert(sizeof(n) == sizeof(HA_CAT_1(n, _gen)), "Mixin '" #n "' has extended the base!")
+    static_assert(sizeof(n) ==                                                                     \
+                          sizeof(HA_CAT_1(n, _gen)) +                                              \
+                                  std::is_polymorphic<n>::value * sizeof(void*),                   \
+                  "Mixin '" #n "' has extended the base!")
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, features) HA_MIXIN_DEFINE_COMMON(n, features)
 

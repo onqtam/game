@@ -13,3 +13,7 @@ inline void imgui_bind_property(const char* name, float& data) { ImGui::DragFloa
 inline void imgui_bind_property(const char* name, glm::vec3& data, int* = nullptr) {
     ImGui::DragFloat3(name, (float*)&data);
 }
+
+inline void imgui_bind_property(const char* name, glm::quat& data, int* = nullptr) {
+    ImGui::DragFloat4(name, (float*)&data);
+}
