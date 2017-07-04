@@ -40,7 +40,7 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
 }
 
 class HA_EMPTY_BASE camera : public camera_gen,
-                             //public InputEventListener,
+                             public InputEventListener,
                              public UpdatableMixin<camera>
 {
     HA_MESSAGES_IN_MIXIN(camera)
@@ -50,19 +50,14 @@ public:
         set_rot(ha_this, rotationBetweenVectors({0, 0, 1}, {0, -1, 0.2}));
     }
 
-    //void process_event(const InputEvent& ev) override {
-    //    if(ev.type == InputEvent::MOTION) {
-    //        cursor_x = float(ev.motion.x);
-    //        cursor_y = float(ev.motion.y);
-    //    }
-    //}
+    void process_event(const InputEvent& ev) override {
+        if(ev.type == InputEvent::MOTION) {
+            cursor_x = float(ev.motion.x);
+            cursor_y = float(ev.motion.y);
+        }
+    }
 
     void update(float dt) {
-        // temp hack
-        cursor_x = 50;
-        cursor_y = 50;
-
-        //set_pos(ha_this, glm::vec3(0, 50, 0));
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
         if(cursor_x < 10)
