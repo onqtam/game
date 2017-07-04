@@ -262,7 +262,7 @@ void ObjectManager::update() {
             bx::mtxRotateXY(mtx, time + xx * 0.21f, time + yy * 0.37f);
             mtx[12] = -15.0f + float(xx) * 3.0f;
             mtx[13] = -15.0f + float(yy) * 3.0f;
-            mtx[14] = 0.0f;
+            mtx[14] = -40.0f;
             bgfx::setTransform(mtx);
             bgfx::setVertexBuffer(0, mVbh);
             bgfx::setIndexBuffer(mIbh);

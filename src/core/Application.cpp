@@ -382,43 +382,70 @@ int Application::run(int argc, char** argv) {
     // Setup ImGui
     imguiInit();
 
+    // TEST - trying to get a triangle to be drawn
+    program = loadProgram("gizmo_vs", "gizmo_fs");
+    vert_decl.begin()
+            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+            .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
+            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
+            .end();
+
+    //verts.insert(verts.end(), {-1.f, 1.f, 0.f});
+    //verts.insert(verts.end(), {1.f, 1.f, 0.f});
+    //verts.insert(verts.end(), {-1.f, -1.f, 0.f});
+    //inds = {0, 1, 2};
+
+    verts.insert(verts.end(), {-1.f,  1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), { 1.f,  1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), {-1.f, -1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), { 1.f, -1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), {-1.f,  1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), { 1.f,  1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), {-1.f, -1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    verts.insert(verts.end(), { 1.f, -1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
+    
+    inds = {0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5};
+
+    vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(float)), vert_decl);
+    ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&inds[0], inds.size() * sizeof(uint32)), BGFX_BUFFER_INDEX32);
+
+    // END INIT OF TRYING TO DRAW A TRIANGLE
+
     gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
-        const std::vector<glm::vec3>& verts =
-                reinterpret_cast<const std::vector<glm::vec3>&>(r.vertices);
-        const std::vector<glm::uvec3>& tris =
-                reinterpret_cast<const std::vector<glm::uvec3>&>(r.triangles);
-
-        static bgfx::ProgramHandle      mProgram;
-        static bgfx::VertexBufferHandle mVbh;
-        static bgfx::IndexBufferHandle  mIbh;
-
-        static bgfx::VertexDecl ms_decl;
+        const std::vector<glm::vec3>& v = reinterpret_cast<const std::vector<glm::vec3>&>(r.vertices);
+        const std::vector<glm::uvec3>& i = reinterpret_cast<const std::vector<glm::uvec3>&>(r.triangles);
 
         static bool inited = false;
         if(!inited) {
             inited = true;
-            mProgram = loadProgram("gizmo_vs", "gizmo_fs");
-            ms_decl.begin()
-                    .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                    .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-                    .add(bgfx::Attrib::Color0, 3, bgfx::AttribType::Float)
-                    .end();
+            //program = loadProgram("gizmo_vs", "gizmo_fs");
+            //vert_decl.begin()
+            //        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+            //        //.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
+            //        //.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
+            //        .end();
         } else {
-            bgfx::destroyIndexBuffer(mIbh);
-            bgfx::destroyVertexBuffer(mVbh);
+            //bgfx::destroyIndexBuffer(ind_buf);
+            //bgfx::destroyVertexBuffer(vert_buf);
         }
 
-        //glm::mat4 mtx = glm::mat4(1.f);
-        //bgfx::setTransform((float*)&mtx);
         float mtx[16];
         bx::mtxIdentity(mtx);
         bgfx::setTransform(mtx);
-        mVbh = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(glm::vec3)), ms_decl);
-        mIbh = bgfx::createIndexBuffer(bgfx::makeRef(&tris[0], tris.size() * sizeof(glm::uvec3)));
-        bgfx::setVertexBuffer(0, mVbh);
-        bgfx::setIndexBuffer(mIbh);
+
+        //verts.clear();
+        //inds.clear();
+
+        //vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&v[0], v.size() * sizeof(glm::vec3)), ms_decl);
+        //ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&i[0], i.size() * sizeof(glm::uvec3)));
+        //vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(float)), ms_decl);
+        //ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&inds[0], inds.size() * sizeof(uint32)));
+
+        bgfx::setVertexBuffer(0, vert_buf);
+        bgfx::setIndexBuffer(ind_buf);
         bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-        bgfx::submit(0, mProgram);
+        //bgfx::setState(BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_DEPTH_WRITE | BGFX_STATE_PT_TRISTRIP);
+        bgfx::submit(0, program);
     };
 
     // Initialize the application
@@ -490,12 +517,14 @@ void Application::update() {
     gizmo_state.cam.orientation = minalg::float4(rot.x, rot.y, rot.z, rot.w);
 
     //minalg::float4 res = minalg::qmul(minalg::rotation_quat(minalg::float3(0, 1, 0), 0.f), minalg::rotation_quat(minalg::float3(1, 0, 0), 0.f));
-    //gizmo_state.cam.position = {0, 0, -20};
-    //gizmo_state.cam.orientation = res;
+    gizmo_state.cam.position = {0, 0, 20};
+    gizmo_state.cam.orientation = {0,0,0,1};
 
     gizmo_ctx.update(gizmo_state);
     tinygizmo::transform_gizmo("xform-example-gizmo", gizmo_ctx, transform);
     gizmo_ctx.draw();
+
+    //system("pause");
 
     // render
     ImGui::Render();

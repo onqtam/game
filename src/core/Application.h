@@ -41,6 +41,13 @@ private:
     tinygizmo::gizmo_context           gizmo_ctx;
     tinygizmo::rigid_transform         transform;
 
+    std::vector<float>       verts;
+    std::vector<uint32>      inds;
+    bgfx::ProgramHandle      program;
+    bgfx::VertexBufferHandle vert_buf;
+    bgfx::IndexBufferHandle  ind_buf;
+    bgfx::VertexDecl         vert_decl;
+
     GLFWwindow* m_window;
     uint32      m_reset;
     uint32      m_width           = 1280;

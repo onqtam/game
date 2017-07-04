@@ -46,9 +46,10 @@ class HA_EMPTY_BASE camera : public camera_gen,
     HA_MESSAGES_IN_MIXIN(camera)
 public:
     camera() {
-        //set_pos(ha_this, glm::vec3(0, 0, -40));
-        set_pos(ha_this, glm::vec3(0, 50, 10));
-        set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, {0, -1, -0.2}));
+        set_pos(ha_this, glm::vec3(0, 0, 20));
+        set_rot(ha_this, glm::quat(0, 0, 0, 1));
+        //set_pos(ha_this, glm::vec3(0, 50, 10));
+        //set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, {0, -1, -0.2}));
     }
 
     void process_event(const InputEvent& ev) override {
