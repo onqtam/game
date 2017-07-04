@@ -11,6 +11,8 @@ HA_SUPPRESS_WARNINGS
 
 #include <bgfx/platform.h>
 
+#include <bx/fpumath.h>
+
 #include <GLFW/glfw3.h>
 
 #ifdef EMSCRIPTEN
@@ -406,8 +408,11 @@ int Application::run(int argc, char** argv) {
             bgfx::destroyVertexBuffer(mVbh);
         }
 
-        glm::mat4 mtx = glm::mat4(1.f);
-        bgfx::setTransform((float*)&mtx);
+        //glm::mat4 mtx = glm::mat4(1.f);
+        //bgfx::setTransform((float*)&mtx);
+        float mtx[16];
+        bx::mtxIdentity(mtx);
+        bgfx::setTransform(mtx);
         mVbh = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(glm::vec3)), ms_decl);
         mIbh = bgfx::createIndexBuffer(bgfx::makeRef(&tris[0], tris.size() * sizeof(glm::uvec3)));
         bgfx::setVertexBuffer(0, mVbh);
@@ -483,6 +488,10 @@ void Application::update() {
     glm::quat rot = get_rot(ObjectManager::get().getObject(ObjectManager::get().m_camera));
     gizmo_state.cam.position    = minalg::float3(pos.x, pos.y, pos.z);
     gizmo_state.cam.orientation = minalg::float4(rot.x, rot.y, rot.z, rot.w);
+
+    //minalg::float4 res = minalg::qmul(minalg::rotation_quat(minalg::float3(0, 1, 0), 0.f), minalg::rotation_quat(minalg::float3(1, 0, 0), 0.f));
+    //gizmo_state.cam.position = {0, 0, -20};
+    //gizmo_state.cam.orientation = res;
 
     gizmo_ctx.update(gizmo_state);
     tinygizmo::transform_gizmo("xform-example-gizmo", gizmo_ctx, transform);

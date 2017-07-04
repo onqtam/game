@@ -231,7 +231,7 @@ void ObjectManager::update() {
     }
     ImGui::End();
 
-    ImGui::ShowTestWindow();
+    //ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.dt();

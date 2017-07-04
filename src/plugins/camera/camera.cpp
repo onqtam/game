@@ -46,8 +46,9 @@ class HA_EMPTY_BASE camera : public camera_gen,
     HA_MESSAGES_IN_MIXIN(camera)
 public:
     camera() {
-        set_pos(ha_this, glm::vec3(0, 50, -10));
-        set_rot(ha_this, rotationBetweenVectors({0, 0, 1}, {0, -1, 0.2}));
+        //set_pos(ha_this, glm::vec3(0, 0, -40));
+        set_pos(ha_this, glm::vec3(0, 50, 10));
+        set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, {0, -1, -0.2}));
     }
 
     void process_event(const InputEvent& ev) override {
@@ -65,9 +66,9 @@ public:
         if(cursor_x > w - 10)
             move(ha_this, glm::vec3(k_speed * dt, 0, 0));
         if(cursor_y < 10)
-            move(ha_this, glm::vec3(0, 0, k_speed * dt));
-        if(cursor_y > h - 10)
             move(ha_this, glm::vec3(0, 0, -k_speed * dt));
+        if(cursor_y > h - 10)
+            move(ha_this, glm::vec3(0, 0, k_speed * dt));
     }
 
     glm::mat4 get_view_matrix() {
@@ -79,7 +80,7 @@ public:
     glm::mat4 get_projection_matrix() {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
-        return glm::perspectiveLH(glm::radians(45.0f), float(w) / float(h), 0.1f, 1000.0f);
+        return glm::perspective(glm::radians(45.0f), float(w) / float(h), 0.1f, 1000.0f);
     }
 };
 
