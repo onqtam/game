@@ -2,8 +2,6 @@
 
 #include "InputEvent.h"
 
-#include "../tiny-gizmo.hpp"
-
 struct GLFWwindow;
 
 class HAPI Application
@@ -36,17 +34,6 @@ public:
 private:
     std::vector<InputEvent>          m_inputs;
     std::vector<InputEventListener*> m_inputEventListeners;
-
-    tinygizmo::gizmo_application_state gizmo_state;
-    tinygizmo::gizmo_context           gizmo_ctx;
-    tinygizmo::rigid_transform         transform;
-
-    std::vector<float>       verts;
-    std::vector<uint32>      inds;
-    bgfx::ProgramHandle      program;
-    bgfx::VertexBufferHandle vert_buf;
-    bgfx::IndexBufferHandle  ind_buf;
-    bgfx::VertexDecl         vert_decl;
 
     GLFWwindow* m_window;
     uint32      m_reset;

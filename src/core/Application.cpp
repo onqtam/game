@@ -1,17 +1,15 @@
 #include "Application.h"
 #include "PluginManager.h"
 #include "ObjectManager.h"
+#include "Editor.h"
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
-#include "core/ResourceManager.h"
 
 #include "core/messages/messages.h"
 
 HA_SUPPRESS_WARNINGS
 
 #include <bgfx/platform.h>
-
-#include <bx/fpumath.h>
 
 #include <GLFW/glfw3.h>
 
@@ -187,8 +185,6 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
     InputEvent ev;
     ev.button = {InputEvent::BUTTON, button, action};
     Application::get().addInputEvent(ev);
-
-    Application::get().gizmo_state.mouse_left = (action != GLFW_RELEASE);
 }
 
 void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
@@ -220,12 +216,6 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     InputEvent ev;
     ev.key = {InputEvent::KEY, key, action, mods};
     Application::get().addInputEvent(ev);
-
-    if (key == GLFW_KEY_LEFT_CONTROL) Application::get().gizmo_state.hotkey_ctrl = (action != GLFW_RELEASE);
-    if (key == GLFW_KEY_L) Application::get().gizmo_state.hotkey_local = (action != GLFW_RELEASE);
-    if (key == GLFW_KEY_T) Application::get().gizmo_state.hotkey_translate = (action != GLFW_RELEASE);
-    if (key == GLFW_KEY_R) Application::get().gizmo_state.hotkey_rotate = (action != GLFW_RELEASE);
-    if (key == GLFW_KEY_S) Application::get().gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 }
 
 void Application::charCallback(GLFWwindow*, unsigned int c) {
@@ -243,8 +233,6 @@ void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
     last_y    = y;
 
     Application::get().addInputEvent(ev);
-
-    Application::get().gizmo_state.cursor = minalg::float2(x, y);
 }
 
 void imguiEvents(float dt) {
@@ -296,7 +284,11 @@ class global_mixin_allocator : public dynamix::global_allocator
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
 
-void Application::addInputEventListener(InputEventListener* in) { m_inputEventListeners.push_back(in); }
+void Application::addInputEventListener(InputEventListener* in) {
+    hassert(std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in) ==
+            m_inputEventListeners.end());
+    m_inputEventListeners.push_back(in);
+}
 void Application::removeInputEventListener(InputEventListener* in) {
     auto it = std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in);
     hassert(it != m_inputEventListeners.end());
@@ -353,7 +345,7 @@ int Application::run(int argc, char** argv) {
     }
 
 #ifndef EMSCRIPTEN
-    // Simulating fullscreen the way bgfx does... by placing the window in 0,0
+    // Simulating fullscreen the way bgfx does in its example entry - by placing the window in 0,0
     glfwSetWindowMonitor(m_window, monitor, 0, 0, width(), height(), mode->refreshRate);
 #endif // EMSCRIPTEN
 
@@ -382,72 +374,6 @@ int Application::run(int argc, char** argv) {
     // Setup ImGui
     imguiInit();
 
-    // TEST - trying to get a triangle to be drawn
-    program = loadProgram("gizmo_vs", "gizmo_fs");
-    vert_decl.begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
-            .end();
-
-    //verts.insert(verts.end(), {-1.f, 1.f, 0.f});
-    //verts.insert(verts.end(), {1.f, 1.f, 0.f});
-    //verts.insert(verts.end(), {-1.f, -1.f, 0.f});
-    //inds = {0, 1, 2};
-
-    verts.insert(verts.end(), {-1.f,  1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), { 1.f,  1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), {-1.f, -1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), { 1.f, -1.f,  1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), {-1.f,  1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), { 1.f,  1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), {-1.f, -1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    verts.insert(verts.end(), { 1.f, -1.f, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f});
-    
-    inds = {0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5};
-
-    vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(float)), vert_decl);
-    ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&inds[0], inds.size() * sizeof(uint32)), BGFX_BUFFER_INDEX32);
-
-    // END INIT OF TRYING TO DRAW A TRIANGLE
-
-    gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
-        const std::vector<glm::vec3>& v = reinterpret_cast<const std::vector<glm::vec3>&>(r.vertices);
-        const std::vector<glm::uvec3>& i = reinterpret_cast<const std::vector<glm::uvec3>&>(r.triangles);
-
-        static bool inited = false;
-        if(!inited) {
-            inited = true;
-            //program = loadProgram("gizmo_vs", "gizmo_fs");
-            //vert_decl.begin()
-            //        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            //        //.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-            //        //.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
-            //        .end();
-        } else {
-            //bgfx::destroyIndexBuffer(ind_buf);
-            //bgfx::destroyVertexBuffer(vert_buf);
-        }
-
-        float mtx[16];
-        bx::mtxIdentity(mtx);
-        bgfx::setTransform(mtx);
-
-        //verts.clear();
-        //inds.clear();
-
-        //vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&v[0], v.size() * sizeof(glm::vec3)), ms_decl);
-        //ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&i[0], i.size() * sizeof(glm::uvec3)));
-        //vert_buf = bgfx::createVertexBuffer(bgfx::makeRef(&verts[0], verts.size() * sizeof(float)), ms_decl);
-        //ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(&inds[0], inds.size() * sizeof(uint32)));
-
-        bgfx::setVertexBuffer(0, vert_buf);
-        bgfx::setIndexBuffer(ind_buf);
-        bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-        //bgfx::setState(BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_DEPTH_WRITE | BGFX_STATE_PT_TRISTRIP);
-        bgfx::submit(0, program);
-    };
-
     // Initialize the application
     reset();
 
@@ -455,8 +381,12 @@ int Application::run(int argc, char** argv) {
     {
         MeshMan       meshMan;
         ShaderMan     shaderMan;
+
         ObjectManager objectManager;
         objectManager.init();
+
+        Editor editor;
+        editor.init();
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -506,25 +436,7 @@ void Application::update() {
 
     // update game stuff
     ObjectManager::get().update();
-
-    gizmo_state.viewport_size = minalg::float2(width(), height());
-    gizmo_state.cam.near_clip = 0.1f;
-    gizmo_state.cam.far_clip  = 1000.f;
-    gizmo_state.cam.yfov      = glm::radians(45.0f);
-    glm::vec3 pos = get_pos(ObjectManager::get().getObject(ObjectManager::get().m_camera));
-    glm::quat rot = get_rot(ObjectManager::get().getObject(ObjectManager::get().m_camera));
-    gizmo_state.cam.position    = minalg::float3(pos.x, pos.y, pos.z);
-    gizmo_state.cam.orientation = minalg::float4(rot.x, rot.y, rot.z, rot.w);
-
-    //minalg::float4 res = minalg::qmul(minalg::rotation_quat(minalg::float3(0, 1, 0), 0.f), minalg::rotation_quat(minalg::float3(1, 0, 0), 0.f));
-    gizmo_state.cam.position = {0, 0, 20};
-    gizmo_state.cam.orientation = {0,0,0,1};
-
-    gizmo_ctx.update(gizmo_state);
-    tinygizmo::transform_gizmo("xform-example-gizmo", gizmo_ctx, transform);
-    gizmo_ctx.draw();
-
-    //system("pause");
+    Editor::get().update();
 
     // render
     ImGui::Render();

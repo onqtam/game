@@ -50,8 +50,6 @@ struct InputEventListener;
 HAPI void InputEventListener_add(InputEventListener* in);
 HAPI void InputEventListener_remove(InputEventListener* in);
 
-// TODO: rework this shit to use a common interface - events dont need to be passed through dynamix messages!
-
 struct InputEventListener
 {
     InputEventListener() { InputEventListener_add(this); }

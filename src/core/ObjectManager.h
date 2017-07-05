@@ -4,6 +4,9 @@ class HAPI ObjectManager
 {
     HA_SCOPED_SINGLETON(ObjectManager, class Application);
 
+    // TODO: not like this!
+    friend class Editor;
+
 private:
     int m_curr_id = 0;
 

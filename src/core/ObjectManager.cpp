@@ -85,9 +85,10 @@ void ObjectManager::init() {
     add_child(object1, object6.id());
     set_parent(object6, object1.id());
 
-    //Entity& bunny = newObject();
-    //addMixin(bunny, "mesh");
-    //set_scl(bunny, glm::vec3(20, 20, 20));
+    Entity& bunny = newObject();
+    addMixin(bunny, "mesh");
+    set_pos(bunny, {10, 0, 0});
+    set_scl(bunny, {5, 5, 5});
 
     // Setup vertex declarations
     PosColorVertex::init();
@@ -109,129 +110,6 @@ void ObjectManager::update() {
     //auto& globals = getGlobals();
     //for(auto& global : globals)
     //    cout << global.first << endl;
-
-    static bool no_titlebar  = false;
-    static bool no_border    = true;
-    static bool no_resize    = false;
-    static bool no_move      = false;
-    static bool no_scrollbar = false;
-    static bool no_collapse  = false;
-    static bool no_menu      = true;
-
-    // Demonstrate the various window flags. Typically you would just use the default.
-    ImGuiWindowFlags window_flags = 0;
-    // clang-format off
-    if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
-    if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
-    if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
-    if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
-    if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
-    if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
-    if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
-    // clang-format on
-
-    static vector<eid> selected;
-
-    if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
-        if(ImGui::TreeNode("objects")) {
-            //auto hierarchical_id = dynamix::internal::domain::instance().get_mixin_id_by_name("hierarchical");
-
-            for(const auto& curr : m_objects) {
-                // recursive select/deselect
-                std::function<void(eid, bool)> recursiveSelecter = [&](eid root, bool select) {
-                    auto& obj = getObject(root);
-                    auto  it  = std::find(selected.begin(), selected.end(), root);
-                    if(select) {
-                        if(it == selected.end())
-                            selected.push_back(root);
-                    } else {
-                        if(it != selected.end())
-                            selected.erase(it);
-                    }
-                    obj.select(select);
-
-                    // recurse through children
-                    const auto& children = ::get_children(obj);
-                    if(children.size() > 0)
-                        for(const auto& c : children)
-                            recursiveSelecter(c, select);
-                };
-
-                // recursive tree build
-                std::function<void(eid)> buildTree = [&](eid root) {
-                    auto&              obj = getObject(root);
-                    ImGuiTreeNodeFlags node_flags =
-                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                            (obj.selected() ? ImGuiTreeNodeFlags_Selected : 0);
-
-                    const auto& children = ::get_children(obj);
-                    if(children.size() == 0)
-                        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-                    auto name      = obj.name() + " (" + std::to_string(int(obj.id())) + ")";
-                    bool node_open = ImGui::TreeNodeEx((void*)(intptr_t) int(root), node_flags,
-                                                       name.c_str());
-
-                    if(ImGui::IsItemClicked()) {
-                        bool shouldSelect = !obj.selected();
-
-                        if(ImGui::GetIO().KeyShift) {
-                            recursiveSelecter(root, shouldSelect);
-                        } else if(ImGui::GetIO().KeyCtrl) {
-                            obj.select(shouldSelect);
-                            if(shouldSelect)
-                                selected.push_back(root);
-                            else
-                                selected.erase(std::find(selected.begin(), selected.end(), root));
-                        } else if(!obj.selected()) {
-                            for(auto& it : selected) {
-                                getObject(it).select(false);
-                            }
-                            selected.clear();
-                            obj.select(shouldSelect);
-                            selected.push_back(root);
-                        }
-                    }
-
-                    if(node_open && children.size() > 0) {
-                        for(const auto& c : children)
-                            buildTree(c);
-                        ImGui::TreePop();
-                    }
-                };
-
-                // recurse from those without a parent only
-                if(curr.second.implements(get_parent_msg)) {
-                    if(::get_parent(curr.second) == eid::invalid())
-                        buildTree(curr.second.id());
-                }
-            }
-            ImGui::TreePop();
-        }
-    }
-    ImGui::End();
-
-    ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 400), 0),
-                            ImGuiSetCond_FirstUseEver);
-
-    if(ImGui::Begin("object properties", nullptr, window_flags)) {
-        for(auto& id : selected) {
-            auto& obj = getObject(id);
-            if(ImGui::TreeNode(obj.name().c_str())) {
-                if(obj.implements(imgui_bind_properties_msg)) {
-                    imgui_bind_properties(obj);
-                }
-
-                ImGui::TreePop();
-            }
-        }
-    }
-    ImGui::End();
-
-    //ImGui::ShowTestWindow();
 
     Application& app = Application::get();
     float        dt  = app.dt();

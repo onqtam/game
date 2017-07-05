@@ -1,5 +1,6 @@
 
 
 type camera
-	float cursor_x
-	float cursor_y
+	float cursor_x	default:0.f
+	float cursor_y	default:0.f
+	float scroll	default:0.f

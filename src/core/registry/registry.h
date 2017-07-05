@@ -129,15 +129,15 @@ load_unload_proc getUnloadProc() {
              [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
-#define HA_MIXIN_DEFINE(n, features)                                                               \
-    HA_MIXIN_DEFINE_COMMON(n,                                                                      \
-                           serialize_msg& deserialize_msg& imgui_bind_properties_msg& features);   \
-    static_assert(sizeof(n) ==                                                                     \
-                          sizeof(HA_CAT_1(n, _gen)) +                                              \
-                                  std::is_polymorphic<n>::value * sizeof(void*),                   \
-                  "Mixin '" #n "' has extended the base!")
+#define HA_MIXIN_DEFINE(n, f)                                                                      \
+    HA_MIXIN_DEFINE_COMMON(n, serialize_msg& deserialize_msg& imgui_bind_properties_msg& f);       \
 
-#define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, features) HA_MIXIN_DEFINE_COMMON(n, features)
+    //static_assert(sizeof(n) ==                                                                     \
+    //                      sizeof(HA_CAT_1(n, _gen)) +                                              \
+    //                              std::is_polymorphic<n>::value * sizeof(void*),                   \
+    //              "Mixin '" #n "' has extended the base!")
+
+#define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 
 // =================================================================================================
 // ==  GLOBALS =====================================================================================

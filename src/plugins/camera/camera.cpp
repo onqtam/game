@@ -39,6 +39,8 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
     return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
 }
 
+const glm::vec3 look_direction = {0, -1, -0.2};
+
 class HA_EMPTY_BASE camera : public camera_gen,
                              public InputEventListener,
                              public UpdatableMixin<camera>
@@ -48,14 +50,17 @@ public:
     camera() {
         set_pos(ha_this, glm::vec3(0, 0, 20));
         set_rot(ha_this, glm::quat(0, 0, 0, 1));
-        //set_pos(ha_this, glm::vec3(0, 50, 10));
-        //set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, {0, -1, -0.2}));
+        set_pos(ha_this, glm::vec3(0, 50, 10));
+        set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, look_direction));
     }
 
     void process_event(const InputEvent& ev) override {
         if(ev.type == InputEvent::MOTION) {
             cursor_x = float(ev.motion.x);
             cursor_y = float(ev.motion.y);
+        }
+        if(ev.type == InputEvent::SCROLL) {
+            scroll += float(ev.scroll.scroll);
         }
     }
 
@@ -70,6 +75,9 @@ public:
             move(ha_this, glm::vec3(0, 0, -k_speed * dt));
         if(cursor_y > h - 10)
             move(ha_this, glm::vec3(0, 0, k_speed * dt));
+
+        move(ha_this, glm::normalize(look_direction) * scroll);
+        scroll = 0.f;
     }
 
     glm::mat4 get_view_matrix() {

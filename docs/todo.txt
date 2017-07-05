@@ -1,8 +1,13 @@
 
+python 3
 
-- view all properties of objects
-- objects inheriting transformations based on their hierarchical component
+think about the sizeof static assert... virtual classes are problematic
+
+rework the singleton stuff so constructors can be used instead of an init() method
+
+- make a grid for the world with y = 0
 - moving selected objects
+- view all properties of objects
 - world
 - objects
 
@@ -16,12 +21,9 @@
     - entity explorer
     - entity properties
     - undo/redo
-    - gizmos
-        https://github.com/CedricGuillemet/ImGuizmo
-        https://github.com/ddiakopoulos/tinygizmo
-        https://github.com/john-chapman/im3d
 - spatial queries about objects
 - asset pipeline from Kosta - must have
+- objects inheriting transformations based on their hierarchical component
 
 
 == coding standard:
@@ -33,6 +35,7 @@
 == questions:
 - prefix with _ all function arguments?
 - signal/slot
+- bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
 
 == bugs:
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
