@@ -129,13 +129,21 @@ load_unload_proc getUnloadProc() {
              [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
+// some overly complicated static assert that tries to ensure that the user hasn'd added any members
+// to the deriving class of the _gen class - tries to take into account if the derived class becomes
+// polymorphic - but in some circumstances this might not catch the addition of a 4 byte variable in
+// the derived class... should probably remove the static assert altogether - overly complex...
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     HA_MIXIN_DEFINE_COMMON(n, serialize_msg& deserialize_msg& imgui_bind_properties_msg& f);       \
-
-    //static_assert(sizeof(n) ==                                                                     \
-    //                      sizeof(HA_CAT_1(n, _gen)) +                                              \
-    //                              std::is_polymorphic<n>::value * sizeof(void*),                   \
-    //              "Mixin '" #n "' has extended the base!")
+    static_assert(                                                                                 \
+            sizeof(n) ==                                                                           \
+            sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +            \
+                    std::is_polymorphic<n>::value *                                                \
+                            (sizeof(n) > sizeof(HA_CAT_1(n, _gen)) +                               \
+                                                     std::is_polymorphic<n>::value *               \
+                                                             sizeof(void*) ?                       \
+                                     (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 : 0) :      \
+                                     0));
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

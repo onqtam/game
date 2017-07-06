@@ -3,10 +3,6 @@ integrate gizmos with currently selected objects
 
 gizmos constant size
 
-think about the sizeof static assert... virtual classes are problematic
-
-rework the singleton stuff so constructors can be used instead of an init() method
-
 - make a grid for the world with y = 0
     also add ability for object snapping (with the gizmos)
 - moving selected objects
