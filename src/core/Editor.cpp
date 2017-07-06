@@ -39,7 +39,7 @@ void Editor::init() {
 
         bgfx::setVertexBuffer(0, m_vert_buf);
         bgfx::setIndexBuffer(m_ind_buf);
-        bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
+        bgfx::setState(BGFX_STATE_DEFAULT);
         bgfx::submit(0, m_program);
     };
 }
