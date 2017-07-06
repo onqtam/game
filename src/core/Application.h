@@ -6,7 +6,9 @@ struct GLFWwindow;
 
 class HAPI Application
 {
-    HA_SCOPED_SINGLETON(Application, int main(int, char**));
+    HA_SCOPED_SINGLETON(Application);
+    Application() = default;
+    friend int main(int, char**);
 
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow*, double xoffset, double yoffset);
@@ -24,6 +26,7 @@ class HAPI Application
     void reset(uint32 flags = 0);
 
 public:
+
     uint32 width() const { return m_width; }
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }

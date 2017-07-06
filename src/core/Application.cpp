@@ -267,8 +267,6 @@ void imguiEvents(float dt) {
 // == APPLICATION IMPLEMENTATION ===================================================================
 // =================================================================================================
 
-HA_SCOPED_SINGLETON_IMPLEMENT(Application);
-
 // TODO: use a smarter allocator - the important methods here are for the mixin data
 class global_mixin_allocator : public dynamix::global_allocator
 {

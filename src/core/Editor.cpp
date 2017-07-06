@@ -9,8 +9,6 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
-HA_SCOPED_SINGLETON_IMPLEMENT(Editor);
-
 void Editor::init() {
     m_program = loadProgram("gizmo_vs", "gizmo_fs");
     m_vert_decl.begin()

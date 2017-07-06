@@ -51,7 +51,9 @@ class HAPI ResourceManager : public creator
     std::vector<Resource> m_resources;
     int16                 m_next_free = -1;
 
-    HA_SCOPED_SINGLETON(ResourceManager, class Application);
+    HA_SCOPED_SINGLETON(ResourceManager);
+    ResourceManager() = default;
+    friend class Application;
 
 public:
     class Handle
@@ -165,5 +167,5 @@ public:
     }
 };
 
-template <typename T, typename creator>
-ResourceManager<T, creator>* ResourceManager<T, creator>::s_instance = nullptr;
+//template <typename T, typename creator>
+//ResourceManager<T, creator>* ResourceManager<T, creator>::s_instance = nullptr;

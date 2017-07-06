@@ -2,11 +2,15 @@
 
 #include "InputEvent.h"
 
+HA_SUPPRESS_WARNINGS
 #include "tinygizmo/tiny-gizmo.hpp"
+HA_SUPPRESS_WARNINGS_END
 
 class HAPI Editor : public InputEventListener
 {
-    HA_SCOPED_SINGLETON(Editor, class Application);
+    HA_SCOPED_SINGLETON(Editor);
+    Editor() = default;
+    friend class Application;
 
 private:
     tinygizmo::gizmo_application_state m_gizmo_state;

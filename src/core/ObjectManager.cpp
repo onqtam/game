@@ -17,8 +17,6 @@ HA_SUPPRESS_WARNINGS_END
 
 using namespace std;
 
-HA_SCOPED_SINGLETON_IMPLEMENT(ObjectManager);
-
 static bgfx::ProgramHandle      mProgram;
 static bgfx::VertexBufferHandle mVbh;
 static bgfx::IndexBufferHandle  mIbh;

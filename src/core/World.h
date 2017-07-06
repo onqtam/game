@@ -2,7 +2,7 @@
 
 class HAPI World
 {
-    HA_SCOPED_SINGLETON(World, class Application);
+    HA_SCOPED_SINGLETON(World);
 
 private:
     

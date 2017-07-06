@@ -1,22 +1,27 @@
 #pragma once
 
-// can perhaps rework this to not use macros at all - https://stackoverflow.com/a/4173298/3162383
-
 // clang-format off
-#define HA_SCOPED_SINGLETON(the_class, the_friend)                                                 \
-    private:                                                                                       \
-        static the_class* s_instance;                                                              \
-        the_class() {                                                                              \
-            hassert(s_instance == nullptr);                                                        \
-            s_instance = this;                                                                     \
-        }                                                                                          \
-        the_class(const the_class&) = delete;                                                      \
-        the_class& operator=(const the_class&) = delete;                                           \
-        ~the_class() { s_instance = nullptr; }                                                     \
+#define HA_SCOPED_SINGLETON(the_class)                                                             \
     public:                                                                                        \
-        static the_class& get() { return *s_instance; }                                            \
+        static the_class& get() { return *SingletonInstanceWrapper<the_class>::s_instance; }       \
     private:                                                                                       \
-    friend the_friend
-
-#define HA_SCOPED_SINGLETON_IMPLEMENT(the_class) the_class* the_class::s_instance = nullptr
+        SingletonInstanceWrapper<the_class> dummy = SingletonInstanceWrapper<the_class>(this);     \
+        the_class(const the_class&)               = delete;                                        \
+        the_class& operator=(const the_class&)    = delete
 // clang-format on
+
+// this helper class is used so singletons can have user defined ctors/dtors - the global instance
+// handling is separated inside of a dummy member of the singleton class of type this helper class 
+template <typename T>
+struct SingletonInstanceWrapper
+{
+    static T* s_instance;
+    SingletonInstanceWrapper(T* in) {
+        hassert(s_instance == nullptr);
+        s_instance = in;
+    }
+    ~SingletonInstanceWrapper() { s_instance = nullptr; }
+};
+
+template <class T>
+T* SingletonInstanceWrapper<T>::s_instance = nullptr;

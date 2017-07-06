@@ -34,7 +34,6 @@
 #include "utils/suppress_warnings.h"
 #include "utils/visibility.h"
 #include "utils/preprocessor.h"
-#include "utils/singleton.h"
 #include "utils/doctest/doctest_proxy.h"
 
 HA_SUPPRESS_WARNINGS
@@ -82,4 +81,5 @@ using glm::uint16;
 using glm::uint32;
 using glm::uint64;
 
+#include "utils/singleton.h"
 #include "core/Entity.h"
