@@ -7,12 +7,8 @@ def strln(string, tabs = 0):
         tabs_str += "    "
     return tabs_str + str(string) + '\n'
 
-class NewLineFile(file):
-    #subclass file to have a more convienient use of writeline
-    def __init__(self, name, mode = 'r'):
-        self = file.__init__(self, name, mode)
-    def writeln(self, string, tabs = 0):
-        self.writelines(strln(string, tabs))
+def writeln(f, string, tabs = 0):
+    f.writelines(strln(string, tabs))
 
 class Field:
     def __init__(self):
@@ -26,11 +22,11 @@ class Field:
 
 def string2numeric_hash(text):
     import hashlib
-    return int(hashlib.md5(text).hexdigest()[:8], 16)
+    return int(hashlib.md5(text.encode('utf-8')).hexdigest()[:8], 16)
 
 mix_name = sys.argv[1][:-4]
-mix = NewLineFile(sys.argv[1], 'r')
-gen = NewLineFile(sys.argv[2], 'w+')
+mix = open(sys.argv[1], 'r')
+gen = open(sys.argv[2], 'w+')
 
 #os.path.basename(sys.argv[1])[:-4]
 
@@ -79,26 +75,26 @@ for line in mix:
                 field.default = word[8:]
         types[current_type]["fields"].append(field)
 
-gen.writeln("#pragma once")
-gen.writeln("")
+writeln(gen, "#pragma once")
+writeln(gen, "")
 
 for include in includes:
-    gen.writeln("#include " + include)
-gen.writeln("")
+    writeln(gen, "#include " + include)
+writeln(gen, "")
 
 for type in types:
     name_gen = type + "_gen"
 
-    gen.writeln("struct " + name_gen)
-    gen.writeln("{")
-    gen.writeln("HA_FRIENDS_OF_TYPE(" + name_gen + ");", tabs = 1)
+    writeln(gen, "struct " + name_gen)
+    writeln(gen, "{")
+    writeln(gen, "HA_FRIENDS_OF_TYPE(" + name_gen + ");", tabs = 1)
     
     visibility = ""
     for field in types[type]["fields"]:
         if visibility != field.visibility:
             visibility = field.visibility
-            #gen.writeln("")
-            gen.writeln(visibility)
+            #writeln(gen, "")
+            writeln(gen, visibility)
         if field.type in aliases.keys():
             field.type = aliases[field.type]
         default_str = ""
@@ -107,10 +103,10 @@ for type in types:
         comment_str = ""
         if field.comment != "":
             comment_str = " //" + field.comment
-        gen.writeln(field.type + " " + field.name + default_str + ";" + comment_str, tabs = 1)
+        writeln(gen, field.type + " " + field.name + default_str + ";" + comment_str, tabs = 1)
     
-    gen.writeln("};")
-    gen.writeln("")
+    writeln(gen, "};")
+    writeln(gen, "")
     
     functions += strln("")
     functions += strln("inline void serialize(const " + name_gen + "& src, JsonData& out) {")
@@ -134,9 +130,9 @@ for type in types:
         functions += strln("imgui_bind_property(\"" + field.name + "\", obj." + field.name + ");", tabs = 1)
     functions += strln("}")
 
-gen.writeln("//=============================================================================")
-gen.writeln("//=============================================================================")
-gen.writeln("//=============================================================================")
+writeln(gen, "//=============================================================================")
+writeln(gen, "//=============================================================================")
+writeln(gen, "//=============================================================================")
 gen.write(functions)
 
 mix.close()
