@@ -10,6 +10,6 @@ Sometime in the distant future (1-2 years) shall go private when progress starts
 
 You'll need the pip ```colorama``` package - ```pip install colorama```
 
-Use the ```r``` python 3 script in the root of the repository to build the project (it has help).
+Use the ```r``` python 2/3 script in the root of the repository to build the project (it has help). Emscripten requires python 2.
 
 Required packages for ubuntu: ```xorg-dev libx11-dev libgl1-mesa-dev```
