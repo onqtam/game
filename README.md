@@ -8,6 +8,8 @@
 This is a repository of a future game and game engine. It will use only open technologies and will be multiplatform.
 Sometime in the distant future (1-2 years) shall go private when progress starts to speed up and a demo takes shape.
 
-Use the ```r``` python script in the root of the repository to build the project (it has help).
+You'll need the pip ```colorama``` package - ```pip install colorama```
+
+Use the ```r``` python 3 script in the root of the repository to build the project (it has help).
 
 Required packages for ubuntu: ```xorg-dev libx11-dev libgl1-mesa-dev```

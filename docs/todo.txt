@@ -1,11 +1,14 @@
 
-python 3
+integrate gizmos with currently selected objects
+
+gizmos constant size
 
 think about the sizeof static assert... virtual classes are problematic
 
 rework the singleton stuff so constructors can be used instead of an init() method
 
 - make a grid for the world with y = 0
+    also add ability for object snapping (with the gizmos)
 - moving selected objects
 - view all properties of objects
 - world
@@ -72,6 +75,9 @@ questionable:
 - https://github.com/tlorach/Bak3d
 - Animation Compression Library - https://github.com/nfrechette/acl
 - https://github.com/mp3butcher/Cal3D/
+- https://github.com/nem0/OpenFBX
+- https://github.com/guillaumeblanc/ozz-animation
+- https://github.com/libgdx/fbx-conv
 
 == codegen:
 - syntax highlighting for .mix files in VS
@@ -140,6 +146,8 @@ integrate typesafe stuff
     https://github.com/Microsoft/GSL
     https://github.com/foonathan/type_safe
     https://github.com/nholthaus/units
+- math
+    https://github.com/herumi/fmath
 - UI
     - librocket
     - turbobadger
