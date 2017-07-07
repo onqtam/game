@@ -1,12 +1,13 @@
 
+FIX THE RESOURCE CLASS OF THE RESOURCE MANAGER !!!
 
-make some singletons an entity for hot reloading - editor, etc.
 debug mesh manager
     grid
     cube
 
+make some singletons an entity for hot reloading - editor, etc.
 
-- world
+- world - and remove "object manager"
 - level
     - save
     - load

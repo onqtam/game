@@ -190,8 +190,8 @@ void Editor::update() {
     m_gizmo_state.cam.near_clip = 0.1f;
     m_gizmo_state.cam.far_clip  = 1000.f;
     m_gizmo_state.cam.yfov      = glm::radians(45.0f);
-    glm::vec3 pos = get_pos(ObjectManager::get().m_camera.get());
-    glm::quat rot = get_rot(ObjectManager::get().m_camera.get());
+    glm::vec3 pos = get_pos(ObjectManager::get().m_camera);
+    glm::quat rot = get_rot(ObjectManager::get().m_camera);
     m_gizmo_state.cam.position    = {pos.x, pos.y, pos.z};
     m_gizmo_state.cam.orientation = {rot.x, rot.y, rot.z, rot.w};
 

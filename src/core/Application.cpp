@@ -379,8 +379,11 @@ int Application::run(int argc, char** argv) {
 
     // create game
     {
-        MeshMan   meshMan;
-        ShaderMan shaderMan;
+        // resource managers should be created first and destroyed last - all
+        // entities should be destroyed so the refcounts to the resources are 0
+        MeshMan      meshMan;
+        ShaderMan    shaderMan;
+        DebugMeshMan debugMeshMan;
 
         EntityManager entityMan;
 

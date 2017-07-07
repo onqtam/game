@@ -16,8 +16,8 @@ public:
 
     bool isValid() const { return m_value != int(invalid()); }
 
-    // TODO: uncomment this?
-    // operator Entity&() { return get(); }
+    operator const Entity&() const { return get(); }
+    operator Entity&() { return get(); }
 
     Entity&       get();
     const Entity& get() const { const_cast<eid*>(this)->get(); }

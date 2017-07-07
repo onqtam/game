@@ -1,7 +1,8 @@
 #pragma once
 
 // TODO: test this! everything! even the resource copy/assignment shenanigans
-
+// TODO: inherit privately from the creator or something like that - it's
+//       create and destroy methods should not be accessible through the manager!
 template <typename T, typename creator>
 class HAPI ResourceManager : public creator
 {
@@ -21,29 +22,36 @@ class HAPI ResourceManager : public creator
             }
         }
 
-        Resource() = default;
-        Resource(const Resource& other)
+        //Resource() = default;
+        Resource() {
+            hassert(true);
+        }
+        Resource(const Resource& other) = delete;
+
+        Resource(Resource&& other)
                 : refcount(other.refcount)
                 , next_free(other.next_free)
                 , name(other.name) {
             HA_SUPPRESS_WARNINGS
-            if(refcount != -1)
+            if(refcount != -1) {
                 new(data) T(*reinterpret_cast<const T*>(other.data)); // call copy ctor
+                other.refcount = 0;
+            }
             HA_SUPPRESS_WARNINGS_END
         }
-        Resource& operator=(const Resource& other) {
-            if(this != &other) {
-                refcount  = other.refcount;
-                next_free = other.next_free;
-                name      = other.name;
-                HA_SUPPRESS_WARNINGS
-                if(refcount != -1)
-                    reinterpret_cast<T&>(*data) =
-                            reinterpret_cast<const T&>(*other.data); // call assignment operator
-                HA_SUPPRESS_WARNINGS_END
-            }
-            return *this;
-        }
+        //Resource& operator=(const Resource& other) {
+        //    if(this != &other) {
+        //        refcount  = other.refcount;
+        //        next_free = other.next_free;
+        //        name      = other.name;
+        //        HA_SUPPRESS_WARNINGS
+        //        if(refcount != -1)
+        //            reinterpret_cast<T&>(*data) =
+        //                    reinterpret_cast<const T&>(*other.data); // call assignment operator
+        //        HA_SUPPRESS_WARNINGS_END
+        //    }
+        //    return *this;
+        //}
 
         ~Resource() { destroy(); }
     };
@@ -52,7 +60,7 @@ class HAPI ResourceManager : public creator
     int16                 m_next_free = -1;
 
     HA_SCOPED_SINGLETON(ResourceManager);
-    ResourceManager() = default;
+    ResourceManager() { m_resources.reserve(100); } // TODO: FIX ME! hacked to work by reserving so no resizing takes place, but the Resource class fucks up in it's refcounting!
     friend class Application;
 
 public:

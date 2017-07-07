@@ -1,7 +1,6 @@
 #include "common_gen.h"
 
 #include "core/registry/registry.h"
-#include "core/ObjectManager.h"
 #include "core/Editor.h"
 
 #include "core/GraphicsHelpers.h"
@@ -63,13 +62,10 @@ public:
     void set_parent(eid _parent) {
         hassert(parent == eid::invalid());
         parent = _parent;
-        //::add_child(ObjectManager::get().getObject(_parent), ha_this.id());
     }
     void add_child(eid child) {
-        //hassert(::get_parent(ObjectManager::get().getObject(child)) == eid::invalid());
         hassert(std::find(children.begin(), children.end(), child) == children.end());
         children.push_back(child);
-        //::set_parent(ObjectManager::get().getObject(child), ha_this.id());
     }
     void remove_child(eid child) {
         auto it = std::find(children.begin(), children.end(), child);

@@ -365,3 +365,38 @@ void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, co
 }
 
 HA_SUPPRESS_WARNINGS_END
+
+ha_mesh createCube1() {
+    struct PosColorVertex
+    {
+        float  x;
+        float  y;
+        float  z;
+        uint32 abgr;
+    };
+
+    static const PosColorVertex s_cubeVertices[] = {
+            {-1.0f, 1.0f, 1.0f, 0xff000000},   {1.0f, 1.0f, 1.0f, 0xff0000ff},
+            {-1.0f, -1.0f, 1.0f, 0xff00ff00},  {1.0f, -1.0f, 1.0f, 0xff00ffff},
+            {-1.0f, 1.0f, -1.0f, 0xffff0000},  {1.0f, 1.0f, -1.0f, 0xffff00ff},
+            {-1.0f, -1.0f, -1.0f, 0xffffff00}, {1.0f, -1.0f, -1.0f, 0xffffffff},
+    };
+
+    static const uint16 s_cubeTriStrip[] = {
+            0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
+    };
+
+    bgfx::VertexDecl vert_decl;
+    vert_decl.begin()
+            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
+            .end();
+
+    auto vbh = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
+                                        vert_decl);
+    auto ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
+
+    return {vbh, ibh};
+}
+
+ha_mesh createCube2() { return createCube1(); }

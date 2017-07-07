@@ -17,40 +17,6 @@ HA_SUPPRESS_WARNINGS_END
 
 using namespace std;
 
-static bgfx::ProgramHandle      mProgram;
-static bgfx::VertexBufferHandle mVbh;
-static bgfx::IndexBufferHandle  mIbh;
-
-// vertex declarations
-struct PosColorVertex
-{
-    float                   x;
-    float                   y;
-    float                   z;
-    uint32                  abgr;
-    static void             init();
-    static bgfx::VertexDecl ms_decl;
-};
-
-void PosColorVertex::init() {
-    ms_decl.begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
-}
-
-bgfx::VertexDecl PosColorVertex::ms_decl;
-
-static PosColorVertex s_cubeVertices[] = {
-        {-1.0f, 1.0f, 1.0f, 0xff000000},   {1.0f, 1.0f, 1.0f, 0xff0000ff},
-        {-1.0f, -1.0f, 1.0f, 0xff00ff00},  {1.0f, -1.0f, 1.0f, 0xff00ffff},
-        {-1.0f, 1.0f, -1.0f, 0xffff0000},  {1.0f, 1.0f, -1.0f, 0xffff00ff},
-        {-1.0f, -1.0f, -1.0f, 0xffffff00}, {1.0f, -1.0f, -1.0f, 0xffffffff},
-};
-static const uint16 s_cubeTriStrip[] = {
-        0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
-};
-
 void ObjectManager::init() {
     auto& mixins = getMixins();
     for(auto& mixin : mixins)
@@ -86,17 +52,13 @@ void ObjectManager::init() {
     //set_parent(object6, object1.id());
 
     Entity& bunny = em.newEntity();
-    bunny.addMixin("mesh");
+    //bunny.addMixin("mesh");
     set_pos(bunny, {10, 0, 0});
     set_scl(bunny, {5, 5, 5});
-
-    // Setup vertex declarations
-    PosColorVertex::init();
-
-    mProgram = loadProgram("cubes_vs", "cubes_fs");
-    mVbh     = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
-                                    PosColorVertex::ms_decl);
-    mIbh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
+    
+    mProgram = ShaderMan::get().get("cubes");
+    mProgram2 = ShaderMan::get().get("mesh");
+    asd = DebugMeshMan::get().get("cube1");
     bgfx::setDebug(BGFX_DEBUG_TEXT);
 }
 
@@ -122,8 +84,8 @@ void ObjectManager::update() {
 
     // Set view and projection matrix for view 0.
 
-    glm::mat4 view = get_view_matrix(m_camera.get());
-    glm::mat4 proj = get_projection_matrix(m_camera.get());
+    glm::mat4 view = get_view_matrix(m_camera);
+    glm::mat4 proj = get_projection_matrix(m_camera);
 
     bgfx::setViewTransform(0, (float*)&view, (float*)&proj);
 
@@ -140,10 +102,10 @@ void ObjectManager::update() {
             mtx[13] = -15.0f + float(yy) * 3.0f;
             mtx[14] = -40.0f;
             bgfx::setTransform(mtx);
-            bgfx::setVertexBuffer(0, mVbh);
-            bgfx::setIndexBuffer(mIbh);
+            bgfx::setVertexBuffer(0, asd.get().vbh);
+            bgfx::setIndexBuffer(asd.get().ibh);
             bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
-            bgfx::submit(0, mProgram);
+            bgfx::submit(0, mProgram.get());
         }
     }
 
@@ -159,8 +121,5 @@ void ObjectManager::update() {
 }
 
 int ObjectManager::shutdown() {
-    bgfx::destroyIndexBuffer(mIbh);
-    bgfx::destroyVertexBuffer(mVbh);
-    bgfx::destroyProgram(mProgram);
     return 0;
 }

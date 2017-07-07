@@ -59,14 +59,27 @@ template class ResourceManager<Mesh*, MeshCreator>;
 typedef ResourceManager<Mesh*, MeshCreator>         MeshMan;
 typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;
 
+struct ha_mesh
+{
+    bgfx::VertexBufferHandle vbh;
+    bgfx::IndexBufferHandle  ibh;
+};
+
 struct DebugMeshCreator
 {
     void create(void* storage, const std::string& name) {
-        new(storage) Mesh*(meshLoad(name.c_str()));
+        // clang-format off
+        if(name == "cube1") { ha_mesh createCube1(); new(storage) ha_mesh(createCube1());} 
+        else if(name == "cube2") { ha_mesh createCube2(); new(storage) ha_mesh(createCube2()); }
+        else hassert(false);
+        // clang-format on
     }
-    void destroy(void* storage) { meshUnload(*static_cast<Mesh**>(storage)); }
+    void destroy(void* storage) {
+        bgfx::destroyVertexBuffer(static_cast<ha_mesh*>(storage)->vbh);
+        bgfx::destroyIndexBuffer(static_cast<ha_mesh*>(storage)->ibh);
+    }
 };
 
-template class ResourceManager<Mesh*, DebugMeshCreator>;
-typedef ResourceManager<Mesh*, DebugMeshCreator>         DebugMeshMan;
-typedef ResourceManager<Mesh*, DebugMeshCreator>::Handle DebugMeshHandle;
+template class ResourceManager<ha_mesh, DebugMeshCreator>;
+typedef ResourceManager<ha_mesh, DebugMeshCreator>         DebugMeshMan;
+typedef ResourceManager<ha_mesh, DebugMeshCreator>::Handle DebugMeshHandle;
