@@ -54,7 +54,7 @@ void Editor::init() {
 
 void Editor::update() {
     auto& app = Application::get();
-    auto& om  = ObjectManager::get();
+    auto& em  = EntityManager::get();
 
     static bool no_titlebar  = false;
     static bool no_border    = true;
@@ -84,20 +84,20 @@ void Editor::update() {
         if(ImGui::TreeNode("objects")) {
             auto selected_mixin_id = dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
 
-            for(const auto& curr : om.m_objects) {
+            for(const auto& curr : em.getEntities()) {
                 // recursive select/deselect
                 std::function<void(eid, bool)> recursiveSelecter = [&](eid root, bool select) {
-                    auto& obj = om.getObject(root);
+                    auto& obj = root.get();
                     auto  it  = std::find(selected.begin(), selected.end(), root);
                     if(select) {
                         if(it == selected.end()) {
                             selected.push_back(root);
-                            om.addMixin(obj, "selected");
+                            obj.addMixin("selected");
                         }
                     } else {
                         if(it != selected.end()) {
                             selected.erase(it);
-                            om.remMixin(obj, "selected");
+                            obj.remMixin("selected");
                         }
                     }
 
@@ -110,7 +110,7 @@ void Editor::update() {
 
                 // recursive tree build
                 std::function<void(eid)> buildTree = [&](eid root) {
-                    auto&              obj = om.getObject(root);
+                    auto&              obj = root.get();
                     ImGuiTreeNodeFlags node_flags =
                             ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
                             (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
@@ -131,20 +131,20 @@ void Editor::update() {
                         } else if(ImGui::GetIO().KeyCtrl) {
                             if(shouldSelect) {
                                 selected.push_back(root);
-                                om.addMixin(obj, "selected");
+                                obj.addMixin("selected");
                             } else{
                                 selected.erase(std::find(selected.begin(), selected.end(), root));
-                                om.remMixin(obj, "selected");
+                                obj.remMixin("selected");
                             }
                         } else if(!obj.has(selected_mixin_id)) {
                             for(auto& it : selected) {
-                                om.remMixin(om.getObject(it), "selected");
+                                it.get().remMixin("selected");
                             }
                             selected.clear();
                             if(shouldSelect)
-                                om.addMixin(obj, "selected");
+                                obj.addMixin("selected");
                             else
-                                om.remMixin(obj, "selected");
+                                obj.remMixin("selected");
                             selected.push_back(root);
                         }
                     }
@@ -172,7 +172,7 @@ void Editor::update() {
 
     if(ImGui::Begin("object properties", nullptr, window_flags)) {
         for(auto& id : selected) {
-            auto& obj = om.getObject(id);
+            auto& obj = id.get();
             if(ImGui::TreeNode(obj.name().c_str())) {
                 if(obj.implements(imgui_bind_properties_msg)) {
                     imgui_bind_properties(obj);
@@ -190,15 +190,15 @@ void Editor::update() {
     m_gizmo_state.cam.near_clip = 0.1f;
     m_gizmo_state.cam.far_clip  = 1000.f;
     m_gizmo_state.cam.yfov      = glm::radians(45.0f);
-    glm::vec3 pos = get_pos(ObjectManager::get().getObject(ObjectManager::get().m_camera));
-    glm::quat rot = get_rot(ObjectManager::get().getObject(ObjectManager::get().m_camera));
+    glm::vec3 pos = get_pos(ObjectManager::get().m_camera.get());
+    glm::quat rot = get_rot(ObjectManager::get().m_camera.get());
     m_gizmo_state.cam.position    = {pos.x, pos.y, pos.z};
     m_gizmo_state.cam.orientation = {rot.x, rot.y, rot.z, rot.w};
 
     m_gizmo_ctx.update(m_gizmo_state);
 
     for(auto& id : selected) {
-        auto& obj = om.getObject(id);
+        auto& obj = id.get();
         auto& t = get_gizmo_transform(obj);
 
         // temp hack

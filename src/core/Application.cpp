@@ -377,8 +377,10 @@ int Application::run(int argc, char** argv) {
 
     // create game
     {
-        MeshMan       meshMan;
-        ShaderMan     shaderMan;
+        EntityManager entityMan;
+
+        MeshMan   meshMan;
+        ShaderMan shaderMan;
 
         ObjectManager objectManager;
         objectManager.init();

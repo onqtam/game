@@ -51,8 +51,8 @@ class HA_EMPTY_BASE camera : public camera_gen,
     HA_MESSAGES_IN_MIXIN(camera)
 public:
     camera() {
-        cursor_x = Application::get().width() / 2;
-        cursor_y = Application::get().height() / 2;
+        cursor_x = Application::get().width() / 2.f;
+        cursor_y = Application::get().height() / 2.f;
 
         //set_pos(ha_this, glm::vec3(0, 0, 20));
         //set_rot(ha_this, glm::quat(1, 0, 0, 0));

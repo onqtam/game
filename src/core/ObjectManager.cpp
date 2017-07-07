@@ -56,35 +56,37 @@ void ObjectManager::init() {
     for(auto& mixin : mixins)
         cout << mixin.first << endl;
 
-    Entity& object1 = newObject();
-    Entity& object2 = newObject();
-    Entity& object3 = newObject();
-    Entity& object4 = newObject();
-    Entity& object5 = newObject();
-    Entity& object6 = newObject();
+    EntityManager& em = EntityManager::get();
 
-    m_camera       = newObjectId();
-    Entity& camera = getObject(m_camera);
-    addMixin(camera, "camera");
+    //Entity& object1 = em.newEntity();
+    //Entity& object2 = em.newEntity();
+    //Entity& object3 = em.newEntity();
+    //Entity& object4 = em.newEntity();
+    //Entity& object5 = em.newEntity();
+    //Entity& object6 = em.newEntity();
+
+    m_camera       = em.newEntityId();
+    Entity& camera = m_camera.get();
+    camera.addMixin("camera");
     camera.setName("camera");
 
-    add_child(camera, object1.id());
-    set_parent(object1, camera.id());
+    //add_child(camera, object1.id());
+    //set_parent(object1, camera.id());
+    //
+    //add_child(camera, object2.id());
+    //set_parent(object2, camera.id());
+    //
+    //add_child(object1, object3.id());
+    //set_parent(object3, object1.id());
+    //add_child(object1, object4.id());
+    //set_parent(object4, object1.id());
+    //add_child(object1, object5.id());
+    //set_parent(object5, object1.id());
+    //add_child(object1, object6.id());
+    //set_parent(object6, object1.id());
 
-    add_child(camera, object2.id());
-    set_parent(object2, camera.id());
-
-    add_child(object1, object3.id());
-    set_parent(object3, object1.id());
-    add_child(object1, object4.id());
-    set_parent(object4, object1.id());
-    add_child(object1, object5.id());
-    set_parent(object5, object1.id());
-    add_child(object1, object6.id());
-    set_parent(object6, object1.id());
-
-    Entity& bunny = newObject();
-    addMixin(bunny, "mesh");
+    Entity& bunny = em.newEntity();
+    bunny.addMixin("mesh");
     set_pos(bunny, {10, 0, 0});
     set_scl(bunny, {5, 5, 5});
 
@@ -120,8 +122,8 @@ void ObjectManager::update() {
 
     // Set view and projection matrix for view 0.
 
-    glm::mat4 view = get_view_matrix(getObject(m_camera));
-    glm::mat4 proj = get_projection_matrix(getObject(m_camera));
+    glm::mat4 view = get_view_matrix(m_camera.get());
+    glm::mat4 proj = get_projection_matrix(m_camera.get());
 
     bgfx::setViewTransform(0, (float*)&view, (float*)&proj);
 
@@ -161,33 +163,4 @@ int ObjectManager::shutdown() {
     bgfx::destroyVertexBuffer(mVbh);
     bgfx::destroyProgram(mProgram);
     return 0;
-}
-
-eid ObjectManager::newObjectId(const std::string& in_name) {
-    std::string name = in_name;
-    if(name.empty())
-        name = "object_" + std::to_string(m_curr_id);
-
-    auto it = m_objects.emplace(eid(m_curr_id), Entity(eid(m_curr_id), name));
-    addMixin(it.first->second, "transform");
-    addMixin(it.first->second, "hierarchical");
-    return eid(m_curr_id++);
-}
-
-Entity& ObjectManager::newObject(const std::string& in_name) {
-    return getObject(newObjectId(in_name));
-}
-
-Entity& ObjectManager::getObject(eid id) { return m_objects[id]; }
-
-void ObjectManager::addMixin(Entity& obj, const char* mixin) {
-    auto& mixins = getMixins();
-    hassert(mixins.find(mixin) != mixins.end());
-    mixins[mixin].add(&obj);
-}
-
-void ObjectManager::remMixin(Entity& obj, const char* mixin) {
-    auto& mixins = getMixins();
-    hassert(mixins.find(mixin) != mixins.end());
-    mixins[mixin].remove(&obj);
 }
