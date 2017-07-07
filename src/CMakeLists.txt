@@ -30,6 +30,7 @@ include_directories("../third_party/bgfx/include")
 include_directories("../third_party/bx/include")
 include_directories("../third_party/imgui")
 include_directories("../third_party/doctest/doctest")
+include_directories("../third_party/tinygizmo")
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -42,8 +43,6 @@ add_fPIC_to_target(registry)
 #ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
-ucm_add_files(TO SOURCES "../third_party/tinygizmo/tiny-gizmo.cpp" FILTER_POP 1)
-ucm_add_files(TO SOURCES "../third_party/tinygizmo/tiny-gizmo.hpp" FILTER_POP 1)
 
 add_mix_dirs(TO SOURCES "core")
 add_mix_dirs(TO SOURCES "core/serialization")
@@ -75,6 +74,7 @@ target_link_libraries(game bgfx ib-compress)
 
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)
+target_link_libraries(game tinygizmo)
 target_link_libraries(game imgui)
 target_link_libraries(game registry)
 target_link_libraries(game doctest_runner)

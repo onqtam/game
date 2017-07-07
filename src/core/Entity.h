@@ -21,7 +21,6 @@ class Entity : public dynamix::object
 {
     eid         m_id;
     std::string m_name;
-    bool        m_selected = false;
 
 public:
     Entity(eid id = eid::invalid(), const std::string& name = "")
@@ -32,9 +31,6 @@ public:
 
     const std::string& name() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }
-
-    void select(bool selected = true) { m_selected = selected; }
-    bool             selected() const { return m_selected; }
 
     static Entity& cast_to_entity(void* in) {
         return static_cast<Entity&>(*::dynamix::object_of(in));

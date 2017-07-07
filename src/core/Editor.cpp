@@ -74,7 +74,7 @@ void Editor::update() {
 
     if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
         if(ImGui::TreeNode("objects")) {
-            //auto hierarchical_id = dynamix::internal::domain::instance().get_mixin_id_by_name("hierarchical");
+            auto selected_mixin_id = dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
 
             for(const auto& curr : om.m_objects) {
                 // recursive select/deselect
@@ -82,13 +82,16 @@ void Editor::update() {
                     auto& obj = om.getObject(root);
                     auto  it  = std::find(selected.begin(), selected.end(), root);
                     if(select) {
-                        if(it == selected.end())
+                        if(it == selected.end()) {
                             selected.push_back(root);
+                            om.addMixin(obj, "selected");
+                        }
                     } else {
-                        if(it != selected.end())
+                        if(it != selected.end()) {
                             selected.erase(it);
+                            om.remMixin(obj, "selected");
+                        }
                     }
-                    obj.select(select);
 
                     // recurse through children
                     const auto& children = ::get_children(obj);
@@ -102,7 +105,7 @@ void Editor::update() {
                     auto&              obj = om.getObject(root);
                     ImGuiTreeNodeFlags node_flags =
                             ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                            (obj.selected() ? ImGuiTreeNodeFlags_Selected : 0);
+                            (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
 
                     const auto& children = ::get_children(obj);
                     if(children.size() == 0)
@@ -113,22 +116,27 @@ void Editor::update() {
                                                        name.c_str());
 
                     if(ImGui::IsItemClicked()) {
-                        bool shouldSelect = !obj.selected();
+                        bool shouldSelect = !obj.has(selected_mixin_id);
 
                         if(ImGui::GetIO().KeyShift) {
                             recursiveSelecter(root, shouldSelect);
                         } else if(ImGui::GetIO().KeyCtrl) {
-                            obj.select(shouldSelect);
-                            if(shouldSelect)
+                            if(shouldSelect) {
                                 selected.push_back(root);
-                            else
+                                om.addMixin(obj, "selected");
+                            } else{
                                 selected.erase(std::find(selected.begin(), selected.end(), root));
-                        } else if(!obj.selected()) {
+                                om.remMixin(obj, "selected");
+                            }
+                        } else if(!obj.has(selected_mixin_id)) {
                             for(auto& it : selected) {
-                                om.getObject(it).select(false);
+                                om.remMixin(om.getObject(it), "selected");
                             }
                             selected.clear();
-                            obj.select(shouldSelect);
+                            if(shouldSelect)
+                                om.addMixin(obj, "selected");
+                            else
+                                om.remMixin(obj, "selected");
                             selected.push_back(root);
                         }
                     }
@@ -179,8 +187,11 @@ void Editor::update() {
     m_gizmo_state.cam.position    = {pos.x, pos.y, pos.z};
     m_gizmo_state.cam.orientation = {rot.x, rot.y, rot.z, rot.w};
 
+    static int dummy = [&](){m_transform2.position={1,1,1}; return 0;}();
+
     m_gizmo_ctx.update(m_gizmo_state);
     tinygizmo::transform_gizmo("xform-example-gizmo", m_gizmo_ctx, m_transform);
+    tinygizmo::transform_gizmo("xform-example-gizmo2", m_gizmo_ctx, m_transform2);
     m_gizmo_ctx.draw();
 }
 

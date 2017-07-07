@@ -42,6 +42,12 @@ target_include_directories(ppk_assert PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ppk_ass
 set_target_properties(ppk_assert PROPERTIES FOLDER "3rdparty")
 add_fPIC_to_target(ppk_assert)
 
+# LIBRARY tinygizmo
+ucm_add_dirs("tinygizmo" TO tinygizmo.sources)
+add_library(tinygizmo STATIC "${tinygizmo.sources}")
+set_target_properties(tinygizmo PROPERTIES FOLDER "3rdparty")
+add_fPIC_to_target(tinygizmo)
+
 # LIBRARY doctest
 set(DOCTEST_WITH_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(doctest)

@@ -116,9 +116,7 @@ void ObjectManager::update() {
     mixins["camera"].update(dt);
 
     bgfx::dbgTextClear();
-    bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/01-cube");
-    bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Rendering simple static mesh.");
-    bgfx::dbgTextPrintf(0, 3, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
+    bgfx::dbgTextPrintf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     // Set view and projection matrix for view 0.
 

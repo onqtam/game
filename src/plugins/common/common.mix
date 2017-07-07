@@ -1,14 +1,15 @@
 
-
 type transform
 			glm::vec3	pos			default:{0,0,0}
 			glm::vec3	scl			default:{1,1,1}
 			glm::quat	rot			default:{0,0,0,1}
-#			bool selected default:false
 			
 type hierarchical
 			eid parent
 			std::vector<eid> children
+
+type selected
+			tinygizmo::rigid_transform gizmo_transform
 
 type mesh
 			MeshHandle _mesh

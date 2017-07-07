@@ -1,17 +1,18 @@
 
 integrate gizmos with currently selected objects
+debug mesh manager
+    grid
+    cube
+move the add/rem mixin methods from OM to Entity/eid
+
 
 gizmos constant size
+object snapping (with the gizmos)
 
-- make a grid for the world with y = 0
-    also add ability for object snapping (with the gizmos)
 - moving selected objects
-- view all properties of objects
 - world
 - objects
 
-
-- static mesh factory
 - level
     - save
     - load

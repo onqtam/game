@@ -2,6 +2,7 @@
 
 #include "core/registry/registry.h"
 #include "core/ObjectManager.h"
+#include "core/Editor.h"
 
 #include "core/GraphicsHelpers.h"
 
@@ -78,3 +79,15 @@ public:
 };
 
 HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
+
+class selected : public selected_gen
+{
+    HA_MESSAGES_IN_MIXIN(selected)
+public:
+
+    void get_rendering_parts(std::vector<renderPart>& out) const {
+        //out.push_back({_mesh, _shader, get_model_transform(ha_this)});
+    }
+};
+
+HA_MIXIN_DEFINE(selected, get_rendering_parts_msg);

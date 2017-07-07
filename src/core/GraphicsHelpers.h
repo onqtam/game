@@ -58,3 +58,15 @@ struct MeshCreator
 template class ResourceManager<Mesh*, MeshCreator>;
 typedef ResourceManager<Mesh*, MeshCreator>         MeshMan;
 typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;
+
+struct DebugMeshCreator
+{
+    void create(void* storage, const std::string& name) {
+        new(storage) Mesh*(meshLoad(name.c_str()));
+    }
+    void destroy(void* storage) { meshUnload(*static_cast<Mesh**>(storage)); }
+};
+
+template class ResourceManager<Mesh*, DebugMeshCreator>;
+typedef ResourceManager<Mesh*, DebugMeshCreator>         DebugMeshMan;
+typedef ResourceManager<Mesh*, DebugMeshCreator>::Handle DebugMeshHandle;

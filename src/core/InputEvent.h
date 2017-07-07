@@ -50,7 +50,7 @@ struct InputEventListener;
 HAPI void InputEventListener_add(InputEventListener* in);
 HAPI void InputEventListener_remove(InputEventListener* in);
 
-struct InputEventListener
+struct HAPI InputEventListener
 {
     InputEventListener() { InputEventListener_add(this); }
     ~InputEventListener() { InputEventListener_remove(this); }

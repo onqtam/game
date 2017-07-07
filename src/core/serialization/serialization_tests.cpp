@@ -1,5 +1,13 @@
 #include "serialization.h"
 
+namespace tinygizmo
+{
+bool operator==(const rigid_transform& lhs, const rigid_transform& rhs) {
+    return lhs.position == rhs.position && lhs.scale == rhs.scale &&
+           lhs.orientation == rhs.orientation;
+}
+} // namespace tinygizmo
+
 template <typename T>
 T getSomeVal();
 
@@ -36,12 +44,13 @@ HA_SERIALIZE_TEST(int, 42);
 HA_SERIALIZE_TEST(float, 42.f);
 HA_SERIALIZE_TEST(double, 42.);
 HA_SERIALIZE_TEST(bool, false);
-HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
 HA_SERIALIZE_TEST(glm::vec3, {1, 2, 3});
 HA_SERIALIZE_TEST(glm::quat, {1, 2, 3, 4});
+HA_SERIALIZE_TEST(tinygizmo::rigid_transform, tinygizmo::rigid_transform({0, 1, 2, 3}, {4, 5, 6}, {7, 8, 9}));
 HA_SERIALIZE_TEST(eid, eid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
+HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
 
 #undef HA_SERIALIZE_TEST
 

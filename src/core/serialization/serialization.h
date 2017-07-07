@@ -3,38 +3,60 @@
 #include "JsonData.h"
 
 #include "core/GraphicsHelpers.h"
+#include <tinygizmo/tiny-gizmo.hpp>
 
 // helpers for the counting of serialization routines
-#define serialize_def_impl(in) serialize
-#define serialize_def serialize_def_impl(__COUNTER__)
+#define serialize_c_impl(in) serialize
+#define serialize_c serialize_c_impl(__COUNTER__)
 const int serialize_definitions_counter_start = __COUNTER__;
 
-HAPI void serialize_def(int data, JsonData& out);
-HAPI void serialize_def(float data, JsonData& out);
-HAPI void serialize_def(double data, JsonData& out);
-HAPI void serialize_def(bool data, JsonData& out);
-
+HAPI void serialize_c(int data, JsonData& out);
 HAPI void deserialize(int& data, const sajson::value& val);
+
+HAPI void serialize_c(float data, JsonData& out);
 HAPI void deserialize(float& data, const sajson::value& val);
+
+HAPI void serialize_c(double data, JsonData& out);
 HAPI void deserialize(double& data, const sajson::value& val);
+
+HAPI void serialize_c(bool data, JsonData& out);
 HAPI void deserialize(bool& data, const sajson::value& val);
 
-HAPI void serialize_def(const glm::vec3& data, JsonData& out);
-HAPI void deserialize(glm::vec3& data, const sajson::value& val);
-HAPI void serialize_def(const glm::quat& data, JsonData& out);
+template <int S, typename T>
+void serialize_c(const glm::vec<S, T>& data, JsonData& out) {
+    out.startArray();
+    for(int i = 0; i < S; ++i) {
+        serialize(data[i], out);
+        out.addComma();
+    }
+    out.endArray();
+}
+
+template <int S, typename T>
+void deserialize(glm::vec<S, T>& data, const sajson::value& val) {
+    hassert(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(S == val.get_length());
+    for(size_t i = 0; i < S; ++i)
+        deserialize(data[glm::length_t(i)], val.get_array_element(i));
+}
+
+HAPI void serialize_c(const glm::quat& data, JsonData& out);
 HAPI void deserialize(glm::quat& data, const sajson::value& val);
 
-HAPI void serialize_def(eid data, JsonData& out);
+HAPI void serialize_c(const tinygizmo::rigid_transform& data, JsonData& out);
+HAPI void deserialize(tinygizmo::rigid_transform& data, const sajson::value& val);
+
+HAPI void serialize_c(eid data, JsonData& out);
 HAPI void deserialize(eid& data, const sajson::value& val);
 
-HAPI void serialize_def(MeshHandle data, JsonData& out);
+HAPI void serialize_c(MeshHandle data, JsonData& out);
 HAPI void deserialize(MeshHandle& data, const sajson::value& val);
 
-HAPI void serialize_def(ShaderHandle data, JsonData& out);
+HAPI void serialize_c(ShaderHandle data, JsonData& out);
 HAPI void deserialize(ShaderHandle& data, const sajson::value& val);
 
 template <typename T>
-void serialize_def(const std::vector<T>& data, JsonData& out) {
+void serialize_c(const std::vector<T>& data, JsonData& out) {
     out.startArray();
     for(const auto& elem : data) {
         serialize(elem, out);
@@ -54,5 +76,5 @@ void deserialize(std::vector<T>& data, const sajson::value& val) {
 
 // helper for the counting of serialization routines
 const int num_serialize_definitions = __COUNTER__ - serialize_definitions_counter_start - 1;
-#undef serialize_def
-#undef serialize_def_impl
+#undef serialize_c
+#undef serialize_c_impl
