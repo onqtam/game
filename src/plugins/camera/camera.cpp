@@ -39,7 +39,10 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
     return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
 }
 
-const glm::vec3 look_direction = {0, -1, 0.2};
+const glm::vec3 k_init_look_direction = {0, -1, -0.2};
+const glm::vec3 k_forward = {0, 0, -1};
+const glm::vec3 k_up = {0, 1, 0};
+const glm::vec3 k_right = {1, 0, 0};
 
 class HA_EMPTY_BASE camera : public camera_gen,
                              public InputEventListener,
@@ -51,10 +54,10 @@ public:
         cursor_x = Application::get().width() / 2;
         cursor_y = Application::get().height() / 2;
 
-        set_pos(ha_this, glm::vec3(0, 0, 20));
-        set_rot(ha_this, glm::quat(1, 0, 0, 0));
-        //set_pos(ha_this, glm::vec3(0, 30, 2));
-        //set_rot(ha_this, rotationBetweenVectors({0, 0, 1}, look_direction));
+        //set_pos(ha_this, glm::vec3(0, 0, 20));
+        //set_rot(ha_this, glm::quat(1, 0, 0, 0));
+        set_pos(ha_this, glm::vec3(0, 50, 2));
+        set_rot(ha_this, rotationBetweenVectors(k_forward, k_init_look_direction));
     }
 
     void process_event(const InputEvent& ev) override {
@@ -79,7 +82,7 @@ public:
         if(cursor_y > h - 10)
             move(ha_this, glm::vec3(0, 0, k_speed * dt));
 
-        move(ha_this, glm::normalize(look_direction) * scroll);
+        move(ha_this, glm::normalize(get_rot(ha_this) * k_forward) * scroll * 2.f);
         scroll = 0.f;
     }
 
