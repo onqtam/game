@@ -11,6 +11,8 @@ HA_SUPPRESS_WARNINGS
 
 #include <bgfx/platform.h>
 
+#include <imgui/imgui_internal.h>
+
 #include <GLFW/glfw3.h>
 
 #ifdef EMSCRIPTEN
@@ -377,10 +379,10 @@ int Application::run(int argc, char** argv) {
 
     // create game
     {
-        EntityManager entityMan;
-
         MeshMan   meshMan;
         ShaderMan shaderMan;
+
+        EntityManager entityMan;
 
         ObjectManager objectManager;
         objectManager.init();
@@ -407,15 +409,13 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::processEvents() {
-    glfwPollEvents();
-
+    //if(ImGui::GetCurrentContext()->FocusedWindow == NULL) {
     for(size_t i = 0; i < m_inputs.size(); ++i)
         for(auto& curr : m_inputEventListeners)
             curr->process_event(m_inputs[i]);
+    //}
 
     m_inputs.clear();
-
-    imguiEvents(m_dt);
 }
 
 void Application::update() {
@@ -428,11 +428,19 @@ void Application::update() {
     m_dt       = m_time - m_lastTime;
     m_lastTime = m_time;
 
-    // events
-    processEvents();
+    // poll for events - also dispatches to imgui
+    glfwPollEvents();
+    imguiEvents(m_dt);
 
     // imgui
     ImGui::NewFrame();
+
+    // send input events to the rest of the app
+    processEvents();
+
+    //if(!ImGui::IsMouseHoveringAnyWindow()) {
+    //    ImGui::SetWindowFocus(nullptr);
+    //}
 
     // update game stuff
     ObjectManager::get().update();

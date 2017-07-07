@@ -149,9 +149,9 @@ void ObjectManager::update() {
 
     std::vector<renderPart> renderData;
 
-    for(const auto& obj : m_objects)
-        if(obj.second.implements(get_rendering_parts_msg))
-            get_rendering_parts(obj.second, renderData);
+    for(const auto& e : EntityManager::get().getEntities())
+        if(e.second.implements(get_rendering_parts_msg))
+            get_rendering_parts(e.second, renderData);
     for(const auto& data : renderData)
         meshSubmit(data.mesh.get(), 0, data.shader.get(), (float*)&data.transform
                    //, BGFX_STATE_DEFAULT

@@ -10,8 +10,6 @@ class HAPI ObjectManager
     friend class Editor;
 
 private:
-    std::map<eid, Entity> m_objects;
-
     void init();
     void update();
     int  shutdown();

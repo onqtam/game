@@ -1,13 +1,9 @@
 
-integrate gizmos with currently selected objects
-    make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
-make some objects un-gizmo-able
+
 make some singletons an entity for hot reloading - editor, etc.
-imgui should consume input originating on one of its windows
 debug mesh manager
     grid
     cube
-move the add/rem mixin methods from OM to Entity/eid
 
 
 - world
@@ -19,8 +15,11 @@ move the add/rem mixin methods from OM to Entity/eid
     - entity explorer
     - entity properties
     - undo/redo
+    - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
+    - imgui should consume input originating on one of its windows
     - gizmos constant size
     - object snapping (with the gizmos)
+    - make some objects un-gizmo-able - currently hacked for the camera only
 - spatial queries about objects
 - objects inheriting transformations based on their hierarchical component
 

@@ -16,6 +16,9 @@ public:
 
     bool isValid() const { return m_value != int(invalid()); }
 
+    // TODO: uncomment this?
+    // operator Entity&() { return get(); }
+
     Entity&       get();
     const Entity& get() const { const_cast<eid*>(this)->get(); }
 
@@ -28,6 +31,7 @@ class Entity : public dynamix::object
     std::string m_name;
 
 public:
+    // TODO: make private?
     Entity(eid id = eid::invalid(), const std::string& name = "")
             : m_id(id)
             , m_name(name) {}
