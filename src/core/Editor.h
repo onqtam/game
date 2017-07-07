@@ -15,8 +15,6 @@ class HAPI Editor : public InputEventListener
 private:
     tinygizmo::gizmo_application_state m_gizmo_state;
     tinygizmo::gizmo_context           m_gizmo_ctx;
-    tinygizmo::rigid_transform         m_transform;
-    tinygizmo::rigid_transform         m_transform2;
 
     std::vector<char>        m_verts;
     std::vector<char>        m_inds;
@@ -28,6 +26,7 @@ private:
 public:
     void init();
     void update();
+    void draw();
 
     void process_event(const InputEvent& ev) override;
 };

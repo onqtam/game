@@ -151,7 +151,9 @@ void ObjectManager::update() {
         if(obj.second.implements(get_rendering_parts_msg))
             get_rendering_parts(obj.second, renderData);
     for(const auto& data : renderData)
-        meshSubmit(data.mesh.get(), 0, data.shader.get(), (float*)&data.transform);
+        meshSubmit(data.mesh.get(), 0, data.shader.get(), (float*)&data.transform
+                   //, BGFX_STATE_DEFAULT
+                   );
 }
 
 int ObjectManager::shutdown() {

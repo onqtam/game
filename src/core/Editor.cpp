@@ -39,6 +39,14 @@ void Editor::init() {
 
         bgfx::setVertexBuffer(0, m_vert_buf);
         bgfx::setIndexBuffer(m_ind_buf);
+#define BGFX_STATE_DEFAULT_2 (0          \
+			| BGFX_STATE_RGB_WRITE       \
+			| BGFX_STATE_ALPHA_WRITE     \
+			| BGFX_STATE_DEPTH_TEST_LESS \
+			| BGFX_STATE_DEPTH_WRITE     \
+			| BGFX_STATE_CULL_CW         \
+			| BGFX_STATE_MSAA            \
+			)
         bgfx::setState(BGFX_STATE_DEFAULT);
         bgfx::submit(0, m_program);
     };
@@ -187,20 +195,26 @@ void Editor::update() {
     m_gizmo_state.cam.position    = {pos.x, pos.y, pos.z};
     m_gizmo_state.cam.orientation = {rot.x, rot.y, rot.z, rot.w};
 
-    static int dummy = [&](){m_transform2.position={1,1,1}; return 0;}();
-
     m_gizmo_ctx.update(m_gizmo_state);
 
     for(auto& id : selected) {
         auto& obj = om.getObject(id);
         auto& t = get_gizmo_transform(obj);
+
+        // temp hack
+        auto camera_mixin_id = dynamix::internal::domain::instance().get_mixin_id_by_name("camera");
+        if(obj.has(camera_mixin_id))
+            continue;
+
         tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
         set_pos(obj, (glm::vec3&)t.position);
         set_scl(obj, (glm::vec3&)t.scale);
         set_rot(obj, (glm::quat&)t.orientation);
     }
-    //tinygizmo::transform_gizmo("xform-example-gizmo", m_gizmo_ctx, m_transform);
-    //tinygizmo::transform_gizmo("xform-example-gizmo2", m_gizmo_ctx, m_transform2);
+}
+
+void Editor::draw() {
+    //bgfx::setViewClear(0, BGFX_CLEAR_DEPTH);
     m_gizmo_ctx.draw();
 }
 

@@ -437,6 +437,7 @@ void Application::update() {
     Editor::get().update();
 
     // render
+    Editor::get().draw();
     ImGui::Render();
     bgfx::frame();
 
@@ -457,6 +458,6 @@ void Application::update() {
 void Application::reset(uint32 flags) {
     m_reset = flags;
     bgfx::reset(m_width, m_height, m_reset);
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xff00ffff, 1.0f, 0);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x880088ff, 1.0f, 0);
     bgfx::setViewRect(0, 0, 0, uint16(width()), uint16(height()));
 }
