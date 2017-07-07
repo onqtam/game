@@ -1,9 +1,10 @@
 
 integrate gizmos with currently selected objects
-    sync transform changes with gizmo
-    make gizmos draw last
+    make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
+fix camera - should be topdown!
+    also make the scroll and the strafing work with any orientation
 make some objects un-gizmo-able
-make some singletons an entity for hot reloading
+make some singletons an entity for hot reloading - editor, etc.
 imgui should consume input originating on one of its windows
 debug mesh manager
     grid
