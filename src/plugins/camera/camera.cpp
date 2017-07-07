@@ -39,7 +39,7 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
     return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
 }
 
-const glm::vec3 look_direction = {0, -1, -0.2};
+const glm::vec3 look_direction = {0, -1, 0.2};
 
 class HA_EMPTY_BASE camera : public camera_gen,
                              public InputEventListener,
@@ -48,10 +48,10 @@ class HA_EMPTY_BASE camera : public camera_gen,
     HA_MESSAGES_IN_MIXIN(camera)
 public:
     camera() {
-        //set_pos(ha_this, glm::vec3(0, 0, 20));
-        //set_rot(ha_this, glm::quat(0, 0, 0, 1));
-        set_pos(ha_this, glm::vec3(0, 30, 2));
-        set_rot(ha_this, rotationBetweenVectors({0, 0, -1}, look_direction));
+        set_pos(ha_this, glm::vec3(0, 0, 20));
+        set_rot(ha_this, glm::quat(1, 0, 0, 0));
+        //set_pos(ha_this, glm::vec3(0, 30, 2));
+        //set_rot(ha_this, rotationBetweenVectors({0, 0, 1}, look_direction));
     }
 
     void process_event(const InputEvent& ev) override {

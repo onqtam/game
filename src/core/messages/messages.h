@@ -2,14 +2,13 @@
 
 #include "core/serialization/JsonData.h"
 
+#include <tinygizmo/tiny-gizmo.hpp>
+
 HA_SUPPRESS_WARNINGS
-
-DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, trace, std::ostream&, o)
-
-DYNAMIX_EXPORTED_MULTICAST_MESSAGE_0(HAPI, void, imgui_bind_properties)
 
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, serialize, JsonData&, out)
 DYNAMIX_EXPORTED_MULTICAST_MESSAGE_1(HAPI, void, deserialize, const sajson::value&, in)
+DYNAMIX_EXPORTED_MULTICAST_MESSAGE_0(HAPI, void, imgui_bind_properties)
 
 // transform
 DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_pos, const glm::vec3&, pos)
@@ -35,5 +34,8 @@ DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, remove_child, eid, child)
 
 #define Interface_hierarchical                                                                     \
     get_parent_msg& get_children_msg& set_parent_msg& add_child_msg& remove_child_msg
+
+// selected
+DYNAMIX_EXPORTED_MESSAGE_0(HAPI, tinygizmo::rigid_transform&, get_gizmo_transform)
 
 HA_SUPPRESS_WARNINGS_END

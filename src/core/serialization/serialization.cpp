@@ -42,8 +42,8 @@ HAPI void serialize(const tinygizmo::rigid_transform& data, JsonData& out) {
 
 HAPI void deserialize(tinygizmo::rigid_transform& data, const sajson::value& val) {
     deserialize((glm::vec3&)data.position, val.get_array_element(0));
-    deserialize((glm::vec3&)data.scale, val.get_array_element(0));
-    deserialize((glm::vec4&)data.orientation, val.get_array_element(0));
+    deserialize((glm::vec3&)data.scale, val.get_array_element(1));
+    deserialize((glm::vec4&)data.orientation, val.get_array_element(2));
 }
 
 HAPI void serialize(eid data, JsonData& out) { serialize(int(data), out); }

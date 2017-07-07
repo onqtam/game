@@ -190,8 +190,17 @@ void Editor::update() {
     static int dummy = [&](){m_transform2.position={1,1,1}; return 0;}();
 
     m_gizmo_ctx.update(m_gizmo_state);
-    tinygizmo::transform_gizmo("xform-example-gizmo", m_gizmo_ctx, m_transform);
-    tinygizmo::transform_gizmo("xform-example-gizmo2", m_gizmo_ctx, m_transform2);
+
+    for(auto& id : selected) {
+        auto& obj = om.getObject(id);
+        auto& t = get_gizmo_transform(obj);
+        tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
+        set_pos(obj, (glm::vec3&)t.position);
+        set_scl(obj, (glm::vec3&)t.scale);
+        set_rot(obj, (glm::quat&)t.orientation);
+    }
+    //tinygizmo::transform_gizmo("xform-example-gizmo", m_gizmo_ctx, m_transform);
+    //tinygizmo::transform_gizmo("xform-example-gizmo2", m_gizmo_ctx, m_transform2);
     m_gizmo_ctx.draw();
 }
 

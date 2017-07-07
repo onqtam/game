@@ -5,9 +5,10 @@
     public:                                                                                        \
         static the_class& get() { return *SingletonInstanceWrapper<the_class>::s_instance; }       \
     private:                                                                                       \
-        SingletonInstanceWrapper<the_class> dummy = SingletonInstanceWrapper<the_class>(this);     \
-        the_class(const the_class&)               = delete;                                        \
-        the_class& operator=(const the_class&)    = delete
+        SingletonInstanceWrapper<the_class> _singleton_instance_dummy =                            \
+                SingletonInstanceWrapper<the_class>(this);                                         \
+        the_class(const the_class&) = delete;                                                      \
+        the_class& operator=(const the_class&) = delete
 // clang-format on
 
 // this helper class is used so singletons can have user defined ctors/dtors - the global instance
