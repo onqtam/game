@@ -52,12 +52,11 @@ void ObjectManager::init() {
     //set_parent(object6, object1.id());
 
     Entity& bunny = em.newEntity();
-    //bunny.addMixin("mesh");
+    bunny.addMixin("mesh");
     set_pos(bunny, {10, 0, 0});
     set_scl(bunny, {5, 5, 5});
     
     mProgram = ShaderMan::get().get("cubes");
-    mProgram2 = ShaderMan::get().get("mesh");
     asd = DebugMeshMan::get().get("cube1");
     bgfx::setDebug(BGFX_DEBUG_TEXT);
 }

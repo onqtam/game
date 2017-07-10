@@ -15,7 +15,6 @@ private:
 
     DebugMeshHandle asd;
     ShaderHandle mProgram;
-    ShaderHandle mProgram2;
 
 public:
     eid m_camera;

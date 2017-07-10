@@ -1,6 +1,4 @@
 
-FIX THE RESOURCE CLASS OF THE RESOURCE MANAGER !!!
-
 debug mesh manager
     grid
     cube
