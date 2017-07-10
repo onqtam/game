@@ -51,6 +51,15 @@ glm::uint32 numDigits(glm::int64 v);
 // Returns the path to the current process executable
 std::string getPathToExe();
 
+// variadic hash_combine taken from here: https://stackoverflow.com/a/38140932/3162383
+inline void hash_combine(std::size_t&) {}
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    hash_combine(seed, rest...);
+}
+
 // A fast and portable version of itoa for base 10
 // Its 2.5 to 6 times faster than the non standart one (faster with larger numbers)
 template <typename T>

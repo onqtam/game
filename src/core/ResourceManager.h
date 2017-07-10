@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils/utils.h"
+
 // TODO: test this! everything! even the resource copy/assignment shenanigans
 template <typename T, typename creator>
 class HAPI ResourceManager : protected creator
@@ -10,6 +12,7 @@ class HAPI ResourceManager : protected creator
         char        data[sizeof(T)];
         int16       refcount  = -1; // -1 means the current slot is free
         int16       next_free = -1; // -1 means no next in free list
+        std::size_t hash      = 0;
         std::string name;
 
         void destroy() {
@@ -25,6 +28,7 @@ class HAPI ResourceManager : protected creator
         Resource(Resource&& other)
                 : refcount(other.refcount)
                 , next_free(other.next_free)
+                , hash(other.hash)
                 , name(std::move(other.name)) {
             HA_SUPPRESS_WARNINGS
             if(refcount != -1) {
@@ -44,10 +48,10 @@ class HAPI ResourceManager : protected creator
     int16                 m_next_free = -1;
 
     HA_SCOPED_SINGLETON(ResourceManager);
-    ResourceManager() = default;
-    friend class Application;
 
 public:
+    ResourceManager() = default;
+
     class Handle
     {
         template <typename, typename>
@@ -108,10 +112,8 @@ public:
 
         ~Handle() { release(); }
 
-        // TODO: make these explicit? or leave them implicit? a bit dangerous... should stick to get()
-        // a handle to a Mesh* already got passed to a function taking bool because it was the best overload... o_O
-        //operator T&() { return get(); }
-        //operator const T&() const { return get(); }
+        explicit operator T&() { return get(); }
+        explicit operator const T&() const { return get(); }
 
         T& get() {
             hassert(m_idx != -1);
@@ -124,17 +126,22 @@ public:
 
     template <typename... Args>
     Handle get(const std::string& name, Args&&... args) {
+        std::size_t hash = 0;
+        Utils::hash_combine(hash, name, args...);
+
         auto it = std::find_if(m_resources.begin(), m_resources.end(), [&](const Resource& res) {
-            return res.refcount >= 0 && res.name == name;
+            return res.refcount >= 0 && res.hash == hash;
         });
         if(it != m_resources.end())
             return int16(it - m_resources.begin());
 
         if(m_next_free == -1) {
             m_resources.emplace_back();
-            creator::create(m_resources.back().data, name, std::forward<Args>(args)...);
-            m_resources.back().refcount = 0;
-            m_resources.back().name     = name;
+            auto& curr = m_resources.back();
+            creator::create(curr.data, name, std::forward<Args>(args)...);
+            curr.refcount = 0;
+            curr.hash     = hash;
+            curr.name     = name;
             return int16(m_resources.size() - 1);
         } else {
             auto  curr_idx = m_next_free;
@@ -142,6 +149,7 @@ public:
             hassert(curr.refcount == -1);
             creator::create(curr.data, name, std::forward<Args>(args)...);
             curr.refcount = 0;
+            curr.hash     = hash;
             m_next_free   = curr.next_free;
             return curr_idx;
         }
@@ -158,6 +166,3 @@ public:
         }
     }
 };
-
-//template <typename T, typename creator>
-//ResourceManager<T, creator>* ResourceManager<T, creator>::s_instance = nullptr;
