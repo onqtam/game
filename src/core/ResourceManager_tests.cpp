@@ -1,29 +1,60 @@
 #include "ResourceManager.h"
 
-int test_int_func_1(int a = 0, int b = 0) { return a + b; }
-int test_int_func_2(int a = 42, int b = 666) { return a + b; }
+struct managed_int
+{
+    int data = 0;
 
-struct TestIntCreator
+    static int ctor;
+    static int ctor_copy;
+    static int ctor_move;
+    static int dtor;
+
+    managed_int(int in = 0) {
+        ++ctor;
+        data = in;
+    }
+    ~managed_int() { ++dtor; }
+    managed_int(const managed_int& other) {
+        ++ctor_copy;
+        data = other.data;
+    }
+    managed_int(managed_int&& other) {
+        ++ctor_move;
+        data = other.data;
+    }
+
+    operator int() const { return data; }
+};
+
+int managed_int::ctor      = 0;
+int managed_int::ctor_copy = 0;
+int managed_int::ctor_move = 0;
+int managed_int::dtor      = 0;
+
+managed_int test_int_func_1(int a = 0, int b = 0) { return a + b; }
+managed_int test_int_func_2(int a = 42, int b = 666) { return a + b; }
+
+struct ManagedIntCreator
 {
     template <typename... Args>
     void create(void* storage, const std::string& name, Args&&... args) {
         if(name == "one")
-            new(storage) int(test_int_func_1(std::forward<Args>(args)...));
+            new(storage) managed_int(test_int_func_1(std::forward<Args>(args)...));
         if(name == "two")
-            new(storage) int(test_int_func_2(std::forward<Args>(args)...));
+            new(storage) managed_int(test_int_func_2(std::forward<Args>(args)...));
     }
-    void destroy(void* storage) { *static_cast<int*>(storage) = -1; }
+    void destroy(void* storage) { static_cast<managed_int*>(storage)->~managed_int(); }
 };
 
-template class ResourceManager<int, TestIntCreator>;
-typedef ResourceManager<int, TestIntCreator>         TestIntMan;
-typedef ResourceManager<int, TestIntCreator>::Handle TestIntHandle;
+template class ResourceManager<managed_int, ManagedIntCreator>;
+typedef ResourceManager<managed_int, ManagedIntCreator>         ManagedIntMan;
+typedef ResourceManager<managed_int, ManagedIntCreator>::Handle ManagedIntHandle;
 
 test_case("[core] testing ResourceManager") {
-    TestIntMan man;
+    ManagedIntMan man;
     {
         // default constructed handles don't affect the manager
-        TestIntHandle h0;
+        ManagedIntHandle h0;
         check_eq(*reinterpret_cast<int16*>(&h0), -1);
         check_eq(man.numSlots(), 0);
 
@@ -76,4 +107,6 @@ test_case("[core] testing ResourceManager") {
         check_eq(man.numFreeSlots(), 0);
         check_eq(man.numSlots(), 2);
     }
+
+    check_eq(managed_int::ctor + managed_int::ctor_copy + managed_int::ctor_move, managed_int::dtor);
 }
