@@ -56,7 +56,7 @@ public:
         template <typename, typename>
         friend class ResourceManager;
 
-        int16 m_idx;
+        int16 m_idx = -1;
 
         void incref() const {
             if(m_idx != -1)
@@ -70,15 +70,13 @@ public:
             }
         }
 
-    public:
-        Handle()
-                : m_idx(-1) {}
-
-        // I wish this could be private but the serialization routines need it to construct a handle from an integer
-        explicit Handle(int16 idx)
+        Handle(int16 idx)
                 : m_idx(idx) {
             incref();
         }
+
+    public:
+        Handle() = default;
 
         Handle(Handle&& other) noexcept
                 : m_idx(other.m_idx) {
@@ -115,7 +113,7 @@ public:
         explicit operator const T&() const { return get(); }
 
         T& get() {
-            hassert(m_idx > 0);
+            hassert(m_idx != -1);
             HA_SUPPRESS_WARNINGS
             return *reinterpret_cast<T*>(ResourceManager::get().m_resources[m_idx].data);
             HA_SUPPRESS_WARNINGS_END
@@ -123,7 +121,7 @@ public:
         const T& get() const { return const_cast<Handle*>(this)->get(); }
 
         int16 refcount() const {
-            hassert(m_idx > 0);
+            hassert(m_idx != -1);
             return ResourceManager::get().m_resources[m_idx].refcount;
         }
         void release() {
@@ -162,6 +160,8 @@ public:
             return Handle(curr_idx);
         }
     }
+
+    Handle getHandleFromIndex_UNSAFE(int16 idx) { return Handle(idx); }
 
     void free() {
         auto size = m_resources.size();

@@ -49,8 +49,8 @@ HAPI void deserialize(tinygizmo::rigid_transform& data, const sajson::value& val
 HAPI void serialize(eid data, JsonData& out) { serialize(int(data), out); }
 HAPI void deserialize(eid& data, const sajson::value& val) { data = eid(val.get_integer_value()); }
 
-HAPI void serialize(MeshHandle data, JsonData& out) { serialize(*reinterpret_cast<int*>(&data), out); }
-HAPI void deserialize(MeshHandle& data, const sajson::value& val) { data = MeshHandle(int16(val.get_integer_value())); }
+HAPI void serialize(MeshHandle data, JsonData& out) { serialize(*reinterpret_cast<int16*>(&data), out); }
+HAPI void deserialize(MeshHandle& data, const sajson::value& val) { data = MeshMan::get().getHandleFromIndex_UNSAFE(uint16(val.get_integer_value())); }
 
-HAPI void serialize(ShaderHandle data, JsonData& out) { serialize(*reinterpret_cast<int*>(&data), out); }
-HAPI void deserialize(ShaderHandle& data, const sajson::value& val) { data = ShaderHandle(int16(val.get_integer_value())); }
+HAPI void serialize(ShaderHandle data, JsonData& out) { serialize(*reinterpret_cast<int16*>(&data), out); }
+HAPI void deserialize(ShaderHandle& data, const sajson::value& val) { data = ShaderMan::get().getHandleFromIndex_UNSAFE(uint16(val.get_integer_value())); }

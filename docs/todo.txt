@@ -32,6 +32,7 @@ make some singletons an entity for hot reloading - editor, etc.
 == questions:
 - prefix with _ all function arguments?
 - signal/slot
+- size_t everywhere? wtf is up with these int16 micro optimizations...
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
 
 == bugs:
