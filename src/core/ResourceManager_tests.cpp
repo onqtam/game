@@ -5,8 +5,8 @@ struct managed_int
     int data = 0;
 
     static int ctor;
-    static int ctor_copy;
-    static int ctor_move;
+    static int copy;
+    static int move;
     static int dtor;
 
     managed_int(int in = 0) {
@@ -15,21 +15,21 @@ struct managed_int
     }
     ~managed_int() { ++dtor; }
     managed_int(const managed_int& other) {
-        ++ctor_copy;
+        ++copy;
         data = other.data;
     }
     managed_int(managed_int&& other) {
-        ++ctor_move;
+        ++move;
         data = other.data;
     }
 
     operator int() const { return data; }
 };
 
-int managed_int::ctor      = 0;
-int managed_int::ctor_copy = 0;
-int managed_int::ctor_move = 0;
-int managed_int::dtor      = 0;
+int managed_int::ctor = 0;
+int managed_int::copy = 0;
+int managed_int::move = 0;
+int managed_int::dtor = 0;
 
 managed_int test_int_func_1(int a = 0, int b = 0) { return a + b; }
 managed_int test_int_func_2(int a = 42, int b = 666) { return a + b; }
@@ -108,5 +108,9 @@ test_case("[core] testing ResourceManager") {
         check_eq(man.numSlots(), 2);
     }
 
-    check_eq(managed_int::ctor + managed_int::ctor_copy + managed_int::ctor_move, managed_int::dtor);
+    man.free();
+    check_eq(man.numCanFree(), 0);
+    check_eq(man.numFreeSlots(), 2);
+
+    check_eq(managed_int::ctor + managed_int::copy + managed_int::move, managed_int::dtor);
 }

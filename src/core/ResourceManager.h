@@ -31,7 +31,8 @@ class HAPI ResourceManager : protected creator
                 , name(std::move(other.name)) {
             HA_SUPPRESS_WARNINGS
             if(refcount != -1) {
-                new(data) T(std::move(*reinterpret_cast<const T*>(other.data))); // call copy ctor
+                new(data) T(std::move(*reinterpret_cast<const T*>(other.data))); // call move/copy ctor
+                ResourceManager::get().destroy(other.data); // destroy other instance
                 other.refcount = -1;
             }
             HA_SUPPRESS_WARNINGS_END
