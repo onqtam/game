@@ -2,7 +2,6 @@
 
 #include "utils/utils.h"
 
-// TODO: test this! everything! even the resource copy/assignment shenanigans
 template <typename T, typename creator>
 class HAPI ResourceManager : protected creator
 {
@@ -59,12 +58,12 @@ public:
 
         int16 m_idx;
 
-        void lease() const {
+        void incref() const {
             if(m_idx != -1)
                 ++ResourceManager::get().m_resources[m_idx].refcount;
         }
 
-        void release() const {
+        void decref() const {
             if(m_idx != -1) {
                 hassert(ResourceManager::get().m_resources[m_idx].refcount > 0);
                 --ResourceManager::get().m_resources[m_idx].refcount;
@@ -76,9 +75,9 @@ public:
                 : m_idx(-1) {}
 
         // I wish this could be private but the serialization routines need it to construct a handle from an integer
-        Handle(int16 idx)
+        explicit Handle(int16 idx)
                 : m_idx(idx) {
-            lease();
+            incref();
         }
 
         Handle(Handle&& other) noexcept
@@ -88,11 +87,11 @@ public:
 
         Handle(const Handle& other)
                 : m_idx(other.m_idx) {
-            lease();
+            incref();
         }
 
         Handle& operator=(Handle&& other) noexcept {
-            release();
+            decref();
             m_idx       = other.m_idx;
             other.m_idx = -1;
             return *this;
@@ -100,9 +99,9 @@ public:
 
         Handle& operator=(const Handle& other) {
             if(this != &other) {
-                release();
+                decref();
                 m_idx = other.m_idx;
-                lease();
+                incref();
             }
             return *this;
         }
@@ -110,18 +109,27 @@ public:
         bool operator==(const Handle& other) const { return m_idx == other.m_idx; }
         bool operator<(const Handle& other) const { return m_idx < other.m_idx; }
 
-        ~Handle() { release(); }
+        ~Handle() { decref(); }
 
         explicit operator T&() { return get(); }
         explicit operator const T&() const { return get(); }
 
         T& get() {
-            hassert(m_idx != -1);
+            hassert(m_idx > 0);
             HA_SUPPRESS_WARNINGS
             return *reinterpret_cast<T*>(ResourceManager::get().m_resources[m_idx].data);
             HA_SUPPRESS_WARNINGS_END
         }
         const T& get() const { return const_cast<Handle*>(this)->get(); }
+
+        int16 refcount() const {
+            hassert(m_idx > 0);
+            return ResourceManager::get().m_resources[m_idx].refcount;
+        }
+        void release() {
+            decref();
+            m_idx = -1;
+        }
     };
 
     template <typename... Args>
@@ -133,7 +141,7 @@ public:
             return res.refcount >= 0 && res.hash == hash;
         });
         if(it != m_resources.end())
-            return int16(it - m_resources.begin());
+            return Handle(int16(it - m_resources.begin()));
 
         if(m_next_free == -1) {
             m_resources.emplace_back();
@@ -142,7 +150,7 @@ public:
             curr.refcount = 0;
             curr.hash     = hash;
             curr.name     = name;
-            return int16(m_resources.size() - 1);
+            return Handle(int16(m_resources.size() - 1));
         } else {
             auto  curr_idx = m_next_free;
             auto& curr     = m_resources[curr_idx];
@@ -151,7 +159,7 @@ public:
             curr.refcount = 0;
             curr.hash     = hash;
             m_next_free   = curr.next_free;
-            return curr_idx;
+            return Handle(curr_idx);
         }
     }
 
@@ -164,5 +172,22 @@ public:
                 m_next_free              = int16(i);
             }
         }
+    }
+
+    uint16 numFreeSlots() const {
+        auto   curr = m_next_free;
+        uint16 res  = 0;
+        while(curr != -1) {
+            ++res;
+            curr = m_resources[curr].next_free;
+        }
+        return res;
+    }
+
+    uint16 numSlots() const { return uint16(m_resources.size()); }
+
+    uint16 numCanFree() const {
+        return uint16(count_if(m_resources.begin(), m_resources.end(),
+                               [](const Resource& res) { return res.refcount == 0; }));
     }
 };
