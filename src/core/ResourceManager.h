@@ -32,7 +32,7 @@ class HAPI ResourceManager : protected creator
             HA_SUPPRESS_WARNINGS
             if(refcount != -1) {
                 new(data) T(std::move(*reinterpret_cast<const T*>(other.data))); // call move/copy ctor
-                ResourceManager::get().destroy(other.data); // destroy other instance
+                reinterpret_cast<const T*>(other.data)->~T(); // destroy other instance using it's dtor - not the inherited destroy method
                 other.refcount = -1;
             }
             HA_SUPPRESS_WARNINGS_END
