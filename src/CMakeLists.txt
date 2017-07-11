@@ -71,6 +71,9 @@ add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
 
 mixify_target(game)
+if(${WITH_PLUGINS})
+    target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")
+endif()
 
 target_link_libraries(game bgfx ib-compress)
 

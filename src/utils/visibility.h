@@ -15,12 +15,6 @@
 
 // TODO: think about just using WINDOWS_EXPORT_ALL_SYMBOLS in cmake instead of manually annotating what to export from the executable
 
-#ifdef HA_WITH_PLUGINS
-#ifdef HA_PLUGIN
+#ifndef HAPI
 #define HAPI HA_SYMBOL_IMPORT
-#else // HA_PLUGIN
-#define HAPI HA_SYMBOL_EXPORT
-#endif // HA_PLUGIN
-#else  // HA_WITH_PLUGINS
-#define HAPI
-#endif // HA_WITH_PLUGINS
+#endif // HAPI
