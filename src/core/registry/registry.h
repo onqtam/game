@@ -127,7 +127,7 @@ load_unload_proc getUnloadProc() {
              [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
-// some overly complicated static assert that tries to ensure that the user hasn'd added any members
+// some overly complicated static assert that tries to ensure that the user hasn't added any members
 // to the deriving class of the _gen class - tries to take into account if the derived class becomes
 // polymorphic - but in some circumstances this might not catch the addition of a 4 byte variable in
 // the derived class... should probably remove the static assert altogether - overly complex...
@@ -141,7 +141,7 @@ load_unload_proc getUnloadProc() {
                                                      std::is_polymorphic<n>::value *               \
                                                              sizeof(void*) ?                       \
                                      (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 : 0) :      \
-                                     0));
+                                     0), "someone has extended the base type?");
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

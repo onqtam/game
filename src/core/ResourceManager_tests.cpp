@@ -36,15 +36,25 @@ managed_int test_int_func_2(int a = 42, int b = 666) { return a + b; }
 
 struct ManagedIntCreator
 {
+    static int num_create;
+    static int num_destroy;
+
     template <typename... Args>
     void create(void* storage, const std::string& name, Args&&... args) {
+        ++num_create;
         if(name == "one")
             new(storage) managed_int(test_int_func_1(std::forward<Args>(args)...));
         if(name == "two")
             new(storage) managed_int(test_int_func_2(std::forward<Args>(args)...));
     }
-    void destroy(void* storage) { static_cast<managed_int*>(storage)->~managed_int(); }
+    void destroy(void* storage) {
+        ++num_destroy;
+        static_cast<managed_int*>(storage)->~managed_int();
+    }
 };
+
+int ManagedIntCreator::num_create  = 0;
+int ManagedIntCreator::num_destroy = 0;
 
 template class ResourceManager<managed_int, ManagedIntCreator>;
 typedef ResourceManager<managed_int, ManagedIntCreator>         ManagedIntMan;
@@ -73,6 +83,8 @@ test_case("[core] testing ResourceManager") {
         check_eq(h2.get(), 0);
         check_eq(h5.get(), 0);
         check_eq(h3.get(), 708);
+        h1.release();
+        check_eq(h5.refcount(), 2);
 
         check_eq(man.numCanFree(), 0);
         check_eq(man.numFreeSlots(), 0);
@@ -112,5 +124,6 @@ test_case("[core] testing ResourceManager") {
     check_eq(man.numCanFree(), 0);
     check_eq(man.numFreeSlots(), 2);
 
+    check_eq(ManagedIntCreator::num_create, ManagedIntCreator::num_destroy);
     check_eq(managed_int::ctor + managed_int::copy + managed_int::move, managed_int::dtor);
 }

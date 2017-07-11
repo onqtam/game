@@ -47,7 +47,7 @@ class HAPI ResourceManager : protected creator
     std::vector<Resource> m_resources;
     int16                 m_next_free = -1;
 
-    HA_SCOPED_SINGLETON(ResourceManager);
+    HA_SINGLETON(ResourceManager);
 
 public:
     ResourceManager() = default;

@@ -31,6 +31,8 @@ void ObjectManager::init() {
     //Entity& object5 = em.newEntity();
     //Entity& object6 = em.newEntity();
 
+    editor.addMixin("editor");
+
     m_camera       = em.newEntityId();
     Entity& camera = m_camera.get();
     camera.addMixin("camera");
@@ -57,7 +59,7 @@ void ObjectManager::init() {
     set_scl(bunny, {5, 5, 5});
     
     mProgram = ShaderMan::get().get("cubes");
-    asd = DebugMeshMan::get().get("cube1");
+    asd = GeomMan::get().get("cube");
     bgfx::setDebug(BGFX_DEBUG_TEXT);
 }
 
@@ -103,7 +105,7 @@ void ObjectManager::update() {
             bgfx::setTransform(mtx);
             bgfx::setVertexBuffer(0, asd.get().vbh);
             bgfx::setIndexBuffer(asd.get().ibh);
-            bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP);
+            bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/);
             bgfx::submit(0, mProgram.get());
         }
     }
@@ -117,6 +119,8 @@ void ObjectManager::update() {
         meshSubmit(data.mesh.get(), 0, data.shader.get(), (float*)&data.transform
                    //, BGFX_STATE_DEFAULT
                    );
+
+    mixins["editor"].update(dt);
 }
 
 int ObjectManager::shutdown() {

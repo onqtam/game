@@ -4,7 +4,7 @@
 
 class HAPI ObjectManager
 {
-    HA_SCOPED_SINGLETON(ObjectManager);
+    HA_SINGLETON(ObjectManager);
     ObjectManager() = default;
     friend class Application;
 
@@ -13,7 +13,9 @@ private:
     void update();
     int  shutdown();
 
-    DebugMeshHandle asd;
+    Entity editor;
+
+    GeomHandle asd;
     ShaderHandle mProgram;
 
 public:

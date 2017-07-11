@@ -1,3 +1,4 @@
+include "core/serialization/serialization_2.h"
 
 type transform
 			glm::vec3	pos			default:{0,0,0}

@@ -1,7 +1,7 @@
+#include "dummy_gen.h"
+
 #include "core/messages/messages.h"
 #include <iostream>
-
-#include "dummy_gen.h"
 
 using namespace std;
 

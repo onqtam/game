@@ -3,7 +3,6 @@
 #include "JsonData.h"
 
 #include "core/GraphicsHelpers.h"
-#include <tinygizmo/tiny-gizmo.hpp>
 
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
@@ -21,6 +20,9 @@ HAPI void deserialize(double& data, const sajson::value& val);
 
 HAPI void serialize_c(bool data, JsonData& out);
 HAPI void deserialize(bool& data, const sajson::value& val);
+
+HAPI void serialize_c(const std::string& data, JsonData& out);
+HAPI void deserialize(std::string& data, const sajson::value& val);
 
 template <int S, typename T>
 void serialize_c(const glm::vec<S, T>& data, JsonData& out) {
@@ -42,9 +44,6 @@ void deserialize(glm::vec<S, T>& data, const sajson::value& val) {
 
 HAPI void serialize_c(const glm::quat& data, JsonData& out);
 HAPI void deserialize(glm::quat& data, const sajson::value& val);
-
-HAPI void serialize_c(const tinygizmo::rigid_transform& data, JsonData& out);
-HAPI void deserialize(tinygizmo::rigid_transform& data, const sajson::value& val);
 
 HAPI void serialize_c(eid data, JsonData& out);
 HAPI void deserialize(eid& data, const sajson::value& val);

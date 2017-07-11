@@ -25,7 +25,8 @@ struct ProgramHandleCreator
                 bgfx::ProgramHandle(loadProgram((name + "_vs").c_str(), (name + "_fs").c_str()));
     }
     void destroy(void* storage) {
-        bgfx::destroyProgram(*static_cast<bgfx::ProgramHandle*>(storage));
+        bgfx::ProgramHandle& hndl = *static_cast<bgfx::ProgramHandle*>(storage);
+        bgfx::destroyProgram(hndl);
     }
 };
 
@@ -65,21 +66,25 @@ struct ha_mesh
     bgfx::IndexBufferHandle  ibh;
 };
 
-struct DebugMeshCreator
+ha_mesh createCube();
+
+struct GeomCreator
 {
-    void create(void* storage, const std::string& name) {
-        // clang-format off
-        if(name == "cube1") { ha_mesh createCube1(); new(storage) ha_mesh(createCube1());} 
-        else if(name == "cube2") { ha_mesh createCube2(); new(storage) ha_mesh(createCube2()); }
-        else hassert(false);
-        // clang-format on
+    template <typename... Args>
+    void create(void* storage, const std::string& name, Args&&... args) {
+        if(name == "cube")
+            new(storage) ha_mesh(createCube(std::forward<Args>(args)...));
+        else
+            new(storage) ha_mesh({BGFX_INVALID_HANDLE, BGFX_INVALID_HANDLE});
     }
     void destroy(void* storage) {
-        bgfx::destroyVertexBuffer(static_cast<ha_mesh*>(storage)->vbh);
-        bgfx::destroyIndexBuffer(static_cast<ha_mesh*>(storage)->ibh);
+        if(bgfx::isValid(static_cast<ha_mesh*>(storage)->vbh))
+            bgfx::destroyVertexBuffer(static_cast<ha_mesh*>(storage)->vbh);
+        if(bgfx::isValid(static_cast<ha_mesh*>(storage)->ibh))
+            bgfx::destroyIndexBuffer(static_cast<ha_mesh*>(storage)->ibh);
     }
 };
 
-template class ResourceManager<ha_mesh, DebugMeshCreator>;
-typedef ResourceManager<ha_mesh, DebugMeshCreator>         DebugMeshMan;
-typedef ResourceManager<ha_mesh, DebugMeshCreator>::Handle DebugMeshHandle;
+template class ResourceManager<ha_mesh, GeomCreator>;
+typedef ResourceManager<ha_mesh, GeomCreator>         GeomMan;
+typedef ResourceManager<ha_mesh, GeomCreator>::Handle GeomHandle;

@@ -8,7 +8,7 @@ HA_SUPPRESS_WARNINGS_END
 
 class PluginManager : public FW::FileWatchListener
 {
-    HA_SCOPED_SINGLETON(PluginManager);
+    HA_SINGLETON(PluginManager);
     PluginManager() = default;
     friend class Application;
 

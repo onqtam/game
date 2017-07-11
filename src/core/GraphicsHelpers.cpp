@@ -366,15 +366,15 @@ void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, co
 
 HA_SUPPRESS_WARNINGS_END
 
-ha_mesh createCube1() {
-    struct PosColorVertex
-    {
-        float  x;
-        float  y;
-        float  z;
-        uint32 abgr;
-    };
+struct PosColorVertex
+{
+    float  x;
+    float  y;
+    float  z;
+    uint32 abgr;
+};
 
+ha_mesh createCube() {
     static const PosColorVertex s_cubeVertices[] = {
             {-1.0f, 1.0f, 1.0f, 0xff000000},   {1.0f, 1.0f, 1.0f, 0xff0000ff},
             {-1.0f, -1.0f, 1.0f, 0xff00ff00},  {1.0f, -1.0f, 1.0f, 0xff00ffff},
@@ -399,4 +399,44 @@ ha_mesh createCube1() {
     return {vbh, ibh};
 }
 
-ha_mesh createCube2() { return createCube1(); }
+//
+//ha_mesh grid(int lines_x, int lines_y, float size_x, float size_y, uint32 color) {
+//    float step_x = size_x / lines_x;
+//    float step_y = size_y / lines_y;
+//
+//    std::vector<PosColorVertex> verts;
+//    verts.push_back({-1.0f, 1.0f, 1.0f, 0xff000000}
+//
+//    for(float x = size_x / 2; )
+//
+//    // Negative and positive X.
+//    verts.push_back(PosColorVert(origin, 0xFF0000FF));
+//    verts.push_back(PosColorVert(origin + xAxis * (float)(xLines), 0xFF0000FF));
+//
+//    verts.push_back(PosColorVert(origin, 0xFF0000FF));
+//    verts.push_back(PosColorVert(origin - xAxis * (float)(xLines), 0xFF0000FF));
+//
+//	// Negative and positive Z.
+//	verts.push_back(PosColorVert(origin, 0xFFFF0000));
+//	verts.push_back(PosColorVert(origin + zAxis * (float)(yLines), 0xFFFF0000));
+//
+//	verts.push_back(PosColorVert(origin, 0xFFFF0000));
+//	verts.push_back(PosColorVert(origin - zAxis * (float)(yLines), 0xFFFF0000));
+//
+//	for(int t = -xLines; t < xLines + 1; ++t)
+//	{
+//		if(t == 0) continue;
+//
+//		verts.push_back(PosColorVert(origin + xAxis * (float)t - zAxis * (float)yLines, color));
+//		verts.push_back(PosColorVert(origin + xAxis * (float)t + zAxis * (float)yLines, color));
+//	}
+//
+//	for(int t = -yLines; t < yLines + 1; ++t)
+//	{
+//		if(t == 0) continue;
+//
+//		verts.push_back(PosColorVert(origin - xAxis * (float)xLines + zAxis * (float)(t), color));
+//		verts.push_back(PosColorVert(origin + xAxis * (float)xLines + zAxis * (float)(t), color));
+//	}
+//}
+//

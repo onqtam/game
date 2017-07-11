@@ -56,7 +56,7 @@ public:
 
 class HAPI EntityManager
 {
-    HA_SCOPED_SINGLETON(EntityManager);
+    HA_SINGLETON(EntityManager);
     EntityManager() = default;
     friend class Application;
 

@@ -1,7 +1,6 @@
 #include "Application.h"
 #include "PluginManager.h"
 #include "ObjectManager.h"
-#include "Editor.h"
 #include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
 
@@ -381,17 +380,14 @@ int Application::run(int argc, char** argv) {
     {
         // resource managers should be created first and destroyed last - all
         // entities should be destroyed so the refcounts to the resources are 0
-        MeshMan      meshMan;
-        ShaderMan    shaderMan;
-        DebugMeshMan debugMeshMan;
+        MeshMan   meshMan;
+        ShaderMan shaderMan;
+        GeomMan   geomMan;
 
         EntityManager entityMan;
 
         ObjectManager objectManager;
         objectManager.init();
-
-        Editor editor;
-        editor.init();
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -447,10 +443,8 @@ void Application::update() {
 
     // update game stuff
     ObjectManager::get().update();
-    Editor::get().update();
 
     // render
-    Editor::get().draw();
     ImGui::Render();
     bgfx::frame();
 

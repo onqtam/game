@@ -1,7 +1,7 @@
 #pragma once
 
 // clang-format off
-#define HA_SCOPED_SINGLETON(the_class)                                                             \
+#define HA_SINGLETON(the_class)                                                                    \
     public:                                                                                        \
         static the_class& get() { return *SingletonInstanceWrapper<the_class>::s_instance; }       \
     private:                                                                                       \

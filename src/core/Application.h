@@ -6,7 +6,7 @@ struct GLFWwindow;
 
 class HAPI Application
 {
-    HA_SCOPED_SINGLETON(Application);
+    HA_SINGLETON(Application);
     Application() = default;
     friend int main(int, char**);
 
