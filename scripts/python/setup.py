@@ -40,7 +40,7 @@ if args.setup_emscripten:
 
 msg("updating submodules")
 
-os.system("git submodule update --init --recursive --depth 100")
+os.system("git submodule update --init --recursive")
 
 make_dir("tools")
 
