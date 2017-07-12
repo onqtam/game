@@ -1,9 +1,9 @@
 
+make some singletons an entity for hot reloading - editor, etc.
+
 debug mesh manager
     grid
     cube
-
-make some singletons an entity for hot reloading - editor, etc.
 
 - world - and remove "object manager"
 - level

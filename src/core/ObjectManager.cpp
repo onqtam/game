@@ -60,7 +60,7 @@ void ObjectManager::init() {
     
     mProgram = ShaderMan::get().get("cubes");
     asd = GeomMan::get().get("cube");
-    bgfx::setDebug(BGFX_DEBUG_TEXT);
+    bgfx_set_debug(BGFX_DEBUG_TEXT);
 }
 
 void ObjectManager::update() {
@@ -80,19 +80,19 @@ void ObjectManager::update() {
     auto& mixins = getMixins();
     mixins["camera"].update(dt);
 
-    bgfx::dbgTextClear();
-    bgfx::dbgTextPrintf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
+    bgfx_dbg_text_clear(0, false);
+    bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     // Set view and projection matrix for view 0.
 
     glm::mat4 view = get_view_matrix(m_camera);
     glm::mat4 proj = get_projection_matrix(m_camera);
 
-    bgfx::setViewTransform(0, (float*)&view, (float*)&proj);
+    bgfx_set_view_transform(0, (float*)&view, (float*)&proj);
 
     // Set view 0 default viewport.
-    bgfx::setViewRect(0, 0, 0, uint16(app.width()), uint16(app.height()));
-    bgfx::touch(0);
+    bgfx_set_view_rect(0, 0, 0, uint16(app.width()), uint16(app.height()));
+    bgfx_touch(0);
     static float time = 0.f;
     time += dt;
     for(uint32 yy = 0; yy < 11; ++yy) {
@@ -102,11 +102,11 @@ void ObjectManager::update() {
             mtx[12] = -15.0f + float(xx) * 3.0f;
             mtx[13] = -15.0f + float(yy) * 3.0f;
             mtx[14] = -40.0f;
-            bgfx::setTransform(mtx);
-            bgfx::setVertexBuffer(0, asd.get().vbh);
-            bgfx::setIndexBuffer(asd.get().ibh);
-            bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/);
-            bgfx::submit(0, mProgram.get());
+            bgfx_set_transform(mtx, 1);
+            bgfx_set_vertex_buffer(0, asd.get().vbh, 0, UINT32_MAX);
+            bgfx_set_index_buffer(asd.get().ibh, 0, UINT32_MAX);
+            bgfx_set_state(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/, 0);
+            bgfx_submit(0, mProgram.get(), 0, false);
         }
     }
 

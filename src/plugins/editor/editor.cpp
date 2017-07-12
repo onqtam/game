@@ -20,23 +20,23 @@ class editor : public editor_gen, public UpdatableMixin<editor>, public InputEve
     tinygizmo::gizmo_context           m_gizmo_ctx;
     std::vector<char>                  m_verts;
     std::vector<char>                  m_inds;
-    bgfx::ProgramHandle                m_program;
-    bgfx::VertexBufferHandle           m_vert_buf = BGFX_INVALID_HANDLE;
-    bgfx::IndexBufferHandle            m_ind_buf  = BGFX_INVALID_HANDLE;
+    ShaderHandle                       m_program;
+    bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
+    bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
 public:
     editor() {
-        m_program = loadProgram("gizmo_vs", "gizmo_fs");
-        bgfx::VertexDecl vert_decl;
-        vert_decl.begin()
-                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
-                .end();
+        m_program = ShaderMan::get().get("gizmo");
+        bgfx_vertex_decl vd;
+        bgfx_vertex_decl_begin(&vd, BGFX_RENDERER_TYPE_COUNT);
+        bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+        bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_NORMAL, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+        bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+        bgfx_vertex_decl_end(&vd);
 
         m_gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
             auto identity = glm::mat4(1.f);
-            bgfx::setTransform((float*)&identity);
+            bgfx_set_transform((float*)&identity, 1);
 
             m_verts.resize(r.vertices.size() * sizeof(tinygizmo::geometry_vertex));
             memcpy(m_verts.data(), r.vertices.data(), m_verts.size());
@@ -45,27 +45,26 @@ public:
 
             // TODO: fix this! use dynamic or transient buffers (whatever that means)
             // and just update them instead of constantly recreating them
-            if(isValid(m_vert_buf)) {
-                bgfx::destroyVertexBuffer(m_vert_buf);
-                bgfx::destroyIndexBuffer(m_ind_buf);
+            if(m_vert_buf.idx != BGFX_INVALID_HANDLE) {
+                bgfx_destroy_vertex_buffer(m_vert_buf);
+                bgfx_destroy_index_buffer(m_ind_buf);
             }
-            m_vert_buf = bgfx::createVertexBuffer(
-                    bgfx::makeRef(m_verts.data(), uint32(m_verts.size())), vert_decl);
-            m_ind_buf = bgfx::createIndexBuffer(bgfx::makeRef(m_inds.data(), uint32(m_inds.size())),
-                                                BGFX_BUFFER_INDEX32);
+            m_vert_buf = bgfx_create_vertex_buffer(
+                    bgfx_make_ref(m_verts.data(), uint32(m_verts.size())), &vd, BGFX_BUFFER_NONE);
+            m_ind_buf = bgfx_create_index_buffer(
+                    bgfx_make_ref(m_inds.data(), uint32(m_inds.size())), BGFX_BUFFER_INDEX32);
 
-            bgfx::setVertexBuffer(0, m_vert_buf);
-            bgfx::setIndexBuffer(m_ind_buf);
-            bgfx::setState(BGFX_STATE_DEFAULT);
-            bgfx::submit(0, m_program);
+            bgfx_set_vertex_buffer(0, m_vert_buf, 0, UINT32_MAX);
+            bgfx_set_index_buffer(m_ind_buf, 0, UINT32_MAX);
+            bgfx_set_state(BGFX_STATE_DEFAULT, 0);
+            bgfx_submit(0, m_program.get(), 0, false);
         };
     }
 
     ~editor() {
-        bgfx::destroyProgram(m_program);
-        if(isValid(m_vert_buf)) {
-            bgfx::destroyVertexBuffer(m_vert_buf);
-            bgfx::destroyIndexBuffer(m_ind_buf);
+        if(m_vert_buf.idx != BGFX_INVALID_HANDLE) {
+            bgfx_destroy_vertex_buffer(m_vert_buf);
+            bgfx_destroy_index_buffer(m_ind_buf);
         }
     }
 
@@ -84,15 +83,15 @@ public:
         // Demonstrate the various window flags. Typically you would just use the default.
         ImGuiWindowFlags window_flags = 0;
         // clang-format off
-    if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
-    if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
-    if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
-    if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
-    if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
-    if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
-    if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
+        if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
+        if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
+        if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
+        if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
+        if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
+        if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
+        if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
+        ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
         // clang-format on
 
         static std::vector<eid> selected;

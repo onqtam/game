@@ -9,7 +9,7 @@ HA_SUPPRESS_WARNINGS
 #include <bx/crtimpl.h>
 #include <bimg/bimg.h>
 #include <bimg/decode.h>
-#include <bgfx/src/vertexdecl.h>
+//#include <bgfx/src/vertexdecl.h>
 
 #include <ib-compress/indexbufferdecompression.h>
 
@@ -55,11 +55,11 @@ static void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const ch
 }
 static void unload(void* _ptr) { BX_FREE(getAllocator(), _ptr); }
 
-const bgfx::Memory* loadMemory(const char* filename) {
+const bgfx_memory* loadMemory(const char* filename) {
     std::ifstream   file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    const bgfx::Memory* mem = bgfx::alloc(uint32(size + 1));
+    const bgfx_memory* mem = bgfx_alloc(uint32(size + 1));
     if(file.read((char*)mem->data, size)) {
         mem->data[mem->size - 1] = '\0';
         return mem;
@@ -67,35 +67,35 @@ const bgfx::Memory* loadMemory(const char* filename) {
     return nullptr;
 }
 
-bgfx::ShaderHandle loadShader(const char* shader) {
+bgfx_shader_handle loadShader(const char* shader) {
     char filePath[512];
 
     const char* shaderPath = "???";
 
-    switch(bgfx::getRendererType()) {
-        case bgfx::RendererType::Noop:
-        case bgfx::RendererType::Direct3D9: shaderPath = "shaders/dx9/"; break;
-        case bgfx::RendererType::Direct3D11:
-        case bgfx::RendererType::Direct3D12: shaderPath = "shaders/dx11/"; break;
-        case bgfx::RendererType::Gnm: shaderPath        = "shaders/pssl/"; break;
-        case bgfx::RendererType::Metal: shaderPath      = "shaders/metal/"; break;
-        case bgfx::RendererType::OpenGL: shaderPath     = "shaders/glsl/"; break;
-        case bgfx::RendererType::OpenGLES: shaderPath   = "shaders/gles/"; break;
-        case bgfx::RendererType::Vulkan: shaderPath     = "shaders/spirv/"; break;
-        case bgfx::RendererType::Count: BX_CHECK(false, "You should not be here!"); break;
+    switch(bgfx_get_renderer_type()) {
+        case BGFX_RENDERER_TYPE_NOOP:
+        case BGFX_RENDERER_TYPE_DIRECT3D9: shaderPath = "shaders/dx9/"; break;
+        case BGFX_RENDERER_TYPE_DIRECT3D11:
+        case BGFX_RENDERER_TYPE_DIRECT3D12: shaderPath = "shaders/dx11/"; break;
+        case BGFX_RENDERER_TYPE_GNM: shaderPath        = "shaders/pssl/"; break;
+        case BGFX_RENDERER_TYPE_METAL: shaderPath      = "shaders/metal/"; break;
+        case BGFX_RENDERER_TYPE_OPENGL: shaderPath     = "shaders/glsl/"; break;
+        case BGFX_RENDERER_TYPE_OPENGLES: shaderPath   = "shaders/gles/"; break;
+        case BGFX_RENDERER_TYPE_VULKAN: shaderPath     = "shaders/spirv/"; break;
+        case BGFX_RENDERER_TYPE_COUNT: BX_CHECK(false, "You should not be here!"); break;
     }
 
     bx::strCopy(filePath, BX_COUNTOF(filePath), shaderPath);
     bx::strCat(filePath, BX_COUNTOF(filePath), shader);
     bx::strCat(filePath, BX_COUNTOF(filePath), ".bin");
 
-    return bgfx::createShader(loadMemory(filePath));
+    return bgfx_create_shader(loadMemory(filePath));
 }
 
-bgfx::ProgramHandle loadProgram(const char* vsName, const char* fsName) {
-    bgfx::ShaderHandle vs = loadShader(vsName);
-    bgfx::ShaderHandle fs = loadShader(fsName);
-    return bgfx::createProgram(vs, fs, true);
+bgfx_program_handle loadProgram(const char* vsName, const char* fsName) {
+    bgfx_shader_handle vs = loadShader(vsName);
+    bgfx_shader_handle fs = loadShader(fsName);
+    return bgfx_create_program(vs, fs, true);
 }
 
 static void imageReleaseCb(void*, void* _userData) {
@@ -103,9 +103,9 @@ static void imageReleaseCb(void*, void* _userData) {
     bimg::imageFree(imageContainer);
 }
 
-static bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
-                                       uint32 _flags, uint8_t, bgfx::TextureInfo* _info) {
-    bgfx::TextureHandle handle = BGFX_INVALID_HANDLE;
+static bgfx_texture_handle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
+                                       uint32 _flags, uint8_t, bgfx_texture_info* _info) {
+    bgfx_texture_handle handle = {BGFX_INVALID_HANDLE};
 
     uint32 size;
     void*  data = load(_reader, getAllocator(), _filePath, &size);
@@ -113,28 +113,28 @@ static bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _fi
         bimg::ImageContainer* imageContainer = bimg::imageParse(getAllocator(), data, size);
 
         if(nullptr != imageContainer) {
-            const bgfx::Memory* mem = bgfx::makeRef(imageContainer->m_data, imageContainer->m_size,
-                                                    imageReleaseCb, imageContainer);
+            const bgfx_memory* mem = bgfx_make_ref_release(
+                    imageContainer->m_data, imageContainer->m_size, imageReleaseCb, imageContainer);
             unload(data);
 
             if(imageContainer->m_cubeMap) {
-                handle = bgfx::createTextureCube(
+                handle = bgfx_create_texture_cube(
                         uint16_t(imageContainer->m_width), 1 < imageContainer->m_numMips,
-                        imageContainer->m_numLayers,
-                        bgfx::TextureFormat::Enum(imageContainer->m_format), _flags, mem);
+                        imageContainer->m_numLayers, bgfx_texture_format(imageContainer->m_format),
+                        _flags, mem);
             } else {
-                handle = bgfx::createTexture2D(
+                handle = bgfx_create_texture_2d(
                         uint16_t(imageContainer->m_width), uint16_t(imageContainer->m_height),
                         1 < imageContainer->m_numMips, imageContainer->m_numLayers,
-                        bgfx::TextureFormat::Enum(imageContainer->m_format), _flags, mem);
+                        bgfx_texture_format(imageContainer->m_format), _flags, mem);
             }
 
             if(nullptr != _info) {
-                bgfx::calcTextureSize(*_info, uint16_t(imageContainer->m_width),
-                                      uint16_t(imageContainer->m_height),
-                                      uint16_t(imageContainer->m_depth), imageContainer->m_cubeMap,
-                                      1 < imageContainer->m_numMips, imageContainer->m_numLayers,
-                                      bgfx::TextureFormat::Enum(imageContainer->m_format));
+                bgfx_calc_texture_size(_info, uint16_t(imageContainer->m_width),
+                                       uint16_t(imageContainer->m_height),
+                                       uint16_t(imageContainer->m_depth), imageContainer->m_cubeMap,
+                                       1 < imageContainer->m_numMips, imageContainer->m_numLayers,
+                                       bgfx_texture_format(imageContainer->m_format));
             }
         }
     }
@@ -142,8 +142,8 @@ static bgfx::TextureHandle loadTexture(bx::FileReaderI* _reader, const char* _fi
     return handle;
 }
 
-bgfx::TextureHandle loadTexture(const char* _name, uint32 _flags, uint8_t _skip,
-                                bgfx::TextureInfo* _info) {
+bgfx_texture_handle loadTexture(const char* _name, uint32 _flags, uint8_t _skip,
+                                bgfx_texture_info* _info) {
     return loadTexture(getFileReader(), _name, _flags, _skip, _info);
 }
 
@@ -181,17 +181,17 @@ struct Group
     Group() { reset(); }
 
     void reset() {
-        m_vbh.idx = bgfx::kInvalidHandle;
-        m_ibh.idx = bgfx::kInvalidHandle;
+        m_vbh.idx = BGFX_INVALID_HANDLE;
+        m_ibh.idx = BGFX_INVALID_HANDLE;
         m_prims.clear();
     }
 
-    bgfx::VertexBufferHandle m_vbh;
-    bgfx::IndexBufferHandle  m_ibh;
-    Sphere                   m_sphere;
-    Aabb                     m_aabb;
-    Obb                      m_obb;
-    PrimitiveArray           m_prims;
+    bgfx_vertex_buffer_handle m_vbh;
+    bgfx_index_buffer_handle  m_ibh;
+    Sphere                    m_sphere;
+    Aabb                      m_aabb;
+    Obb                       m_obb;
+    PrimitiveArray            m_prims;
 };
 
 struct Mesh
@@ -203,7 +203,6 @@ struct Mesh
 #define BGFX_CHUNK_MAGIC_PRI BX_MAKEFOURCC('P', 'R', 'I', 0x0)
 
         using namespace bx;
-        using namespace bgfx;
 
         Group group;
 
@@ -220,29 +219,29 @@ struct Mesh
 
                     read(_reader, m_decl);
 
-                    uint16_t stride = m_decl.getStride();
+                    uint16_t stride = m_decl.stride;
 
                     uint16_t numVertices;
                     read(_reader, numVertices);
-                    const bgfx::Memory* mem = bgfx::alloc(numVertices * stride);
+                    const bgfx_memory* mem = bgfx_alloc(numVertices * stride);
                     read(_reader, mem->data, mem->size);
 
-                    group.m_vbh = bgfx::createVertexBuffer(mem, m_decl);
+                    group.m_vbh = bgfx_create_vertex_buffer(mem, &m_decl, BGFX_BUFFER_NONE);
                 } break;
 
                 case BGFX_CHUNK_MAGIC_IB: {
                     uint32 numIndices;
                     read(_reader, numIndices);
-                    const bgfx::Memory* mem = bgfx::alloc(numIndices * 2);
+                    const bgfx_memory* mem = bgfx_alloc(numIndices * 2);
                     read(_reader, mem->data, mem->size);
-                    group.m_ibh = bgfx::createIndexBuffer(mem);
+                    group.m_ibh = bgfx_create_index_buffer(mem, BGFX_BUFFER_NONE);
                 } break;
 
                 case BGFX_CHUNK_MAGIC_IBC: {
                     uint32 numIndices;
                     bx::read(_reader, numIndices);
 
-                    const bgfx::Memory* mem = bgfx::alloc(numIndices * 2);
+                    const bgfx_memory* mem = bgfx_alloc(numIndices * 2);
 
                     uint32 compressedSize;
                     bx::read(_reader, compressedSize);
@@ -256,7 +255,7 @@ struct Mesh
 
                     BX_FREE(allocator, compressedIndices);
 
-                    group.m_ibh = bgfx::createIndexBuffer(mem);
+                    group.m_ibh = bgfx_create_index_buffer(mem, BGFX_BUFFER_NONE);
                 } break;
 
                 case BGFX_CHUNK_MAGIC_PRI: {
@@ -303,36 +302,35 @@ struct Mesh
         for(GroupArray::const_iterator it = m_groups.begin(), itEnd = m_groups.end(); it != itEnd;
             ++it) {
             const Group& group = *it;
-            bgfx::destroyVertexBuffer(group.m_vbh);
+            bgfx_destroy_vertex_buffer(group.m_vbh);
 
-            if(bgfx::isValid(group.m_ibh)) {
-                bgfx::destroyIndexBuffer(group.m_ibh);
-            }
+            if(group.m_ibh.idx != BGFX_INVALID_HANDLE)
+                bgfx_destroy_index_buffer(group.m_ibh);
         }
         m_groups.clear();
     }
 
-    void submit(uint8_t _id, bgfx::ProgramHandle _program, const float* _mtx,
+    void submit(uint8_t _id, bgfx_program_handle _program, const float* _mtx,
                 uint64_t _state) const {
         if(BGFX_STATE_MASK == _state) {
             _state = 0 | BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_DEPTH_WRITE |
                      BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_CULL_CCW | BGFX_STATE_MSAA;
         }
 
-        bgfx::setTransform(_mtx);
-        bgfx::setState(_state);
+        bgfx_set_transform(_mtx, 1);
+        bgfx_set_state(_state, 0);
 
         for(GroupArray::const_iterator it = m_groups.begin(), itEnd = m_groups.end(); it != itEnd;
             ++it) {
             const Group& group = *it;
 
-            bgfx::setIndexBuffer(group.m_ibh);
-            bgfx::setVertexBuffer(0, group.m_vbh);
-            bgfx::submit(_id, _program, 0, it != itEnd - 1);
+            bgfx_set_index_buffer(group.m_ibh, 0, UINT32_MAX);
+            bgfx_set_vertex_buffer(0, group.m_vbh, 0, UINT32_MAX);
+            bgfx_submit(_id, _program, 0, it != itEnd - 1);
         }
     }
 
-    bgfx::VertexDecl           m_decl;
+    bgfx_vertex_decl           m_decl;
     typedef stl::vector<Group> GroupArray;
     GroupArray                 m_groups;
 };
@@ -359,7 +357,7 @@ void meshUnload(Mesh* _mesh) {
     delete _mesh;
 }
 
-void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx::ProgramHandle _program, const float* _mtx,
+void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx_program_handle _program, const float* _mtx,
                 uint64_t _state) {
     _mesh->submit(_id, _program, _mtx, _state);
 }
@@ -386,15 +384,16 @@ ha_mesh createCube() {
             0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
     };
 
-    bgfx::VertexDecl vert_decl;
-    vert_decl.begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
+    bgfx_vertex_decl vert_decl;
+    bgfx_vertex_decl_begin(&vert_decl, BGFX_RENDERER_TYPE_COUNT);
+    bgfx_vertex_decl_add(&vert_decl, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+    bgfx_vertex_decl_add(&vert_decl, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_UINT8, true, false);
+    bgfx_vertex_decl_end(&vert_decl);
 
-    auto vbh = bgfx::createVertexBuffer(bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
-                                        vert_decl);
-    auto ibh = bgfx::createIndexBuffer(bgfx::makeRef(s_cubeTriStrip, sizeof(s_cubeTriStrip)));
+    auto vbh = bgfx_create_vertex_buffer(bgfx_make_ref(s_cubeVertices, sizeof(s_cubeVertices)),
+                                         &vert_decl, BGFX_BUFFER_NONE);
+    auto ibh = bgfx_create_index_buffer(bgfx_make_ref(s_cubeTriStrip, sizeof(s_cubeTriStrip)),
+                                        BGFX_BUFFER_NONE);
 
     return {vbh, ibh};
 }

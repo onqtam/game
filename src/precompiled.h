@@ -51,7 +51,9 @@ HA_SUPPRESS_WARNINGS
 #endif                          // _MSC_VER
 #include <sajson/include/sajson.h>
 
-#include <bgfx/bgfx.h>
+#define BGFX_SHARED_LIB_USE 1
+#include <bgfx/c99/bgfx.h>
+#define BGFX_INVALID_HANDLE UINT16_MAX
 
 #define IMGUI_API HA_SYMBOL_IMPORT
 #include <imgui.h>

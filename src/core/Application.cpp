@@ -8,7 +8,7 @@
 
 HA_SUPPRESS_WARNINGS
 
-#include <bgfx/platform.h>
+#include <bgfx/c99/platform.h>
 
 #include <imgui/imgui_internal.h>
 
@@ -32,10 +32,10 @@ HA_SUPPRESS_WARNINGS_END
 // == IMGUI ========================================================================================
 // =================================================================================================
 
-static bgfx::VertexDecl    imguiVertexDecl;
-static bgfx::TextureHandle imguiFontTexture;
-static bgfx::UniformHandle imguiFontUniform;
-static bgfx::ProgramHandle imguiProgram;
+static bgfx_vertex_decl    ivd;
+static bgfx_texture_handle imguiFontTexture;
+static bgfx_uniform_handle imguiFontUniform;
+static bgfx_program_handle imguiProgram;
 static void imguiRender(ImDrawData* drawData);
 static void        imguiShutdown();
 static const char* imguiGetClipboardText(void* userData);
@@ -47,19 +47,19 @@ static void imguiInit() {
     ImGuiIO&       io = ImGui::GetIO();
 
     // Setup vertex declaration
-    imguiVertexDecl.begin()
-            .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
+    bgfx_vertex_decl_begin(&ivd, BGFX_RENDERER_TYPE_COUNT);
+    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_POSITION, 2, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_TEXCOORD0, 2, BGFX_ATTRIB_TYPE_FLOAT, false, false);
+    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_UINT8, true, false);
+    bgfx_vertex_decl_end(&ivd);
 
     // Create font
     io.Fonts->AddFontDefault();
     io.Fonts->GetTexDataAsRGBA32(&data, &width, &height);
-    imguiFontTexture = bgfx::createTexture2D((uint16)width, (uint16)height, false, 1,
-                                             bgfx::TextureFormat::BGRA8, 0,
-                                             bgfx::copy(data, width * height * 4));
-    imguiFontUniform = bgfx::createUniform("s_tex", bgfx::UniformType::Int1);
+    imguiFontTexture = bgfx_create_texture_2d((uint16)width, (uint16)height, false, 1,
+                                              BGFX_TEXTURE_FORMAT_BGRA8, 0,
+                                              bgfx_copy(data, width * height * 4));
+    imguiFontUniform = bgfx_create_uniform("s_tex", BGFX_UNIFORM_TYPE_INT1, 1);
 
     // Create shader program
     imguiProgram = loadProgram("ocornut_imgui_vs", "ocornut_imgui_fs");
@@ -93,20 +93,20 @@ static void imguiInit() {
 
 static void imguiRender(ImDrawData* drawData) {
     for(int ii = 0, num = drawData->CmdListsCount; ii < num; ++ii) {
-        bgfx::TransientVertexBuffer tvb;
-        bgfx::TransientIndexBuffer  tib;
+        bgfx_transient_vertex_buffer tvb;
+        bgfx_transient_index_buffer  tib;
 
         const ImDrawList* drawList    = drawData->CmdLists[ii];
         uint32            numVertices = (uint32)drawList->VtxBuffer.size();
         uint32            numIndices  = (uint32)drawList->IdxBuffer.size();
 
-        if(!bgfx::getAvailTransientVertexBuffer(numVertices, imguiVertexDecl) ||
-           !bgfx::getAvailTransientIndexBuffer(numIndices)) {
+        if(!bgfx_get_avail_transient_vertex_buffer(numVertices, &ivd) ||
+           !bgfx_get_avail_transient_index_buffer(numIndices)) {
             break;
         }
 
-        bgfx::allocTransientVertexBuffer(&tvb, numVertices, imguiVertexDecl);
-        bgfx::allocTransientIndexBuffer(&tib, numIndices);
+        bgfx_alloc_transient_vertex_buffer(&tvb, numVertices, &ivd);
+        bgfx_alloc_transient_index_buffer(&tib, numIndices);
 
         ImDrawVert* verts = (ImDrawVert*)tvb.data;
         memcpy(verts, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
@@ -121,7 +121,7 @@ static void imguiRender(ImDrawData* drawData) {
                 cmd->UserCallback(drawList, cmd);
             } else if(0 != cmd->ElemCount) {
                 uint64_t state = BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_MSAA;
-                bgfx::TextureHandle th = imguiFontTexture;
+                bgfx_texture_handle th = imguiFontTexture;
                 if(cmd->TextureId != nullptr) {
                     union
                     {
@@ -129,7 +129,7 @@ static void imguiRender(ImDrawData* drawData) {
                         struct
                         {
                             uint16              flags;
-                            bgfx::TextureHandle handle;
+                            bgfx_texture_handle handle;
                         } s;
                     } texture = {cmd->TextureId};
                     HA_SUPPRESS_WARNINGS
@@ -145,13 +145,13 @@ static void imguiRender(ImDrawData* drawData) {
                 }
                 const uint16 xx = uint16(Utils::Max(cmd->ClipRect.x, 0.0f));
                 const uint16 yy = uint16(Utils::Max(cmd->ClipRect.y, 0.0f));
-                bgfx::setScissor(xx, yy, uint16(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
+                bgfx_set_scissor(xx, yy, uint16(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
                                  uint16(Utils::Min(cmd->ClipRect.w, 65535.0f) - yy));
-                bgfx::setState(state);
-                bgfx::setTexture(0, imguiFontUniform, th);
-                bgfx::setVertexBuffer(0, &tvb, 0, numVertices);
-                bgfx::setIndexBuffer(&tib, offset, cmd->ElemCount);
-                bgfx::submit(0, imguiProgram);
+                bgfx_set_state(state, 0);
+                bgfx_set_texture(0, imguiFontUniform, th, UINT32_MAX);
+                bgfx_set_transient_vertex_buffer(0, &tvb, 0, numVertices);
+                bgfx_set_transient_index_buffer(&tib, offset, cmd->ElemCount);
+                bgfx_submit(0, imguiProgram, 0, false);
             }
 
             offset += cmd->ElemCount;
@@ -160,9 +160,9 @@ static void imguiRender(ImDrawData* drawData) {
 }
 
 static void imguiShutdown() {
-    bgfx::destroyUniform(imguiFontUniform);
-    bgfx::destroyTexture(imguiFontTexture);
-    bgfx::destroyProgram(imguiProgram);
+    bgfx_destroy_uniform(imguiFontUniform);
+    bgfx_destroy_texture(imguiFontTexture);
+    bgfx_destroy_program(imguiProgram);
     ImGui::Shutdown();
 }
 
@@ -359,7 +359,7 @@ int Application::run(int argc, char** argv) {
     glfwSetCursorPos(m_window, width() / 2, height() / 2);
 
     // Setup bgfx
-    bgfx::PlatformData platformData;
+    bgfx_platform_data platformData;
     memset(&platformData, 0, sizeof(platformData));
 #ifdef _WIN32
     platformData.nwh = glfwGetWin32Window(m_window);
@@ -367,8 +367,9 @@ int Application::run(int argc, char** argv) {
 #ifdef __APPLE__
     platformData.nwh = glfwGetCocoaWindow(m_window);
 #endif // __APPLE__
-    bgfx::setPlatformData(platformData);
-    bgfx::init(bgfx::RendererType::OpenGL); // can also not specify opengl at all
+    bgfx_set_platform_data(&platformData);
+    bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr,
+              nullptr); // can also not specify opengl at all
 
     // Setup ImGui
     imguiInit();
@@ -402,7 +403,7 @@ int Application::run(int argc, char** argv) {
     }
 
     imguiShutdown();
-    bgfx::shutdown();
+    bgfx_shutdown();
     glfwTerminate();
     return tests_res;
 }
@@ -446,7 +447,7 @@ void Application::update() {
 
     // render
     ImGui::Render();
-    bgfx::frame();
+    bgfx_frame(false);
 
     // check if should close
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -464,7 +465,7 @@ void Application::update() {
 
 void Application::reset(uint32 flags) {
     m_reset = flags;
-    bgfx::reset(m_width, m_height, m_reset);
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x880088ff, 1.0f, 0);
-    bgfx::setViewRect(0, 0, 0, uint16(width()), uint16(height()));
+    bgfx_reset(m_width, m_height, m_reset);
+    bgfx_set_view_clear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x880088ff, 1.0f, 0);
+    bgfx_set_view_rect(0, 0, 0, uint16(width()), uint16(height()));
 }
