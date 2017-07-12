@@ -21,13 +21,13 @@ class editor : public editor_gen, public UpdatableMixin<editor>, public InputEve
     std::vector<char>                  m_verts;
     std::vector<char>                  m_inds;
     ShaderHandle                       m_program;
+    bgfx_vertex_decl                   vd;
     bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
 public:
     editor() {
         m_program = ShaderMan::get().get("gizmo");
-        bgfx_vertex_decl vd;
         bgfx_vertex_decl_begin(&vd, BGFX_RENDERER_TYPE_COUNT);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_NORMAL, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
@@ -233,7 +233,7 @@ public:
             set_rot(obj, (glm::quat&)t.orientation);
         }
 
-        //m_gizmo_ctx.draw();
+        m_gizmo_ctx.draw();
     }
 
     void process_event(const InputEvent& ev) {

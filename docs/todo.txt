@@ -1,6 +1,9 @@
 
 make some singletons an entity for hot reloading - editor, etc.
 
+add_library( bgfx SHARED ${BGFX_SOURCES} )
+target_compile_definitions(bgfx PRIVATE "BGFX_SHARED_LIB_BUILD=1")
+
 debug mesh manager
     grid
     cube
