@@ -72,10 +72,12 @@ struct GeomCreator
 {
     template <typename... Args>
     void create(void* storage, const std::string& name, Args&&... args) {
-        if(name == "cube")
+        if(name == "cube") {
             new(storage) ha_mesh(createCube(std::forward<Args>(args)...));
-        else
-            new(storage) ha_mesh({BGFX_INVALID_HANDLE, BGFX_INVALID_HANDLE});
+        } else {
+            ha_mesh m{{BGFX_INVALID_HANDLE}, {BGFX_INVALID_HANDLE}};
+            new(storage) ha_mesh(m);
+        }
     }
     void destroy(void* storage) {
         //if(bgfx::isValid(static_cast<ha_mesh*>(storage)->vbh))
