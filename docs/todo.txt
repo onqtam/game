@@ -1,9 +1,4 @@
 
-make some singletons an entity for hot reloading - editor, etc.
-
-add_library( bgfx SHARED ${BGFX_SOURCES} )
-target_compile_definitions(bgfx PRIVATE "BGFX_SHARED_LIB_BUILD=1")
-
 debug mesh manager
     grid
     cube
@@ -35,7 +30,7 @@ debug mesh manager
 == questions:
 - prefix with _ all function arguments?
 - signal/slot
-- size_t everywhere? wtf is up with these int16 micro optimizations...
+- size_t everywhere? wtf is up with these int16 micro optimizations on my side...
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
 
 == bugs:
