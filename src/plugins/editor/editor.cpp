@@ -233,7 +233,7 @@ public:
             set_rot(obj, (glm::quat&)t.orientation);
         }
 
-        m_gizmo_ctx.draw();
+        //m_gizmo_ctx.draw();
     }
 
     void process_event(const InputEvent& ev) {

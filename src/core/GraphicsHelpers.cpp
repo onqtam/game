@@ -9,7 +9,128 @@ HA_SUPPRESS_WARNINGS
 #include <bx/crtimpl.h>
 #include <bimg/bimg.h>
 #include <bimg/decode.h>
+
 //#include <bgfx/src/vertexdecl.h>
+//=== The following functions are the ones from <bgfx/src/vertexdecl.h> but reimplemented using the C api because they aren't exported...
+//Attrib::Enum idToAttrib(uint16_t id);
+//AttribType::Enum idToAttribType(uint16_t id);
+//int32_t read(bx::ReaderI* _reader, bgfx::VertexDecl& _decl, bx::Error* _err = NULL);
+
+struct AttribToId
+{
+    bgfx_attrib attr;
+    uint16_t    id;
+};
+
+static AttribToId s_attribToId[] = {
+        // NOTICE:
+        // Attrib must be in order how it appears in Attrib::Enum! id is
+        // unique and should not be changed if new Attribs are added.
+        {BGFX_ATTRIB_POSITION, 0x0001},  {BGFX_ATTRIB_NORMAL, 0x0002},
+        {BGFX_ATTRIB_TANGENT, 0x0003},   {BGFX_ATTRIB_BITANGENT, 0x0004},
+        {BGFX_ATTRIB_COLOR0, 0x0005},    {BGFX_ATTRIB_COLOR1, 0x0006},
+        {BGFX_ATTRIB_COLOR2, 0x0018},    {BGFX_ATTRIB_COLOR3, 0x0019},
+        {BGFX_ATTRIB_INDICES, 0x000e},   {BGFX_ATTRIB_WEIGHT, 0x000f},
+        {BGFX_ATTRIB_TEXCOORD0, 0x0010}, {BGFX_ATTRIB_TEXCOORD1, 0x0011},
+        {BGFX_ATTRIB_TEXCOORD2, 0x0012}, {BGFX_ATTRIB_TEXCOORD3, 0x0013},
+        {BGFX_ATTRIB_TEXCOORD4, 0x0014}, {BGFX_ATTRIB_TEXCOORD5, 0x0015},
+        {BGFX_ATTRIB_TEXCOORD6, 0x0016}, {BGFX_ATTRIB_TEXCOORD7, 0x0017},
+};
+BX_STATIC_ASSERT(BX_COUNTOF(s_attribToId) == BGFX_ATTRIB_COUNT);
+
+bgfx_attrib idToAttrib(uint16_t id) {
+    for(uint32_t ii = 0; ii < BX_COUNTOF(s_attribToId); ++ii) {
+        if(s_attribToId[ii].id == id) {
+            return s_attribToId[ii].attr;
+        }
+    }
+
+    return BGFX_ATTRIB_COUNT;
+}
+
+struct AttribTypeToId
+{
+    bgfx_attrib_type type;
+    uint16_t         id;
+};
+
+static AttribTypeToId s_attribTypeToId[] = {
+        // NOTICE:
+        // AttribType must be in order how it appears in AttribType::Enum!
+        // id is unique and should not be changed if new AttribTypes are
+        // added.
+        {BGFX_ATTRIB_TYPE_UINT8, 0x0001}, {BGFX_ATTRIB_TYPE_UINT10, 0x0005},
+        {BGFX_ATTRIB_TYPE_INT16, 0x0002}, {BGFX_ATTRIB_TYPE_HALF, 0x0003},
+        {BGFX_ATTRIB_TYPE_FLOAT, 0x0004},
+};
+BX_STATIC_ASSERT(BX_COUNTOF(s_attribTypeToId) == BGFX_ATTRIB_TYPE_COUNT);
+
+bgfx_attrib_type idToAttribType(uint16_t id) {
+    for(uint32_t ii = 0; ii < BX_COUNTOF(s_attribTypeToId); ++ii) {
+        if(s_attribTypeToId[ii].id == id) {
+            return s_attribTypeToId[ii].type;
+        }
+    }
+
+    return BGFX_ATTRIB_TYPE_COUNT;
+}
+
+int32_t read(bx::ReaderI* _reader, bgfx_vertex_decl& _decl, bx::Error* _err) {
+    BX_ERROR_SCOPE(_err);
+
+    int32_t total = 0;
+
+    uint8_t numAttrs;
+    total += bx::read(_reader, numAttrs, _err);
+
+    uint16_t stride;
+    total += bx::read(_reader, stride, _err);
+
+    if(!_err->isOk()) {
+        return total;
+    }
+
+    bgfx_vertex_decl_begin(&_decl, BGFX_RENDERER_TYPE_COUNT);
+
+    for(uint32_t ii = 0; ii < numAttrs; ++ii) {
+        uint16_t offset;
+        total += bx::read(_reader, offset, _err);
+
+        uint16_t attribId = 0;
+        total += bx::read(_reader, attribId, _err);
+
+        uint8_t num;
+        total += bx::read(_reader, num, _err);
+
+        uint16_t attribTypeId;
+        total += bx::read(_reader, attribTypeId, _err);
+
+        bool normalized;
+        total += bx::read(_reader, normalized, _err);
+
+        bool asInt;
+        total += bx::read(_reader, asInt, _err);
+
+        if(!_err->isOk()) {
+            return total;
+        }
+
+        bgfx_attrib      attr = idToAttrib(attribId);
+        bgfx_attrib_type type = idToAttribType(attribTypeId);
+        if(BGFX_ATTRIB_COUNT != attr && BGFX_ATTRIB_TYPE_COUNT != type) {
+            bgfx_vertex_decl_add(&_decl, bgfx_attrib(attr), num, bgfx_attrib_type(type), normalized,
+                                 asInt);
+            _decl.offset[attr] = offset;
+        }
+    }
+
+    bgfx_vertex_decl_end(&_decl);
+    _decl.stride = stride;
+
+    return total;
+}
+
+//=== END OF REIMPLEMENTED VERTEX DECL READ OVERLOAD
 
 #include <ib-compress/indexbufferdecompression.h>
 
@@ -217,7 +338,7 @@ struct Mesh
                     read(_reader, group.m_aabb);
                     read(_reader, group.m_obb);
 
-                    read(_reader, m_decl);
+                    read(_reader, m_decl, nullptr);
 
                     uint16_t stride = m_decl.stride;
 
