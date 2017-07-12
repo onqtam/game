@@ -57,14 +57,13 @@ void ObjectManager::init() {
     bunny.addMixin("mesh");
     set_pos(bunny, {10, 0, 0});
     set_scl(bunny, {5, 5, 5});
-    
+
     mProgram = ShaderMan::get().get("cubes");
-    asd = GeomMan::get().get("cube");
+    asd      = GeomMan::get().get("cube");
     bgfx_set_debug(BGFX_DEBUG_TEXT);
 }
 
 void ObjectManager::update() {
-
     //auto& mixins = getMixins();
     //for(auto& mixin : mixins)
     //    if(mixin.second.update)
@@ -105,7 +104,8 @@ void ObjectManager::update() {
             bgfx_set_transform(mtx, 1);
             bgfx_set_vertex_buffer(0, asd.get().vbh, 0, UINT32_MAX);
             bgfx_set_index_buffer(asd.get().ibh, 0, UINT32_MAX);
-            bgfx_set_state(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/, 0);
+            bgfx_set_state(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/,
+                           0);
             bgfx_submit(0, mProgram.get(), 0, false);
         }
     }
@@ -123,6 +123,4 @@ void ObjectManager::update() {
     mixins["editor"].update(dt);
 }
 
-int ObjectManager::shutdown() {
-    return 0;
-}
+int ObjectManager::shutdown() { return 0; }
