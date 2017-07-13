@@ -30,6 +30,8 @@ void ObjectManager::init() {
     //Entity& object4 = em.newEntity();
     //Entity& object5 = em.newEntity();
     //Entity& object6 = em.newEntity();
+    
+    mProgram  = ShaderMan::get().get("cubes");
 
     editor.addMixin("editor");
 
@@ -58,8 +60,7 @@ void ObjectManager::init() {
     set_pos(bunny, {10, 0, 0});
     set_scl(bunny, {5, 5, 5});
 
-    mProgram = ShaderMan::get().get("cubes");
-    asd      = GeomMan::get().get("cube");
+    cube = GeomMan::get().get("", createCube);
     bgfx_set_debug(BGFX_DEBUG_TEXT);
 }
 
@@ -102,10 +103,9 @@ void ObjectManager::update() {
             mtx[13] = -15.0f + float(yy) * 3.0f;
             mtx[14] = -40.0f;
             bgfx_set_transform(mtx, 1);
-            bgfx_set_vertex_buffer(0, asd.get().vbh, 0, UINT32_MAX);
-            bgfx_set_index_buffer(asd.get().ibh, 0, UINT32_MAX);
-            bgfx_set_state(BGFX_STATE_DEFAULT | BGFX_STATE_PT_TRISTRIP /*| BGFX_STATE_PT_LINES*/,
-                           0);
+            bgfx_set_vertex_buffer(0, cube.get().vbh, 0, UINT32_MAX);
+            bgfx_set_index_buffer(cube.get().ibh, 0, UINT32_MAX);
+            bgfx_set_state(BGFX_STATE_DEFAULT | cube.get().state, 0);
             bgfx_submit(0, mProgram.get(), 0, false);
         }
     }

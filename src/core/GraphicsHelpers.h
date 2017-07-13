@@ -62,76 +62,34 @@ typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;
 
 struct ha_mesh
 {
-    bgfx_vertex_buffer_handle vbh;
-    bgfx_index_buffer_handle  ibh;
+    bgfx_vertex_buffer_handle vbh   = {BGFX_INVALID_HANDLE};
+    bgfx_index_buffer_handle  ibh   = {BGFX_INVALID_HANDLE};
+    uint64                    state = BGFX_STATE_NONE;
 };
 
-ha_mesh createCube();
+HAPI ha_mesh createCube();
+HAPI ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 color);
 
 struct GeomCreator
 {
+    template <typename F, typename... Args>
+    ha_mesh create2(const std::string&, F f, Args&&... args) {
+        return f(std::forward<Args>(args)...);
+    }
+
     template <typename... Args>
     void create(void* storage, const std::string& name, Args&&... args) {
-        if(name == "cube") {
-            new(storage) ha_mesh(createCube(std::forward<Args>(args)...));
-        } else {
-            ha_mesh m{{BGFX_INVALID_HANDLE}, {BGFX_INVALID_HANDLE}};
-            new(storage) ha_mesh(m);
-        }
+        new(storage) ha_mesh(create2(name, std::forward<Args>(args)...));
     }
     void destroy(void* storage) {
-        //if(bgfx::isValid(static_cast<ha_mesh*>(storage)->vbh))
-        bgfx_destroy_vertex_buffer(static_cast<ha_mesh*>(storage)->vbh);
-        //if(bgfx::isValid(static_cast<ha_mesh*>(storage)->ibh))
-        bgfx_destroy_index_buffer(static_cast<ha_mesh*>(storage)->ibh);
+        auto& mesh = *static_cast<ha_mesh*>(storage);
+        if(mesh.vbh.idx != BGFX_INVALID_HANDLE)
+            bgfx_destroy_vertex_buffer(mesh.vbh);
+        if(mesh.ibh.idx != BGFX_INVALID_HANDLE)
+            bgfx_destroy_index_buffer(mesh.ibh);
     }
 };
 
 template class ResourceManager<ha_mesh, GeomCreator>;
 typedef ResourceManager<ha_mesh, GeomCreator>         GeomMan;
 typedef ResourceManager<ha_mesh, GeomCreator>::Handle GeomHandle;
-
-// HACKS until bgfx can be built as a dll and used by the plugins freely
-//namespace my_bgfx
-//{
-//inline HAPI uint32_t setTransform(const void* _mtx, uint16_t _num = 1) {
-//    return bgfx::setTransform(_mtx, _num);
-//}
-//
-//inline HAPI void destroyVertexBuffer(bgfx::VertexBufferHandle _handle) {
-//    bgfx::destroyVertexBuffer(_handle);
-//}
-//inline HAPI void destroyIndexBuffer(bgfx::IndexBufferHandle _handle) {
-//    bgfx::destroyIndexBuffer(_handle);
-//}
-//
-//inline HAPI bgfx::VertexBufferHandle createVertexBuffer(const bgfx::Memory*     _mem,
-//                                                        const bgfx_vertex_decl& _decl,
-//                                                        uint16_t _flags = BGFX_BUFFER_NONE) {
-//    return bgfx::createVertexBuffer(_mem, _decl, _flags);
-//}
-//
-//inline HAPI bgfx::IndexBufferHandle createIndexBuffer(const bgfx::Memory* _mem,
-//                                                      uint16_t _flags = BGFX_BUFFER_NONE) {
-//    return bgfx::createIndexBuffer(_mem, _flags);
-//}
-//
-//inline HAPI const bgfx::Memory* makeRef(const void* _data, uint32_t _size,
-//                                        bgfx::ReleaseFn _releaseFn = NULL, void* _userData = NULL) {
-//    return bgfx::makeRef(_data, _size, _releaseFn, _userData);
-//}
-//
-//inline HAPI void setVertexBuffer(uint8_t _stream, bgfx::VertexBufferHandle _handle) {
-//    bgfx::setVertexBuffer(_stream, _handle);
-//}
-//
-//inline HAPI void setIndexBuffer(bgfx::IndexBufferHandle _handle) { bgfx::setIndexBuffer(_handle); }
-//
-//inline HAPI void setState(uint64_t _state, uint32_t _rgba = 0) { bgfx::setState(_state, _rgba); }
-//
-//inline HAPI uint32_t submit(uint8_t _id, bgfx_program_handle _program, int32_t _depth = 0,
-//                            bool _preserveState = false) {
-//    return bgfx::submit(_id, _program, _depth, _preserveState);
-//}
-//
-//} // namespace my_bgfx

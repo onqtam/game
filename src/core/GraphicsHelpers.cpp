@@ -485,13 +485,28 @@ void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx_program_handle _program, co
 
 HA_SUPPRESS_WARNINGS_END
 
+// =================================================================================================
+// == END OF BGFX EXAMPLE CODE =====================================================================
+// =================================================================================================
+
 struct PosColorVertex
 {
     float  x;
-    float  y;
-    float  z;
-    uint32 abgr;
+    float                   y;
+    float                   z;
+    uint32                  abgr;
+    static bgfx_vertex_decl vd;
 };
+
+bgfx_vertex_decl PosColorVertex::vd = []() {
+    bgfx_vertex_decl_begin(&PosColorVertex::vd, BGFX_RENDERER_TYPE_COUNT);
+    bgfx_vertex_decl_add(&PosColorVertex::vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT,
+                         false, false);
+    bgfx_vertex_decl_add(&PosColorVertex::vd, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_UINT8, true,
+                         false);
+    bgfx_vertex_decl_end(&PosColorVertex::vd);
+    return PosColorVertex::vd;
+}();
 
 ha_mesh createCube() {
     static const PosColorVertex s_cubeVertices[] = {
@@ -505,58 +520,34 @@ ha_mesh createCube() {
             0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
     };
 
-    bgfx_vertex_decl vert_decl;
-    bgfx_vertex_decl_begin(&vert_decl, BGFX_RENDERER_TYPE_COUNT);
-    bgfx_vertex_decl_add(&vert_decl, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_add(&vert_decl, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_UINT8, true, false);
-    bgfx_vertex_decl_end(&vert_decl);
-
     auto vbh = bgfx_create_vertex_buffer(bgfx_make_ref(s_cubeVertices, sizeof(s_cubeVertices)),
-                                         &vert_decl, BGFX_BUFFER_NONE);
+                                         &PosColorVertex::vd, BGFX_BUFFER_NONE);
     auto ibh = bgfx_create_index_buffer(bgfx_make_ref(s_cubeTriStrip, sizeof(s_cubeTriStrip)),
                                         BGFX_BUFFER_NONE);
 
-    return {vbh, ibh};
+    return {vbh, ibh, BGFX_STATE_PT_TRISTRIP};
 }
 
-//
-//ha_mesh grid(int lines_x, int lines_y, float size_x, float size_y, uint32 color) {
-//    float step_x = size_x / lines_x;
-//    float step_y = size_y / lines_y;
-//
-//    std::vector<PosColorVertex> verts;
-//    verts.push_back({-1.0f, 1.0f, 1.0f, 0xff000000}
-//
-//    for(float x = size_x / 2; )
-//
-//    // Negative and positive X.
-//    verts.push_back(PosColorVert(origin, 0xFF0000FF));
-//    verts.push_back(PosColorVert(origin + xAxis * (float)(xLines), 0xFF0000FF));
-//
-//    verts.push_back(PosColorVert(origin, 0xFF0000FF));
-//    verts.push_back(PosColorVert(origin - xAxis * (float)(xLines), 0xFF0000FF));
-//
-//	// Negative and positive Z.
-//	verts.push_back(PosColorVert(origin, 0xFFFF0000));
-//	verts.push_back(PosColorVert(origin + zAxis * (float)(yLines), 0xFFFF0000));
-//
-//	verts.push_back(PosColorVert(origin, 0xFFFF0000));
-//	verts.push_back(PosColorVert(origin - zAxis * (float)(yLines), 0xFFFF0000));
-//
-//	for(int t = -xLines; t < xLines + 1; ++t)
-//	{
-//		if(t == 0) continue;
-//
-//		verts.push_back(PosColorVert(origin + xAxis * (float)t - zAxis * (float)yLines, color));
-//		verts.push_back(PosColorVert(origin + xAxis * (float)t + zAxis * (float)yLines, color));
-//	}
-//
-//	for(int t = -yLines; t < yLines + 1; ++t)
-//	{
-//		if(t == 0) continue;
-//
-//		verts.push_back(PosColorVert(origin - xAxis * (float)xLines + zAxis * (float)(t), color));
-//		verts.push_back(PosColorVert(origin + xAxis * (float)xLines + zAxis * (float)(t), color));
-//	}
-//}
-//
+ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 color) {
+    hassert(lines_x > 1);
+    hassert(lines_z > 1);
+
+    float step_x = size_x / (lines_x - 1);
+    float step_z = size_z / (lines_z - 1);
+
+    std::vector<PosColorVertex> verts;
+    verts.reserve((lines_x + lines_z) * 2);
+    for(auto x = 0; x < lines_x; ++x) {
+        verts.push_back({-size_x / 2 + step_x * x, 0.f, size_z / 2});
+        verts.push_back({-size_x / 2 + step_x * x, 0.f, -size_z / 2});
+    }
+    for(auto z = 0; z < lines_z; ++z) {
+        verts.push_back({size_x / 2, 0.f, -size_z / 2 + step_z * z});
+        verts.push_back({-size_x / 2, 0.f, -size_z / 2 + step_z * z});
+    }
+
+    auto vbh = bgfx_create_vertex_buffer(bgfx_copy(verts.data(), verts.size() * sizeof(PosColorVertex)),
+                                         &PosColorVertex::vd, BGFX_BUFFER_NONE);
+    
+    return {vbh, {BGFX_INVALID_HANDLE}, BGFX_STATE_PT_LINES};
+}

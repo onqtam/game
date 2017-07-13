@@ -14,8 +14,8 @@ private:
     int  shutdown();
 
     Entity editor;
-
-    GeomHandle asd;
+    
+    GeomHandle cube;
     ShaderHandle mProgram;
 
 public:

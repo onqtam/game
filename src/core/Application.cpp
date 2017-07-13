@@ -1,10 +1,7 @@
 #include "Application.h"
 #include "PluginManager.h"
 #include "ObjectManager.h"
-#include "utils/utils.h"
 #include "core/GraphicsHelpers.h"
-
-#include "core/messages/messages.h"
 
 HA_SUPPRESS_WARNINGS
 
@@ -370,8 +367,7 @@ int Application::run(int argc, char** argv) {
     platformData.nwh = glfwGetCocoaWindow(m_window);
 #endif // __APPLE__
     bgfx_set_platform_data(&platformData);
-    bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr,
-              nullptr); // can also not specify opengl at all
+    bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr, nullptr);
 
     // Setup ImGui
     imguiInit();

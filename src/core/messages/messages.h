@@ -2,10 +2,11 @@
 
 #include "core/serialization/JsonData.h"
 
-#include <tinygizmo/tiny-gizmo.hpp>
-
 HA_SUPPRESS_WARNINGS
 
+#include <tinygizmo/tiny-gizmo.hpp>
+
+// common
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, serialize, JsonData&, out)
 DYNAMIX_EXPORTED_MULTICAST_MESSAGE_1(HAPI, void, deserialize, const sajson::value&, in)
 DYNAMIX_EXPORTED_MULTICAST_MESSAGE_0(HAPI, void, imgui_bind_properties)

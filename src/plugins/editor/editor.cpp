@@ -25,9 +25,15 @@ class editor : public editor_gen, public UpdatableMixin<editor>, public InputEve
     bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
+    GeomHandle   m_grid;
+    ShaderHandle m_grid_shader;
+
 public:
     editor() {
-        m_program = ShaderMan::get().get("gizmo");
+        m_grid        = GeomMan::get().get("", createGrid, 10, 10, 100.f, 100.f, 0xffffffff);
+        m_grid_shader = ShaderMan::get().get("cubes");
+
+        m_program     = ShaderMan::get().get("gizmo");
         bgfx_vertex_decl_begin(&vd, BGFX_RENDERER_TYPE_COUNT);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_NORMAL, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
@@ -69,6 +75,12 @@ public:
     }
 
     void update(float) {
+        // draw grid
+        bgfx_set_transform((float*)&glm::mat4(1), 1);
+        bgfx_set_vertex_buffer(0, m_grid.get().vbh, 0, UINT32_MAX);
+        bgfx_set_state(BGFX_STATE_DEFAULT | m_grid.get().state, 0);
+        bgfx_submit(0, m_grid_shader.get(), 0, false);
+
         auto& app = Application::get();
         auto& em  = EntityManager::get();
 

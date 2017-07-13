@@ -4,7 +4,9 @@
 
 #include "utils/base64/base64.h"
 
+HA_SUPPRESS_WARNINGS
 #include <tinygizmo/tiny-gizmo.hpp>
+HA_SUPPRESS_WARNINGS_END
 
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
