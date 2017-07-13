@@ -20,7 +20,7 @@ public:
     operator Entity&() { return get(); }
 
     Entity&       get();
-    const Entity& get() const { const_cast<eid*>(this)->get(); }
+    const Entity& get() const { return const_cast<eid*>(this)->get(); }
 
     static eid invalid() { return eid(-1); }
 };

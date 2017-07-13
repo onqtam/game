@@ -30,7 +30,7 @@ class editor : public editor_gen, public UpdatableMixin<editor>, public InputEve
 
 public:
     editor() {
-        m_grid        = GeomMan::get().get("", createGrid, 10, 10, 100.f, 100.f, 0xffffffff);
+        m_grid        = GeomMan::get().get("", createGrid, 100, 10, 100.f, 100.f, 0xffffffff);
         m_grid_shader = ShaderMan::get().get("cubes");
 
         m_program     = ShaderMan::get().get("gizmo");
@@ -76,7 +76,8 @@ public:
 
     void update(float) {
         // draw grid
-        bgfx_set_transform((float*)&glm::mat4(1), 1);
+        auto identity = glm::mat4(1.f);
+        bgfx_set_transform((float*)&identity, 1);
         bgfx_set_vertex_buffer(0, m_grid.get().vbh, 0, UINT32_MAX);
         bgfx_set_state(BGFX_STATE_DEFAULT | m_grid.get().state, 0);
         bgfx_submit(0, m_grid_shader.get(), 0, false);

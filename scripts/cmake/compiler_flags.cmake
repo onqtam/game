@@ -86,7 +86,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         #-Werror
         -pedantic
         #-pedantic-errors
-        -fvisibility=hidden
+        -fvisibility=hidden # TODO: add this globally - not just to ha_compiler_flags
         -fstrict-aliasing
     )
     list(APPEND third_party_compiler_flags -w)

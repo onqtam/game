@@ -56,6 +56,7 @@
     _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
     _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
     _Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"") \
+    _Pragma("GCC diagnostic ignored \"-Wreorder\"") \
 
 
 #endif // __GNUC__
