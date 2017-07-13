@@ -65,7 +65,7 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
                 });
         // a copy of it should already be loaded
         if(plugin_iter != m_plugins.end()) {
-            auto plugin = *plugin_iter;
+            auto& plugin = *plugin_iter;
 
             std::map<std::string, ObjectJsonMap> mixinPersistence;
             JsonData globalsPersistence;
