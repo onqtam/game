@@ -12,5 +12,6 @@ emscripten/
 
 err.txt
 game.bat
+game_gcc.bat
 
 *_gen.h
