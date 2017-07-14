@@ -34,12 +34,10 @@ class editor : public editor_gen,
 public:
     editor()
             : Singleton(this) {
-        hassert(&GeomMan::get());
-        hassert(&ShaderMan::get());
         m_grid        = GeomMan::get().get("", createGrid, 100, 10, 100.f, 100.f, 0xff00ff00);
         m_grid_shader = ShaderMan::get().get("cubes");
 
-        m_program     = ShaderMan::get().get("gizmo");
+        m_program = ShaderMan::get().get("gizmo");
         bgfx_vertex_decl_begin(&vd, BGFX_RENDERER_TYPE_COUNT);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
         bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_NORMAL, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);

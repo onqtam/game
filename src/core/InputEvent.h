@@ -53,7 +53,7 @@ HAPI void InputEventListener_remove(InputEventListener* in);
 struct HAPI InputEventListener
 {
     InputEventListener() { InputEventListener_add(this); }
-    ~InputEventListener() { InputEventListener_remove(this); }
+    virtual ~InputEventListener() { InputEventListener_remove(this); }
     InputEventListener(const InputEventListener&) = default;
     InputEventListener& operator=(const InputEventListener&) = default;
 

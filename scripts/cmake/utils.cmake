@@ -196,7 +196,10 @@ function(add_plugin)
         return()
     endif()
     
-    add_library(${ARG_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
+    add_library(${ARG_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})    
+    if(NOT MSVC)
+        target_compile_options(${ARG_NAME} PRIVATE -Wl,--no-undefined)
+    endif()
     add_precompiled_header(${ARG_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
     
     #et_target_properties(${ARG_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")

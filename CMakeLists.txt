@@ -9,7 +9,7 @@ SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/cmake_modules")
 
-set(BGFX_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/my_bgfx"  CACHE STRING "Location of bgfx.")
+set(BGFX_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bgfx"  CACHE STRING "Location of bgfx.")
 set(BX_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bx"    CACHE STRING "Location of bx.")
 set(BIMG_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bimg"  CACHE STRING "Location of bimg.")
 

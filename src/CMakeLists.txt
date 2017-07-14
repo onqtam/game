@@ -72,6 +72,10 @@ add_plugin(NAME camera ${plugin_camera})
 add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
 add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 
+if(NOT MSVC)
+    target_compile_options(game PRIVATE -Wl,--no-undefined)
+endif()
+
 mixify_target(game)
 if(${WITH_PLUGINS})
     set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
