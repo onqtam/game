@@ -16,9 +16,9 @@ HA_SUPPRESS_WARNINGS
 #else // EMSCRIPTEN
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
-#else // _WIN32
+#else               // _WIN32
 #include <unistd.h> // for chdir()
-#endif // _WIN32
+#endif              // _WIN32
 #ifdef __APPLE__
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif // __APPLE__
@@ -281,6 +281,8 @@ class global_mixin_allocator : public dynamix::global_allocator
     }
     void dealloc_mixin(char* ptr) override { delete[] ptr; }
 };
+
+HA_SINGLETON_INSTANCE(Application);
 
 void Application::addInputEventListener(InputEventListener* in) {
     hassert(std::find(m_inputEventListeners.begin(), m_inputEventListeners.end(), in) ==

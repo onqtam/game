@@ -2,10 +2,11 @@
 
 #include "core/GraphicsHelpers.h"
 
-class HAPI ObjectManager
+class HAPI ObjectManager : public Singleton<ObjectManager>
 {
     HA_SINGLETON(ObjectManager);
-    ObjectManager() = default;
+    ObjectManager()
+            : Singleton(this) {}
     friend class Application;
 
 private:
@@ -14,8 +15,8 @@ private:
     int  shutdown();
 
     Entity editor;
-    
-    GeomHandle cube;
+
+    GeomHandle   cube;
     ShaderHandle mProgram;
 
 public:

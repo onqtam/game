@@ -54,10 +54,11 @@ public:
 
 #define ha_this Entity::cast_to_entity(this)
 
-class HAPI EntityManager
+class HAPI EntityManager : public Singleton<EntityManager>
 {
     HA_SINGLETON(EntityManager);
-    EntityManager() = default;
+    EntityManager()
+            : Singleton(this) {}
     friend class Application;
 
 private:
@@ -77,7 +78,9 @@ public:
         return eid(m_curr_id++);
     }
 
-    Entity& newEntity(const std::string& in_name = std::string()) { return getById(newEntityId(in_name)); }
+    Entity& newEntity(const std::string& in_name = std::string()) {
+        return getById(newEntityId(in_name));
+    }
 
     Entity& getById(eid id) { return m_entities[id]; }
 

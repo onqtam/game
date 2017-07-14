@@ -6,10 +6,11 @@ HA_SUPPRESS_WARNINGS
 #include <FileWatcher/FileWatcher.h>
 HA_SUPPRESS_WARNINGS_END
 
-class PluginManager : public FW::FileWatchListener
+class PluginManager : public FW::FileWatchListener, public Singleton<PluginManager>
 {
     HA_SINGLETON(PluginManager);
-    PluginManager() = default;
+    PluginManager()
+            : Singleton(this) {}
     friend class Application;
 
     struct LoadedPlugin
@@ -22,7 +23,7 @@ class PluginManager : public FW::FileWatchListener
     FW::FileWatcher m_fileWatcher;
 
     std::vector<LoadedPlugin> m_plugins;
-    
+
     void handleFileAction(FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
                           FW::Action action) override;
     void init();

@@ -4,10 +4,11 @@
 
 struct GLFWwindow;
 
-class HAPI Application
+class HAPI Application : public Singleton<Application>
 {
     HA_SINGLETON(Application);
-    Application() = default;
+    Application()
+            : Singleton(this) {}
     friend int main(int, char**);
 
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -26,7 +27,6 @@ class HAPI Application
     void reset(uint32 flags = 0);
 
 public:
-
     uint32 width() const { return m_width; }
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }

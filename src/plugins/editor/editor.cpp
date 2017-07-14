@@ -10,7 +10,10 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
-class editor : public editor_gen, public UpdatableMixin<editor>, public InputEventListener
+class editor : public editor_gen,
+               public UpdatableMixin<editor>,
+               public InputEventListener,
+               public Singleton<editor>
 {
     HA_SINGLETON(editor);
     HA_MESSAGES_IN_MIXIN(editor)
@@ -29,8 +32,11 @@ class editor : public editor_gen, public UpdatableMixin<editor>, public InputEve
     ShaderHandle m_grid_shader;
 
 public:
-    editor() {
-        m_grid        = GeomMan::get().get("", createGrid, 100, 10, 100.f, 100.f, 0xffffffff);
+    editor()
+            : Singleton(this) {
+        hassert(&GeomMan::get());
+        hassert(&ShaderMan::get());
+        m_grid        = GeomMan::get().get("", createGrid, 100, 10, 100.f, 100.f, 0xff00ff00);
         m_grid_shader = ShaderMan::get().get("cubes");
 
         m_program     = ShaderMan::get().get("gizmo");
@@ -271,6 +277,8 @@ public:
         }
     }
 };
+
+HA_SINGLETON_INSTANCE(editor);
 
 // defining it as without codegen for convenience - the singleton macro adds a dummy member variable
 // and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom

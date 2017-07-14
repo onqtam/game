@@ -17,6 +17,8 @@ HA_SUPPRESS_WARNINGS_END
 
 using namespace std;
 
+HA_SINGLETON_INSTANCE(ObjectManager);
+
 void ObjectManager::init() {
     auto& mixins = getMixins();
     for(auto& mixin : mixins)
@@ -30,8 +32,8 @@ void ObjectManager::init() {
     //Entity& object4 = em.newEntity();
     //Entity& object5 = em.newEntity();
     //Entity& object6 = em.newEntity();
-    
-    mProgram  = ShaderMan::get().get("cubes");
+
+    mProgram = ShaderMan::get().get("cubes");
 
     editor.addMixin("editor");
 

@@ -3,7 +3,7 @@
 #include "utils/utils.h"
 
 template <typename T, typename creator>
-class HAPI ResourceManager : protected creator
+class HAPI ResourceManager : protected creator, public Singleton<ResourceManager<T, creator>>
 {
     // max refcount is 2^15 and max different resources are 2^15
     struct Resource
@@ -31,8 +31,10 @@ class HAPI ResourceManager : protected creator
                 , name(std::move(other.name)) {
             HA_SUPPRESS_WARNINGS
             if(refcount != -1) {
-                new(data) T(std::move(*reinterpret_cast<const T*>(other.data))); // call move/copy ctor
-                reinterpret_cast<const T*>(other.data)->~T(); // destroy other instance using it's dtor - not the inherited destroy method
+                new(data) T(
+                        std::move(*reinterpret_cast<const T*>(other.data))); // call move/copy ctor
+                reinterpret_cast<const T*>(other.data)
+                        ->~T(); // destroy other instance using it's dtor - not the inherited destroy method
                 other.refcount = -1;
             }
             HA_SUPPRESS_WARNINGS_END
@@ -50,7 +52,8 @@ class HAPI ResourceManager : protected creator
     HA_SINGLETON(ResourceManager);
 
 public:
-    ResourceManager() = default;
+    ResourceManager()
+            : Singleton<ResourceManager<T, creator>>(this) {}
 
     class Handle
     {

@@ -55,6 +55,8 @@ using namespace std;
 
 static vector<string> getOriginalPlugins();
 
+HA_SINGLETON_INSTANCE(PluginManager);
+
 void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::String& filename,
                                      FW::Action action) {
     // if an original plugin .dll has been modified

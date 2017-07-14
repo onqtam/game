@@ -2,6 +2,10 @@ ucm_add_flags(${ha_compiler_flags})
 
 include_directories("./")
 
+if(${WITH_PLUGINS})
+    add_definitions(-DHA_WITH_PLUGINS)
+endif()
+
 # == SHADERS =======================================================================================
 
 if(TOOLCHAIN STREQUAL "msvc")
@@ -68,10 +72,9 @@ add_plugin(NAME camera ${plugin_camera})
 add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
 add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 
-set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
-
 mixify_target(game)
 if(${WITH_PLUGINS})
+    set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
     target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")
 endif()
 

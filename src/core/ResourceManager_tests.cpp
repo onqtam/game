@@ -31,8 +31,8 @@ int managed_int::copy = 0;
 int managed_int::move = 0;
 int managed_int::dtor = 0;
 
-managed_int test_int_func_1(int a = 0, int b = 0) { return a + b; }
-managed_int test_int_func_2(int a = 42, int b = 666) { return a + b; }
+static managed_int test_int_func_1(int a = 0, int b = 0) { return a + b; }
+static managed_int test_int_func_2(int a = 42, int b = 666) { return a + b; }
 
 struct ManagedIntCreator
 {
@@ -59,6 +59,9 @@ int ManagedIntCreator::num_destroy = 0;
 template class ResourceManager<managed_int, ManagedIntCreator>;
 typedef ResourceManager<managed_int, ManagedIntCreator>         ManagedIntMan;
 typedef ResourceManager<managed_int, ManagedIntCreator>::Handle ManagedIntHandle;
+
+template <>
+HA_SINGLETON_INSTANCE(ManagedIntMan);
 
 test_case("[core] testing ResourceManager") {
     ManagedIntMan man;

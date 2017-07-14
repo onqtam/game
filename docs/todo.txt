@@ -1,8 +1,4 @@
 
-debug mesh manager
-    grid
-    cube
-
 - world - and remove "object manager"
 - level
     - save
@@ -34,6 +30,7 @@ debug mesh manager
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
 
 == bugs:
+gcc builds under windows crash when started... BUT ONLY WHEN BUILT WITH PLUGINS!!! there is no crash when built as a whole
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - travis builds fail because of submodule issues...?
 CI - appveyor emscripten build fails for some reason
@@ -71,6 +68,7 @@ questionable:
 - https://github.com/nem0/OpenFBX
 - https://github.com/guillaumeblanc/ozz-animation
 - https://github.com/libgdx/fbx-conv
+- https://github.com/friggog/tree-gen
 
 == codegen:
 - syntax highlighting for .mix files in VS

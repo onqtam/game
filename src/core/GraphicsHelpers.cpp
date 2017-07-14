@@ -489,9 +489,18 @@ HA_SUPPRESS_WARNINGS_END
 // == END OF BGFX EXAMPLE CODE =====================================================================
 // =================================================================================================
 
+template <>
+HA_SINGLETON_INSTANCE(MeshMan);
+template <>
+HA_SINGLETON_INSTANCE(TextureMan);
+template <>
+HA_SINGLETON_INSTANCE(ShaderMan);
+template <>
+HA_SINGLETON_INSTANCE(GeomMan);
+
 struct PosColorVertex
 {
-    float  x;
+    float                   x;
     float                   y;
     float                   z;
     uint32                  abgr;
@@ -538,16 +547,17 @@ ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 
     std::vector<PosColorVertex> verts;
     verts.reserve((lines_x + lines_z) * 2);
     for(auto x = 0; x < lines_x; ++x) {
-        verts.push_back({-size_x / 2 + step_x * x, 0.f, size_z / 2});
-        verts.push_back({-size_x / 2 + step_x * x, 0.f, -size_z / 2});
+        verts.push_back({-size_x / 2 + step_x * x, 0.f, size_z / 2, color});
+        verts.push_back({-size_x / 2 + step_x * x, 0.f, -size_z / 2, color});
     }
     for(auto z = 0; z < lines_z; ++z) {
-        verts.push_back({size_x / 2, 0.f, -size_z / 2 + step_z * z});
-        verts.push_back({-size_x / 2, 0.f, -size_z / 2 + step_z * z});
+        verts.push_back({size_x / 2, 0.f, -size_z / 2 + step_z * z, color});
+        verts.push_back({-size_x / 2, 0.f, -size_z / 2 + step_z * z, color});
     }
 
-    auto vbh = bgfx_create_vertex_buffer(bgfx_copy(verts.data(), verts.size() * sizeof(PosColorVertex)),
-                                         &PosColorVertex::vd, BGFX_BUFFER_NONE);
-    
+    auto vbh = bgfx_create_vertex_buffer(
+            bgfx_copy(verts.data(), uint32(verts.size() * sizeof(PosColorVertex))), &PosColorVertex::vd,
+            BGFX_BUFFER_NONE);
+
     return {vbh, {BGFX_INVALID_HANDLE}, BGFX_STATE_PT_LINES};
 }
