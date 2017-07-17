@@ -13,10 +13,6 @@
 #define HA_SINGLETON_INSTANCE(the_class) \
     the_class& the_class::get() { return *s_instance; } \
     the_class* the_class::s_instance = nullptr
-
-#define HA_SINGLETON_TEMPLATE_INSTANCE(the_class) \
-    template<> the_class& the_class::get() { return *s_instance; } \
-    template<> the_class* the_class::s_instance = nullptr
 // clang-format on
 
 template <class T>

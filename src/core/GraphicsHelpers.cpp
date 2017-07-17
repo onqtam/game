@@ -490,13 +490,13 @@ HA_SUPPRESS_WARNINGS_END
 // =================================================================================================
 
 template <>
-MeshMan* MeshMan::s_instance = nullptr;
+HAPI MeshMan* MeshMan::s_instance = nullptr;
 template <>
-TextureMan* TextureMan::s_instance = nullptr;
+HAPI TextureMan* TextureMan::s_instance = nullptr;
 template <>
-ShaderMan* ShaderMan::s_instance = nullptr;
+HAPI ShaderMan* ShaderMan::s_instance = nullptr;
 template <>
-GeomMan* GeomMan::s_instance = nullptr;
+HAPI GeomMan* GeomMan::s_instance = nullptr;
 
 struct PosColorVertex
 {
