@@ -139,6 +139,11 @@ void PluginManager::init() {
         hassert(copy_res);
 
         const auto plugin = LoadDynlib(copied.c_str());
+#ifndef _WIN32
+        const char* errstr = dlerror();
+        if(errstr != nullptr)
+            printf("A dynamic linking error occurred: (%s)\n", errstr);
+#endif // _WIN32
         hassert(plugin);
 
         // add to the list of registered mixins for the executable
