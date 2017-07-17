@@ -141,7 +141,7 @@ load_unload_proc getUnloadProc() {
                                                      std::is_polymorphic<n>::value *               \
                                                              sizeof(void*) ?                       \
                                      (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 : 0) :      \
-                                     0), "someone has extended the base type?");
+                                     0), "someone has extended the base type?")
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

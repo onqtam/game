@@ -34,8 +34,8 @@ namespace
                 table[i] = 52 + i - '0';
             initialized  = true;
         }
-        table[b62] = 62;
-        table[b63] = 63;
+        table[unsigned(b62)] = 62;
+        table[unsigned(b63)] = 63;
         return table;
     }
 } //anonymous namespace
@@ -95,7 +95,7 @@ int decode(const uint8* data, const int dataLen, uint8* decoded, const int decod
     hassert(decodedBuffSize >= requiredDecodedBuffSize);
 
     for(int block = 0; block < dataLen / 4; block++) {
-        const uint8* chars  = ((const uint8*)data + block * 4);
+        const uint8* chars  = data + block * 4;
         int          offset = block * 3;
         decoded[offset]     = table[chars[0]] << 2 | table[chars[1]] >> 4;
         decoded[offset + 1] = table[chars[1]] << 4 | table[chars[2]] >> 2;
@@ -103,7 +103,7 @@ int decode(const uint8* data, const int dataLen, uint8* decoded, const int decod
     }
 
     int          countOfDecodedBytes = (dataLen / 4) * 3;
-    const uint8* padchar             = (const uint8*)data + dataLen - 1;
+    const uint8* padchar             = data + dataLen - 1;
     while(countOfDecodedBytes && *padchar-- == pad)
         --countOfDecodedBytes; // padding is not part of the data
     return countOfDecodedBytes;

@@ -73,9 +73,9 @@ class selected : public selected_gen
     HA_MESSAGES_IN_MIXIN(selected)
 public:
     tinygizmo::rigid_transform& get_gizmo_transform() {
-        gizmo_transform = tinygizmo::rigid_transform((minalg::float4&)get_rot(ha_this),
-                                                     (minalg::float3&)get_pos(ha_this),
-                                                     (minalg::float3&)get_scl(ha_this));
+        gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)get_rot(ha_this),
+                                                     (const minalg::float3&)get_pos(ha_this),
+                                                     (const minalg::float3&)get_scl(ha_this));
         return gizmo_transform;
     }
 

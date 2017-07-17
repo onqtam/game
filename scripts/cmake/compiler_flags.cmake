@@ -111,6 +111,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         # disable these for now...
         -Wno-sign-conversion
         -Wno-old-style-cast
+        -Wno-missing-prototypes
     )
 endif()
 

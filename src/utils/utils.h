@@ -105,4 +105,6 @@ char* itoa_fast(T value, char* dst) {
     return dst;
 }
 
+HAPI glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
+
 } // namespace Utils

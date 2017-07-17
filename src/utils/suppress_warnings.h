@@ -29,6 +29,7 @@
     _Pragma("clang diagnostic ignored \"-Wcast-align\"") \
     _Pragma("clang diagnostic ignored \"-Wgnu-zero-variadic-macro-arguments\"") \
     _Pragma("clang diagnostic ignored \"-Wnon-virtual-dtor\"") \
+    _Pragma("clang diagnostic ignored \"-Wreorder\"") \
 
 #endif // __clang__
 

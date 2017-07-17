@@ -73,11 +73,11 @@ void deserialize(ShaderHandle& data, const sajson::value& val) {
 
 void serialize(const tinygizmo::rigid_transform& data, JsonData& out) {
     out.startArray();
-    serialize((glm::vec3&)data.position, out);
+    serialize((const glm::vec3&)data.position, out);
     out.addComma();
-    serialize((glm::vec3&)data.scale, out);
+    serialize((const glm::vec3&)data.scale, out);
     out.addComma();
-    serialize((glm::vec4&)data.orientation, out);
+    serialize((const glm::vec4&)data.orientation, out);
     out.endArray();
 }
 
