@@ -14,14 +14,22 @@ HA_SUPPRESS_WARNINGS
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
 #else // EMSCRIPTEN
-#ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#else               // _WIN32
-#include <unistd.h> // for chdir()
-#endif              // _WIN32
-#ifdef __APPLE__
+
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#elif BX_PLATFORM_OSX
 #define GLFW_EXPOSE_NATIVE_COCOA
-#endif // __APPLE__
+#define GLFW_EXPOSE_NATIVE_NSGL
+#elif BX_PLATFORM_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#endif // platforms
+
+#if !BX_PLATFORM_WINDOWS
+#include <unistd.h> // for chdir()
+#endif              // not windows
+
 #include <GLFW/glfw3native.h>
 #endif // EMSCRIPTEN
 
@@ -360,15 +368,18 @@ int Application::run(int argc, char** argv) {
     glfwSetCursorPos(m_window, width() / 2, height() / 2);
 
     // Setup bgfx
-    bgfx_platform_data platformData;
-    memset(&platformData, 0, sizeof(platformData));
-#ifdef _WIN32
-    platformData.nwh = glfwGetWin32Window(m_window);
-#endif // _WIN32
-#ifdef __APPLE__
-    platformData.nwh = glfwGetCocoaWindow(m_window);
-#endif // __APPLE__
-    bgfx_set_platform_data(&platformData);
+    bgfx_platform_data pd;
+    memset(&pd, 0, sizeof(pd));
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+    pd.ndt = glfwGetX11Display();
+    pd.nwh = (void*)(uintptr_t)glfwGetX11Window(m_window);
+#elif BX_PLATFORM_OSX
+    pd.nwh = glfwGetCocoaWindow(m_window);
+#elif BX_PLATFORM_WINDOWS
+    pd.nwh = glfwGetWin32Window(m_window);
+#endif // BX_PLATFORM_
+
+    bgfx_set_platform_data(&pd);
     bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr, nullptr);
 
     // Setup ImGui
