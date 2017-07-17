@@ -372,7 +372,7 @@ int Application::run(int argc, char** argv) {
     memset(&pd, 0, sizeof(pd));
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
     pd.ndt = glfwGetX11Display();
-    pd.nwh = (void*)(uintptr_t)glfwGetX11Window(m_window);
+    pd.nwh = (void*)glfwGetX11Window(m_window);
 #elif BX_PLATFORM_OSX
     pd.nwh = glfwGetCocoaWindow(m_window);
 #elif BX_PLATFORM_WINDOWS

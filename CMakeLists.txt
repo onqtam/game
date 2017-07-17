@@ -17,7 +17,10 @@ set(UCM_UNITY_BUILD         OFF CACHE BOOL "" FORCE)
 set(UCM_NO_COTIRE_FOLDER    OFF CACHE BOOL "" FORCE)
 
 option(WITH_PLUGINS "Compile plugins as separate .dll files instead of merging them with the executable" ON)
+
+# FOR DEBUGGING BUILDS
 #set(WITH_PLUGINS OFF CACHE BOOL "" FORCE)
+#add_definitions(-DBGFX_CONFIG_MULTITHREADED=0)
 
 set(COTIRE_PCH_MEMORY_SCALING_FACTOR 500)
 include(third_party/ucm/cmake/ucm.cmake)
