@@ -60,7 +60,8 @@ template class ResourceManager<managed_int, ManagedIntCreator>;
 typedef ResourceManager<managed_int, ManagedIntCreator>         ManagedIntMan;
 typedef ResourceManager<managed_int, ManagedIntCreator>::Handle ManagedIntHandle;
 
-HA_SINGLETON_TEMPLATE_INSTANCE(ManagedIntMan);
+template <>
+ManagedIntMan* ManagedIntMan::s_instance = nullptr;
 
 test_case("[core] testing ResourceManager") {
     ManagedIntMan man;

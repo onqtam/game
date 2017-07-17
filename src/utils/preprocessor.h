@@ -58,3 +58,9 @@ char (&_ArraySizeHelper(T (&array)[N]))[N];
 
 template<int s> struct print_ct;
 #define HA_PRINT_CT(x) print_ct<x> HA_ANONYMOUS(ct_)
+
+#ifdef _MSC_VER
+#define HA_NOINLINE __declspec(noinline)
+#else // _MSC_VER
+#define HA_NOINLINE __attribute__((noinline))
+#endif // _MSC_VER

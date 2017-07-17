@@ -3,7 +3,7 @@
 #include "utils/utils.h"
 
 template <typename T, typename creator>
-class HAPI ResourceManager : protected creator, public Singleton<ResourceManager<T, creator>>
+class ResourceManager : protected creator
 {
     // max refcount is 2^15 and max different resources are 2^15
     struct Resource
@@ -49,11 +49,20 @@ class HAPI ResourceManager : protected creator, public Singleton<ResourceManager
     std::vector<Resource> m_resources;
     int16                 m_next_free = -1;
 
-    HA_SINGLETON(ResourceManager);
+    HAPI static ResourceManager* s_instance;
 
 public:
-    ResourceManager()
-            : Singleton<ResourceManager<T, creator>>(this) {}
+    ResourceManager() {
+        hassert(s_instance == nullptr);
+        s_instance = this;
+    }
+
+    ~ResourceManager() {
+        hassert(s_instance != nullptr);
+        s_instance = nullptr;
+    }
+
+    static ResourceManager& get() { return *s_instance; }
 
     class Handle
     {
