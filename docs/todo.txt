@@ -1,5 +1,4 @@
 
-- world - and remove "object manager"
 - level
     - save
     - load

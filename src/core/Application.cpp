@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "PluginManager.h"
-#include "ObjectManager.h"
-#include "core/GraphicsHelpers.h"
+#include "World.h"
+#include "GraphicsHelpers.h"
 
 HA_SUPPRESS_WARNINGS
 
@@ -387,8 +387,9 @@ int Application::run(int argc, char** argv) {
 
     // Initialize the application
     reset();
+    bgfx_set_debug(BGFX_DEBUG_TEXT);
 
-    // create game
+    // introduce this scope in order to control the lifetimes of managers
     {
         // resource managers should be created first and destroyed last - all
         // entities should be destroyed so the refcounts to the resources are 0
@@ -398,8 +399,7 @@ int Application::run(int argc, char** argv) {
 
         EntityManager entityMan;
 
-        ObjectManager objectManager;
-        objectManager.init();
+        World world;
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -408,9 +408,6 @@ int Application::run(int argc, char** argv) {
         while(!glfwWindowShouldClose(m_window))
             update();
 #endif // EMSCRIPTEN
-
-        // Shutdown in reverse order of initialization
-        objectManager.shutdown();
     }
 
     imguiShutdown();
@@ -454,7 +451,7 @@ void Application::update() {
     //}
 
     // update game stuff
-    ObjectManager::get().update();
+    World::get().update();
 
     // render
     ImGui::Render();
