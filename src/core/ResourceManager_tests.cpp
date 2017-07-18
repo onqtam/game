@@ -1,5 +1,3 @@
-#include "ResourceManager.h"
-
 struct managed_int
 {
     int data = 0;
@@ -56,12 +54,12 @@ struct ManagedIntCreator
 int ManagedIntCreator::num_create  = 0;
 int ManagedIntCreator::num_destroy = 0;
 
-template class ResourceManager<managed_int, ManagedIntCreator>;
-typedef ResourceManager<managed_int, ManagedIntCreator>         ManagedIntMan;
-typedef ResourceManager<managed_int, ManagedIntCreator>::Handle ManagedIntHandle;
-
-template <>
-ManagedIntMan* ManagedIntMan::s_instance = nullptr;
+#define HA_RESOURCE_MANAGER ManagedIntMan
+#define HA_RESOURCE_CREATOR ManagedIntCreator
+#define HA_RESOURCE_TYPE managed_int
+#include "core/ResourceManager.inl"
+typedef ManagedIntMan::Handle ManagedIntHandle;
+HA_SINGLETON_INSTANCE(ManagedIntMan);
 
 test_case("[core] testing ResourceManager") {
     ManagedIntMan man;

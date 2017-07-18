@@ -30,6 +30,7 @@
     _Pragma("clang diagnostic ignored \"-Wgnu-zero-variadic-macro-arguments\"") \
     _Pragma("clang diagnostic ignored \"-Wnon-virtual-dtor\"") \
     _Pragma("clang diagnostic ignored \"-Wreorder\"") \
+    _Pragma("clang diagnostic ignored \"-Wfloat-equal\"") \
 
 #endif // __clang__
 

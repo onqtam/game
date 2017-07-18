@@ -1,14 +1,23 @@
-#pragma once
+
+#ifndef HA_RESOURCE_MANAGER
+#error "Define HA_RESOURCE_MANAGER before including ResourceManager.inl !!!"
+#endif
+#ifndef HA_RESOURCE_CREATOR
+#error "Define HA_RESOURCE_CREATOR before including ResourceManager.inl !!!"
+#endif
+#ifndef HA_RESOURCE_TYPE
+#error "Define HA_RESOURCE_TYPE before including ResourceManager.inl !!!"
+#endif
 
 #include "utils/utils.h"
 
-template <typename T, typename creator>
-class ResourceManager : protected creator
+class HAPI HA_RESOURCE_MANAGER : protected HA_RESOURCE_CREATOR,
+                                 public Singleton<HA_RESOURCE_MANAGER>
 {
     // max refcount is 2^15 and max different resources are 2^15
     struct Resource
     {
-        char        data[sizeof(T)];
+        char        data[sizeof(HA_RESOURCE_TYPE)];
         int16       refcount  = -1; // -1 means the current slot is free
         int16       next_free = -1; // -1 means no next in free list
         std::size_t hash      = 0;
@@ -17,7 +26,7 @@ class ResourceManager : protected creator
         void destroy() {
             hassert(refcount == 0 || refcount == -1);
             if(refcount != -1) {
-                ResourceManager::get().destroy(data);
+                HA_RESOURCE_MANAGER::get().destroy(data);
                 refcount = -1;
             }
         }
@@ -31,10 +40,10 @@ class ResourceManager : protected creator
                 , name(std::move(other.name)) {
             HA_SUPPRESS_WARNINGS
             if(refcount != -1) {
-                new(data) T(
-                        std::move(*reinterpret_cast<const T*>(other.data))); // call move/copy ctor
-                reinterpret_cast<const T*>(other.data)
-                        ->~T(); // destroy other instance using it's dtor - not the inherited destroy method
+                new(data) HA_RESOURCE_TYPE(std::move(
+                        *reinterpret_cast<HA_RESOURCE_TYPE*>(other.data))); // call move/copy ctor
+                reinterpret_cast<HA_RESOURCE_TYPE*>(other.data)
+                        ->~HA_RESOURCE_TYPE(); // destroy other instance using it's dtor - not the inherited destroy method
                 other.refcount = -1;
             }
             HA_SUPPRESS_WARNINGS_END
@@ -49,37 +58,27 @@ class ResourceManager : protected creator
     std::vector<Resource> m_resources;
     int16                 m_next_free = -1;
 
-    HAPI static ResourceManager* s_instance;
+    HA_SINGLETON(HA_RESOURCE_MANAGER);
 
 public:
-    ResourceManager() {
-        hassert(s_instance == nullptr);
-        s_instance = this;
-    }
-
-    ~ResourceManager() {
-        hassert(s_instance != nullptr);
-        s_instance = nullptr;
-    }
-
-    static ResourceManager& get() { return *s_instance; }
+    HA_RESOURCE_MANAGER()
+            : Singleton(this) {}
 
     class Handle
     {
-        template <typename, typename>
-        friend class ResourceManager;
+        friend class HA_RESOURCE_MANAGER;
 
         int16 m_idx = -1;
 
         void incref() const {
             if(m_idx != -1)
-                ++ResourceManager::get().m_resources[m_idx].refcount;
+                ++HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
         }
 
         void decref() const {
             if(m_idx != -1) {
-                hassert(ResourceManager::get().m_resources[m_idx].refcount > 0);
-                --ResourceManager::get().m_resources[m_idx].refcount;
+                hassert(HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount > 0);
+                --HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
             }
         }
 
@@ -122,20 +121,21 @@ public:
 
         ~Handle() { decref(); }
 
-        explicit operator T&() { return get(); }
-        explicit operator const T&() const { return get(); }
+        explicit operator HA_RESOURCE_TYPE&() { return get(); }
+        explicit operator const HA_RESOURCE_TYPE&() const { return get(); }
 
-        T& get() {
+        HA_RESOURCE_TYPE& get() {
             hassert(m_idx != -1);
             HA_SUPPRESS_WARNINGS
-            return *reinterpret_cast<T*>(ResourceManager::get().m_resources[m_idx].data);
+            return *reinterpret_cast<HA_RESOURCE_TYPE*>(
+                    HA_RESOURCE_MANAGER::get().m_resources[m_idx].data);
             HA_SUPPRESS_WARNINGS_END
         }
-        const T& get() const { return const_cast<Handle*>(this)->get(); }
+        const HA_RESOURCE_TYPE& get() const { return const_cast<Handle*>(this)->get(); }
 
         int16 refcount() const {
             hassert(m_idx != -1);
-            return ResourceManager::get().m_resources[m_idx].refcount;
+            return HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
         }
         void release() {
             decref();
@@ -157,7 +157,7 @@ public:
         if(m_next_free == -1) {
             m_resources.emplace_back();
             auto& curr = m_resources.back();
-            creator::create(curr.data, name, std::forward<Args>(args)...);
+            HA_RESOURCE_CREATOR::create(curr.data, name, std::forward<Args>(args)...);
             curr.refcount = 0;
             curr.hash     = hash;
             curr.name     = name;
@@ -166,7 +166,7 @@ public:
             auto  curr_idx = m_next_free;
             auto& curr     = m_resources[curr_idx];
             hassert(curr.refcount == -1);
-            creator::create(curr.data, name, std::forward<Args>(args)...);
+            HA_RESOURCE_CREATOR::create(curr.data, name, std::forward<Args>(args)...);
             curr.refcount = 0;
             curr.hash     = hash;
             m_next_free   = curr.next_free;
@@ -204,3 +204,7 @@ public:
                                [](const Resource& res) { return res.refcount == 0; }));
     }
 };
+
+#undef HA_RESOURCE_MANAGER
+#undef HA_RESOURCE_CREATOR
+#undef HA_RESOURCE_TYPE

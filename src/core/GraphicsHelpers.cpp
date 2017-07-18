@@ -489,14 +489,10 @@ HA_SUPPRESS_WARNINGS_END
 // == END OF BGFX EXAMPLE CODE =====================================================================
 // =================================================================================================
 
-template <>
-HAPI MeshMan* MeshMan::s_instance = nullptr;
-template <>
-HAPI TextureMan* TextureMan::s_instance = nullptr;
-template <>
-HAPI ShaderMan* ShaderMan::s_instance = nullptr;
-template <>
-HAPI GeomMan* GeomMan::s_instance = nullptr;
+HA_SINGLETON_INSTANCE(ShaderMan);
+HA_SINGLETON_INSTANCE(TextureMan);
+HA_SINGLETON_INSTANCE(MeshMan);
+HA_SINGLETON_INSTANCE(GeomMan);
 
 struct PosColorVertex
 {

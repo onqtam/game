@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core/ResourceManager.h"
-
 HAPI const bgfx_memory* loadMemory(const char* filename);
 HAPI bgfx_shader_handle loadShader(const char* shader);
 HAPI bgfx_program_handle loadProgram(const char* vsName, const char* fsName);
@@ -30,9 +28,11 @@ struct ProgramHandleCreator
     }
 };
 
-template class ResourceManager<bgfx_program_handle, ProgramHandleCreator>;
-typedef ResourceManager<bgfx_program_handle, ProgramHandleCreator>         ShaderMan;
-typedef ResourceManager<bgfx_program_handle, ProgramHandleCreator>::Handle ShaderHandle;
+#define HA_RESOURCE_MANAGER ShaderMan
+#define HA_RESOURCE_CREATOR ProgramHandleCreator
+#define HA_RESOURCE_TYPE bgfx_program_handle
+#include "core/ResourceManager.inl"
+typedef ShaderMan::Handle ShaderHandle;
 
 struct TextureCreator
 {
@@ -44,9 +44,11 @@ struct TextureCreator
     }
 };
 
-template class ResourceManager<bgfx_texture_handle, TextureCreator>;
-typedef ResourceManager<bgfx_texture_handle, TextureCreator>         TextureMan;
-typedef ResourceManager<bgfx_texture_handle, TextureCreator>::Handle TextureHandle;
+#define HA_RESOURCE_MANAGER TextureMan
+#define HA_RESOURCE_CREATOR TextureCreator
+#define HA_RESOURCE_TYPE bgfx_texture_handle
+#include "core/ResourceManager.inl"
+typedef TextureMan::Handle TextureHandle;
 
 struct MeshCreator
 {
@@ -56,9 +58,12 @@ struct MeshCreator
     void destroy(void* storage) { meshUnload(*static_cast<Mesh**>(storage)); }
 };
 
-template class ResourceManager<Mesh*, MeshCreator>;
-typedef ResourceManager<Mesh*, MeshCreator>         MeshMan;
-typedef ResourceManager<Mesh*, MeshCreator>::Handle MeshHandle;
+typedef Mesh* MeshPtr;
+#define HA_RESOURCE_MANAGER MeshMan
+#define HA_RESOURCE_CREATOR MeshCreator
+#define HA_RESOURCE_TYPE MeshPtr
+#include "core/ResourceManager.inl"
+typedef MeshMan::Handle MeshHandle;
 
 struct ha_mesh
 {
@@ -90,6 +95,8 @@ struct GeomCreator
     }
 };
 
-template class ResourceManager<ha_mesh, GeomCreator>;
-typedef ResourceManager<ha_mesh, GeomCreator>         GeomMan;
-typedef ResourceManager<ha_mesh, GeomCreator>::Handle GeomHandle;
+#define HA_RESOURCE_MANAGER GeomMan
+#define HA_RESOURCE_CREATOR GeomCreator
+#define HA_RESOURCE_TYPE ha_mesh
+#include "core/ResourceManager.inl"
+typedef GeomMan::Handle GeomHandle;
