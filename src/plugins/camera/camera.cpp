@@ -2,9 +2,7 @@
 
 #include "core/InputEvent.h"
 #include "core/Application.h"
-
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include "core/World.h"
 
 #include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
@@ -26,8 +24,6 @@ public:
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
 
-        //set_pos(ha_this, glm::vec3(0, 0, 20));
-        //set_rot(ha_this, glm::quat(1, 0, 0, 0));
         set_pos(ha_this, glm::vec3(0, 50, 2));
         set_rot(ha_this, Utils::rotationBetweenVectors(k_forward, k_init_look_direction));
     }
@@ -45,14 +41,19 @@ public:
     void update(float dt) {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
+
+        glm::vec3 to_move(0);
+
         if(cursor_x < 10)
-            move(ha_this, glm::vec3(-k_speed * dt, 0, 0));
+            to_move += glm::vec3(-k_speed * dt, 0, 0);
         if(cursor_x > w - 10)
-            move(ha_this, glm::vec3(k_speed * dt, 0, 0));
+            to_move += glm::vec3(k_speed * dt, 0, 0);
         if(cursor_y < 10)
-            move(ha_this, glm::vec3(0, 0, -k_speed * dt));
+            to_move += glm::vec3(0, 0, -k_speed * dt);
         if(cursor_y > h - 10)
-            move(ha_this, glm::vec3(0, 0, k_speed * dt));
+            to_move += glm::vec3(0, 0, k_speed * dt);
+
+        move(ha_this, to_move);
 
         move(ha_this, glm::normalize(get_rot(ha_this) * k_forward) * scroll * 2.f);
         scroll = 0.f;

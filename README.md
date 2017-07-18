@@ -8,8 +8,14 @@
 This is a repository of a future game and game engine. It will use only open technologies and will be multiplatform.
 Sometime in the distant future (1-2 years) shall go private when progress starts to speed up and a demo takes shape.
 
-You'll need the pip ```colorama``` package - ```pip install colorama```
+You'll need the python ```colorama``` package - ```pip install colorama```
 
-Use the ```r``` python 2/3 script in the root of the repository to build the project (it has help). Emscripten requires python 2.
+Use the ```r``` python script in the root of the repository to build the project (it has help). Emscripten requires python 2.
+
+```
+r -s        # setup repository
+r -g msvc   # generate msvc solution
+r -b gcc    # build with gcc (implicitly calls "r -g gcc" to generate gcc makefiles)
+```
 
 Required packages for ubuntu: ```xorg-dev libx11-dev libgl1-mesa-dev```

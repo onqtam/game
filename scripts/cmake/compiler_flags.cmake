@@ -77,7 +77,7 @@ if(MSVC)
     list(APPEND ha_compiler_flags
         #/WX
         /W4
-        /wd4661 # identifier' : no suitable definition provided for explicit template instantiation request
+        #/wd4661 # identifier' : no suitable definition provided for explicit template instantiation request
     )
     list(APPEND third_party_compiler_flags /W0)
 endif()
