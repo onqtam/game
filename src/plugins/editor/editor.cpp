@@ -34,7 +34,8 @@ class editor : public editor_gen,
 public:
     editor()
             : Singleton(this) {
-        m_grid        = GeomMan::get().get("", createGrid, 100, 10, 100.f, 100.f, 0xff00ff00);
+        m_grid = GeomMan::get().get("", createGrid, 20, 20, World::get().width(),
+                                    World::get().height(), 0xff00ff00);
         m_grid_shader = ShaderMan::get().get("cubes");
 
         m_program = ShaderMan::get().get("gizmo");

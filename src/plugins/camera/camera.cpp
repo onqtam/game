@@ -42,18 +42,30 @@ public:
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
 
-        glm::vec3 to_move(0);
+        glm::vec3 move_vec(0);
 
         if(cursor_x < 10)
-            to_move += glm::vec3(-k_speed * dt, 0, 0);
+            move_vec += glm::vec3(-k_speed * dt, 0, 0);
         if(cursor_x > w - 10)
-            to_move += glm::vec3(k_speed * dt, 0, 0);
+            move_vec += glm::vec3(k_speed * dt, 0, 0);
         if(cursor_y < 10)
-            to_move += glm::vec3(0, 0, -k_speed * dt);
+            move_vec += glm::vec3(0, 0, -k_speed * dt);
         if(cursor_y > h - 10)
-            to_move += glm::vec3(0, 0, k_speed * dt);
+            move_vec += glm::vec3(0, 0, k_speed * dt);
 
-        move(ha_this, to_move);
+        auto pos = get_pos(ha_this);
+        pos += move_vec;
+        glm::vec3 fix_vec(0);
+        auto half_w = World::get().width() / 2;
+        auto half_h = World::get().height() / 2;
+        if(abs(pos.x) > half_w)
+            fix_vec.x = Utils::sign(pos.x) * half_w - pos.x;
+        if(abs(pos.z) > half_h)
+            fix_vec.z = Utils::sign(pos.z) * half_h - pos.z;
+
+        move_vec += fix_vec;
+
+        move(ha_this, move_vec);
 
         move(ha_this, glm::normalize(get_rot(ha_this) * k_forward) * scroll * 2.f);
         scroll = 0.f;
