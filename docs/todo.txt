@@ -7,20 +7,16 @@
     - entity explorer
     - entity properties
     - undo/redo
+    - copy/paste
+    - search objects by name (and change from treeview to list view - or try to stick to a treeview)
     - resource viewer - all resources with preview when appropriate and refcounts
     - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     - imgui should consume input originating on one of its windows
-    - gizmos constant size
     - object snapping (with the gizmos)
     - make some objects un-gizmo-able - currently hacked for the camera only
 - spatial queries about objects
 - objects inheriting transformations based on their hierarchical component
 
-
-== coding standard:
-- always call messages with :: prefix for global scope - to not accidentally call something else - a method for the same message
-    - messages in namespaces needed
-    - or uniform call syntax in c++...
 
 
 == questions:
@@ -29,6 +25,7 @@
 - bgfx threading? look at https://github.com/bkaradzic/bgfx/blob/master/examples/common/entry/entry_glfw.cpp
 - size_t everywhere? wtf is up with these int16 micro optimizations on my side...
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
+- is glm a good choice at all? will compile times skyrocket even if I use a pch? how to measure this? will extern template help?
 
 == bugs:
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
@@ -96,7 +93,9 @@ shader compiler
 - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
 
 == coding standard:
-- figure it out
+- always call messages with :: prefix for global scope - to not accidentally call something else - a method for the same message
+    - messages in namespaces needed
+    - or uniform call syntax in c++...
 - get into the habit of declaring every constructor explicit - https://akrzemi1.wordpress.com/2015/10/22/more-than-you-need/
 - prefer explicit casts (for example !! is bad - do a static_cast<bool>)
 - use the keywords form <ciso646>

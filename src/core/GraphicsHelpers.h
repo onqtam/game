@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils/aabb/aabb.hpp"
+
 HAPI const bgfx_memory* loadMemory(const char* filename);
 HAPI bgfx_shader_handle loadShader(const char* shader);
 HAPI bgfx_program_handle loadProgram(const char* vsName, const char* fsName);
@@ -10,6 +12,7 @@ HAPI bgfx_texture_handle loadTexture(const char* _name, uint32 _flags = BGFX_TEX
 struct Mesh;
 
 HAPI Mesh* meshLoad(const char* _filePath);
+HAPI AABB getMeshBBox(Mesh* _mesh);
 HAPI void meshUnload(Mesh* _mesh);
 HAPI void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx_program_handle _program,
                      const float* _mtx, uint64_t _state = BGFX_STATE_MASK);
@@ -70,9 +73,11 @@ struct ha_mesh
     bgfx_vertex_buffer_handle vbh   = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle  ibh   = {BGFX_INVALID_HANDLE};
     uint64                    state = BGFX_STATE_NONE;
+    AABB                      bbox;
 };
 
-HAPI ha_mesh createCube();
+HAPI ha_mesh createBox(float size_x, float size_y, float size_z, uint32 color);
+HAPI ha_mesh createSolidBox(float size_x, float size_y, float size_z, uint32 color);
 HAPI ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 color);
 
 struct GeomCreator
@@ -100,3 +105,6 @@ struct GeomCreator
 #define HA_RESOURCE_TYPE ha_mesh
 #include "core/ResourceManager.inl"
 typedef GeomMan::Handle GeomHandle;
+
+namespace colors
+{ const uint32 green = 0xff00ff00; } // namespace colors

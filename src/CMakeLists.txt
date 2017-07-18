@@ -53,6 +53,7 @@ add_mix_dirs(TO SOURCES "core/serialization")
 add_mix_dirs(TO SOURCES "core/messages")
 add_mix_dirs(TO SOURCES "utils")
 add_mix_dirs(TO SOURCES "utils/base64")
+add_mix_dirs(TO SOURCES "utils/aabb")
 
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)

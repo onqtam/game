@@ -71,12 +71,12 @@ public:
         int16 m_idx = -1;
 
         void incref() const {
-            if(m_idx != -1)
+            if(isValid())
                 ++HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
         }
 
         void decref() const {
-            if(m_idx != -1) {
+            if(isValid()) {
                 hassert(HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount > 0);
                 --HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
             }
@@ -125,7 +125,7 @@ public:
         explicit operator const HA_RESOURCE_TYPE&() const { return get(); }
 
         HA_RESOURCE_TYPE& get() {
-            hassert(m_idx != -1);
+            hassert(isValid());
             HA_SUPPRESS_WARNINGS
             return *reinterpret_cast<HA_RESOURCE_TYPE*>(
                     HA_RESOURCE_MANAGER::get().m_resources[m_idx].data);
@@ -133,8 +133,10 @@ public:
         }
         const HA_RESOURCE_TYPE& get() const { return const_cast<Handle*>(this)->get(); }
 
+        bool isValid() const { return m_idx != -1; }
+
         int16 refcount() const {
-            hassert(m_idx != -1);
+            hassert(isValid());
             return HA_RESOURCE_MANAGER::get().m_resources[m_idx].refcount;
         }
         void release() {

@@ -33,3 +33,4 @@ DYNAMIX_DEFINE_MESSAGE(get_projection_matrix);
 
 // rendering
 DYNAMIX_DEFINE_MESSAGE(get_rendering_parts);
+DYNAMIX_DEFINE_MESSAGE(get_aabb);

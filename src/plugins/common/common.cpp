@@ -38,11 +38,13 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, _shader, get_model_transform(ha_this)});
+        out.push_back({_mesh, {}, _shader, get_model_transform(ha_this)});
     }
+
+    AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
 };
 
-HA_MIXIN_DEFINE(mesh, get_rendering_parts_msg);
+HA_MIXIN_DEFINE(mesh, get_rendering_parts_msg& get_aabb_msg);
 
 class hierarchical : public hierarchical_gen
 {
@@ -79,8 +81,13 @@ public:
         return gizmo_transform;
     }
 
-    void get_rendering_parts(std::vector<renderPart>&) const {
-        //out.push_back({_mesh, _shader, get_model_transform(ha_this)});
+    void get_rendering_parts(std::vector<renderPart>& out) const {
+        if(ha_this.implements(get_aabb_msg)) {
+            auto diag   = get_aabb(ha_this).getDiagonal();
+            auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
+            auto shader = ShaderMan::get().get("cubes");
+            out.push_back({{}, geom, shader, get_model_transform(ha_this)});
+        }
     }
 };
 

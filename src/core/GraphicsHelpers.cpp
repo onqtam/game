@@ -473,6 +473,15 @@ Mesh* meshLoad(const char* _filePath) {
     return nullptr;
 }
 
+AABB getMeshBBox(Mesh* _mesh) {
+    AABB out;
+    for(const auto& group : _mesh->m_groups) {
+        out.extend({group.m_aabb.m_min[0], group.m_aabb.m_min[1], group.m_aabb.m_min[2]});
+        out.extend({group.m_aabb.m_max[0], group.m_aabb.m_max[1], group.m_aabb.m_max[2]});
+    }
+    return out;
+}
+
 void meshUnload(Mesh* _mesh) {
     _mesh->unload();
     delete _mesh;
@@ -513,24 +522,105 @@ bgfx_vertex_decl PosColorVertex::vd = []() {
     return PosColorVertex::vd;
 }();
 
-ha_mesh createCube() {
-    static const PosColorVertex s_cubeVertices[] = {
-            {-1.0f, 1.0f, 1.0f, 0xff000000},   {1.0f, 1.0f, 1.0f, 0xff0000ff},
-            {-1.0f, -1.0f, 1.0f, 0xff00ff00},  {1.0f, -1.0f, 1.0f, 0xff00ffff},
-            {-1.0f, 1.0f, -1.0f, 0xffff0000},  {1.0f, 1.0f, -1.0f, 0xffff00ff},
-            {-1.0f, -1.0f, -1.0f, 0xffffff00}, {1.0f, -1.0f, -1.0f, 0xffffffff},
-    };
+ha_mesh createBox(float size_x, float size_y, float size_z, uint32 color) {
+    // make the sizes the halfs
+    size_x /= 2;
+    size_y /= 2;
+    size_z /= 2;
 
-    static const uint16 s_cubeTriStrip[] = {
+    // clang-format off
+    float vertices[8][3] = {
+        { size_x, size_y, size_z}, //0
+        { size_x, size_y,-size_z}, //1
+        { size_x,-size_y,-size_z}, //2
+        {-size_x,-size_y,-size_z}, //3
+        {-size_x,-size_y, size_z}, //4
+        {-size_x, size_y, size_z}, //5
+        {-size_x, size_y,-size_z}, //6
+        { size_x,-size_y, size_z}  //7
+    };
+    // clang-format on
+
+    std::vector<PosColorVertex> verts;
+    verts.reserve(24);
+
+    verts.push_back({vertices[5][0], vertices[5][1], vertices[5][2], color});
+    verts.push_back({vertices[4][0], vertices[4][1], vertices[4][2], color});
+    //Top
+    verts.push_back({vertices[5][0], vertices[5][1], vertices[5][2], color});
+    verts.push_back({vertices[0][0], vertices[0][1], vertices[0][2], color});
+    //Bottom
+    verts.push_back({vertices[4][0], vertices[4][1], vertices[4][2], color});
+    verts.push_back({vertices[7][0], vertices[7][1], vertices[7][2], color});
+    //Right
+    verts.push_back({vertices[7][0], vertices[7][1], vertices[7][2], color});
+    verts.push_back({vertices[0][0], vertices[0][1], vertices[0][2], color});
+    //Middle Lines
+    //Top Left
+    verts.push_back({vertices[6][0], vertices[6][1], vertices[6][2], color});
+    verts.push_back({vertices[5][0], vertices[5][1], vertices[5][2], color});
+    //Top Right
+    verts.push_back({vertices[1][0], vertices[1][1], vertices[1][2], color});
+    verts.push_back({vertices[0][0], vertices[0][1], vertices[0][2], color});
+    //Bottom Left
+    verts.push_back({vertices[3][0], vertices[3][1], vertices[3][2], color});
+    verts.push_back({vertices[4][0], vertices[4][1], vertices[4][2], color});
+    //Bottom Right
+    verts.push_back({vertices[2][0], vertices[2][1], vertices[2][2], color});
+    verts.push_back({vertices[7][0], vertices[7][1], vertices[7][2], color});
+    //Back Lines
+    //Left
+    verts.push_back({vertices[6][0], vertices[6][1], vertices[6][2], color});
+    verts.push_back({vertices[3][0], vertices[3][1], vertices[3][2], color});
+    //Top
+    verts.push_back({vertices[6][0], vertices[6][1], vertices[6][2], color});
+    verts.push_back({vertices[1][0], vertices[1][1], vertices[1][2], color});
+    //Bottom
+    verts.push_back({vertices[3][0], vertices[3][1], vertices[3][2], color});
+    verts.push_back({vertices[2][0], vertices[2][1], vertices[2][2], color});
+    //Right
+    verts.push_back({vertices[2][0], vertices[2][1], vertices[2][2], color});
+    verts.push_back({vertices[1][0], vertices[1][1], vertices[1][2], color});
+
+    auto vbh = bgfx_create_vertex_buffer(
+            bgfx_copy(verts.data(), uint32(verts.size() * sizeof(PosColorVertex))),
+            &PosColorVertex::vd, BGFX_BUFFER_NONE);
+
+    return {vbh,
+            {BGFX_INVALID_HANDLE},
+            BGFX_STATE_PT_LINES,
+            AABB({-size_x / 2, -size_y / 2, -size_z / 2}, {size_x / 2, size_y / 2, size_z / 2})};
+}
+
+ha_mesh createSolidBox(float size_x, float size_y, float size_z, uint32 color) {
+    std::vector<PosColorVertex> verts;
+    verts.reserve(8);
+
+    // make the sizes the halfs
+    size_x /= 2;
+    size_y /= 2;
+    size_z /= 2;
+
+    verts.push_back({-size_x, size_y, size_z, color});
+    verts.push_back({size_x, size_y, size_z, color});
+    verts.push_back({-size_x, -size_y, size_z, color});
+    verts.push_back({size_x, -size_y, size_z, color});
+    verts.push_back({-size_x, size_y, -size_z, color});
+    verts.push_back({size_x, size_y, -size_z, color});
+    verts.push_back({-size_x, -size_y, -size_z, color});
+    verts.push_back({size_x, -size_y, -size_z, color});
+
+    static const uint16 inds[] = {
             0, 1, 2, 3, 7, 1, 5, 0, 4, 2, 6, 7, 4, 5,
     };
 
-    auto vbh = bgfx_create_vertex_buffer(bgfx_make_ref(s_cubeVertices, sizeof(s_cubeVertices)),
-                                         &PosColorVertex::vd, BGFX_BUFFER_NONE);
-    auto ibh = bgfx_create_index_buffer(bgfx_make_ref(s_cubeTriStrip, sizeof(s_cubeTriStrip)),
-                                        BGFX_BUFFER_NONE);
+    auto vbh = bgfx_create_vertex_buffer(
+            bgfx_copy(verts.data(), uint32(verts.size() * sizeof(PosColorVertex))),
+            &PosColorVertex::vd, BGFX_BUFFER_NONE);
+    auto ibh = bgfx_create_index_buffer(bgfx_make_ref(inds, sizeof(inds)), BGFX_BUFFER_NONE);
 
-    return {vbh, ibh, BGFX_STATE_PT_TRISTRIP};
+    return {vbh, ibh, BGFX_STATE_PT_TRISTRIP,
+            AABB({-size_x, -size_y, -size_z}, {size_x, size_y, size_z})};
 }
 
 ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 color) {
@@ -552,8 +642,12 @@ ha_mesh createGrid(int lines_x, int lines_z, float size_x, float size_z, uint32 
     }
 
     auto vbh = bgfx_create_vertex_buffer(
-            bgfx_copy(verts.data(), uint32(verts.size() * sizeof(PosColorVertex))), &PosColorVertex::vd,
-            BGFX_BUFFER_NONE);
+            bgfx_copy(verts.data(), uint32(verts.size() * sizeof(PosColorVertex))),
+            &PosColorVertex::vd, BGFX_BUFFER_NONE);
 
-    return {vbh, {BGFX_INVALID_HANDLE}, BGFX_STATE_PT_LINES};
+    return {vbh,
+            {BGFX_INVALID_HANDLE},
+            BGFX_STATE_PT_LINES,
+            AABB({-size_x / 2, -((size_x + size_z) / 2) * 0.01f, -size_z / 2},
+                 {size_x / 2, ((size_x + size_z) / 2) * 0.01f, size_x / 2})};
 }

@@ -35,7 +35,7 @@ public:
     editor()
             : Singleton(this) {
         m_grid = GeomMan::get().get("", createGrid, 20, 20, World::get().width(),
-                                    World::get().height(), 0xff00ff00);
+                                    World::get().height(), colors::green);
         m_grid_shader = ShaderMan::get().get("cubes");
 
         m_program = ShaderMan::get().get("gizmo");
@@ -80,6 +80,9 @@ public:
     }
 
     void update(float) {
+
+        AABB a;
+
         // draw grid
         auto identity = glm::mat4(1.f);
         bgfx_set_transform((float*)&identity, 1);
@@ -224,14 +227,15 @@ public:
 
         //ImGui::ShowTestWindow();
 
-        m_gizmo_state.viewport_size   = {float(app.width()), float(app.height())};
-        m_gizmo_state.cam.near_clip   = 0.1f;
-        m_gizmo_state.cam.far_clip    = 1000.f;
-        m_gizmo_state.cam.yfov        = glm::radians(45.0f);
-        glm::vec3 pos                 = get_pos(World::get().camera());
-        glm::quat rot                 = get_rot(World::get().camera());
-        m_gizmo_state.cam.position    = {pos.x, pos.y, pos.z};
-        m_gizmo_state.cam.orientation = {rot.x, rot.y, rot.z, rot.w};
+        m_gizmo_state.viewport_size     = {float(app.width()), float(app.height())};
+        m_gizmo_state.cam.near_clip     = 0.1f;
+        m_gizmo_state.cam.far_clip      = 1000.f;
+        m_gizmo_state.cam.yfov          = glm::radians(45.0f);
+        m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
+        glm::vec3 pos                   = get_pos(World::get().camera());
+        glm::quat rot                   = get_rot(World::get().camera());
+        m_gizmo_state.cam.position      = {pos.x, pos.y, pos.z};
+        m_gizmo_state.cam.orientation   = {rot.x, rot.y, rot.z, rot.w};
 
         m_gizmo_ctx.update(m_gizmo_state);
 
