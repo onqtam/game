@@ -6,7 +6,7 @@ HA_SUPPRESS_WARNINGS
 
 #include <bx/bx.h>
 #include <bx/string.h>
-#include <bx/crtimpl.h>
+#include <bx/file.h>
 #include <bimg/bimg.h>
 #include <bimg/decode.h>
 
