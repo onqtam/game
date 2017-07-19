@@ -4,17 +4,17 @@ class Entity;
 
 class eid
 {
-    int m_value;
+    int16 m_value;
 
 public:
-    explicit eid(int value = int(invalid()))
+    explicit eid(int16 value = int16(invalid()))
             : m_value(value) {}
-    explicit operator int() const { return m_value; }
+    explicit operator int16() const { return m_value; }
 
     bool operator<(const eid& other) const { return m_value < other.m_value; }
     bool operator==(const eid& other) const { return m_value == other.m_value; }
 
-    bool isValid() const { return m_value != int(invalid()); }
+    bool isValid() const { return m_value != int16(invalid()); }
 
     operator const Entity&() const { return get(); }
     operator Entity&() { return get(); }
@@ -62,7 +62,7 @@ class HAPI EntityManager : public Singleton<EntityManager>
     friend class Application;
 
 private:
-    int m_curr_id = 0;
+    int16 m_curr_id = 0;
 
     std::map<eid, Entity> m_entities;
 

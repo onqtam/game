@@ -81,6 +81,10 @@ public:
         return gizmo_transform;
     }
 
+    tinygizmo::rigid_transform& get_last_stable_gizmo_transform() {
+        return gizmo_transform_last;
+    }
+
     void get_rendering_parts(std::vector<renderPart>& out) const {
         if(ha_this.implements(get_aabb_msg)) {
             auto diag   = get_aabb(ha_this).getDiagonal();
@@ -91,4 +95,4 @@ public:
     }
 };
 
-HA_MIXIN_DEFINE(selected, get_rendering_parts_msg& get_gizmo_transform_msg);
+HA_MIXIN_DEFINE(selected, get_rendering_parts_msg& Interface_selected);

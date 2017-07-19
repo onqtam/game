@@ -26,6 +26,7 @@ DYNAMIX_DEFINE_MESSAGE(remove_child);
 
 // selected
 DYNAMIX_DEFINE_MESSAGE(get_gizmo_transform);
+DYNAMIX_DEFINE_MESSAGE(get_last_stable_gizmo_transform);
 DYNAMIX_DEFINE_MESSAGE(no_gizmo);
 
 // camera

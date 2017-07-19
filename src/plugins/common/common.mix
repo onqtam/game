@@ -11,6 +11,7 @@ type hierarchical
 
 type selected
 			tinygizmo::rigid_transform gizmo_transform
+			tinygizmo::rigid_transform gizmo_transform_last
 
 type mesh
 			MeshHandle _mesh

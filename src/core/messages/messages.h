@@ -38,6 +38,9 @@ DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, remove_child, eid, child)
 
 // selected
 DYNAMIX_EXPORTED_MESSAGE_0(HAPI, tinygizmo::rigid_transform&, get_gizmo_transform)
+DYNAMIX_EXPORTED_MESSAGE_0(HAPI, tinygizmo::rigid_transform&, get_last_stable_gizmo_transform)
 DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_0(HAPI, void, no_gizmo) // for simulating a mixin fact - see dynamix roadmap
+
+#define Interface_selected get_gizmo_transform_msg& get_last_stable_gizmo_transform_msg
 
 HA_SUPPRESS_WARNINGS_END

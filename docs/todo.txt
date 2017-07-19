@@ -1,11 +1,17 @@
 
-GUI:
-    add mixin to objects - with fuzzy search
+PagedMixinAllocator - keep vectors of entity ids for each mixin type
+    requires dynamix extension - bobi will do it
+    rework the selection to not keep a std::vector<eid> but use the allocator
 
 - level
     - save
     - load
 - ingame editor
+    - GUI for add mixin to objects - with fuzzy search
+    - enter/leave editor mode
+        - controls for that
+        - remove mixins like "selected"
+        - start/stop updating entities
     - picking
     - entity explorer
     - entity properties

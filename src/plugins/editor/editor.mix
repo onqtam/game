@@ -1,6 +1,8 @@
 #include "core/serialization/serialization_2.h"
 
 type editor
+	std::vector<eid> selected
+	bool mouse_button_left_changed default:false
 
 #alias character_handles std::vector<character_handle>
 #

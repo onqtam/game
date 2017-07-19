@@ -80,8 +80,6 @@ public:
     }
 
     void update(float) {
-        AABB a;
-
         // draw grid
         auto identity = glm::mat4(1.f);
         bgfx_set_transform((float*)&identity, 1);
@@ -113,8 +111,6 @@ public:
         ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
         // clang-format on
-
-        static std::vector<eid> selected;
 
         if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
             if(ImGui::TreeNode("objects")) {
@@ -158,8 +154,8 @@ public:
                             node_flags |=
                                     ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-                        auto name      = obj.name() + " (" + std::to_string(int(obj.id())) + ")";
-                        bool node_open = ImGui::TreeNodeEx((void*)(intptr_t) int(root), node_flags,
+                        auto name      = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
+                        bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
                                                            name.c_str());
 
                         if(ImGui::IsItemClicked()) {
@@ -245,7 +241,28 @@ public:
             if(obj.implements(no_gizmo_msg))
                 continue;
 
+            // record transform after press
+            if(mouse_button_left_changed) {
+                if(m_gizmo_state.mouse_left) {
+                    get_last_stable_gizmo_transform(obj) = t;
+                }
+            }
+            
+            // update transform
             tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
+
+            // check if anything changed after release
+            if(mouse_button_left_changed) {
+                if(!m_gizmo_state.mouse_left) {
+                    auto last = get_last_stable_gizmo_transform(obj);
+                    if(last.position != t.position || last.orientation != t.orientation ||
+                       last.scale != t.scale) {
+                        printf("changed! record action for undo/redo queue\n");
+                    }
+                }
+
+                mouse_button_left_changed = false;
+            }
             set_pos(obj, (glm::vec3&)t.position);
             set_scl(obj, (glm::vec3&)t.scale);
             set_rot(obj, (glm::quat&)t.orientation);
@@ -260,6 +277,7 @@ public:
         } else if(ev.type == InputEvent::KEY) {
             auto key    = ev.key.key;
             auto action = ev.key.action;
+            auto mods   = ev.key.mods;
             if(key == GLFW_KEY_LEFT_CONTROL)
                 m_gizmo_state.hotkey_ctrl = (action != GLFW_RELEASE);
             if(key == GLFW_KEY_L)
@@ -270,9 +288,17 @@ public:
                 m_gizmo_state.hotkey_rotate = (action != GLFW_RELEASE);
             if(key == GLFW_KEY_S)
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
+
+            // undo
+            if(key == GLFW_KEY_Z && mods & GLFW_MOD_CONTROL) {
+            }
+            // redo
+            if(key == GLFW_KEY_Y && mods & GLFW_MOD_CONTROL) {
+            }
         } else if(ev.type == InputEvent::BUTTON) {
             if(ev.button.button == 0)
                 m_gizmo_state.mouse_left = (ev.button.action != GLFW_RELEASE);
+            mouse_button_left_changed    = true;
         }
     }
 };
