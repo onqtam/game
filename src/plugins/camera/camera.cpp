@@ -82,6 +82,8 @@ public:
         uint32 h = Application::get().height();
         return glm::perspective(glm::radians(45.0f), float(w) / float(h), 0.1f, 1000.0f);
     }
+
+    void no_gizmo() const {}
 };
 
-HA_MIXIN_DEFINE(camera, get_view_matrix_msg& get_projection_matrix_msg);
+HA_MIXIN_DEFINE(camera, get_view_matrix_msg& get_projection_matrix_msg& no_gizmo_msg);

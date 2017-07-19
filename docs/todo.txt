@@ -1,4 +1,7 @@
 
+GUI:
+    add mixin to objects - with fuzzy search
+
 - level
     - save
     - load
@@ -13,7 +16,6 @@
     - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     - imgui should consume input originating on one of its windows
     - object snapping (with the gizmos)
-    - make some objects un-gizmo-able - currently hacked for the camera only
 - spatial queries about objects
 - objects inheriting transformations based on their hierarchical component
 

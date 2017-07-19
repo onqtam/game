@@ -80,7 +80,6 @@ public:
     }
 
     void update(float) {
-
         AABB a;
 
         // draw grid
@@ -243,10 +242,7 @@ public:
             auto& obj = id.get();
             auto& t   = get_gizmo_transform(obj);
 
-            // temp hack
-            auto camera_mixin_id =
-                    dynamix::internal::domain::instance().get_mixin_id_by_name("camera");
-            if(obj.has(camera_mixin_id))
+            if(obj.implements(no_gizmo_msg))
                 continue;
 
             tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
