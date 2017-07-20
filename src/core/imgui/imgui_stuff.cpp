@@ -2,6 +2,10 @@
 
 #include "utils/utils.h"
 
+#include "core/World.h"
+#include "core/serialization/serialization.h"
+#include "core/messages/messages_editor.h"
+
 #include <imgui/imgui_internal.h>
 
 // CAUTION: Duplicated form ImGui in order to implement widgets that can tell if the user is done interacting.
@@ -33,9 +37,10 @@ static bool IsItemActiveLastFrame() {
 static bool IsItemJustReleased() { return IsItemActiveLastFrame() && !ImGui::IsItemActive(); }
 static bool IsItemJustActivated() { return !IsItemActiveLastFrame() && ImGui::IsItemActive(); }
 
-bool DragFloats(const char* label, float* floats, int numFloats, bool* pJustReleased,
-                bool* pJustActivated, float v_speed, float v_min, float v_max,
-                const char* display_format, float power) {
+static bool DragFloats(const char* label, float* floats, int numFloats,
+                       bool* pJustReleased = nullptr, bool* pJustActivated = nullptr,
+                       float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f,
+                       const char* display_format = "%.3f", float power = 1.0f) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if(window->SkipItems)
         return false;
@@ -70,16 +75,25 @@ bool DragFloats(const char* label, float* floats, int numFloats, bool* pJustRele
     return value_changed;
 }
 
-void imgui_bind_property(const char* name, bool& data) {
-    //bool old = data;
+void imgui_bind_property(Entity& e, const char* name, bool& data) {
     if(ImGui::Checkbox(name, &data)) {
+        JsonData json;
+        json.startObject();
+        json.append("\"old\":");
+        serialize(!data, json);
+        json.addComma();
+        json.append("\"new\":");
+        serialize(data, json);
+        json.endObject();
+
+        edit::add_changed_property(World::get().editor(), e.id(), name, json.data());
         printf("CHANGED!\n");
     }
 }
-void imgui_bind_property(const char* name, int& data) { ImGui::DragInt(name, &data); }
-void imgui_bind_property(const char* name, float& data) { ImGui::DragFloat(name, &data); }
+void imgui_bind_property(Entity& e, const char* name, int& data) { ImGui::DragInt(name, &data); }
+void imgui_bind_property(Entity& e, const char* name, float& data) { ImGui::DragFloat(name, &data); }
 
-void imgui_bind_property(const char* name, std::string& data) {
+void imgui_bind_property(Entity& e, const char* name, std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(name, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -88,14 +102,15 @@ void imgui_bind_property(const char* name, std::string& data) {
     }
 }
 
-void imgui_bind_property(const char* name, glm::vec3& data) {
+void imgui_bind_property(Entity& e, const char* name, glm::vec3& data) {
     bool justReleased = false;
+    printf("%f %f %f\n", data.x, data.y, data.z);
     DragFloats(name, (float*)&data, 3, &justReleased);
     if(justReleased) {
         printf("CHANGED!\n");
     }
 }
 
-void imgui_bind_property(const char* name, glm::quat& data) {
+void imgui_bind_property(Entity& e, const char* name, glm::quat& data) {
     ImGui::DragFloat4(name, (float*)&data);
 }

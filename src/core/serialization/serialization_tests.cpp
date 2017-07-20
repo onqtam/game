@@ -44,6 +44,7 @@ const int serialize_tests_counter_start = __COUNTER__;
     }                                                                                              \
     test_case_template_instantiate(serialization_template, doctest::Types<type>)
 
+HA_SERIALIZE_TEST(char, 'g');
 HA_SERIALIZE_TEST(int, 42);
 HA_SERIALIZE_TEST(float, 42.f);
 HA_SERIALIZE_TEST(double, 42.);

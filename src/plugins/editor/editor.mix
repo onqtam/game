@@ -1,8 +1,16 @@
 #include "core/serialization/serialization_2.h"
 
+type undo_redo_action
+public:
+    eid					e
+    std::string			prop
+    std::vector<char>	json
+
 type editor
-	std::vector<eid> selected
-	bool mouse_button_left_changed default:false
+	std::vector<eid>					selected
+	std::vector<undo_redo_action_gen>	undo_redo_actions
+	int									curr_undo_redo				default:0
+	bool								mouse_button_left_changed	default:false
 
 #alias character_handles std::vector<character_handle>
 #

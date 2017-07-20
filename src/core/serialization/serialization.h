@@ -9,6 +9,9 @@
 #define serialize_c serialize_c_impl(__COUNTER__)
 const int serialize_definitions_counter_start = __COUNTER__;
 
+HAPI void serialize_c(char data, JsonData& out);
+HAPI void deserialize(char& data, const sajson::value& val);
+
 HAPI void serialize_c(int data, JsonData& out);
 HAPI void deserialize(int& data, const sajson::value& val);
 

@@ -15,8 +15,9 @@ public:
     World();
 
     void update();
-    
-    eid camera() const { return m_camera; }
+
+    eid     camera() const { return m_camera; }
+    Entity& editor() { return m_editor; }
 
     float width() const { return m_width; }
     float height() const { return m_height; }

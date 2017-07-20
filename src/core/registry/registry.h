@@ -102,7 +102,7 @@ load_unload_proc getUnloadProc() {
     }                                                                                              \
     void imgui_bind_properties() {                                                                 \
         if(ImGui::TreeNode(#name)) {                                                               \
-            imgui_bind_property(*this);                                                            \
+            imgui_bind_property(ha_this, *this);                                                   \
             ImGui::TreePop();                                                                      \
         }                                                                                          \
     }                                                                                              \
@@ -217,7 +217,7 @@ int registerGlobal(const char* name, GlobalInfo info);
     if(strcmp(val.get_object_key(i).data(), key) == 0)                                             \
     deserialize(var, val.get_object_value(i))
 
-#define HA_FRIENDS_OF_TYPE(name)                                                                 \
+#define HA_FRIENDS_OF_TYPE(name)                                                                   \
     friend void serialize(const name& src, JsonData& out);                                         \
     friend void deserialize(name& dest, const sajson::value& val);                                 \
-    friend void imgui_bind_property(name& dest)
+    friend void imgui_bind_property(Entity& e, name& dest)

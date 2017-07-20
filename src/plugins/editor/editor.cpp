@@ -1,6 +1,7 @@
 #include "editor_gen.h"
 
 #include "core/messages/messages.h"
+#include "core/messages/messages_editor.h"
 #include "core/Application.h"
 #include "core/World.h"
 #include "core/GraphicsHelpers.h"
@@ -302,10 +303,15 @@ public:
             mouse_button_left_changed    = true;
         }
     }
+
+    void add_changed_property(eid e, const std::string& prop, const std::vector<char>& json) {
+        undo_redo_actions.push_back({e, prop, json});
+    }
 };
 
 HA_SINGLETON_INSTANCE(editor);
 
 // defining it as without codegen for convenience - the singleton macro adds a dummy member variable
 // and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom
-HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor, common::serialize_msg& common::deserialize_msg);
+HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor,
+                                common::serialize_msg& common::deserialize_msg& Interface_editor);

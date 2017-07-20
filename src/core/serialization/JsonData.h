@@ -5,6 +5,10 @@ class JsonData
     std::vector<char> m_data;
 
 public:
+    JsonData() = default;
+    JsonData(std::vector<char>&& data)
+            : m_data(std::move(data)) {}
+
     size_t             size() const { return m_data.size(); }
     std::vector<char>& data() { return m_data; }
     void reserve(size_t size) { m_data.reserve(size); }

@@ -10,6 +10,28 @@ def strln(string, tabs = 0):
 def writeln(f, string, tabs = 0):
     f.writelines(strln(string, tabs))
 
+# taken from here: https://stackoverflow.com/a/61031/3162383
+class ordered_dict(dict):
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self._order = self.keys()
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        if key in self._order:
+            self._order.remove(key)
+        self._order.append(key)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self._order.remove(key)
+
+    def order(self):
+        return self._order[:]
+
+    def ordered_items(self):
+        return [(key,self[key]) for key in self._order]
+
 class Field:
     def __init__(self):
         self.type = ""
@@ -38,7 +60,7 @@ aliases = {}
 functions = ""
 
 current_type = ""
-types = {}
+types = ordered_dict()
 
 for line in mix:
     words = line.split()
@@ -82,7 +104,7 @@ for include in includes:
     writeln(gen, "#include " + include)
 writeln(gen, "")
 
-for type in types:
+for type in types.order():
     name_gen = type + "_gen"
 
     writeln(gen, "struct " + name_gen)
@@ -125,9 +147,9 @@ for type in types:
     functions += strln("}", tabs = 1)
     functions += strln("}")
     
-    functions += strln("inline void imgui_bind_property(" + name_gen + "& obj) {")
+    functions += strln("inline void imgui_bind_property(Entity& e, " + name_gen + "& obj) {")
     for field in types[type]["fields"]:
-        functions += strln("imgui_bind_property(\"" + field.name + "\", obj." + field.name + ");", tabs = 1)
+        functions += strln("imgui_bind_property(e, \"" + field.name + "\", obj." + field.name + ");", tabs = 1)
     functions += strln("}")
 
 writeln(gen, "//=============================================================================")
