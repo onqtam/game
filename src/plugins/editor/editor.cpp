@@ -210,8 +210,8 @@ public:
             for(auto& id : selected) {
                 auto& obj = id.get();
                 if(ImGui::TreeNode(obj.name().c_str())) {
-                    if(obj.implements(imgui_bind_properties_msg)) {
-                        ::imgui_bind_properties(obj);
+                    if(obj.implements(common::imgui_bind_properties_msg)) {
+                        common::imgui_bind_properties(obj);
                     }
 
                     ImGui::TreePop();
@@ -227,8 +227,8 @@ public:
         m_gizmo_state.cam.far_clip      = 1000.f;
         m_gizmo_state.cam.yfov          = glm::radians(45.0f);
         m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
-        glm::vec3 pos                   = get_pos(World::get().camera());
-        glm::quat rot                   = get_rot(World::get().camera());
+        glm::vec3 pos                   = tr::get_pos(World::get().camera());
+        glm::quat rot                   = tr::get_rot(World::get().camera());
         m_gizmo_state.cam.position      = {pos.x, pos.y, pos.z};
         m_gizmo_state.cam.orientation   = {rot.x, rot.y, rot.z, rot.w};
 
@@ -236,15 +236,15 @@ public:
 
         for(auto& id : selected) {
             auto& obj = id.get();
-            auto& t   = get_gizmo_transform(obj);
+            auto& t   = sel::get_gizmo_transform(obj);
 
-            if(obj.implements(no_gizmo_msg))
+            if(obj.implements(sel::no_gizmo_msg))
                 continue;
 
             // record transform after press
             if(mouse_button_left_changed) {
                 if(m_gizmo_state.mouse_left) {
-                    get_last_stable_gizmo_transform(obj) = t;
+                    sel::get_last_stable_gizmo_transform(obj) = t;
                 }
             }
             
@@ -254,7 +254,7 @@ public:
             // check if anything changed after release
             if(mouse_button_left_changed) {
                 if(!m_gizmo_state.mouse_left) {
-                    auto last = get_last_stable_gizmo_transform(obj);
+                    auto last = sel::get_last_stable_gizmo_transform(obj);
                     if(last.position != t.position || last.orientation != t.orientation ||
                        last.scale != t.scale) {
                         printf("changed! record action for undo/redo queue\n");
@@ -263,9 +263,9 @@ public:
 
                 mouse_button_left_changed = false;
             }
-            set_pos(obj, (glm::vec3&)t.position);
-            set_scl(obj, (glm::vec3&)t.scale);
-            set_rot(obj, (glm::quat&)t.orientation);
+            tr::set_pos(obj, (glm::vec3&)t.position);
+            tr::set_scl(obj, (glm::vec3&)t.scale);
+            tr::set_rot(obj, (glm::quat&)t.orientation);
         }
 
         m_gizmo_ctx.draw();
@@ -307,4 +307,4 @@ HA_SINGLETON_INSTANCE(editor);
 
 // defining it as without codegen for convenience - the singleton macro adds a dummy member variable
 // and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom
-HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor, serialize_msg& deserialize_msg);
+HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor, common::serialize_msg& common::deserialize_msg);

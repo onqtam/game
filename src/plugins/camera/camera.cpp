@@ -24,8 +24,8 @@ public:
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
 
-        set_pos(ha_this, glm::vec3(0, 50, 2));
-        set_rot(ha_this, Utils::rotationBetweenVectors(k_forward, k_init_look_direction));
+        tr::set_pos(ha_this, glm::vec3(0, 50, 2));
+        tr::set_rot(ha_this, Utils::rotationBetweenVectors(k_forward, k_init_look_direction));
     }
 
     void process_event(const InputEvent& ev) override {
@@ -53,7 +53,7 @@ public:
         if(cursor_y > h - 10)
             move_vec += glm::vec3(0, 0, k_speed * dt);
 
-        auto pos = get_pos(ha_this);
+        auto pos = tr::get_pos(ha_this);
         pos += move_vec;
         glm::vec3 fix_vec(0);
         auto half_w = World::get().width() / 2;
@@ -65,15 +65,15 @@ public:
 
         move_vec += fix_vec;
 
-        move(ha_this, move_vec);
+        tr::move(ha_this, move_vec);
 
-        move(ha_this, glm::normalize(get_rot(ha_this) * k_forward) * scroll * 2.f);
+        tr::move(ha_this, glm::normalize(tr::get_rot(ha_this) * k_forward) * scroll * 2.f);
         scroll = 0.f;
     }
 
     glm::mat4 get_view_matrix() {
-        glm::mat4 t = glm::translate(glm::mat4(1.f), get_pos(ha_this));
-        glm::mat4 r = glm::toMat4(get_rot(ha_this));
+        glm::mat4 t = glm::translate(glm::mat4(1.f), tr::get_pos(ha_this));
+        glm::mat4 r = glm::toMat4(tr::get_rot(ha_this));
         return glm::inverse(t * r);
     }
 
@@ -86,4 +86,4 @@ public:
     void no_gizmo() const {}
 };
 
-HA_MIXIN_DEFINE(camera, get_view_matrix_msg& get_projection_matrix_msg& no_gizmo_msg);
+HA_MIXIN_DEFINE(camera, cam::get_view_matrix_msg& cam::get_projection_matrix_msg& sel::no_gizmo_msg);

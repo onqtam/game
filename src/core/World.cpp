@@ -22,12 +22,12 @@ World::World()
 
     auto& obj = em.newEntity("with_mesh!");
     obj.addMixin("mesh");
-    set_scl(obj, {5, 5, 5});
+    tr::set_scl(obj, {5, 5, 5});
 
     auto& obj2 = em.newEntity("with_mesh_2!");
     obj2.addMixin("mesh");
-    set_scl(obj2, {7, 7, 7});
-    set_pos(obj2, {20, 0, 20});
+    tr::set_scl(obj2, {7, 7, 7});
+    tr::set_pos(obj2, {20, 0, 20});
 }
 
 void World::update() {
@@ -39,8 +39,8 @@ void World::update() {
     bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     mixins["camera"].update(dt);
-    glm::mat4 view = get_view_matrix(m_camera);
-    glm::mat4 proj = get_projection_matrix(m_camera);
+    glm::mat4 view = cam::get_view_matrix(m_camera);
+    glm::mat4 proj = cam::get_projection_matrix(m_camera);
 
     // Set view and projection matrix for view 0.
     bgfx_set_view_transform(0, (float*)&view, (float*)&proj);
@@ -51,8 +51,8 @@ void World::update() {
     std::vector<renderPart> renderData;
 
     for(const auto& e : EntityManager::get().getEntities())
-        if(e.second.implements(get_rendering_parts_msg))
-            get_rendering_parts(e.second, renderData);
+        if(e.second.implements(rend::get_rendering_parts_msg))
+            rend::get_rendering_parts(e.second, renderData);
     for(const auto& data : renderData) {
         if(data.mesh.isValid()) {
             meshSubmit(data.mesh.get(), 0, data.shader.get(), (const float*)&data.transform

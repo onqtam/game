@@ -3,19 +3,19 @@
 #include "messages_rendering.h"
 
 // common
-DYNAMIX_DEFINE_MESSAGE(serialize);
-DYNAMIX_DEFINE_MESSAGE(deserialize);
-DYNAMIX_DEFINE_MESSAGE(imgui_bind_properties);
+HA_DEFINE_MSG(common, serialize)
+HA_DEFINE_MSG(common, deserialize)
+HA_DEFINE_MSG(common, imgui_bind_properties)
 
 // transform
-DYNAMIX_DEFINE_MESSAGE(set_pos);
-DYNAMIX_DEFINE_MESSAGE(set_scl);
-DYNAMIX_DEFINE_MESSAGE(set_rot);
-DYNAMIX_DEFINE_MESSAGE(get_pos);
-DYNAMIX_DEFINE_MESSAGE(get_scl);
-DYNAMIX_DEFINE_MESSAGE(get_rot);
-DYNAMIX_DEFINE_MESSAGE(get_model_transform);
-DYNAMIX_DEFINE_MESSAGE(move);
+HA_DEFINE_MSG(tr, set_pos)
+HA_DEFINE_MSG(tr, set_scl)
+HA_DEFINE_MSG(tr, set_rot)
+HA_DEFINE_MSG(tr, get_pos)
+HA_DEFINE_MSG(tr, get_scl)
+HA_DEFINE_MSG(tr, get_rot)
+HA_DEFINE_MSG(tr, get_model_transform)
+HA_DEFINE_MSG(tr, move)
 
 // hierarchical
 DYNAMIX_DEFINE_MESSAGE(get_parent);
@@ -25,14 +25,14 @@ DYNAMIX_DEFINE_MESSAGE(add_child);
 DYNAMIX_DEFINE_MESSAGE(remove_child);
 
 // selected
-DYNAMIX_DEFINE_MESSAGE(get_gizmo_transform);
-DYNAMIX_DEFINE_MESSAGE(get_last_stable_gizmo_transform);
-DYNAMIX_DEFINE_MESSAGE(no_gizmo);
+HA_DEFINE_MSG(sel, get_gizmo_transform)
+HA_DEFINE_MSG(sel, get_last_stable_gizmo_transform)
+HA_DEFINE_MSG(sel, no_gizmo)
 
 // camera
-DYNAMIX_DEFINE_MESSAGE(get_view_matrix);
-DYNAMIX_DEFINE_MESSAGE(get_projection_matrix);
+HA_DEFINE_MSG(cam, get_view_matrix)
+HA_DEFINE_MSG(cam, get_projection_matrix)
 
 // rendering
-DYNAMIX_DEFINE_MESSAGE(get_rendering_parts);
-DYNAMIX_DEFINE_MESSAGE(get_aabb);
+HA_DEFINE_MSG(rend, get_rendering_parts)
+HA_DEFINE_MSG(rend, get_aabb)

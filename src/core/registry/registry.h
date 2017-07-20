@@ -132,16 +132,20 @@ load_unload_proc getUnloadProc() {
 // polymorphic - but in some circumstances this might not catch the addition of a 4 byte variable in
 // the derived class... should probably remove the static assert altogether - overly complex...
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
-    HA_MIXIN_DEFINE_COMMON(n, serialize_msg& deserialize_msg& imgui_bind_properties_msg& f);       \
+    HA_MIXIN_DEFINE_COMMON(                                                                        \
+            n,                                                                                     \
+            common::serialize_msg& common::deserialize_msg& common::imgui_bind_properties_msg& f); \
     static_assert(                                                                                 \
             sizeof(n) ==                                                                           \
-            sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +            \
-                    std::is_polymorphic<n>::value *                                                \
-                            (sizeof(n) > sizeof(HA_CAT_1(n, _gen)) +                               \
-                                                     std::is_polymorphic<n>::value *               \
-                                                             sizeof(void*) ?                       \
-                                     (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 : 0) :      \
-                                     0), "someone has extended the base type?")
+                    sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +    \
+                            std::is_polymorphic<n>::value *                                        \
+                                    (sizeof(n) > sizeof(HA_CAT_1(n, _gen)) +                       \
+                                                             std::is_polymorphic<n>::value *       \
+                                                                     sizeof(void*) ?               \
+                                             (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 :   \
+                                                                                             0) :  \
+                                             0),                                                   \
+            "someone has extended the base type?")
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

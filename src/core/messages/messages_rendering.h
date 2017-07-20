@@ -12,7 +12,7 @@ struct renderPart
     glm::mat4 transform;
 };
 
-DYNAMIX_EXPORTED_CONST_MULTICAST_MESSAGE_1(HAPI, void, get_rendering_parts, std::vector<renderPart>&, out)
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, AABB, get_aabb)
+HA_CONST_MULTI_MSG_1(rend, void, get_rendering_parts, std::vector<renderPart>&, out)
+HA_CONST_MSG_0(rend, AABB, get_aabb)
 
 HA_SUPPRESS_WARNINGS_END

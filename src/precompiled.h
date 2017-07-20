@@ -85,3 +85,4 @@ using glm::uint64;
 
 #include "utils/singleton.h"
 #include "core/Entity.h"
+#include "core/messages/message_macros.h"

@@ -38,13 +38,13 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, get_model_transform(ha_this)});
+        out.push_back({_mesh, {}, _shader, tr::get_model_transform(ha_this)});
     }
 
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
 };
 
-HA_MIXIN_DEFINE(mesh, get_rendering_parts_msg& get_aabb_msg);
+HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
 class hierarchical : public hierarchical_gen
 {
@@ -75,9 +75,9 @@ class selected : public selected_gen
     HA_MESSAGES_IN_MIXIN(selected)
 public:
     tinygizmo::rigid_transform& get_gizmo_transform() {
-        gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)get_rot(ha_this),
-                                                     (const minalg::float3&)get_pos(ha_this),
-                                                     (const minalg::float3&)get_scl(ha_this));
+        gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
+                                                     (const minalg::float3&)tr::get_pos(ha_this),
+                                                     (const minalg::float3&)tr::get_scl(ha_this));
         return gizmo_transform;
     }
 
@@ -86,13 +86,13 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        if(ha_this.implements(get_aabb_msg)) {
-            auto diag   = get_aabb(ha_this).getDiagonal();
+        if(ha_this.implements(rend::get_aabb_msg)) {
+            auto diag   = rend::get_aabb(ha_this).getDiagonal();
             auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
             auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, get_model_transform(ha_this)});
+            out.push_back({{}, geom, shader, tr::get_model_transform(ha_this)});
         }
     }
 };
 
-HA_MIXIN_DEFINE(selected, get_rendering_parts_msg& Interface_selected);
+HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg& Interface_selected);
