@@ -42,6 +42,12 @@ int wildcmp(const char* str, const char* wild);
 // if the first string ends with the second
 bool endsWith(const std::string& fullString, const std::string& ending);
 
+inline char* strncpy(char* destination, const char* source, size_t num) {
+    auto res             = ::strncpy(destination, source, num);
+    destination[num - 1] = '\0';
+    return res;
+}
+
 // Returns the number of digits
 glm::uint32 numDigits(glm::int32 v);
 

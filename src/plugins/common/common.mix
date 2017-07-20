@@ -12,6 +12,9 @@ type hierarchical
 type selected
 			tinygizmo::rigid_transform gizmo_transform
 			tinygizmo::rigid_transform gizmo_transform_last
+			bool clicky default:false
+			std::string texty default:"happy!!"
+			std::string texty2 default:":("
 
 type mesh
 			MeshHandle _mesh

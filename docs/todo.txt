@@ -34,6 +34,9 @@ PagedMixinAllocator - keep vectors of entity ids for each mixin type
 - size_t everywhere? wtf is up with these int16 micro optimizations on my side...
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
 - is glm a good choice at all? will compile times skyrocket even if I use a pch? how to measure this? will extern template help?
+- switch from using c++ overloads to id based type system for reflection & stuffs - with big switches & void*
+    - the downside of using overloads is the coupling & dependencies - so many overloads in one header file...
+    - also what if I want 2 floats to be treated differently? use a strong typedef for one of them? or add a tagging system?
 
 == bugs:
 gcc cannot build shaders - it hangs (also ruins the .bin files themselves)

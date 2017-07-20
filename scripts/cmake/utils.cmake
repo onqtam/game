@@ -231,6 +231,7 @@ function(add_plugin)
     
     target_compile_definitions(${ARG_NAME} PRIVATE
         HA_PLUGIN # this will affect the macros used for registering mixins - for supporting plugin reloading
+        HA_PLUGIN_${ARG_NAME} # can be used for plugin-specific exports
     )
     
     mixify_target(${ARG_NAME})

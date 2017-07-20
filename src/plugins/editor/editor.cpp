@@ -220,7 +220,7 @@ public:
         }
         ImGui::End();
 
-        //ImGui::ShowTestWindow();
+        ImGui::ShowTestWindow();
 
         m_gizmo_state.viewport_size     = {float(app.width()), float(app.height())};
         m_gizmo_state.cam.near_clip     = 0.1f;
@@ -257,7 +257,8 @@ public:
                     auto last = sel::get_last_stable_gizmo_transform(obj);
                     if(last.position != t.position || last.orientation != t.orientation ||
                        last.scale != t.scale) {
-                        printf("changed! record action for undo/redo queue\n");
+                        // NOTE that this also triggers when I move the object with the float drags of the transform...
+                        printf("transform changed!\n");
                     }
                 }
 

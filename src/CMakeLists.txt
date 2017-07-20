@@ -49,6 +49,7 @@ ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
 add_mix_dirs(TO SOURCES "core")
+add_mix_dirs(TO SOURCES "core/imgui")
 add_mix_dirs(TO SOURCES "core/serialization")
 add_mix_dirs(TO SOURCES "core/messages")
 add_mix_dirs(TO SOURCES "utils")
