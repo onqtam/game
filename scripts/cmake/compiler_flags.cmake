@@ -157,6 +157,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wno-conversion
         -Wno-old-style-cast
         -Wno-missing-declarations
+        -Wno-strict-aliasing
+        -Wno-double-promotion
         
         # optimizations related
         #-Wstack-protector # requires -fstack-protector-all

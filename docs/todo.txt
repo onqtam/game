@@ -25,8 +25,6 @@ PagedMixinAllocator - keep vectors of entity ids for each mixin type
 - spatial queries about objects
 - objects inheriting transformations based on their hierarchical component
 
-
-
 == questions:
 - my codegen sux - the _gen prefixes, the order of declaration... what to do?
     - the downside of using overloads is the coupling & dependencies - so many overloads in one header file...
@@ -43,6 +41,9 @@ gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - appveyor emscripten build fails for some reason
 
 
+
+== to test:
+- aabb class
 
 == engine:
 - on floating point:

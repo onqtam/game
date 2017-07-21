@@ -81,6 +81,7 @@ test_case("[utils] itoa_fast") {
 #define itoa_fast_check_eq(x) check_eq(strcmp(itoa_fast(HA_CAT_1(x, LL), dest), #x), 0)
 #define itoa_fast_check_ne(x) check_ne(strcmp(itoa_fast(HA_CAT_1(x, LL), dest), #x), 0)
     char dest[24];
+    ((void)dest); // for the unused variable warning when tests are disabled
     itoa_fast_check_eq(0);
     itoa_fast_check_eq(12);
     itoa_fast_check_eq(431);

@@ -6,7 +6,7 @@ void serialize(char data, JsonData& out) {
     auto res = std::to_string(data);
     out.append(res.c_str(), res.length());
 }
-void deserialize(char& data, const sajson::value& val) { data = val.get_integer_value(); }
+void deserialize(char& data, const sajson::value& val) { data = char(val.get_integer_value()); }
 
 void serialize(int data, JsonData& out) {
     auto res = std::to_string(data);

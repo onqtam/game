@@ -146,7 +146,7 @@ glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
         // there is no "ideal" rotation axis
         // So guess one; any will do as long as it's perpendicular to start
         rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
-        if(length2(rotationAxis) < 0.01) // bad luck, they were parallel, try again!
+        if(length2(rotationAxis) < 0.01f) // bad luck, they were parallel, try again!
             rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
 
         rotationAxis = normalize(rotationAxis);

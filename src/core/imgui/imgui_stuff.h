@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename... Args>
-void imgui_bind_property(Entity& e, const char* name, Args&&...) {
+void imgui_bind_property(Entity&, const char* name, Args&&...) {
     ImGui::TextDisabled("couldn't bind \"%s\"", name);
 }
 
