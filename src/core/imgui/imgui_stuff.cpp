@@ -77,37 +77,28 @@ static bool DragFloats(const char* label, float* floats, int numFloats,
     return value_changed;
 }
 
+template <typename T>
+JsonData construct_undo_redo_command(const char* mixin_name, const char* prop, const T& data) {
+    JsonData out;
+    out.startObject();
+    out.append("\"");
+    out.append(mixin_name, strlen(mixin_name));
+    out.append("\":");
+    out.startObject();
+    out.append("\"");
+    out.append(prop, strlen(prop));
+    out.append("\":");
+    serialize(data, out);
+    out.endObject();
+    out.endObject();
+
+    return out;
+}
+
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
-        // should look something like this:
-        // "mixin_name":{"prop":-1,"children":[]}
-
-        JsonData old_val;
-        old_val.startObject();
-        old_val.append("\"");
-        old_val.append(mixin_name, strlen(mixin_name));
-        old_val.append("\":");
-        old_val.startObject();
-        old_val.append("\"");
-        old_val.append(prop, strlen(prop));
-        old_val.append("\":");
-        serialize(!data, old_val);
-        old_val.endObject();
-        old_val.endObject();
-
-        JsonData new_val;
-        new_val.startObject();
-        new_val.append("\"");
-        new_val.append(mixin_name, strlen(mixin_name));
-        new_val.append("\":");
-        new_val.startObject();
-        new_val.append("\"");
-        new_val.append(prop, strlen(prop));
-        new_val.append("\":");
-        serialize(data, new_val);
-        new_val.endObject();
-        new_val.endObject();
-
+        JsonData old_val = construct_undo_redo_command(mixin_name, prop, !data);
+        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
         printf("CHANGED!\n");
     }
@@ -123,7 +114,10 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, st
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
-        data = buf;
+        JsonData old_val = construct_undo_redo_command(mixin_name, prop, data);
+        data             = buf;
+        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
         printf("CHANGED!\n");
     }
 }
