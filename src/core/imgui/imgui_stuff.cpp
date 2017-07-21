@@ -77,42 +77,62 @@ static bool DragFloats(const char* label, float* floats, int numFloats,
     return value_changed;
 }
 
-void imgui_bind_property(Entity& e, const char* name, bool& data) {
-    if(ImGui::Checkbox(name, &data)) {
-        JsonData json;
-        json.startObject();
-        json.append("\"old\":");
-        serialize(!data, json);
-        json.addComma();
-        json.append("\"new\":");
-        serialize(data, json);
-        json.endObject();
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data) {
+    if(ImGui::Checkbox(prop, &data)) {
+        // should look something like this:
+        // "mixin_name":{"prop":-1,"children":[]}
 
-        edit::add_changed_property(World::get().editor(), e.id(), name, json.data());
+        JsonData old_val;
+        old_val.append("\"");
+        old_val.append(mixin_name, strlen(mixin_name));
+        old_val.append("\":");
+        old_val.startObject();
+        old_val.append("\"");
+        old_val.append(prop, strlen(prop));
+        old_val.append("\":");
+        serialize(!data, old_val);
+        old_val.endObject();
+
+        JsonData new_val;
+        new_val.append("\"");
+        new_val.append(mixin_name, strlen(mixin_name));
+        new_val.append("\":");
+        new_val.startObject();
+        new_val.append("\"");
+        new_val.append(prop, strlen(prop));
+        new_val.append("\":");
+        serialize(data, new_val);
+        new_val.endObject();
+
+        edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
         printf("CHANGED!\n");
     }
 }
-void imgui_bind_property(Entity& e, const char* name, int& data) { ImGui::DragInt(name, &data); }
-void imgui_bind_property(Entity& e, const char* name, float& data) { ImGui::DragFloat(name, &data); }
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, int& data) {
+    ImGui::DragInt(prop, &data);
+}
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, float& data) {
+    ImGui::DragFloat(prop, &data);
+}
 
-void imgui_bind_property(Entity& e, const char* name, std::string& data) {
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
-    if(ImGui::InputText(name, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
         data = buf;
         printf("CHANGED!\n");
     }
 }
 
-void imgui_bind_property(Entity& e, const char* name, glm::vec3& data) {
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::vec3& data) {
     bool justReleased = false;
-    printf("%f %f %f\n", data.x, data.y, data.z);
-    DragFloats(name, (float*)&data, 3, &justReleased);
+    //printf("%f %f %f\n", data.x, data.y, data.z);
+    DragFloats(prop, (float*)&data, 3, &justReleased);
     if(justReleased) {
         printf("CHANGED!\n");
     }
 }
 
-void imgui_bind_property(Entity& e, const char* name, glm::quat& data) {
-    ImGui::DragFloat4(name, (float*)&data);
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::quat& data) {
+    ImGui::DragFloat4(prop, (float*)&data);
 }

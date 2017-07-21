@@ -86,7 +86,7 @@ for line in mix:
         
         field.type = words[idx]
         field.name = words[idx + 1]
-        field.hash = str(string2numeric_hash(field.name + field.type))
+        field.hash = field.name # str(string2numeric_hash(field.name + field.type)) # temporarily disabling the use of hashes
         field.visibility = visibility
         if line.find("#") != -1:
             field.comment = line[line.find("#") + 1:]
@@ -147,9 +147,9 @@ for type in types.order():
     functions += strln("}", tabs = 1)
     functions += strln("}")
     
-    functions += strln("inline void imgui_bind_property(Entity& e, " + name_gen + "& obj) {")
+    functions += strln("inline void imgui_bind_property(Entity& e, const char* mixin_name, " + name_gen + "& obj) {")
     for field in types[type]["fields"]:
-        functions += strln("imgui_bind_property(e, \"" + field.name + "\", obj." + field.name + ");", tabs = 1)
+        functions += strln("imgui_bind_property(e, \"" + field.name + "\", mixin_name, obj." + field.name + ");", tabs = 1)
     functions += strln("}")
 
 writeln(gen, "//=============================================================================")

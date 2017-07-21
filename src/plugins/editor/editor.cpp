@@ -248,7 +248,7 @@ public:
                     sel::get_last_stable_gizmo_transform(obj) = t;
                 }
             }
-            
+
             // update transform
             tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
 
@@ -293,6 +293,20 @@ public:
 
             // undo
             if(key == GLFW_KEY_Z && mods & GLFW_MOD_CONTROL) {
+                if(curr_undo_redo >= 0) {
+                    auto& command = undo_redo_commands[curr_undo_redo];
+                    --curr_undo_redo;
+                    printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
+
+                    const auto& doc = sajson::parse(
+                            sajson::dynamic_allocation(),
+                            sajson::string(command.old_val.data(), command.old_val.size()));
+
+                    hassert(doc.is_valid());
+
+                    const sajson::value root = doc.get_root();
+                    common::deserialize(command.e, root);
+                }
             }
             // redo
             if(key == GLFW_KEY_Y && mods & GLFW_MOD_CONTROL) {
@@ -304,8 +318,14 @@ public:
         }
     }
 
-    void add_changed_property(eid e, const std::string& prop, const std::vector<char>& json) {
-        undo_redo_actions.push_back({e, prop, json});
+    void add_changed_property(eid e, const std::vector<char>& old_val,
+                              const std::vector<char>& new_val) {
+        if(curr_undo_redo >= 0)
+            undo_redo_commands.erase(undo_redo_commands.begin() + curr_undo_redo,
+                                     undo_redo_commands.end());
+        undo_redo_commands.push_back({e, old_val, new_val});
+        ++curr_undo_redo;
+        printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
     }
 };
 

@@ -6,7 +6,8 @@ HA_SUPPRESS_WARNINGS
 
 HA_MSG_1(edit, void, add_change_started_data, int, a)
 HA_MSG_1(edit, void, get_change_started_data, int, a)
-HA_MSG_3(edit, void, add_changed_property, eid, e, const std::string&, prop, const std::vector<char>&, json)
+HA_MSG_3(edit, void, add_changed_property, eid, e, const std::vector<char>&, old_val,
+         const std::vector<char>&, new_val)
 
 #define Interface_editor edit::add_changed_property_msg
 

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0.0)
 
 project(All)
 
-cmake_policy(SET CMP0017 OLD)
 cmake_policy(SET CMP0051 NEW)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
