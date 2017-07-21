@@ -98,7 +98,9 @@ load_unload_proc getUnloadProc() {
         out.addComma();                                                                            \
     }                                                                                              \
     void deserialize(const sajson::value& in) {                                                    \
-        ::deserialize(*this, in.get_value_of_key(sajson::string(#name, HA_COUNT_OF(#name) - 1)));  \
+        auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
+        if(in.find_object_key(str) != in.get_length())                                             \
+            ::deserialize(*this, in.get_value_of_key(str));                                        \
     }                                                                                              \
     void imgui_bind_properties() {                                                                 \
         if(ImGui::TreeNode(#name)) {                                                               \
