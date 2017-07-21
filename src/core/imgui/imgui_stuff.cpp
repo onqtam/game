@@ -83,6 +83,7 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bo
         // "mixin_name":{"prop":-1,"children":[]}
 
         JsonData old_val;
+        old_val.startObject();
         old_val.append("\"");
         old_val.append(mixin_name, strlen(mixin_name));
         old_val.append("\":");
@@ -92,8 +93,10 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bo
         old_val.append("\":");
         serialize(!data, old_val);
         old_val.endObject();
+        old_val.endObject();
 
         JsonData new_val;
+        new_val.startObject();
         new_val.append("\"");
         new_val.append(mixin_name, strlen(mixin_name));
         new_val.append("\":");
@@ -102,6 +105,7 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bo
         new_val.append(prop, strlen(prop));
         new_val.append("\":");
         serialize(data, new_val);
+        new_val.endObject();
         new_val.endObject();
 
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());

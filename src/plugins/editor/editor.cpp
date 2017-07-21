@@ -321,7 +321,7 @@ public:
     void add_changed_property(eid e, const std::vector<char>& old_val,
                               const std::vector<char>& new_val) {
         if(curr_undo_redo >= 0)
-            undo_redo_commands.erase(undo_redo_commands.begin() + curr_undo_redo,
+            undo_redo_commands.erase(undo_redo_commands.begin() + curr_undo_redo + 1,
                                      undo_redo_commands.end());
         undo_redo_commands.push_back({e, old_val, new_val});
         ++curr_undo_redo;

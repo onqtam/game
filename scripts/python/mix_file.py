@@ -149,7 +149,7 @@ for type in types.order():
     
     functions += strln("inline void imgui_bind_property(Entity& e, const char* mixin_name, " + name_gen + "& obj) {")
     for field in types[type]["fields"]:
-        functions += strln("imgui_bind_property(e, \"" + field.name + "\", mixin_name, obj." + field.name + ");", tabs = 1)
+        functions += strln("imgui_bind_property(e, mixin_name, \"" + field.name + "\", obj." + field.name + ");", tabs = 1)
     functions += strln("}")
 
 writeln(gen, "//=============================================================================")

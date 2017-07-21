@@ -1,6 +1,4 @@
 
-"hierarchical":{"parent":-1,"children":[]},"mesh":{"_mesh":0,"_shader":2}
-
 PagedMixinAllocator - keep vectors of entity ids for each mixin type
     requires dynamix extension - bobi will do it
     rework the selection to not keep a std::vector<eid> but use the allocator

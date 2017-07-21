@@ -61,7 +61,7 @@ add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest
 
 # ========= PLUGINS =============
 
-add_mix_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
+#add_mix_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/omg"    FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
 add_mix_dirs(TO plugin_src "plugins/editor" FILTER_POP 1)
