@@ -39,10 +39,10 @@ static bool IsItemActiveLastFrame() {
 static bool IsItemJustReleased() { return IsItemActiveLastFrame() && !ImGui::IsItemActive(); }
 static bool IsItemJustActivated() { return !IsItemActiveLastFrame() && ImGui::IsItemActive(); }
 
-static bool DragFloats(const char* label, float* floats, int numFloats,
-                       bool* pJustReleased = nullptr, bool* pJustActivated = nullptr,
-                       float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f,
-                       const char* display_format = "%.3f", float power = 1.0f) {
+static bool DragFloats(const char* label, float* items, int numItems, bool* pJustReleased = nullptr,
+                       bool* pJustActivated = nullptr, float v_speed = 1.0f, float v_min = 0.0f,
+                       float v_max = 0.0f, const char* display_format = "%.3f",
+                       float power = 1.0f) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if(window->SkipItems)
         return false;
@@ -51,11 +51,47 @@ static bool DragFloats(const char* label, float* floats, int numFloats,
     bool          value_changed = false;
     ImGui::BeginGroup();
     ImGui::PushID(label);
-    PushMultiItemsWidths(numFloats);
-    for(int i = 0; i < numFloats; i++) {
+    PushMultiItemsWidths(numItems);
+    for(int i = 0; i < numItems; i++) {
         ImGui::PushID(i);
         value_changed |=
-                ImGui::DragFloat("##v", &floats[i], v_speed, v_min, v_max, display_format, power);
+                ImGui::DragFloat("##v", &items[i], v_speed, v_min, v_max, display_format, power);
+
+        if(pJustReleased) {
+            *pJustReleased |= IsItemJustReleased();
+        }
+
+        if(pJustActivated) {
+            *pJustActivated |= IsItemJustActivated();
+        }
+
+        ImGui::PopID();
+        ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
+        ImGui::PopItemWidth();
+    }
+    ImGui::PopID();
+
+    ImGui::TextUnformatted(label, ImGui::FindRenderedTextEnd(label));
+    ImGui::EndGroup();
+
+    return value_changed;
+}
+
+static bool DragInts(const char* label, int* items, int numItems, bool* pJustReleased = nullptr,
+                     bool* pJustActivated = nullptr, float v_speed = 1.0f, float v_min = 0.0f,
+                     float v_max = 0.0f, const char* display_format = "%.0f") {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if(window->SkipItems)
+        return false;
+
+    ImGuiContext& g             = *GImGui;
+    bool          value_changed = false;
+    ImGui::BeginGroup();
+    ImGui::PushID(label);
+    PushMultiItemsWidths(numItems);
+    for(int i = 0; i < numItems; i++) {
+        ImGui::PushID(i);
+        value_changed |= ImGui::DragInt("##v", &items[i], v_speed, v_min, v_max, display_format);
 
         if(pJustReleased) {
             *pJustReleased |= IsItemJustReleased();
@@ -111,6 +147,22 @@ void bind_floats(Entity& e, const char* mixin_name, const char* prop, T& data, i
     }
 }
 
+template <typename T>
+void bind_ints(Entity& e, const char* mixin_name, const char* prop, T& data, int num_floats) {
+    static T persistent_data;
+    bool     justReleased  = false;
+    bool     justActivated = false;
+    DragInts(prop, (int*)&data, num_floats, &justReleased, &justActivated);
+    if(justActivated) {
+        persistent_data = data;
+    }
+    if(justReleased) {
+        JsonData old_val = construct_undo_redo_command(mixin_name, prop, persistent_data);
+        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
+    }
+}
+
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
         JsonData old_val = construct_undo_redo_command(mixin_name, prop, !data);
@@ -119,7 +171,7 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bo
     }
 }
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, int& data) {
-    ImGui::DragInt(prop, &data);
+    bind_ints(e, mixin_name, prop, data, 1);
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, float& data) {
@@ -143,8 +195,7 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, st
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::vec3& data) {
-    // TODO: integrate into undo/redo queue! currently pos/scale work because of a coincidence in editor.cpp and unconsumed input by imgui
-    DragFloats(prop, (float*)&data, 3);
+    bind_floats(e, mixin_name, prop, data, 3);
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::quat& data) {

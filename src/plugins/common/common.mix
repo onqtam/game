@@ -15,6 +15,7 @@ type selected
 			bool clicky default:false
 			float dragy default:42
 			double dragy2 default:42
+			int dragy3 default:42
 			std::string texty default:"happy!!"
 			std::string texty2 default:":("
 
