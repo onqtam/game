@@ -273,26 +273,27 @@ public:
             // check if anything changed after release
             if(mouse_button_left_changed) {
                 if(!m_gizmo_state.mouse_left) {
-                    //auto last = sel::get_last_stable_gizmo_transform(obj);
-                    //// NOTE that these also get triggered when I move the object with the float drags of the transform...
-                    //if(last.position != t.position) {
-                    //    JsonData old_val = command("common", "pos", *(glm::vec3*)&last.position);
-                    //    JsonData new_val = command("common", "pos", *(glm::vec3*)&t.position);
-                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                    //                               new_val.data());
-                    //}
-                    //if(last.orientation != t.orientation) {
-                    //    JsonData old_val = command("common", "rot", *(glm::quat*)&last.orientation);
-                    //    JsonData new_val = command("common", "rot", *(glm::quat*)&t.orientation);
-                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                    //                               new_val.data());
-                    //}
-                    //if(last.scale != t.scale) {
-                    //    JsonData old_val = command("common", "scl", *(glm::vec3*)&last.scale);
-                    //    JsonData new_val = command("common", "scl", *(glm::vec3*)&t.scale);
-                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                    //                               new_val.data());
-                    //}
+                    auto last = sel::get_last_stable_gizmo_transform(obj);
+                    // NOTE that these also get triggered when I move the object with the float drags of the transform...
+                    if(last.position != t.position) {
+                        JsonData old_val = command("transform", "pos", *(glm::vec3*)&last.position);
+                        JsonData new_val = command("transform", "pos", *(glm::vec3*)&t.position);
+                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                                                   new_val.data());
+                    }
+                    if(last.orientation != t.orientation) {
+                        JsonData old_val =
+                                command("transform", "rot", *(glm::quat*)&last.orientation);
+                        JsonData new_val = command("transform", "rot", *(glm::quat*)&t.orientation);
+                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                                                   new_val.data());
+                    }
+                    if(last.scale != t.scale) {
+                        JsonData old_val = command("transform", "scl", *(glm::vec3*)&last.scale);
+                        JsonData new_val = command("transform", "scl", *(glm::vec3*)&t.scale);
+                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                                                   new_val.data());
+                    }
                 }
 
                 mouse_button_left_changed = false;
@@ -348,6 +349,11 @@ public:
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo, int(undo_redo_commands.size()));
 
+                    std::string ov(command.old_val.data(), command.old_val.size());
+                    std::string nv(command.new_val.data(), command.new_val.size());
+                    printf("[REDO] OLD VAL: %s\n", ov.c_str());
+                    printf("[REDO] NEW VAL: %s\n", nv.c_str());
+
                     const auto& doc = sajson::parse(
                             sajson::dynamic_allocation(),
                             sajson::string(command.new_val.data(), command.new_val.size()));
@@ -370,6 +376,11 @@ public:
         if(undo_redo_commands.size())
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
+
+        std::string ov(old_val.data(), old_val.size());
+        std::string nv(new_val.data(), new_val.size());
+        printf("OLD VAL: %s\n", ov.c_str());
+        printf("NEW VAL: %s\n", nv.c_str());
         undo_redo_commands.push_back({e, old_val, new_val});
         ++curr_undo_redo;
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);

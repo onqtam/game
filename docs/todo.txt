@@ -1,6 +1,4 @@
 
-fix bugs in undo/redo
-
 PagedMixinAllocator - keep vectors of entity ids for each mixin type
     requires dynamix extension - bobi will do it
     rework the selection to not keep a std::vector<eid> but use the allocator
