@@ -324,7 +324,7 @@ public:
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
             // undo
-            if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && action == GLFW_PRESS) {
+            if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo >= 0) {
                     auto& command = undo_redo_commands[curr_undo_redo--];
                     printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
@@ -342,7 +342,7 @@ public:
             }
 
             // redo
-            if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && action == GLFW_PRESS) {
+            if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
                     auto& command = undo_redo_commands[++curr_undo_redo];
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
@@ -367,8 +367,8 @@ public:
 
     void add_changed_property(eid e, const std::vector<char>& old_val,
                               const std::vector<char>& new_val) {
-        if(curr_undo_redo >= 0)
-            undo_redo_commands.erase(undo_redo_commands.begin() + curr_undo_redo + 1,
+        if(undo_redo_commands.size())
+            undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
         undo_redo_commands.push_back({e, old_val, new_val});
         ++curr_undo_redo;
