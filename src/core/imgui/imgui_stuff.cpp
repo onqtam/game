@@ -95,19 +95,40 @@ JsonData construct_undo_redo_command(const char* mixin_name, const char* prop, c
     return out;
 }
 
+template <typename T>
+void bind_floats(Entity& e, const char* mixin_name, const char* prop, T& data, int num_floats) {
+    static T persistent_data;
+    bool     justReleased  = false;
+    bool     justActivated = false;
+    DragFloats(prop, (float*)&data, num_floats, &justReleased, &justActivated);
+    if(justActivated) {
+        persistent_data = data;
+    }
+    if(justReleased) {
+        JsonData old_val = construct_undo_redo_command(mixin_name, prop, persistent_data);
+        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
+    }
+}
+
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
         JsonData old_val = construct_undo_redo_command(mixin_name, prop, !data);
         JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
-        printf("CHANGED!\n");
     }
 }
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, int& data) {
     ImGui::DragInt(prop, &data);
 }
+
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, float& data) {
-    ImGui::DragFloat(prop, &data);
+    bind_floats(e, mixin_name, prop, data, 1);
+}
+void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, double& data) {
+    float temp = static_cast<float>(data);
+    bind_floats(e, mixin_name, prop, temp, 1);
+    data = temp;
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, std::string& data) {
@@ -118,19 +139,14 @@ void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, st
         data             = buf;
         JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
-        printf("CHANGED!\n");
     }
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::vec3& data) {
-    bool justReleased = false;
-    //printf("%f %f %f\n", data.x, data.y, data.z);
-    DragFloats(prop, (float*)&data, 3, &justReleased);
-    if(justReleased) {
-        printf("CHANGED!\n");
-    }
+    // TODO: integrate into undo/redo queue! currently pos/scale work because of a coincidence in editor.cpp and unconsumed input by imgui
+    DragFloats(prop, (float*)&data, 3);
 }
 
 void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::quat& data) {
-    ImGui::DragFloat4(prop, (float*)&data);
+    bind_floats(e, mixin_name, prop, data, 4);
 }

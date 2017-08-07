@@ -36,7 +36,11 @@ public:
             : m_id(id)
             , m_name(name) {}
 
-    eid id() const { return m_id; }
+    const eid id() const { return m_id; }
+    eid       id() { return m_id; }
+
+    operator const eid&() const { return m_id; }
+    operator eid&() { return m_id; }
 
     const std::string& name() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }

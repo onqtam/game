@@ -8,7 +8,7 @@ void imgui_bind_property(Entity&, const char*, const char* prop, Args&&...) {
 HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data);
 HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, int& data);
 HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, float& data);
-//HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, double& data); // no DragDouble...
+HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, double& data);
 
 HAPI void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, std::string& data);
 

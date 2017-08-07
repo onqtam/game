@@ -72,7 +72,7 @@ HA_SUPPRESS_WARNINGS
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
 
-//#include <boost/any.hpp>
+#include <boost/any.hpp>
 
 HA_SUPPRESS_WARNINGS_END
 

@@ -1,7 +1,7 @@
 
-PagedMixinAllocator - keep vectors of entity ids for each mixin type
-    requires dynamix extension - bobi will do it
-    rework the selection to not keep a std::vector<eid> but use the allocator
+undo/redo
+    compound commands
+    creating/deleting objects
 
 - level
     - save
@@ -24,6 +24,10 @@ PagedMixinAllocator - keep vectors of entity ids for each mixin type
     - object snapping (with the gizmos)
 - spatial queries about objects
 - objects inheriting transformations based on their hierarchical component
+
+PagedMixinAllocator - keep vectors of entity ids for each mixin type
+    requires dynamix extension - bobi will do it
+    rework the selection to not keep a std::vector<eid> but use the allocator
 
 == questions:
 - my codegen sux - the _gen prefixes, the order of declaration... what to do?

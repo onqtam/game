@@ -39,6 +39,6 @@ HA_DEFINE_MSG(rend, get_rendering_parts)
 HA_DEFINE_MSG(rend, get_aabb)
 
 // editor
-HA_DEFINE_MSG(edit, add_change_started_data)
-HA_DEFINE_MSG(edit, get_change_started_data)
 HA_DEFINE_MSG(edit, add_changed_property)
+//HA_DEFINE_MSG(edit, add_change_started_data)
+//HA_DEFINE_MSG(edit, get_change_started_data)

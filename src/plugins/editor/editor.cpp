@@ -276,23 +276,19 @@ public:
                     auto last = sel::get_last_stable_gizmo_transform(obj);
                     // NOTE that these also get triggered when I move the object with the float drags of the transform...
                     if(last.position != t.position) {
-                        JsonData old_val = command("transform", "pos", *(glm::vec3*)&last.position);
-                        JsonData new_val = command("transform", "pos", *(glm::vec3*)&t.position);
-                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                                                   new_val.data());
+                        JsonData ov = command("transform", "pos", *(glm::vec3*)&last.position);
+                        JsonData nv = command("transform", "pos", *(glm::vec3*)&t.position);
+                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
                     }
                     if(last.orientation != t.orientation) {
-                        JsonData old_val =
-                                command("transform", "rot", *(glm::quat*)&last.orientation);
-                        JsonData new_val = command("transform", "rot", *(glm::quat*)&t.orientation);
-                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                                                   new_val.data());
+                        JsonData ov = command("transform", "rot", *(glm::quat*)&last.orientation);
+                        JsonData nv = command("transform", "rot", *(glm::quat*)&t.orientation);
+                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
                     }
                     if(last.scale != t.scale) {
-                        JsonData old_val = command("transform", "scl", *(glm::vec3*)&last.scale);
-                        JsonData new_val = command("transform", "scl", *(glm::vec3*)&t.scale);
-                        edit::add_changed_property(ha_this, obj.id(), old_val.data(),
-                                                   new_val.data());
+                        JsonData ov = command("transform", "scl", *(glm::vec3*)&last.scale);
+                        JsonData nv = command("transform", "scl", *(glm::vec3*)&t.scale);
+                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
                     }
                 }
 
@@ -331,6 +327,11 @@ public:
                     printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo, int(undo_redo_commands.size()));
 
+                    //std::string ov(command.old_val.data(), command.old_val.size());
+                    //std::string nv(command.new_val.data(), command.new_val.size());
+                    //printf("[REDO] OLD VAL: %s\n", ov.c_str());
+                    //printf("[REDO] NEW VAL: %s\n", nv.c_str());
+
                     const auto& doc = sajson::parse(
                             sajson::dynamic_allocation(),
                             sajson::string(command.old_val.data(), command.old_val.size()));
@@ -349,10 +350,10 @@ public:
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo, int(undo_redo_commands.size()));
 
-                    std::string ov(command.old_val.data(), command.old_val.size());
-                    std::string nv(command.new_val.data(), command.new_val.size());
-                    printf("[REDO] OLD VAL: %s\n", ov.c_str());
-                    printf("[REDO] NEW VAL: %s\n", nv.c_str());
+                    //std::string ov(command.old_val.data(), command.old_val.size());
+                    //std::string nv(command.new_val.data(), command.new_val.size());
+                    //printf("[REDO] OLD VAL: %s\n", ov.c_str());
+                    //printf("[REDO] NEW VAL: %s\n", nv.c_str());
 
                     const auto& doc = sajson::parse(
                             sajson::dynamic_allocation(),
@@ -362,6 +363,13 @@ public:
 
                     const sajson::value root = doc.get_root();
                     common::deserialize(command.e, root);
+                }
+            }
+
+            // delete selected objects
+            if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
+                for(auto& curr : selected) {
+                    
                 }
             }
         } else if(ev.type == InputEvent::BUTTON) {
@@ -377,14 +385,23 @@ public:
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
 
-        std::string ov(old_val.data(), old_val.size());
-        std::string nv(new_val.data(), new_val.size());
-        printf("OLD VAL: %s\n", ov.c_str());
-        printf("NEW VAL: %s\n", nv.c_str());
         undo_redo_commands.push_back({e, old_val, new_val});
         ++curr_undo_redo;
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
+
+        //std::string ov(old_val.data(), old_val.size());
+        //std::string nv(new_val.data(), new_val.size());
+        //printf("OLD VAL: %s\n", ov.c_str());
+        //printf("NEW VAL: %s\n", nv.c_str());
     }
+
+    //void add_change_started_data(eid e, const std::string& prop, const boost::any val) {
+    //
+    //}
+
+    //const boost::any& get_change_started_data(eid e, const std::string& prop) {
+    //    return {};
+    //}
 };
 
 HA_SINGLETON_INSTANCE(editor);
