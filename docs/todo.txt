@@ -1,5 +1,5 @@
 
-finihs undo/redo - the GLFW_REPEAT problem of keypresses, test the string property, etc.
+fix bugs in undo/redo
 
 PagedMixinAllocator - keep vectors of entity ids for each mixin type
     requires dynamix extension - bobi will do it

@@ -11,6 +11,24 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
+template <typename T>
+JsonData command(const char* mixin_name, const char* prop, const T& data) {
+    JsonData out;
+    out.startObject();
+    out.append("\"");
+    out.append(mixin_name, strlen(mixin_name));
+    out.append("\":");
+    out.startObject();
+    out.append("\"");
+    out.append(prop, strlen(prop));
+    out.append("\":");
+    serialize(data, out);
+    out.endObject();
+    out.endObject();
+
+    return out;
+}
+
 class editor : public editor_gen,
                public UpdatableMixin<editor>,
                public InputEventListener,
@@ -255,12 +273,26 @@ public:
             // check if anything changed after release
             if(mouse_button_left_changed) {
                 if(!m_gizmo_state.mouse_left) {
-                    auto last = sel::get_last_stable_gizmo_transform(obj);
-                    if(last.position != t.position || last.orientation != t.orientation ||
-                       last.scale != t.scale) {
-                        // NOTE that this also triggers when I move the object with the float drags of the transform...
-                        printf("transform changed!\n");
-                    }
+                    //auto last = sel::get_last_stable_gizmo_transform(obj);
+                    //// NOTE that these also get triggered when I move the object with the float drags of the transform...
+                    //if(last.position != t.position) {
+                    //    JsonData old_val = command("common", "pos", *(glm::vec3*)&last.position);
+                    //    JsonData new_val = command("common", "pos", *(glm::vec3*)&t.position);
+                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                    //                               new_val.data());
+                    //}
+                    //if(last.orientation != t.orientation) {
+                    //    JsonData old_val = command("common", "rot", *(glm::quat*)&last.orientation);
+                    //    JsonData new_val = command("common", "rot", *(glm::quat*)&t.orientation);
+                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                    //                               new_val.data());
+                    //}
+                    //if(last.scale != t.scale) {
+                    //    JsonData old_val = command("common", "scl", *(glm::vec3*)&last.scale);
+                    //    JsonData new_val = command("common", "scl", *(glm::vec3*)&t.scale);
+                    //    edit::add_changed_property(ha_this, obj.id(), old_val.data(),
+                    //                               new_val.data());
+                    //}
                 }
 
                 mouse_button_left_changed = false;
@@ -292,11 +324,11 @@ public:
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
             // undo
-            if(key == GLFW_KEY_Z && mods & GLFW_MOD_CONTROL) {
+            if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && action == GLFW_PRESS) {
                 if(curr_undo_redo >= 0) {
-                    auto& command = undo_redo_commands[curr_undo_redo];
-                    --curr_undo_redo;
-                    printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
+                    auto& command = undo_redo_commands[curr_undo_redo--];
+                    printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
+                           curr_undo_redo, int(undo_redo_commands.size()));
 
                     const auto& doc = sajson::parse(
                             sajson::dynamic_allocation(),
@@ -308,8 +340,23 @@ public:
                     common::deserialize(command.e, root);
                 }
             }
+
             // redo
-            if(key == GLFW_KEY_Y && mods & GLFW_MOD_CONTROL) {
+            if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && action == GLFW_PRESS) {
+                if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
+                    auto& command = undo_redo_commands[++curr_undo_redo];
+                    printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
+                           curr_undo_redo, int(undo_redo_commands.size()));
+
+                    const auto& doc = sajson::parse(
+                            sajson::dynamic_allocation(),
+                            sajson::string(command.new_val.data(), command.new_val.size()));
+
+                    hassert(doc.is_valid());
+
+                    const sajson::value root = doc.get_root();
+                    common::deserialize(command.e, root);
+                }
             }
         } else if(ev.type == InputEvent::BUTTON) {
             if(ev.button.button == 0)
