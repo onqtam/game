@@ -417,6 +417,7 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::processEvents() {
+    // if imgui hasn't consumed the input
     if(ImGui::GetCurrentContext()->FocusedWindow == NULL) {
         for(size_t i = 0; i < m_inputs.size(); ++i)
             for(auto& curr : m_inputEventListeners)
@@ -446,6 +447,7 @@ void Application::update() {
     // send input events to the rest of the app
     processEvents();
 
+    // to help in input consuming by imgui
     if(!ImGui::IsMouseHoveringAnyWindow()) {
         ImGui::SetWindowFocus(nullptr);
     }
