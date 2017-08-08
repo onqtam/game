@@ -79,7 +79,7 @@ static bool DragFloats(const char* label, float* items, int numItems, bool* pJus
 
 static bool DragInts(const char* label, int* items, int numItems, bool* pJustReleased = nullptr,
                      bool* pJustActivated = nullptr, float v_speed = 1.0f, float v_min = 0.0f,
-                     float v_max = 0.0f, const char* display_format = "%.0f") {
+                     float v_max = 0.0f, const char* display_format = "%d") {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if(window->SkipItems)
         return false;
@@ -114,11 +114,11 @@ static bool DragInts(const char* label, int* items, int numItems, bool* pJustRel
 }
 
 template <typename T>
-JsonData construct_undo_redo_command(const char* mixin_name, const char* prop, const T& data) {
+JsonData construct_undo_redo_command(const char* mixin, const char* prop, const T& data) {
     JsonData out;
     out.startObject();
     out.append("\"");
-    out.append(mixin_name, strlen(mixin_name));
+    out.append(mixin, strlen(mixin));
     out.append("\":");
     out.startObject();
     out.append("\"");
@@ -132,72 +132,71 @@ JsonData construct_undo_redo_command(const char* mixin_name, const char* prop, c
 }
 
 template <typename T>
-void bind_floats(Entity& e, const char* mixin_name, const char* prop, T& data, int num_floats) {
-    static T persistent_data;
+void bind_floats(Entity& e, const char* mixin, const char* prop, T& data, int num_floats) {
+    static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
     DragFloats(prop, (float*)&data, num_floats, &justReleased, &justActivated);
     if(justActivated) {
-        persistent_data = data;
+        data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = construct_undo_redo_command(mixin_name, prop, persistent_data);
-        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        JsonData old_val = construct_undo_redo_command(mixin, prop, data_when_dragging_started);
+        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
     }
 }
 
 template <typename T>
-void bind_ints(Entity& e, const char* mixin_name, const char* prop, T& data, int num_floats) {
-    static T persistent_data;
+void bind_ints(Entity& e, const char* mixin, const char* prop, T& data, int num_floats) {
+    static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
     DragInts(prop, (int*)&data, num_floats, &justReleased, &justActivated);
     if(justActivated) {
-        persistent_data = data;
+        data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = construct_undo_redo_command(mixin_name, prop, persistent_data);
-        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        JsonData old_val = construct_undo_redo_command(mixin, prop, data_when_dragging_started);
+        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
     }
 }
 
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, bool& data) {
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
-        JsonData old_val = construct_undo_redo_command(mixin_name, prop, !data);
-        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        JsonData old_val = construct_undo_redo_command(mixin, prop, !data);
+        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
     }
 }
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, int& data) {
-    bind_ints(e, mixin_name, prop, data, 1);
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, int& data) {
+    bind_ints(e, mixin, prop, data, 1);
 }
-
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, float& data) {
-    bind_floats(e, mixin_name, prop, data, 1);
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, float& data) {
+    bind_floats(e, mixin, prop, data, 1);
 }
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, double& data) {
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, double& data) {
     float temp = static_cast<float>(data);
-    bind_floats(e, mixin_name, prop, temp, 1);
+    bind_floats(e, mixin, prop, temp, 1);
     data = temp;
 }
 
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, std::string& data) {
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
-        JsonData old_val = construct_undo_redo_command(mixin_name, prop, data);
+        JsonData old_val = construct_undo_redo_command(mixin, prop, data);
         data             = buf;
-        JsonData new_val = construct_undo_redo_command(mixin_name, prop, data);
+        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
         edit::add_changed_property(World::get().editor(), e.id(), old_val.data(), new_val.data());
     }
 }
 
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::vec3& data) {
-    bind_floats(e, mixin_name, prop, data, 3);
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, glm::vec3& data) {
+    bind_floats(e, mixin, prop, data, 3);
 }
 
-void imgui_bind_property(Entity& e, const char* mixin_name, const char* prop, glm::quat& data) {
-    bind_floats(e, mixin_name, prop, data, 4);
+void imgui_bind_property(Entity& e, const char* mixin, const char* prop, glm::quat& data) {
+    bind_floats(e, mixin, prop, data, 4);
 }

@@ -394,14 +394,6 @@ public:
         //printf("OLD VAL: %s\n", ov.c_str());
         //printf("NEW VAL: %s\n", nv.c_str());
     }
-
-    //void add_change_started_data(eid e, const std::string& prop, const boost::any val) {
-    //
-    //}
-
-    //const boost::any& get_change_started_data(eid e, const std::string& prop) {
-    //    return {};
-    //}
 };
 
 HA_SINGLETON_INSTANCE(editor);

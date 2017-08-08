@@ -2,6 +2,7 @@
 
 class Entity;
 
+// TODO: rethink this - currently a const eid can be copied and non-const messages can be called on the copy - is that ok?
 class eid
 {
     int16 m_value;
