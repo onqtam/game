@@ -417,11 +417,11 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::processEvents() {
-    //if(ImGui::GetCurrentContext()->FocusedWindow == NULL) {
-    for(size_t i = 0; i < m_inputs.size(); ++i)
-        for(auto& curr : m_inputEventListeners)
-            curr->process_event(m_inputs[i]);
-    //}
+    if(ImGui::GetCurrentContext()->FocusedWindow == NULL) {
+        for(size_t i = 0; i < m_inputs.size(); ++i)
+            for(auto& curr : m_inputEventListeners)
+                curr->process_event(m_inputs[i]);
+    }
 
     m_inputs.clear();
 }
@@ -446,9 +446,9 @@ void Application::update() {
     // send input events to the rest of the app
     processEvents();
 
-    //if(!ImGui::IsMouseHoveringAnyWindow()) {
-    //    ImGui::SetWindowFocus(nullptr);
-    //}
+    if(!ImGui::IsMouseHoveringAnyWindow()) {
+        ImGui::SetWindowFocus(nullptr);
+    }
 
     // update game stuff
     World::get().update();
