@@ -31,6 +31,7 @@
     _Pragma("clang diagnostic ignored \"-Wnon-virtual-dtor\"") \
     _Pragma("clang diagnostic ignored \"-Wreorder\"") \
     _Pragma("clang diagnostic ignored \"-Wfloat-equal\"") \
+    _Pragma("clang diagnostic ignored \"-Wundefined-func-template\"") \
 
 #endif // __clang__
 

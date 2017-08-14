@@ -76,6 +76,7 @@ questionable:
 == assets:
 - https://github.com/tlorach/Bak3d
 - Animation Compression Library - https://github.com/nfrechette/acl
+- inverse kinematics - https://github.com/TheComet93/ik
 - https://github.com/mp3butcher/Cal3D/
 - https://github.com/nem0/OpenFBX
 - https://github.com/guillaumeblanc/ozz-animation

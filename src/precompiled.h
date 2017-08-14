@@ -74,6 +74,10 @@ HA_SUPPRESS_WARNINGS
 
 #include <boost/any.hpp>
 
+#include <boost/variant.hpp>
+
+#include <boost/mpl/for_each.hpp>
+
 HA_SUPPRESS_WARNINGS_END
 
 using glm::int8;
