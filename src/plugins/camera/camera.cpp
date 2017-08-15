@@ -11,8 +11,8 @@ const float k_speed = 25.f;
 
 const glm::vec3 k_init_look_direction = {0, -1, -0.2};
 const glm::vec3 k_forward             = {0, 0, -1};
-const glm::vec3 k_up                  = {0, 1, 0};
-const glm::vec3 k_right               = {1, 0, 0};
+//const glm::vec3 k_up                  = {0, 1, 0};
+//const glm::vec3 k_right               = {1, 0, 0};
 
 class HA_EMPTY_BASE camera : public camera_gen,
                              public InputEventListener,

@@ -63,6 +63,7 @@ CI - appveyor emscripten build fails for some reason
 - make a proper release config - with LTO, no plugins, etc.
 - be able to build everything in release except for gameplay code (debug iterators?)
 - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
+- ninja instead of msbuild - see this: https://blogs.msdn.microsoft.com/vcblog/2017/08/14/cmake-support-in-visual-studio-customizing-your-environment/
 - unity builds
 - move to python3
 - make all the _gen.h files depend on the mix_file.py script so they get regenerated when it gets changed

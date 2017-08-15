@@ -56,8 +56,11 @@ HA_SERIALIZE_TEST(eid, eid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
 HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
+
+HA_SUPPRESS_WARNINGS
 typedef boost::variant<int, char, double, float> variant_no_commas_for_test;
 HA_SERIALIZE_TEST(variant_no_commas_for_test, 42.5);
+HA_SUPPRESS_WARNINGS_END
 
 // serialization_2.h
 HA_SERIALIZE_TEST(tinygizmo::rigid_transform, {{0, 1, 2, 3}, {4, 5, 6}, {7, 8, 9}});

@@ -220,6 +220,6 @@ int registerGlobal(const char* name, GlobalInfo info);
     deserialize(var, val.get_object_value(i))
 
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \
-    friend void serialize(const name& src, JsonData& out);                                         \
+    friend void serialize(const name& src, JsonData& out, bool as_object);                         \
     friend void deserialize(name& dest, const sajson::value& val);                                 \
     friend void imgui_bind_properties(Entity& e, const char* mixin_name, name& dest)

@@ -11,7 +11,7 @@ public:
 
     size_t             size() const { return m_data.size(); }
     std::vector<char>& data() { return m_data; }
-    void reserve(size_t size) { m_data.reserve(size); }
+    void               reserve(size_t size) { m_data.reserve(size); }
 
     sajson::document parse() {
         return sajson::parse(sajson::dynamic_allocation(),
@@ -39,21 +39,10 @@ public:
     }
 
     // len should NOT include the null terminating character
-    void append(const char* text, size_t len) {
-        const size_t old_size = m_data.size();
-        const size_t sum      = old_size + len;
-        if(sum > m_data.capacity()) {
-            if(sum < m_data.capacity() * 2)
-                m_data.reserve(m_data.capacity() * 2);
-            else
-                m_data.reserve(sum);
-        }
-        m_data.resize(sum);
-        memcpy(m_data.data() + old_size, text, len);
-    }
+    void append(const char* text, size_t len) { m_data.insert(m_data.end(), text, text + len); }
 
     template <size_t N>
-    void             append(const char (&text)[N]) {
+    void append(const char (&text)[N]) {
         hassert(text[N - 1] == '\0');
         append(text, N - 1);
     }

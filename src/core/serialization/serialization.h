@@ -117,9 +117,11 @@ void deserialize(boost::variant<Ts...>& data, const sajson::value& val) {
 
     // adapted from the runtime part of this SO answer: https://stackoverflow.com/a/9313217/3162383
     std::vector<std::function<void(boost::variant<Ts...>&, const sajson::value&)>> deserializers;
+    HA_SUPPRESS_WARNINGS
     boost::mpl::for_each<typename boost::variant<Ts...>::types>([&deserializers](auto dummy) {
         deserializers.push_back(&deserialize_in<decltype(dummy), boost::variant<Ts...>>);
     });
+    HA_SUPPRESS_WARNINGS_END
 
     // call the appropriate deserialization routine
     deserializers[type_idx](data, val.get_array_element(1));

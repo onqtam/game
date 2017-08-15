@@ -131,11 +131,11 @@ for type in types.order():
     writeln(gen, "")
     
     functions += strln("")
-    functions += strln("inline void serialize(const " + name_gen + "& src, JsonData& out) {")
-    functions += strln("out.startObject();", tabs = 1)
+    functions += strln("inline void serialize(const " + name_gen + "& src, JsonData& out, bool as_object = true) {")
+    functions += strln("if(as_object) out.startObject();", tabs = 1)
     for field in types[type]["fields"]:
         functions += strln("HA_SERIALIZE_VARIABLE(\"" + field.hash + "\", src." + field.name + ");", tabs = 1)
-    functions += strln("out.endObject();", tabs = 1)
+    functions += strln("if(as_object) out.endObject();", tabs = 1)
     functions += strln("}")
     functions += strln("")
     
@@ -146,6 +146,7 @@ for type in types.order():
         functions += strln("HA_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
     functions += strln("}", tabs = 1)
     functions += strln("}")
+    functions += strln("")
     
     functions += strln("inline void imgui_bind_properties(Entity& e, const char* mixin_name, " + name_gen + "& obj) {")
     for field in types[type]["fields"]:
