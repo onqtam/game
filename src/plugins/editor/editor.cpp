@@ -400,14 +400,7 @@ public:
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize(cmd.e, root);
-        } else if(command_variant.which() == 1) { // entity creation
-            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
-            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
-                // delete
-            } else {
-                EntityManager::get().createFromId(cmd.id, cmd.name);
-            }
-        } else if(command_variant.which() == 2) { // entity mutation
+        } else if(command_variant.which() == 1) { // entity mutation
             auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
             if(!cmd.added && undo) {
                 // add the mixins
@@ -420,6 +413,13 @@ public:
                 hassert(doc.is_valid());
                 const auto root = doc.get_root();
                 common::deserialize(cmd.id, root);
+            }
+        } else if(command_variant.which() == 2) { // entity creation
+            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
+            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
+                // delete
+            } else {
+                EntityManager::get().createFromId(cmd.id, cmd.name);
             }
         } else if(command_variant.which() == 3) { // compound
             auto& cmd = boost::get<compound_cmd_gen>(command_variant);
