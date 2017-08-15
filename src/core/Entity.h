@@ -15,7 +15,7 @@ public:
     bool operator<(const eid& other) const { return m_value < other.m_value; }
     bool operator==(const eid& other) const { return m_value == other.m_value; }
 
-    bool isValid() const { return m_value != int16(invalid()); }
+    bool isValid() const;
 
     operator const Entity&() const { return get(); }
     operator Entity&() { return get(); }
@@ -44,7 +44,7 @@ public:
     operator eid&() { return m_id; }
 
     const std::string& name() const { return m_name; }
-    void setName(const std::string& name) { m_name = name; }
+    void               setName(const std::string& name) { m_name = name; }
 
     HAPI void addMixin(const char* mixin);
     HAPI void remMixin(const char* mixin);
@@ -72,7 +72,7 @@ private:
     std::map<eid, Entity> m_entities;
 
 public:
-    eid newEntityId(const std::string& in_name = std::string()) {
+    eid create(const std::string& in_name = std::string()) {
         std::string name = in_name;
         if(name.empty())
             name = "entity_" + std::to_string(m_curr_id);
@@ -83,14 +83,29 @@ public:
         return eid(m_curr_id++);
     }
 
-    Entity& newEntity(const std::string& in_name = std::string()) {
-        return getById(newEntityId(in_name));
+    eid createFromId(eid id, const std::string& name) {
+        hassert(!id.isValid());
+        return m_entities.emplace(id, Entity(id, name)).first->second;
     }
 
-    Entity& getById(eid id) { return m_entities[id]; }
+    void destroy(eid id) {
+        hassert(id.isValid());
+        m_entities.erase(id);
+    }
+
+    bool has(eid id) const { return m_entities.count(id) > 0; }
+
+    Entity& getById(eid id) {
+        hassert(has(id));
+        return m_entities.at(id);
+    }
 
     auto& getEntities() { return m_entities; }
 };
+
+inline bool eid::isValid() const {
+    return m_value != int16(invalid()) && EntityManager::get().has(*this);
+}
 
 inline Entity& eid::get() {
     hassert(isValid());

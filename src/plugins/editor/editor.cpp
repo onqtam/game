@@ -7,6 +7,8 @@
 #include "core/GraphicsHelpers.h"
 #include "core/InputEvent.h"
 
+#include <iostream>
+
 HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
@@ -28,6 +30,12 @@ JsonData command(const char* mixin_name, const char* prop, const T& data) {
 
     return out;
 }
+
+//class editor;
+//void serialize(const editor& src, JsonData& out);
+//void deserialize(editor& dest, const sajson::value& val);
+
+typedef decltype(editor_gen::undo_redo_commands)::value_type command_variant_type;
 
 class editor : public editor_gen,
                public UpdatableMixin<editor>,
@@ -53,7 +61,7 @@ class editor : public editor_gen,
 public:
     editor()
             : Singleton(this) {
-        m_grid = GeomMan::get().get("", createGrid, 20, 20, World::get().width(),
+        m_grid        = GeomMan::get().get("", createGrid, 20, 20, World::get().width(),
                                     World::get().height(), colors::green);
         m_grid_shader = ShaderMan::get().get("cubes");
 
@@ -320,81 +328,107 @@ public:
             if(key == GLFW_KEY_S)
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
+            std::function<void(command_variant_type&, bool)> handle_command =
+                    [&](command_variant_type& command_variant, bool undo) {
+                        if(command_variant.which() == 0) { // attribute changed
+                            auto& cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
+                            auto& val = undo ? cmd.old_val : cmd.new_val;
+                            const auto& doc = sajson::parse(sajson::dynamic_allocation(),
+                                                            sajson::string(val.data(), val.size()));
+                            hassert(doc.is_valid());
+                            const sajson::value root = doc.get_root();
+                            common::deserialize(cmd.e, root);
+                        } else if(command_variant.which() == 1) { // entity creation
+                            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
+                            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
+                                // delete
+                            } else {
+                                EntityManager::get().createFromId(cmd.id, cmd.name);
+                            }
+                        } else if(command_variant.which() == 2) { // entity mutation
+                            auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
+                        } else if(command_variant.which() == 3) { // compound
+                            auto& cmd = boost::get<compound_cmd_gen>(command_variant);
+                        }
+                    };
+
             // undo
             if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo >= 0) {
-                    auto& command = undo_redo_commands[curr_undo_redo--];
+                    auto& command_variant = undo_redo_commands[curr_undo_redo--];
                     printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo, int(undo_redo_commands.size()));
 
-                    //std::string ov(command.old_val.data(), command.old_val.size());
-                    //std::string nv(command.new_val.data(), command.new_val.size());
-                    //printf("[REDO] OLD VAL: %s\n", ov.c_str());
-                    //printf("[REDO] NEW VAL: %s\n", nv.c_str());
-
-                    const auto& doc = sajson::parse(
-                            sajson::dynamic_allocation(),
-                            sajson::string(command.old_val.data(), command.old_val.size()));
-
-                    hassert(doc.is_valid());
-
-                    const sajson::value root = doc.get_root();
-                    common::deserialize(command.e, root);
+                    handle_command(command_variant, true);
                 }
             }
 
             // redo
             if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
-                    auto& command = undo_redo_commands[++curr_undo_redo];
+                    auto& command_variant = undo_redo_commands[++curr_undo_redo];
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo, int(undo_redo_commands.size()));
 
-                    //std::string ov(command.old_val.data(), command.old_val.size());
-                    //std::string nv(command.new_val.data(), command.new_val.size());
-                    //printf("[REDO] OLD VAL: %s\n", ov.c_str());
-                    //printf("[REDO] NEW VAL: %s\n", nv.c_str());
-
-                    const auto& doc = sajson::parse(
-                            sajson::dynamic_allocation(),
-                            sajson::string(command.new_val.data(), command.new_val.size()));
-
-                    hassert(doc.is_valid());
-
-                    const sajson::value root = doc.get_root();
-                    common::deserialize(command.e, root);
+                    handle_command(command_variant, false);
                 }
             }
 
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
-                for(auto& curr : selected) {
-                    
+                if(selected.size() > 0) {
+                    compound_cmd_gen comp_cmd;
+                    comp_cmd.commands.reserve(selected.size() * 2);
+                    for(auto& curr : selected) {
+                        comp_cmd.commands.push_back(
+                                entity_creation_cmd_gen({curr, curr.get().name(), false}));
+                    }
+                    add_command(comp_cmd);
                 }
             }
         } else if(ev.type == InputEvent::BUTTON) {
             if(ev.button.button == 0)
                 m_gizmo_state.mouse_left = (ev.button.action != GLFW_RELEASE);
-            mouse_button_left_changed    = true;
+            mouse_button_left_changed = true;
         }
     }
 
-    void add_changed_property(eid e, const std::vector<char>& old_val,
-                              const std::vector<char>& new_val) {
+    void add_command(const command_variant_type& command) {
         if(undo_redo_commands.size())
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
 
-        undo_redo_commands.push_back({e, old_val, new_val});
+        HA_SUPPRESS_WARNINGS
+        undo_redo_commands.push_back(command);
+        HA_SUPPRESS_WARNINGS_END
+
         ++curr_undo_redo;
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
+    }
 
-        //std::string ov(old_val.data(), old_val.size());
-        //std::string nv(new_val.data(), new_val.size());
-        //printf("OLD VAL: %s\n", ov.c_str());
-        //printf("NEW VAL: %s\n", nv.c_str());
+    void add_changed_property(eid e, const json_buf& old_val, const json_buf& new_val) {
+        HA_SUPPRESS_WARNINGS
+        add_command(attribute_changed_cmd_gen({e, old_val, new_val}));
+        HA_SUPPRESS_WARNINGS_END
     }
 };
+
+//void serialize(const editor& src, JsonData& out) {
+//    out.startObject();
+//    serialize(src, out, false);
+//    HA_SERIALIZE_VARIABLE("selected", src.selected);
+//    out.endObject();
+//}
+//
+//void deserialize(editor& dest, const sajson::value& val) {
+//    const size_t val_len = val.get_length();
+//    for(size_t i = 0; i < val_len; ++i) {
+//        HA_DESERIALIZE_VARIABLE("selected", dest.selected);
+//        HA_DESERIALIZE_VARIABLE("undo_redo_commands", dest.undo_redo_commands);
+//        HA_DESERIALIZE_VARIABLE("curr_undo_redo", dest.curr_undo_redo);
+//        HA_DESERIALIZE_VARIABLE("mouse_button_left_changed", dest.mouse_button_left_changed);
+//    }
+//}
 
 HA_SINGLETON_INSTANCE(editor);
 

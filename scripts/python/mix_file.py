@@ -75,7 +75,7 @@ for line in mix:
         types[current_type] = {"fields" : []}
     elif words[0] == "public:" or words[0] == "private:" or words[0] == "protected:":
         visibility = words[0]
-    elif words[0] == "alias" and len(words) > 2:
+    elif words[0] == "alias" and len(words) == 3:
         aliases[words[1]] = words[2]
     elif words[0][0] != "#" and len(words) > 1:
         field = Field()

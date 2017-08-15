@@ -14,17 +14,17 @@ World::World()
         : Singleton<World>(this) {
     auto& em = EntityManager::get();
 
-    m_camera = em.newEntityId("camera");
+    m_camera = em.create("camera");
     m_camera.get().addMixin("camera");
 
     m_editor.setName("editor");
     m_editor.addMixin("editor");
 
-    auto& obj = em.newEntity("with_mesh!");
+    auto& obj = em.create("with_mesh!").get();
     obj.addMixin("mesh");
     tr::set_scl(obj, {5, 5, 5});
 
-    auto& obj2 = em.newEntity("with_mesh_2!");
+    auto& obj2 = em.create("with_mesh_2!").get();
     obj2.addMixin("mesh");
     tr::set_scl(obj2, {7, 7, 7});
     tr::set_pos(obj2, {20, 0, 20});

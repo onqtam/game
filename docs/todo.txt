@@ -1,7 +1,11 @@
 
+rename propert[y] to attribute
+
 undo/redo
     compound commands
     creating/deleting objects
+        names of entities
+    mutating objects
 
 - level
     - save
@@ -87,6 +91,7 @@ questionable:
 == codegen:
 - syntax highlighting for .mix files in VS
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
+- types in namespaces
 - look into https://github.com/macton/DDLParser
 
 == random:
@@ -240,6 +245,8 @@ integrate typesafe stuff
     //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
 
 == dynamix:
+- make the cloning functionality of objects virtual
+- ensure that the offset to the object is already added when constructing a mixin
 - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
 - prefix everything after _dynamix_internal: with "internal"
 - make dynamix::object extentable - by inheriting from user types

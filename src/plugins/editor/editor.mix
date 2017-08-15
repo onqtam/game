@@ -1,14 +1,32 @@
 #include "core/serialization/serialization_2.h"
 
-type undo_redo_action
+alias vector_variant_cmd std::vector<boost::variant<attribute_changed_cmd_gen,entity_mutation_cmd_gen,entity_creation_cmd_gen,compound_cmd_gen>>
+
+type attribute_changed_cmd
 public:
-    eid					e
-    std::vector<char>	old_val
-    std::vector<char>	new_val
+    eid			e
+    json_buf	old_val
+    json_buf	new_val
+
+type entity_creation_cmd
+public:
+    eid			id
+	std::string name
+    bool		created
+
+type entity_mutation_cmd
+public:
+    eid							id
+	std::vector<std::string>	mixins
+    bool						added
+
+type compound_cmd
+public:
+    vector_variant_cmd commands
 
 type editor
 	std::vector<eid>					selected
-	std::vector<undo_redo_action_gen>	undo_redo_commands
+	vector_variant_cmd					undo_redo_commands
 	int									curr_undo_redo				default:-1
 	bool								mouse_button_left_changed	default:false
 
