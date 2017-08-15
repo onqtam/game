@@ -354,6 +354,9 @@ public:
                     compound_cmd_gen comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
+                        // remove selected component ---> TEMP HACK!
+                        curr.get().remMixin("selected");
+
                         // get the list of mixin names
                         std::vector<const char*> mixins;
                         curr.get().get_mixin_names(mixins);
@@ -402,22 +405,25 @@ public:
             common::deserialize(cmd.e, root);
         } else if(command_variant.which() == 1) { // entity mutation
             auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
-            if(!cmd.added && undo) {
+            if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().addMixin(mixin.c_str());
-
                 // deserialize the mixins
                 JsonData                state(cmd.mixins_state);
                 const sajson::document& doc = state.parse();
                 hassert(doc.is_valid());
                 const auto root = doc.get_root();
                 common::deserialize(cmd.id, root);
+            } else {
+                // remove the mixins
+                for(auto& mixin : cmd.mixins)
+                    cmd.id.get().remMixin(mixin.c_str());
             }
         } else if(command_variant.which() == 2) { // entity creation
             auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
             if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
-                // delete
+                EntityManager::get().destroy(cmd.id);
             } else {
                 EntityManager::get().createFromId(cmd.id, cmd.name);
             }
