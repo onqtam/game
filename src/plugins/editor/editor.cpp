@@ -10,6 +10,8 @@
 #include <iostream>
 
 HA_SUPPRESS_WARNINGS
+#include <boost/range/adaptor/reversed.hpp>
+
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
@@ -328,49 +330,21 @@ public:
             if(key == GLFW_KEY_S)
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
-            std::function<void(command_variant_type&, bool)> handle_command =
-                    [&](command_variant_type& command_variant, bool undo) {
-                        if(command_variant.which() == 0) { // attribute changed
-                            auto& cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
-                            auto& val = undo ? cmd.old_val : cmd.new_val;
-                            const auto& doc = sajson::parse(sajson::dynamic_allocation(),
-                                                            sajson::string(val.data(), val.size()));
-                            hassert(doc.is_valid());
-                            const sajson::value root = doc.get_root();
-                            common::deserialize(cmd.e, root);
-                        } else if(command_variant.which() == 1) { // entity creation
-                            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
-                            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
-                                // delete
-                            } else {
-                                EntityManager::get().createFromId(cmd.id, cmd.name);
-                            }
-                        } else if(command_variant.which() == 2) { // entity mutation
-                            auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
-                        } else if(command_variant.which() == 3) { // compound
-                            auto& cmd = boost::get<compound_cmd_gen>(command_variant);
-                        }
-                    };
-
             // undo
             if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo >= 0) {
-                    auto& command_variant = undo_redo_commands[curr_undo_redo--];
                     printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-                           curr_undo_redo, int(undo_redo_commands.size()));
-
-                    handle_command(command_variant, true);
+                           curr_undo_redo - 1, int(undo_redo_commands.size()));
+                    handle_command(undo_redo_commands[curr_undo_redo--], true);
                 }
             }
 
             // redo
             if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
-                    auto& command_variant = undo_redo_commands[++curr_undo_redo];
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-                           curr_undo_redo, int(undo_redo_commands.size()));
-
-                    handle_command(command_variant, false);
+                           curr_undo_redo + 1, int(undo_redo_commands.size()));
+                    handle_command(undo_redo_commands[++curr_undo_redo], false);
                 }
             }
 
@@ -380,10 +354,34 @@ public:
                     compound_cmd_gen comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
+                        // get the list of mixin names
+                        std::vector<const char*> mixins;
+                        curr.get().get_mixin_names(mixins);
+                        std::vector<std::string> mixin_names(mixins.size());
+                        std::transform(mixins.begin(), mixins.end(), mixin_names.begin(),
+                                       [](const char* in) { return in; });
+
+                        // serialize the state of the mixins
+                        JsonData state;
+                        state.reserve(10000);
+                        state.startObject();
+                        common::serialize(curr.get(), state);
+                        state.endObject();
+
+                        HA_SUPPRESS_WARNINGS
+                        comp_cmd.commands.push_back(
+                                entity_mutation_cmd_gen({curr, mixin_names, state.data(), false}));
                         comp_cmd.commands.push_back(
                                 entity_creation_cmd_gen({curr, curr.get().name(), false}));
+                        HA_SUPPRESS_WARNINGS_END
+
+                        EntityManager::get().destroy(curr);
                     }
+                    HA_SUPPRESS_WARNINGS
                     add_command(comp_cmd);
+                    HA_SUPPRESS_WARNINGS_END
+
+                    selected.clear();
                 }
             }
         } else if(ev.type == InputEvent::BUTTON) {
@@ -393,14 +391,53 @@ public:
         }
     }
 
+    void handle_command(command_variant_type& command_variant, bool undo) {
+        if(command_variant.which() == 0) { // attribute changed
+            auto&       cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
+            auto&       val = undo ? cmd.old_val : cmd.new_val;
+            const auto& doc = sajson::parse(sajson::dynamic_allocation(),
+                                            sajson::string(val.data(), val.size()));
+            hassert(doc.is_valid());
+            const auto root = doc.get_root();
+            common::deserialize(cmd.e, root);
+        } else if(command_variant.which() == 1) { // entity creation
+            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
+            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
+                // delete
+            } else {
+                EntityManager::get().createFromId(cmd.id, cmd.name);
+            }
+        } else if(command_variant.which() == 2) { // entity mutation
+            auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
+            if(!cmd.added && undo) {
+                // add the mixins
+                for(auto& mixin : cmd.mixins)
+                    cmd.id.get().addMixin(mixin.c_str());
+
+                // deserialize the mixins
+                JsonData                state(cmd.mixins_state);
+                const sajson::document& doc = state.parse();
+                hassert(doc.is_valid());
+                const auto root = doc.get_root();
+                common::deserialize(cmd.id, root);
+            }
+        } else if(command_variant.which() == 3) { // compound
+            auto& cmd = boost::get<compound_cmd_gen>(command_variant);
+            if(undo)
+                for(auto& curr : boost::adaptors::reverse(cmd.commands))
+                    handle_command(curr, undo);
+            else
+                for(auto& curr : cmd.commands)
+                    handle_command(curr, undo);
+        }
+    }
+
     void add_command(const command_variant_type& command) {
         if(undo_redo_commands.size())
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
 
-        HA_SUPPRESS_WARNINGS
         undo_redo_commands.push_back(command);
-        HA_SUPPRESS_WARNINGS_END
 
         ++curr_undo_redo;
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);

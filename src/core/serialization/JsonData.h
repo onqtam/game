@@ -8,6 +8,8 @@ class JsonData
 
 public:
     JsonData() = default;
+    JsonData(const json_buf& data)
+            : m_data(data) {}
     JsonData(json_buf&& data)
             : m_data(std::move(data)) {}
 

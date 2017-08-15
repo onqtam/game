@@ -5,7 +5,7 @@ undo/redo
     compound commands
     creating/deleting objects
         names of entities
-    mutating objects
+    mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
 
 - level
     - save
@@ -245,8 +245,10 @@ integrate typesafe stuff
     //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
 
 == dynamix:
-- make the cloning functionality of objects virtual
-- ensure that the offset to the object is already added when constructing a mixin
+- minor:
+    - make the cloning functionality of objects virtual
+    - ensure that the offset to the object is already added when constructing a mixin
+    - object::get_mixin_names() - do a .reserve() before the push_back-s
 - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
 - prefix everything after _dynamix_internal: with "internal"
 - make dynamix::object extentable - by inheriting from user types

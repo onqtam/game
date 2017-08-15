@@ -18,6 +18,7 @@ type entity_mutation_cmd
 public:
     eid							id
 	std::vector<std::string>	mixins
+	json_buf					mixins_state
     bool						added
 
 type compound_cmd

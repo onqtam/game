@@ -84,7 +84,7 @@ public:
     }
 
     eid createFromId(eid id, const std::string& name) {
-        hassert(!id.isValid());
+        hassert(!has(id));
         return m_entities.emplace(id, Entity(id, name)).first->second;
     }
 
