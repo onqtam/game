@@ -1,4 +1,6 @@
 
+mesh component
+
 prefabs
 
 editing an attribute of multiple objects at once
@@ -9,7 +11,7 @@ command script for editing the level
     - save
     - load
 - ingame editor
-    - GUI for add mixin to objects - with fuzzy search
+    - GUI for add mixin to objects
     - enter/leave editor mode
         - controls for that
         - remove mixins like "selected"

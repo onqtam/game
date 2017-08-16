@@ -12,22 +12,41 @@ HA_SINGLETON_INSTANCE(World);
 
 World::World()
         : Singleton<World>(this) {
-    auto& em = ObjectManager::get();
+    auto& om = ObjectManager::get();
 
-    m_camera = em.create("camera");
+    m_camera = om.create("camera");
     m_camera.get().addMixin("camera");
 
     m_editor.setName("editor");
     m_editor.addMixin("editor");
 
-    auto& obj = em.create("with_mesh!").get();
+    auto& obj = om.create("with_mesh!").get();
     obj.addMixin("mesh");
     tr::set_scl(obj, {5, 5, 5});
 
-    auto& obj2 = em.create("with_mesh_2!").get();
+    auto& obj2 = om.create("with_mesh_2!").get();
     obj2.addMixin("mesh");
     tr::set_scl(obj2, {7, 7, 7});
     tr::set_pos(obj2, {20, 0, 20});
+
+    auto& dummy1 = om.create("with_no_brain").get();
+    auto& dummy2 = om.create("with_no_brain 2").get();
+    auto& dummy3 = om.create("blabla").get();
+    auto& dummy4 = om.create("dummy 4").get();
+    auto& dummy5 = om.create("dummy 5").get();
+
+    set_parent(dummy1, obj);
+    add_child(obj, dummy1);
+    set_parent(dummy2, obj);
+    add_child(obj, dummy2);
+
+    set_parent(dummy3, dummy1);
+    add_child(dummy1, dummy3);
+    set_parent(dummy4, dummy1);
+    add_child(dummy1, dummy4);
+
+    set_parent(dummy5, obj2);
+    add_child(obj2, dummy5);
 }
 
 void World::update() {

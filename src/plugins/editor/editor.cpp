@@ -12,6 +12,8 @@
 HA_SUPPRESS_WARNINGS
 #include <boost/range/adaptor/reversed.hpp>
 
+#include <imgui/imgui_internal.h>
+
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
@@ -117,7 +119,7 @@ public:
         bgfx_submit(0, m_grid_shader.get(), 0, false);
 
         auto& app = Application::get();
-        auto& em  = ObjectManager::get();
+        auto& om  = ObjectManager::get();
 
         static bool no_titlebar  = false;
         static bool no_border    = true;
@@ -146,7 +148,10 @@ public:
                 auto selected_mixin_id =
                         dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
 
-                for(const auto& curr : em.getEntities()) {
+                static ImGuiTextFilter filter;
+                filter.Draw("Filter (inc,or_inc2,-exc)");
+
+                for(const auto& curr : om.getEntities()) {
                     // recursive select/deselect
                     std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
                         auto& obj = root.get();
@@ -174,7 +179,7 @@ public:
                     std::function<void(oid)> buildTree = [&](oid root) {
                         auto&              obj = root.get();
                         ImGuiTreeNodeFlags node_flags =
-                                ImGuiTreeNodeFlags_OpenOnArrow |
+                                ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen |
                                 ImGuiTreeNodeFlags_OpenOnDoubleClick |
                                 (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
 
@@ -183,9 +188,16 @@ public:
                             node_flags |=
                                     ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-                        auto name      = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
-                        bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
-                                                           name.c_str());
+                        auto name = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
+
+                        bool is_open = ImGui::TreeNodeBehaviorIsOpen(
+                                ImGui::GetCurrentWindow()->GetID((void*)(intptr_t)int16(root)),
+                                node_flags);
+
+                        bool passed_filter = filter.PassFilter(name.c_str());
+                        if(passed_filter)
+                            is_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
+                                                        name.c_str());
 
                         if(ImGui::IsItemClicked()) {
                             bool shouldSelect = !obj.has(selected_mixin_id);
@@ -214,10 +226,11 @@ public:
                             }
                         }
 
-                        if(node_open && children.size() > 0) {
+                        if(is_open && children.size() > 0) {
                             for(const auto& c : children)
                                 buildTree(c);
-                            ImGui::TreePop();
+                            if(passed_filter)
+                                ImGui::TreePop();
                         }
                     };
 
