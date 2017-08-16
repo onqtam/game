@@ -7,8 +7,6 @@ HA_SUPPRESS_WARNINGS
 
 #include <bgfx/c99/platform.h>
 
-#include <imgui/imgui_internal.h>
-
 #include <GLFW/glfw3.h>
 
 #ifdef EMSCRIPTEN
@@ -417,12 +415,15 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::processEvents() {
-    // if imgui hasn't consumed the input
-    if(ImGui::GetCurrentContext()->FocusedWindow == NULL) {
-        for(size_t i = 0; i < m_inputs.size(); ++i)
-            for(auto& curr : m_inputEventListeners)
+    ImGuiIO& io = ImGui::GetIO();
+
+    for(size_t i = 0; i < m_inputs.size(); ++i)
+        for(auto& curr : m_inputEventListeners)
+            if((m_inputs[i].type == InputEvent::KEY && !io.WantCaptureKeyboard) ||
+               (m_inputs[i].type == InputEvent::MOTION && !io.WantCaptureMouse) ||
+               (m_inputs[i].type == InputEvent::BUTTON && !io.WantCaptureMouse) ||
+               (m_inputs[i].type == InputEvent::SCROLL && !io.WantCaptureMouse))
                 curr->process_event(m_inputs[i]);
-    }
 
     m_inputs.clear();
 }
@@ -446,11 +447,6 @@ void Application::update() {
 
     // send input events to the rest of the app
     processEvents();
-
-    // to help in input consuming by imgui
-    if(!ImGui::IsMouseHoveringAnyWindow()) {
-        ImGui::SetWindowFocus(nullptr);
-    }
 
     // update game stuff
     World::get().update();
