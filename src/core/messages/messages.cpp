@@ -6,7 +6,7 @@
 // common
 HA_DEFINE_MSG(common, serialize)
 HA_DEFINE_MSG(common, deserialize)
-HA_DEFINE_MSG(common, imgui_bind_properties)
+HA_DEFINE_MSG(common, imgui_bind_attributes)
 
 // transform
 HA_DEFINE_MSG(tr, set_pos)
@@ -39,6 +39,6 @@ HA_DEFINE_MSG(rend, get_rendering_parts)
 HA_DEFINE_MSG(rend, get_aabb)
 
 // editor
-HA_DEFINE_MSG(edit, add_changed_property)
+HA_DEFINE_MSG(edit, add_changed_attribute)
 //HA_DEFINE_MSG(edit, add_change_started_data)
 //HA_DEFINE_MSG(edit, get_change_started_data)

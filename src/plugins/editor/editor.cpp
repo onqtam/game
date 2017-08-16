@@ -235,12 +235,12 @@ public:
         ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(float(app.width() - 400), 0), ImGuiSetCond_FirstUseEver);
 
-        if(ImGui::Begin("object properties", nullptr, window_flags)) {
+        if(ImGui::Begin("object attributes", nullptr, window_flags)) {
             for(auto& id : selected) {
                 auto& obj = id.get();
                 if(ImGui::TreeNode(obj.name().c_str())) {
-                    if(obj.implements(common::imgui_bind_properties_msg)) {
-                        common::imgui_bind_properties(obj);
+                    if(obj.implements(common::imgui_bind_attributes_msg)) {
+                        common::imgui_bind_attributes(obj);
                     }
 
                     ImGui::TreePop();
@@ -288,17 +288,17 @@ public:
                     if(last.position != t.position) {
                         JsonData ov = command("transform", "pos", *(glm::vec3*)&last.position);
                         JsonData nv = command("transform", "pos", *(glm::vec3*)&t.position);
-                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
+                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
                     }
                     if(last.orientation != t.orientation) {
                         JsonData ov = command("transform", "rot", *(glm::quat*)&last.orientation);
                         JsonData nv = command("transform", "rot", *(glm::quat*)&t.orientation);
-                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
+                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
                     }
                     if(last.scale != t.scale) {
                         JsonData ov = command("transform", "scl", *(glm::vec3*)&last.scale);
                         JsonData nv = command("transform", "scl", *(glm::vec3*)&t.scale);
-                        edit::add_changed_property(ha_this, obj.id(), ov.data(), nv.data());
+                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
                     }
                 }
 
@@ -362,7 +362,7 @@ public:
                         curr.get().get_mixin_names(mixins);
                         std::vector<std::string> mixin_names(mixins.size());
                         std::transform(mixins.begin(), mixins.end(), mixin_names.begin(),
-                                       [](const char* in) { return in; });
+                                       [](auto in) { return in; });
 
                         // serialize the state of the mixins
                         JsonData state;
@@ -398,8 +398,8 @@ public:
         if(command_variant.which() == 0) { // attribute changed
             auto&       cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
-            const auto& doc = sajson::parse(sajson::dynamic_allocation(),
-                                            sajson::string(val.data(), val.size()));
+            JsonData    state(val);
+            const auto& doc = state.parse();
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize(cmd.e, root);
@@ -410,8 +410,8 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().addMixin(mixin.c_str());
                 // deserialize the mixins
-                JsonData                state(cmd.mixins_state);
-                const sajson::document& doc = state.parse();
+                JsonData    state(cmd.mixins_state);
+                const auto& doc = state.parse();
                 hassert(doc.is_valid());
                 const auto root = doc.get_root();
                 common::deserialize(cmd.id, root);
@@ -422,7 +422,7 @@ public:
             }
         } else if(command_variant.which() == 2) { // entity creation
             auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
-            if((cmd.created && undo) || (!cmd.created && !undo)) { // XOR
+            if((cmd.created && undo) || (!cmd.created && !undo)) {
                 EntityManager::get().destroy(cmd.id);
             } else {
                 EntityManager::get().createFromId(cmd.id, cmd.name);
@@ -449,7 +449,7 @@ public:
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
     }
 
-    void add_changed_property(eid e, const json_buf& old_val, const json_buf& new_val) {
+    void add_changed_attribute(eid e, const json_buf& old_val, const json_buf& new_val) {
         HA_SUPPRESS_WARNINGS
         add_command(attribute_changed_cmd_gen({e, old_val, new_val}));
         HA_SUPPRESS_WARNINGS_END

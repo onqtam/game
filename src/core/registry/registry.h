@@ -102,9 +102,9 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             ::deserialize(*this, in.get_value_of_key(str));                                        \
     }                                                                                              \
-    void imgui_bind_properties() {                                                                 \
+    void imgui_bind_attributes() {                                                                 \
         if(ImGui::TreeNode(#name)) {                                                               \
-            ::imgui_bind_properties(ha_this, #name, *this);                                        \
+            ::imgui_bind_attributes(ha_this, #name, *this);                                        \
             ImGui::TreePop();                                                                      \
         }                                                                                          \
     }                                                                                              \
@@ -136,7 +136,7 @@ load_unload_proc getUnloadProc() {
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     HA_MIXIN_DEFINE_COMMON(                                                                        \
             n,                                                                                     \
-            common::serialize_msg& common::deserialize_msg& common::imgui_bind_properties_msg& f); \
+            common::serialize_msg& common::deserialize_msg& common::imgui_bind_attributes_msg& f); \
     static_assert(                                                                                 \
             sizeof(n) ==                                                                           \
                     sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +    \
@@ -222,4 +222,4 @@ int registerGlobal(const char* name, GlobalInfo info);
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \
     friend void serialize(const name& src, JsonData& out, bool as_object);                         \
     friend void deserialize(name& dest, const sajson::value& val);                                 \
-    friend void imgui_bind_properties(Entity& e, const char* mixin_name, name& dest)
+    friend void imgui_bind_attributes(Entity& e, const char* mixin_name, name& dest)

@@ -1,12 +1,4 @@
 
-rename propert[y] to attribute
-
-undo/redo
-    compound commands
-    creating/deleting objects
-        names of entities
-    mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
-
 - level
     - save
     - load
@@ -20,6 +12,8 @@ undo/redo
     - entity explorer
     - entity properties
     - undo/redo
+        mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
+        switch to checking against the types instead of indexes...
     - copy/paste
     - search objects by name (and change from treeview to list view - or try to stick to a treeview)
     - resource viewer - all resources with preview when appropriate and refcounts
@@ -101,6 +95,7 @@ questionable:
 
 == graphics:
 https://github.com/andr3wmac/lightmapper_bgfx
+https://github.com/jdryg/vg-renderer
 shader compiler
     should probably have a committed binary from a release build which to use
     write my own cmake
