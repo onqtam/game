@@ -4,19 +4,19 @@ alias vector_variant_cmd std::vector<boost::variant<attribute_changed_cmd_gen,en
 
 type attribute_changed_cmd
 public:
-    eid			e
+    oid			e
     json_buf	old_val
     json_buf	new_val
 
 type entity_creation_cmd
 public:
-    eid			id
+    oid			id
 	std::string name
     bool		created
 
 type entity_mutation_cmd
 public:
-    eid							id
+    oid							id
 	std::vector<std::string>	mixins
 	json_buf					mixins_state
     bool						added
@@ -26,7 +26,7 @@ public:
     vector_variant_cmd commands
 
 type editor
-	std::vector<eid>					selected
+	std::vector<oid>					selected
 	vector_variant_cmd					undo_redo_commands
 	int									curr_undo_redo				default:-1
 	bool								mouse_button_left_changed	default:false

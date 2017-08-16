@@ -52,7 +52,7 @@ HA_SERIALIZE_TEST(bool, false);
 HA_SERIALIZE_TEST(std::string, "hello !");
 HA_SERIALIZE_TEST(glm::vec3, {1, 2, 3});
 HA_SERIALIZE_TEST(glm::quat, {1, 2, 3, 4});
-HA_SERIALIZE_TEST(eid, eid(1));
+HA_SERIALIZE_TEST(oid, oid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
 HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});

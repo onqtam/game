@@ -12,7 +12,7 @@ HA_SINGLETON_INSTANCE(World);
 
 World::World()
         : Singleton<World>(this) {
-    auto& em = EntityManager::get();
+    auto& em = ObjectManager::get();
 
     m_camera = em.create("camera");
     m_camera.get().addMixin("camera");
@@ -50,7 +50,7 @@ void World::update() {
 
     std::vector<renderPart> renderData;
 
-    for(const auto& e : EntityManager::get().getEntities())
+    for(const auto& e : ObjectManager::get().getEntities())
         if(e.second.implements(rend::get_rendering_parts_msg))
             rend::get_rendering_parts(e.second, renderData);
     for(const auto& data : renderData) {

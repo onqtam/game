@@ -148,7 +148,7 @@ for type in types.order():
     functions += strln("}")
     functions += strln("")
     
-    functions += strln("inline void imgui_bind_attributes(Entity& e, const char* mixin_name, " + name_gen + "& obj) {")
+    functions += strln("inline void imgui_bind_attributes(Object& e, const char* mixin_name, " + name_gen + "& obj) {")
     for field in types[type]["fields"]:
         functions += strln("imgui_bind_attribute(e, mixin_name, \"" + field.name + "\", obj." + field.name + ");", tabs = 1)
     functions += strln("}")

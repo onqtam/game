@@ -1,16 +1,16 @@
-#include "Entity.h"
+#include "Object.h"
 
 #include "core/registry/registry.h"
 
-HA_SINGLETON_INSTANCE(EntityManager);
+HA_SINGLETON_INSTANCE(ObjectManager);
 
-void Entity::addMixin(const char* mixin) {
+void Object::addMixin(const char* mixin) {
     auto& mixins = getMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].add(this);
 }
 
-void Entity::remMixin(const char* mixin) {
+void Object::remMixin(const char* mixin) {
     auto& mixins = getMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(this);

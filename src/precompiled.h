@@ -90,5 +90,5 @@ using glm::uint32;
 using glm::uint64;
 
 #include "utils/singleton.h"
-#include "core/Entity.h"
+#include "core/Object.h"
 #include "core/messages/message_macros.h"

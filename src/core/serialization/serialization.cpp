@@ -58,8 +58,8 @@ void deserialize(glm::quat& data, const sajson::value& val) {
     deserialize(data.z, val.get_array_element(2));
     deserialize(data.w, val.get_array_element(3));
 }
-void serialize(eid data, JsonData& out) { serialize(int16(data), out); }
-void deserialize(eid& data, const sajson::value& val) { data = eid(int16(val.get_integer_value())); }
+void serialize(oid data, JsonData& out) { serialize(int16(data), out); }
+void deserialize(oid& data, const sajson::value& val) { data = oid(int16(val.get_integer_value())); }
 
 void serialize(MeshHandle data, JsonData& out) {
     serialize(*reinterpret_cast<int16*>(&data), out);

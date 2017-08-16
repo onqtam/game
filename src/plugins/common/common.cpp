@@ -50,18 +50,18 @@ class hierarchical : public hierarchical_gen
 {
     HA_MESSAGES_IN_MIXIN(hierarchical)
 public:
-    eid                     get_parent() const { return parent; }
-    const std::vector<eid>& get_children() const { return children; }
+    oid                     get_parent() const { return parent; }
+    const std::vector<oid>& get_children() const { return children; }
 
-    void set_parent(eid _parent) {
-        hassert(parent == eid::invalid());
+    void set_parent(oid _parent) {
+        hassert(parent == oid::invalid());
         parent = _parent;
     }
-    void add_child(eid child) {
+    void add_child(oid child) {
         hassert(std::find(children.begin(), children.end(), child) == children.end());
         children.push_back(child);
     }
-    void remove_child(eid child) {
+    void remove_child(oid child) {
         auto it = std::find(children.begin(), children.end(), child);
         hassert(it != children.end());
         children.erase(it);

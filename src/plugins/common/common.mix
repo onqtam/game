@@ -6,8 +6,8 @@ type transform
 			glm::quat	rot			default:{1,0,0,0}
 			
 type hierarchical
-			eid parent
-			std::vector<eid> children
+			oid parent
+			std::vector<oid> children
 
 type selected
 			tinygizmo::rigid_transform gizmo_transform

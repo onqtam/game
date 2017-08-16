@@ -48,8 +48,8 @@ void deserialize(glm::vec<S, T>& data, const sajson::value& val) {
 HAPI void serialize_c(const glm::quat& data, JsonData& out);
 HAPI void deserialize(glm::quat& data, const sajson::value& val);
 
-HAPI void serialize_c(eid data, JsonData& out);
-HAPI void deserialize(eid& data, const sajson::value& val);
+HAPI void serialize_c(oid data, JsonData& out);
+HAPI void deserialize(oid& data, const sajson::value& val);
 
 HAPI void serialize_c(MeshHandle data, JsonData& out);
 HAPI void deserialize(MeshHandle& data, const sajson::value& val);

@@ -27,11 +27,11 @@ HA_MSG_1(tr, void, move, const glm::vec3&, pos)
             tr::get_rot_msg& tr::get_model_transform_msg& tr::move_msg
 
 // hierarchical
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, eid, get_parent)
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, const std::vector<eid>&, get_children)
-DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, eid, _parent)
-DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, add_child, eid, child)
-DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, remove_child, eid, child)
+DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, oid, get_parent)
+DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, const std::vector<oid>&, get_children)
+DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, oid, _parent)
+DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, add_child, oid, child)
+DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, remove_child, oid, child)
 
 #define Interface_hierarchical                                                                     \
     get_parent_msg& get_children_msg& set_parent_msg& add_child_msg& remove_child_msg

@@ -132,7 +132,7 @@ JsonData construct_undo_redo_command(const char* mixin, const char* prop, const 
 }
 
 template <typename T>
-void bind_floats(Entity& e, const char* mixin, const char* prop, T& data, int num_floats) {
+void bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
@@ -148,7 +148,7 @@ void bind_floats(Entity& e, const char* mixin, const char* prop, T& data, int nu
 }
 
 template <typename T>
-void bind_ints(Entity& e, const char* mixin, const char* prop, T& data, int num_floats) {
+void bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
@@ -163,26 +163,26 @@ void bind_ints(Entity& e, const char* mixin, const char* prop, T& data, int num_
     }
 }
 
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, bool& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
         JsonData old_val = construct_undo_redo_command(mixin, prop, !data);
         JsonData new_val = construct_undo_redo_command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
     }
 }
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, int& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, int& data) {
     bind_ints(e, mixin, prop, data, 1);
 }
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, float& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, float& data) {
     bind_floats(e, mixin, prop, data, 1);
 }
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, double& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, double& data) {
     float temp = static_cast<float>(data);
     bind_floats(e, mixin, prop, temp, 1);
     data = temp;
 }
 
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, std::string& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -193,10 +193,10 @@ void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, std::s
     }
 }
 
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, glm::vec3& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::vec3& data) {
     bind_floats(e, mixin, prop, data, 3);
 }
 
-void imgui_bind_attribute(Entity& e, const char* mixin, const char* prop, glm::quat& data) {
+void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::quat& data) {
     bind_floats(e, mixin, prop, data, 4);
 }

@@ -395,7 +395,7 @@ int Application::run(int argc, char** argv) {
         ShaderMan shaderMan;
         GeomMan   geomMan;
 
-        EntityManager entityMan;
+        ObjectManager entityMan;
 
         World world;
 

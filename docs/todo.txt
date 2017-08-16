@@ -1,6 +1,10 @@
 
 prefabs
 
+editing an attribute of multiple objects at once
+
+command script for editing the level
+
 - level
     - save
     - load

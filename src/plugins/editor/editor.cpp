@@ -117,7 +117,7 @@ public:
         bgfx_submit(0, m_grid_shader.get(), 0, false);
 
         auto& app = Application::get();
-        auto& em  = EntityManager::get();
+        auto& em  = ObjectManager::get();
 
         static bool no_titlebar  = false;
         static bool no_border    = true;
@@ -148,7 +148,7 @@ public:
 
                 for(const auto& curr : em.getEntities()) {
                     // recursive select/deselect
-                    std::function<void(eid, bool)> recursiveSelecter = [&](eid root, bool select) {
+                    std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
                         auto& obj = root.get();
                         auto  it  = std::find(selected.begin(), selected.end(), root);
                         if(select) {
@@ -171,7 +171,7 @@ public:
                     };
 
                     // recursive tree build
-                    std::function<void(eid)> buildTree = [&](eid root) {
+                    std::function<void(oid)> buildTree = [&](oid root) {
                         auto&              obj = root.get();
                         ImGuiTreeNodeFlags node_flags =
                                 ImGuiTreeNodeFlags_OpenOnArrow |
@@ -223,7 +223,7 @@ public:
 
                     // recurse from those without a parent only
                     if(curr.second.implements(get_parent_msg)) {
-                        if(::get_parent(curr.second) == eid::invalid())
+                        if(::get_parent(curr.second) == oid::invalid())
                             buildTree(curr.second.id());
                     }
                 }
@@ -378,7 +378,7 @@ public:
                                 entity_creation_cmd_gen({curr, curr.get().name(), false}));
                         HA_SUPPRESS_WARNINGS_END
 
-                        EntityManager::get().destroy(curr);
+                        ObjectManager::get().destroy(curr);
                     }
                     HA_SUPPRESS_WARNINGS
                     add_command(comp_cmd);
@@ -423,9 +423,9 @@ public:
         } else if(command_variant.which() == 2) { // entity creation
             auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
             if((cmd.created && undo) || (!cmd.created && !undo)) {
-                EntityManager::get().destroy(cmd.id);
+                ObjectManager::get().destroy(cmd.id);
             } else {
-                EntityManager::get().createFromId(cmd.id, cmd.name);
+                ObjectManager::get().createFromId(cmd.id, cmd.name);
             }
         } else if(command_variant.which() == 3) { // compound
             auto& cmd = boost::get<compound_cmd_gen>(command_variant);
@@ -449,7 +449,7 @@ public:
         printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
     }
 
-    void add_changed_attribute(eid e, const json_buf& old_val, const json_buf& new_val) {
+    void add_changed_attribute(oid e, const json_buf& old_val, const json_buf& new_val) {
         HA_SUPPRESS_WARNINGS
         add_command(attribute_changed_cmd_gen({e, old_val, new_val}));
         HA_SUPPRESS_WARNINGS_END

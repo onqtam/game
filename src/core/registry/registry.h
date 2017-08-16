@@ -8,9 +8,9 @@
 // ==  MIXINS ======================================================================================
 // =================================================================================================
 
-typedef std::map<Entity*, JsonData> ObjectJsonMap;
+typedef std::map<Object*, JsonData> ObjectJsonMap;
 typedef void (*load_unload_proc)(ObjectJsonMap&);
-typedef void (*mutate_proc)(Entity*);
+typedef void (*mutate_proc)(Object*);
 typedef void (*update_proc)(float dt);
 
 struct MixinInfo
@@ -80,7 +80,7 @@ load_unload_proc getUnloadProc() {
         for(size_t i = 0; i < flags_size; ++i) {
             if(flags[i]) {
                 auto& mixin  = allocator[i];
-                auto& entity = Entity::cast_to_entity(&mixin);
+                auto& entity = Object::cast_to_entity(&mixin);
                 out[&entity].reserve(200); // for small mixins - just 1 allocation
                 serialize(mixin, out[&entity]);
             }
@@ -125,8 +125,8 @@ load_unload_proc getUnloadProc() {
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
     static int HA_CAT_1(_mixin_register_, n) = registerMixin(                                      \
             #n, /* force new line for format */                                                    \
-            {[](Entity* o) { dynamix::mutate(o).add<n>(); },                                       \
-             [](Entity* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
+            {[](Object* o) { dynamix::mutate(o).add<n>(); },                                       \
+             [](Object* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
 // some overly complicated static assert that tries to ensure that the user hasn't added any members
@@ -222,4 +222,4 @@ int registerGlobal(const char* name, GlobalInfo info);
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \
     friend void serialize(const name& src, JsonData& out, bool as_object);                         \
     friend void deserialize(name& dest, const sajson::value& val);                                 \
-    friend void imgui_bind_attributes(Entity& e, const char* mixin_name, name& dest)
+    friend void imgui_bind_attributes(Object& e, const char* mixin_name, name& dest)
