@@ -33,7 +33,7 @@ World::World()
     auto& dummy2 = om.create("with_no_brain 2").get();
     auto& dummy3 = om.create("blabla").get();
     auto& dummy4 = om.create("dummy 4").get();
-    auto& dummy5 = om.create("dummy 5").get();
+    auto& dummy5 = om.create("dummy with 5").get();
 
     set_parent(dummy1, obj);
     add_child(obj, dummy1);
