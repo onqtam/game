@@ -22,14 +22,15 @@ command script for editing the level
     - entity attributes
     - undo/redo
         mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
-        switch to checking against the types instead of indexes...
     - copy/paste
     - search objects by name (and change from treeview to list view in results - or try to stick to a treeview)
     - resource viewer - all resources with preview when appropriate and refcounts
     - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     - object snapping (with the gizmos)
 - spatial queries about objects
-- objects inheriting transformations based on their hierarchical component
+- hierarchical
+    - objects inheriting transformations
+    - when deleting a parent in the editor - fix parental information also
 
 PagedMixinAllocator - keep vectors of entity ids for each mixin type
     requires dynamix extension - bobi will do it

@@ -411,7 +411,7 @@ public:
     }
 
     void handle_command(command_variant_type& command_variant, bool undo) {
-        if(command_variant.which() == 0) { // attribute changed
+        if(command_variant.type() == boost::typeindex::type_id<attribute_changed_cmd_gen>()) {
             auto&       cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
             JsonData    state(val);
@@ -419,7 +419,7 @@ public:
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize(cmd.e, root);
-        } else if(command_variant.which() == 1) { // entity mutation
+        } else if(command_variant.type() == boost::typeindex::type_id<entity_mutation_cmd_gen>()) {
             auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
@@ -436,14 +436,14 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().remMixin(mixin.c_str());
             }
-        } else if(command_variant.which() == 2) { // entity creation
+        } else if(command_variant.type() == boost::typeindex::type_id<entity_creation_cmd_gen>()) {
             auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
             if((cmd.created && undo) || (!cmd.created && !undo)) {
                 ObjectManager::get().destroy(cmd.id);
             } else {
                 ObjectManager::get().createFromId(cmd.id, cmd.name);
             }
-        } else if(command_variant.which() == 3) { // compound
+        } else if(command_variant.type() == boost::typeindex::type_id<compound_cmd_gen>()) {
             auto& cmd = boost::get<compound_cmd_gen>(command_variant);
             if(undo)
                 for(auto& curr : boost::adaptors::reverse(cmd.commands))

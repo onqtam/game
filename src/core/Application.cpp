@@ -455,10 +455,6 @@ void Application::update() {
     ImGui::Render();
     bgfx_frame(false);
 
-    // check if should close
-    if(glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(m_window, GL_TRUE);
-
     // handle resizing
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
