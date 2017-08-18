@@ -41,10 +41,10 @@ static bgfx_vertex_decl    ivd;
 static bgfx_texture_handle imguiFontTexture;
 static bgfx_uniform_handle imguiFontUniform;
 static bgfx_program_handle imguiProgram;
-static void imguiRender(ImDrawData* drawData);
-static void        imguiShutdown();
-static const char* imguiGetClipboardText(void* userData);
-static void imguiSetClipboardText(void* userData, const char* text);
+static void                imguiRender(ImDrawData* drawData);
+static void                imguiShutdown();
+static const char*         imguiGetClipboardText(void* userData);
+static void                imguiSetClipboardText(void* userData, const char* text);
 
 static void imguiInit() {
     unsigned char* data;
@@ -277,7 +277,7 @@ void imguiEvents(float dt) {
 class global_mixin_allocator : public dynamix::global_allocator
 {
     char* alloc_mixin_data(size_t count) override { return new char[count * mixin_data_size]; }
-    void dealloc_mixin_data(char* ptr) override { delete[] ptr; }
+    void  dealloc_mixin_data(char* ptr) override { delete[] ptr; }
 
     void alloc_mixin(size_t mixin_size, size_t mixin_alignment, char*& out_buffer,
                      size_t& out_mixin_offset) override {
@@ -341,6 +341,7 @@ int Application::run(int argc, char** argv) {
     m_width                    = mode->width;
     m_height                   = mode->height;
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 #endif // EMSCRIPTEN
 
     // Create a window
@@ -352,7 +353,10 @@ int Application::run(int argc, char** argv) {
 
 #ifndef EMSCRIPTEN
     // Simulating fullscreen the way bgfx does in its example entry - by placing the window in 0,0
-    glfwSetWindowMonitor(m_window, monitor, 0, 0, width(), height(), mode->refreshRate);
+    int monitor_pos_x, monitor_pos_y;
+    glfwGetMonitorPos(monitor, &monitor_pos_x, &monitor_pos_y);
+    glfwSetWindowPos(m_window, monitor_pos_x, monitor_pos_y);
+    //glfwSetWindowMonitor(m_window, monitor, 0, 0, width(), height(), mode->refreshRate);
 #endif // EMSCRIPTEN
 
     // Setup input callbacks
@@ -401,11 +405,11 @@ int Application::run(int argc, char** argv) {
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
-#else  // EMSCRIPTEN
+#else   // EMSCRIPTEN                                                                              \
         // Loop until the user closes the window
         while(!glfwWindowShouldClose(m_window))
             update();
-#endif // EMSCRIPTEN
+#endif  // EMSCRIPTEN
     }
 
     imguiShutdown();

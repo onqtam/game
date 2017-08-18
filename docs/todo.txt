@@ -15,15 +15,12 @@ command script for editing the level
     - enter/leave editor mode
         - controls for that
         - remove mixins like "selected"
-        - start/stop updating entities
+        - start/stop updating objects
         - make a second camera used for the editor mode and leave the ingame one as is
     - picking
-    - entity explorer
-    - entity attributes
     - undo/redo
         mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
     - copy/paste
-    - search objects by name (and change from treeview to list view in results - or try to stick to a treeview)
     - resource viewer - all resources with preview when appropriate and refcounts
     - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     - object snapping (with the gizmos)
@@ -32,7 +29,7 @@ command script for editing the level
     - objects inheriting transformations
     - when deleting a parent in the editor - fix parental information also
 
-PagedMixinAllocator - keep vectors of entity ids for each mixin type
+PagedMixinAllocator - keep vectors of object ids for each mixin type
     requires dynamix extension - bobi will do it
     rework the selection to not keep a std::vector<eid> but use the allocator
 
@@ -40,7 +37,6 @@ PagedMixinAllocator - keep vectors of entity ids for each mixin type
 - my codegen sux - the _gen prefixes, the order of declaration... what to do?
     - the downside of using overloads is the coupling & dependencies - so many overloads in one header file...
     - also what if I want 2 floats to be treated differently? use a strong typedef for one of them? or add a tagging system?
-- signal/slot
 - bgfx threading? look at https://github.com/bkaradzic/bgfx/blob/master/examples/common/entry/entry_glfw.cpp
 - size_t everywhere? wtf is up with these int16 micro optimizations on my side...
 - bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
