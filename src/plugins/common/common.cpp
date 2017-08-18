@@ -30,11 +30,42 @@ HA_MIXIN_DEFINE(transform, Interface_transform);
 
 class mesh : public mesh_gen
 {
-    HA_MESSAGES_IN_MIXIN(mesh)
+public:
+    std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
+
+    void serialize(JsonData& out) const {
+        out.append("\"mesh\":");
+        ::serialize(*this, out);
+        out.addComma();
+    }
+    void deserialize(const sajson::value& in) {
+        auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
+        if(in.find_object_key(str) != in.get_length())
+            ::deserialize(*this, in.get_value_of_key(str));
+    }
+    void imgui_bind_attributes() {
+        if(ImGui::TreeNode("mesh")) {
+            auto changed_attr = ::imgui_bind_attributes(ha_this, "mesh", *this);
+            if(changed_attr && attr_changed_callbacks.count(changed_attr)) {
+                for(auto& cb : attr_changed_callbacks[changed_attr])
+                    cb();
+            }
+            ImGui::TreePop();
+        }
+    }
+
+    //HA_MESSAGES_IN_MIXIN(mesh)
 public:
     mesh() {
-        _mesh   = MeshMan::get().get("meshes/bunny.bin");
+        _path.in = "meshes/bunny.bin";
+
+        _mesh   = MeshMan::get().get(_path.in);
         _shader = ShaderMan::get().get("mesh");
+
+        attr_changed_callbacks["_path"].push_back([&]() {
+            _mesh = MeshMan::get().get(_path.in);
+            printf("yuhoo!\n");
+        });
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
@@ -44,7 +75,10 @@ public:
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
 };
 
-HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
+HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
+        mesh, common::serialize_msg& common::deserialize_msg& common::imgui_bind_attributes_msg&
+                      rend::get_rendering_parts_msg& rend::get_aabb_msg);
+//HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
 class hierarchical : public hierarchical_gen
 {
@@ -81,9 +115,7 @@ public:
         return gizmo_transform;
     }
 
-    tinygizmo::rigid_transform& get_last_stable_gizmo_transform() {
-        return gizmo_transform_last;
-    }
+    tinygizmo::rigid_transform& get_last_stable_gizmo_transform() { return gizmo_transform_last; }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
         if(ha_this.implements(rend::get_aabb_msg)) {

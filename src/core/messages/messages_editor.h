@@ -2,6 +2,24 @@
 
 #include "core/serialization/JsonData.h"
 
+template <typename T>
+JsonData command(const char* mixin, const char* prop, const T& data) {
+    JsonData out;
+    out.startObject();
+    out.append("\"");
+    out.append(mixin, strlen(mixin));
+    out.append("\":");
+    out.startObject();
+    out.append("\"");
+    out.append(prop, strlen(prop));
+    out.append("\":");
+    serialize(data, out);
+    out.endObject();
+    out.endObject();
+
+    return out;
+}
+
 HA_SUPPRESS_WARNINGS
 
 HA_MSG_3(edit, void, add_changed_attribute, oid, e, const json_buf&, old_val, const json_buf&,

@@ -20,5 +20,6 @@ type selected
 			std::string texty2 default:":("
 
 type mesh
+			mesh_path _path
 			MeshHandle _mesh
 			ShaderHandle _shader

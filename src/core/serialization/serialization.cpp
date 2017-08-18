@@ -2,6 +2,32 @@
 #include "serialization_2.h"
 #include "utils/base64/base64.h"
 
+#include <sstream>
+#include <iomanip>
+
+// taken from here: https://stackoverflow.com/a/33799784/3162383
+static std::string escape_json(const std::string& s) {
+    std::ostringstream o;
+    for(auto c = s.cbegin(); c != s.cend(); c++) {
+        switch(*c) {
+            case '"': o << "\\\""; break;
+            case '\\': o << "\\\\"; break;
+            case '\b': o << "\\b"; break;
+            case '\f': o << "\\f"; break;
+            case '\n': o << "\\n"; break;
+            case '\r': o << "\\r"; break;
+            case '\t': o << "\\t"; break;
+            default:
+                if('\x00' <= *c && *c <= '\x1f') {
+                    o << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+                } else {
+                    o << *c;
+                }
+        }
+    }
+    return o.str();
+}
+
 void serialize(char data, JsonData& out) {
     auto res = std::to_string(data);
     out.append(res.c_str(), res.length());
@@ -18,9 +44,7 @@ void serialize(float data, JsonData& out) {
     auto res = std::to_string(data);
     out.append(res.c_str(), res.length());
 }
-void deserialize(float& data, const sajson::value& val) {
-    data = float(val.get_double_value());
-}
+void deserialize(float& data, const sajson::value& val) { data = float(val.get_double_value()); }
 
 void serialize(double data, JsonData& out) {
     auto res = std::to_string(data);
@@ -36,7 +60,8 @@ void deserialize(bool& data, const sajson::value& val) {
 
 void serialize(const std::string& data, JsonData& out) {
     out.append("\"", 1);
-    out.append(data.c_str(), data.length());
+    auto escaped_data = escape_json(data);
+    out.append(escaped_data.c_str(), escaped_data.length());
     out.append("\"", 1);
 }
 void deserialize(std::string& data, const sajson::value& val) { data = val.as_cstring(); }
@@ -59,11 +84,11 @@ void deserialize(glm::quat& data, const sajson::value& val) {
     deserialize(data.w, val.get_array_element(3));
 }
 void serialize(oid data, JsonData& out) { serialize(int16(data), out); }
-void deserialize(oid& data, const sajson::value& val) { data = oid(int16(val.get_integer_value())); }
-
-void serialize(MeshHandle data, JsonData& out) {
-    serialize(*reinterpret_cast<int16*>(&data), out);
+void deserialize(oid& data, const sajson::value& val) {
+    data = oid(int16(val.get_integer_value()));
 }
+
+void serialize(MeshHandle data, JsonData& out) { serialize(*reinterpret_cast<int16*>(&data), out); }
 void deserialize(MeshHandle& data, const sajson::value& val) {
     data = MeshMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
 }

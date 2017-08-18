@@ -17,24 +17,6 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
-template <typename T>
-JsonData command(const char* mixin_name, const char* prop, const T& data) {
-    JsonData out;
-    out.startObject();
-    out.append("\"");
-    out.append(mixin_name, strlen(mixin_name));
-    out.append("\":");
-    out.startObject();
-    out.append("\"");
-    out.append(prop, strlen(prop));
-    out.append("\":");
-    serialize(data, out);
-    out.endObject();
-    out.endObject();
-
-    return out;
-}
-
 //class editor;
 //void serialize(const editor& src, JsonData& out);
 //void deserialize(editor& dest, const sajson::value& val);

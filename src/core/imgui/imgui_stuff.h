@@ -1,16 +1,22 @@
 #pragma once
 
+#include "core/StringTypes.h"
+
 template <typename... Args>
-void imgui_bind_attribute(Object&, const char*, const char* prop, Args&&...) {
+const char* imgui_bind_attribute(Object&, const char*, const char* prop, Args&&...) {
     ImGui::TextDisabled("couldn't bind \"%s\"", prop);
+    return nullptr;
 }
 
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, bool& data);
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, int& data);
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, float& data);
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, double& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, bool& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, int& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, float& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, double& data);
 
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, std::string& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, std::string& data);
+#ifdef _WIN32
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, mesh_path& data);
+#endif // _WIN32
 
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, glm::vec3& data);
-HAPI void imgui_bind_attribute(Object& e, const char* mixin_name, const char* prop, glm::quat& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::vec3& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::quat& data);

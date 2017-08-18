@@ -7,6 +7,9 @@
 #include "core/messages/messages_editor.h"
 
 HA_SUPPRESS_WARNINGS
+#ifdef _WIN32
+#include <nfd.h>
+#endif // _WIN32
 #include <imgui/imgui_internal.h>
 HA_SUPPRESS_WARNINGS_END
 
@@ -78,8 +81,8 @@ static bool DragFloats(const char* label, float* items, int numItems, bool* pJus
 }
 
 static bool DragInts(const char* label, int* items, int numItems, bool* pJustReleased = nullptr,
-                     bool* pJustActivated = nullptr, float v_speed = 1.0f, float v_min = 0.0f,
-                     float v_max = 0.0f, const char* display_format = "%d") {
+                     bool* pJustActivated = nullptr, float v_speed = 1.0f, int v_min = 0,
+                     int v_max = 0, const char* display_format = "%d") {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if(window->SkipItems)
         return false;
@@ -114,25 +117,7 @@ static bool DragInts(const char* label, int* items, int numItems, bool* pJustRel
 }
 
 template <typename T>
-JsonData construct_undo_redo_command(const char* mixin, const char* prop, const T& data) {
-    JsonData out;
-    out.startObject();
-    out.append("\"");
-    out.append(mixin, strlen(mixin));
-    out.append("\":");
-    out.startObject();
-    out.append("\"");
-    out.append(prop, strlen(prop));
-    out.append("\":");
-    serialize(data, out);
-    out.endObject();
-    out.endObject();
-
-    return out;
-}
-
-template <typename T>
-void bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
+const char* bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
@@ -141,14 +126,16 @@ void bind_floats(Object& e, const char* mixin, const char* prop, T& data, int nu
         data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = construct_undo_redo_command(mixin, prop, data_when_dragging_started);
-        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
+        JsonData old_val = command(mixin, prop, data_when_dragging_started);
+        JsonData new_val = command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        return prop;
     }
+    return nullptr;
 }
 
 template <typename T>
-void bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
+const char* bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
@@ -157,46 +144,80 @@ void bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_
         data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = construct_undo_redo_command(mixin, prop, data_when_dragging_started);
-        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
+        JsonData old_val = command(mixin, prop, data_when_dragging_started);
+        JsonData new_val = command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        return prop;
     }
+    return nullptr;
 }
 
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, bool& data) {
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, bool& data) {
     if(ImGui::Checkbox(prop, &data)) {
-        JsonData old_val = construct_undo_redo_command(mixin, prop, !data);
-        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
+        JsonData old_val = command(mixin, prop, !data);
+        JsonData new_val = command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        return prop;
     }
+    return nullptr;
 }
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, int& data) {
-    bind_ints(e, mixin, prop, data, 1);
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, int& data) {
+    return bind_ints(e, mixin, prop, data, 1);
 }
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, float& data) {
-    bind_floats(e, mixin, prop, data, 1);
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, float& data) {
+    return bind_floats(e, mixin, prop, data, 1);
 }
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, double& data) {
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, double& data) {
     float temp = static_cast<float>(data);
-    bind_floats(e, mixin, prop, temp, 1);
-    data = temp;
+    auto  res  = bind_floats(e, mixin, prop, temp, 1);
+    data       = temp;
+    return res;
 }
 
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, std::string& data) {
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop,
+                                 std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
-        JsonData old_val = construct_undo_redo_command(mixin, prop, data);
+        JsonData old_val = command(mixin, prop, data);
         data             = buf;
-        JsonData new_val = construct_undo_redo_command(mixin, prop, data);
+        JsonData new_val = command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        return prop;
     }
+    return nullptr;
 }
 
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::vec3& data) {
-    bind_floats(e, mixin, prop, data, 3);
+#ifdef _WIN32
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, mesh_path& data) {
+    ImGui::PushItemWidth(200);
+    ImGui::InputText("", data.in.data(), data.in.length(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::SameLine();
+    if(ImGui::Button("browse")) {
+        nfdchar_t*  outPath = NULL;
+        nfdresult_t result  = NFD_OpenDialog("bin", NULL, &outPath);
+        hassert(result != NFD_ERROR, "Error: %s\n", NFD_GetError());
+        if(result == NFD_OKAY) {
+            JsonData old_val = command(mixin, prop, data.in);
+            data.in          = outPath;
+            JsonData new_val = command(mixin, prop, data.in);
+            edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(),
+                                        new_val.data());
+
+            free(outPath);
+            return prop;
+        }
+    }
+    ImGui::SameLine();
+    ImGui::LabelText("", prop);
+    return nullptr;
+}
+#endif // _WIN32
+
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::vec3& data) {
+    return bind_floats(e, mixin, prop, data, 3);
 }
 
-void imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::quat& data) {
-    bind_floats(e, mixin, prop, data, 4);
+const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::quat& data) {
+    return bind_floats(e, mixin, prop, data, 4);
 }

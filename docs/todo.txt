@@ -1,4 +1,8 @@
 
+attribute changed callbacks
+
+setting attributes explicitly - separately from the serialize() functionality of the whole mixins
+
 mesh component
 
 prefabs

@@ -148,9 +148,11 @@ for type in types.order():
     functions += strln("}")
     functions += strln("")
     
-    functions += strln("inline void imgui_bind_attributes(Object& e, const char* mixin_name, " + name_gen + "& obj) {")
+    functions += strln("inline const char* imgui_bind_attributes(Object& e, const char* mixin, " + name_gen + "& obj) {")
+    functions += strln("const char *out = nullptr, *temp = nullptr;", tabs = 1)
     for field in types[type]["fields"]:
-        functions += strln("imgui_bind_attribute(e, mixin_name, \"" + field.name + "\", obj." + field.name + ");", tabs = 1)
+        functions += strln("temp = imgui_bind_attribute(e, mixin, \"" + field.name + "\", obj." + field.name + "); if(temp) out = temp;", tabs = 1)
+    functions += strln("return out;", tabs = 1)
     functions += strln("}")
 
 writeln(gen, "//=============================================================================")

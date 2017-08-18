@@ -48,6 +48,23 @@ add_library(tinygizmo STATIC "${tinygizmo.sources}")
 set_target_properties(tinygizmo PROPERTIES FOLDER "3rdparty")
 add_fPIC_to_target(tinygizmo)
 
+# LIBRARY nativefiledialog
+if(WIN32)
+    ucm_add_files("nativefiledialog/src/include/nfd.h" TO nativefiledialog.sources FILTER_POP 2)
+    ucm_add_files("nativefiledialog/src/nfd_common.c" TO nativefiledialog.sources FILTER_POP 2)
+    ucm_add_files("nativefiledialog/src/nfd_win.cpp" TO nativefiledialog.sources FILTER_POP 2)
+    # PR for zenity support (to not need gtk3 under linux): https://github.com/mlabbe/nativefiledialog/pull/29
+    # or how to gtk3 and cmake:
+    # - https://gist.github.com/fracek/3323924
+    # - http://francesco-cek.com/cmake-and-gtk-3-the-easy-way/
+    #ucm_add_files("nativefiledialog/src/nfd_cocoa.m" TO nativefiledialog.sources FILTER_POP 2)
+    #ucm_add_files("nativefiledialog/src/nfd_gtk.cpp" TO nativefiledialog.sources FILTER_POP 2)
+    add_library(nativefiledialog STATIC "${nativefiledialog.sources}")
+    target_include_directories(nativefiledialog PUBLIC nativefiledialog/src/include)
+    set_target_properties(nativefiledialog PROPERTIES FOLDER "3rdparty")
+    add_fPIC_to_target(nativefiledialog)
+endif()
+
 # LIBRARY doctest
 set(DOCTEST_WITH_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(doctest)

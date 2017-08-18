@@ -27,6 +27,7 @@ endif()
 
 # == GAME ==========================================================================================
 
+# sadly I need to duplicate these - emscripten (and I think gcc) have trouble building the pch - it does not use the PUBLIC/INTERFACE properties of the targets
 include_directories("../third_party/dynamix/include")
 include_directories("../third_party/ppk_assert")
 include_directories("../third_party/")
@@ -35,6 +36,9 @@ include_directories("../third_party/bx/include")
 include_directories("../third_party/imgui")
 include_directories("../third_party/doctest/doctest")
 include_directories("../third_party/tinygizmo")
+if(WIN32)
+    include_directories("../third_party/nativefiledialog/src/include")
+endif()
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
@@ -75,6 +79,7 @@ add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
 add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 
 if(NOT MSVC)
+    # not sure if this has any effect... should test it
     target_compile_options(game PRIVATE -Wl,--no-undefined)
 endif()
 
@@ -92,6 +97,10 @@ target_link_libraries(game tinygizmo)
 target_link_libraries(game imgui)
 target_link_libraries(game registry)
 target_link_libraries(game doctest_runner)
+
+if(WIN32)
+    target_link_libraries(game nativefiledialog)
+endif()
 
 if(TOOLCHAIN STREQUAL "js")
     set_target_properties(game PROPERTIES SUFFIX ".html")
