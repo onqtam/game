@@ -43,6 +43,15 @@ public:
         if(in.find_object_key(str) != in.get_length())
             ::deserialize(*this, in.get_value_of_key(str));
     }
+    void set_attribute(const char* mixin, const char* attr, const sajson::value& in) {
+        auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
+        if(in.find_object_key(str) != in.get_length()) {
+            auto value = in.get_value_of_key(str);
+            hassert(value.get_length() == 1);
+            auto num_deserialized = ::deserialize(*this, value);
+            hassert(num_deserialized == 1);
+        }
+    }
     void imgui_bind_attributes() {
         if(ImGui::TreeNode("mesh")) {
             auto changed_attr = ::imgui_bind_attributes(ha_this, "mesh", *this);
@@ -76,8 +85,9 @@ public:
 };
 
 HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
-        mesh, common::serialize_msg& common::deserialize_msg& common::imgui_bind_attributes_msg&
-                      rend::get_rendering_parts_msg& rend::get_aabb_msg);
+        mesh, common::serialize_msg& common::deserialize_msg& common::set_attribute_msg&
+                      common::imgui_bind_attributes_msg& rend::get_rendering_parts_msg&
+                                                         rend::get_aabb_msg);
 //HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
 class hierarchical : public hierarchical_gen

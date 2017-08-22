@@ -6,6 +6,7 @@
 // common
 HA_DEFINE_MSG(common, serialize)
 HA_DEFINE_MSG(common, deserialize)
+HA_DEFINE_MSG(common, set_attribute)
 HA_DEFINE_MSG(common, imgui_bind_attributes)
 
 // transform

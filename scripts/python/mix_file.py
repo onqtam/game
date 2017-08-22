@@ -139,12 +139,14 @@ for type in types.order():
     functions += strln("}")
     functions += strln("")
     
-    functions += strln("inline void deserialize(" + name_gen + "& dest, const sajson::value& val) {")
+    functions += strln("inline size_t deserialize(" + name_gen + "& dest, const sajson::value& val) {")
     functions += strln("const size_t val_len = val.get_length();", tabs = 1)
+    functions += strln("size_t num_deserialized = 0;", tabs = 1)
     functions += strln("for(size_t i = 0; i < val_len; ++i) {", tabs = 1)
     for field in types[type]["fields"]:
         functions += strln("HA_DESERIALIZE_VARIABLE(\"" + field.hash + "\", dest." + field.name + ");", tabs = 2)
     functions += strln("}", tabs = 1)
+    functions += strln("return num_deserialized;", tabs = 1)
     functions += strln("}")
     functions += strln("")
     

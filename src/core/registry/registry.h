@@ -102,6 +102,15 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             ::deserialize(*this, in.get_value_of_key(str));                                        \
     }                                                                                              \
+    void set_attribute(const char* mixin, const char* attr, const sajson::value& in) {             \
+        auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
+        if(in.find_object_key(str) != in.get_length()) {                                           \
+            auto value = in.get_value_of_key(str);                                                 \
+            hassert(value.get_length() == 1);                                                      \
+            auto num_deserialized = ::deserialize(*this, value);                                   \
+            hassert(num_deserialized == 1);                                                        \
+        }                                                                                          \
+    }                                                                                              \
     void imgui_bind_attributes() {                                                                 \
         if(ImGui::TreeNode(#name)) {                                                               \
             ::imgui_bind_attributes(ha_this, #name, *this);                                        \
@@ -135,8 +144,8 @@ load_unload_proc getUnloadProc() {
 // the derived class... should probably remove the static assert altogether - overly complex...
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     HA_MIXIN_DEFINE_COMMON(                                                                        \
-            n,                                                                                     \
-            common::serialize_msg& common::deserialize_msg& common::imgui_bind_attributes_msg& f); \
+            n, common::serialize_msg& common::deserialize_msg& common::set_attribute_msg&          \
+                       common::imgui_bind_attributes_msg& f);                                      \
     static_assert(                                                                                 \
             sizeof(n) ==                                                                           \
                     sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +    \
@@ -182,10 +191,9 @@ int registerGlobal(const char* name, GlobalInfo info);
             HA_GLOBAL_GEN_NAME(type, name),                                                        \
             {[](JsonData& out) { HA_SERIALIZE_VARIABLE(HA_GLOBAL_GEN_NAME(type, name), name); },   \
              [](const sajson::value& val) {                                                        \
-                 deserialize(name,                                                                 \
-                             val.get_value_of_key(sajson::string(                                  \
-                                     HA_GLOBAL_GEN_NAME(type, name),                               \
-                                     HA_COUNT_OF(HA_GLOBAL_GEN_NAME(type, name)) - 1)));           \
+                 deserialize(name, val.get_value_of_key(sajson::string(                            \
+                                           HA_GLOBAL_GEN_NAME(type, name),                         \
+                                           HA_COUNT_OF(HA_GLOBAL_GEN_NAME(type, name)) - 1)));     \
              }})
 
 #define HA_GLOBAL(type, name)                                                                      \
@@ -216,10 +224,12 @@ int registerGlobal(const char* name, GlobalInfo info);
 
 // TODO: could be reworked to compare integers in a switch instead of strcmp-ing like crazy
 #define HA_DESERIALIZE_VARIABLE(key, var)                                                          \
-    if(strcmp(val.get_object_key(i).data(), key) == 0)                                             \
-    deserialize(var, val.get_object_value(i))
+    if(strcmp(val.get_object_key(i).data(), key) == 0) {                                           \
+        deserialize(var, val.get_object_value(i));                                                 \
+        ++num_deserialized;                                                                        \
+    }
 
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \
-    friend void serialize(const name& src, JsonData& out, bool as_object);                         \
-    friend void deserialize(name& dest, const sajson::value& val);                                 \
+    friend void        serialize(const name& src, JsonData& out, bool as_object);                  \
+    friend size_t      deserialize(name& dest, const sajson::value& val);                          \
     friend const char* imgui_bind_attributes(Object& e, const char* mixin_name, name& obj)

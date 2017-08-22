@@ -9,6 +9,8 @@ HA_SUPPRESS_WARNINGS
 // common
 HA_CONST_MULTI_MSG_1(common, void, serialize, JsonData&, out)
 HA_MULTI_MSG_1(common, void, deserialize, const sajson::value&, in)
+HA_MULTI_MSG_3(common, void, set_attribute, const char*, mixin, const char*, attr,
+               const sajson::value&, in)
 HA_MULTI_MSG_0(common, void, imgui_bind_attributes)
 
 // transform
