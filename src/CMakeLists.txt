@@ -83,7 +83,7 @@ if(NOT MSVC)
     target_compile_options(game PRIVATE -Wl,--no-undefined)
 endif()
 
-mixify_target(game)
+target_parse_sources(game)
 if(${WITH_PLUGINS})
     set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
     target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")

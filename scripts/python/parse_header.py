@@ -24,9 +24,12 @@ for line in header:
     if len(words) < 1:
         continue
     
-    # start a type
+    # start a type - also skips forward declarations
     if words[0] in {"struct", "class"} and current_type == "" and len(words) > 1 and ";" not in line:
-        current_type = words[1]
+        if words[1] in ["HAPI", "HA_EMPTY_BASE"] and len(words) > 2:
+            current_type = words[2]
+        else:
+            current_type = words[1]
         types[current_type] = []
         continue
     # end a type
@@ -68,8 +71,6 @@ for type in types:
     code += strln("void serialize(const " + type + "& src, JsonData& out, bool as_object = true) {")
     code += strln("if(as_object) out.startObject();", tabs = 1)
     for field in types[type]:
-        #print field["name"]
-        #print field["attributes"]
         code += strln("HA_SERIALIZE_VARIABLE(\"" + field["name"] + "\", src." + field["name"] + ");", tabs = 1)
     code += strln("if(as_object) out.endObject();", tabs = 1)
     code += strln("}")
@@ -94,11 +95,12 @@ for type in types:
     code += strln("}")
     code += strln("")
 
-if code:
-    code = "#pragma once\n\n" + code
-    gen = open(sys.argv[2], 'w+')
-    gen.write(code)
-    gen.close()
+# always generate the header - even if "code" is an empty string
+# otherwise the build system will always run the custom commands for each header that haven't generated the output
+code = "#pragma once\n\n" + code
+gen = open(sys.argv[2], 'w+')
+gen.write(code)
+gen.close()
 
 header.close()
 

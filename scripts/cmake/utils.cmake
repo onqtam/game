@@ -96,6 +96,33 @@ function(mixify_target target)
     endforeach()
 endfunction()
 
+function(target_parse_sources target)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/gen)
+        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gen)
+    endif()
+    
+    get_target_property(sources ${target} SOURCES)
+	foreach(src ${sources})
+        if(src MATCHES \\.\(h|cpp|hpp|hh|cc|cxx\)$ AND NOT src MATCHES "precompiled|_tests")
+            set(src ${CMAKE_CURRENT_SOURCE_DIR}/${src})
+            
+            get_filename_component(src_name ${src} NAME)
+            set(gen_h ${CMAKE_BINARY_DIR}/gen/${src_name}.inl)
+            
+            add_custom_command(
+                OUTPUT ${gen_h}
+                DEPENDS ${src} # cannot use MAIN_DEPENDENCY - see this: https://gitlab.kitware.com/cmake/cmake/issues/16580
+                COMMAND python ${CURRENT_LIST_DIR_CACHED}/../python/parse_header.py ${src} ${gen_h}
+                COMMENT "[codegen] parsing ${src}")
+            
+            target_sources(${target} PRIVATE ${gen_h}) # so the custom command is attached somewhere - no MAIN_DEPENDENCY :(
+            set_source_files_properties(${gen_h} PROPERTIES GENERATED TRUE)
+            SOURCE_GROUP("gen" FILES ${gen_h})
+        endif()
+    endforeach()
+    target_include_directories(${target} PRIVATE ${CMAKE_BINARY_DIR}/)
+endfunction()
+
 # add_precompiled_header
 function(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER)
     # my addition to the chobo pch macro - also changed it from a macro to a function (idk why but otherwise it didnt work...)

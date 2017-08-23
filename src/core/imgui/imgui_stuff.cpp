@@ -189,29 +189,29 @@ const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop,
 }
 
 #ifdef _WIN32
-const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, mesh_path& data) {
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("", data.in.data(), data.in.length(), ImGuiInputTextFlags_ReadOnly);
-    ImGui::SameLine();
-    if(ImGui::Button("browse")) {
-        nfdchar_t*  outPath = NULL;
-        nfdresult_t result  = NFD_OpenDialog("bin", NULL, &outPath);
-        hassert(result != NFD_ERROR, "Error: %s\n", NFD_GetError());
-        if(result == NFD_OKAY) {
-            JsonData old_val = command(mixin, prop, data.in);
-            data.in          = outPath;
-            JsonData new_val = command(mixin, prop, data.in);
-            edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(),
-                                        new_val.data());
-
-            free(outPath);
-            return prop;
-        }
-    }
-    ImGui::SameLine();
-    ImGui::LabelText("", prop);
-    return nullptr;
-}
+//const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, mesh_path& data) {
+//    ImGui::PushItemWidth(200);
+//    ImGui::InputText("", data.data(), data.length(), ImGuiInputTextFlags_ReadOnly);
+//    ImGui::SameLine();
+//    if(ImGui::Button("browse")) {
+//        nfdchar_t*  outPath = NULL;
+//        nfdresult_t result  = NFD_OpenDialog("bin", NULL, &outPath);
+//        hassert(result != NFD_ERROR, "Error: %s\n", NFD_GetError());
+//        if(result == NFD_OKAY) {
+//            JsonData old_val = command(mixin, prop, data);
+//            data             = outPath;
+//            JsonData new_val = command(mixin, prop, data);
+//            edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(),
+//                                        new_val.data());
+//
+//            free(outPath);
+//            return prop;
+//        }
+//    }
+//    ImGui::SameLine();
+//    ImGui::LabelText("", prop);
+//    return nullptr;
+//}
 #endif // _WIN32
 
 const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, glm::vec3& data) {

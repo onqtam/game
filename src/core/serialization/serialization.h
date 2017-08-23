@@ -4,7 +4,9 @@
 
 #include "core/GraphicsHelpers.h"
 
-#include "core/StringTypes.h"
+#include "core/tags.h"
+
+typedef std::string mesh_path;
 
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
@@ -28,9 +30,6 @@ HAPI void deserialize(bool& data, const sajson::value& val);
 
 HAPI void serialize_c(const std::string& data, JsonData& out);
 HAPI void deserialize(std::string& data, const sajson::value& val);
-
-inline void serialize(const mesh_path& data, JsonData& out) { serialize(data.in, out); }
-inline void deserialize(mesh_path& data, const sajson::value& val) { deserialize(data.in, val); }
 
 template <int S, typename T>
 void serialize_c(const glm::vec<S, T>& data, JsonData& out) {

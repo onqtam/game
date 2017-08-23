@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core/StringTypes.h"
+#include "core/tags.h"
+
+typedef std::string mesh_path;
 
 template <typename... Args>
 const char* imgui_bind_attribute(Object&, const char*, const char* prop, Args&&...) {

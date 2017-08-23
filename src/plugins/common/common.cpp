@@ -66,13 +66,13 @@ public:
     //HA_MESSAGES_IN_MIXIN(mesh)
 public:
     mesh() {
-        _path.in = "meshes/bunny.bin";
+        _path = "meshes/bunny.bin";
 
-        _mesh   = MeshMan::get().get(_path.in);
+        _mesh   = MeshMan::get().get(_path);
         _shader = ShaderMan::get().get("mesh");
 
         attr_changed_callbacks["_path"].push_back([&]() {
-            _mesh = MeshMan::get().get(_path.in);
+            _mesh = MeshMan::get().get(_path);
             printf("yuhoo!\n");
         });
     }

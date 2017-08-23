@@ -138,25 +138,10 @@ load_unload_proc getUnloadProc() {
              [](Object* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
-// some overly complicated static assert that tries to ensure that the user hasn't added any members
-// to the deriving class of the _gen class - tries to take into account if the derived class becomes
-// polymorphic - but in some circumstances this might not catch the addition of a 4 byte variable in
-// the derived class... should probably remove the static assert altogether - overly complex...
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     HA_MIXIN_DEFINE_COMMON(                                                                        \
             n, common::serialize_msg& common::deserialize_msg& common::set_attribute_msg&          \
-                       common::imgui_bind_attributes_msg& f);                                      \
-    static_assert(                                                                                 \
-            sizeof(n) ==                                                                           \
-                    sizeof(HA_CAT_1(n, _gen)) + std::is_polymorphic<n>::value * sizeof(void*) +    \
-                            std::is_polymorphic<n>::value *                                        \
-                                    (sizeof(n) > sizeof(HA_CAT_1(n, _gen)) +                       \
-                                                             std::is_polymorphic<n>::value *       \
-                                                                     sizeof(void*) ?               \
-                                             (alignof(n) == alignof(HA_CAT_1(n, _gen)) + 4 ? 4 :   \
-                                                                                             0) :  \
-                                             0),                                                   \
-            "someone has extended the base type?")
+                       common::imgui_bind_attributes_msg& f)
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 
@@ -222,7 +207,6 @@ int registerGlobal(const char* name, GlobalInfo info);
     serialize(var, out);                                                                           \
     out.addComma()
 
-// TODO: could be reworked to compare integers in a switch instead of strcmp-ing like crazy
 #define HA_DESERIALIZE_VARIABLE(key, var)                                                          \
     if(strcmp(val.get_object_key(i).data(), key) == 0) {                                           \
         deserialize(var, val.get_object_value(i));                                                 \
@@ -233,3 +217,8 @@ int registerGlobal(const char* name, GlobalInfo info);
     friend void        serialize(const name& src, JsonData& out, bool as_object);                  \
     friend size_t      deserialize(name& dest, const sajson::value& val);                          \
     friend const char* imgui_bind_attributes(Object& e, const char* mixin_name, name& obj)
+
+// helpers that don't expand to anything - used by the type parser
+#define FIELD           // indicates the start of a field definition inside of a type
+#define EXPORT          // attribute - indicates that the field should be exported
+#define ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
