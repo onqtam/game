@@ -1,5 +1,6 @@
 
 type parser
+    - clear the build/gen folder when the python script changes
     - rewrite using formatting instead of string concatenation
     - support for nested types
     - error checking

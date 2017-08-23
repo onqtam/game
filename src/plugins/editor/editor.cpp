@@ -1,4 +1,7 @@
-#include "editor_gen.h"
+#include "core/registry/registry.h"
+#include "core/serialization/serialization.h"
+#include "core/serialization/serialization_2.h"
+#include "core/imgui/imgui_stuff.h"
 
 #include "core/messages/messages.h"
 #include "core/messages/messages_editor.h"
@@ -21,15 +24,63 @@ HA_SUPPRESS_WARNINGS_END
 //void serialize(const editor& src, JsonData& out);
 //void deserialize(editor& dest, const sajson::value& val);
 
-typedef decltype(editor_gen::undo_redo_commands)::value_type command_variant_type;
+struct attribute_changed_cmd
+{
+    HA_FRIENDS_OF_TYPE(attribute_changed_cmd);
 
-class editor : public editor_gen,
-               public UpdatableMixin<editor>,
-               public InputEventListener,
-               public Singleton<editor>
+public:
+    FIELD oid e;
+    FIELD json_buf old_val;
+    FIELD json_buf new_val;
+};
+
+struct entity_creation_cmd
+{
+    HA_FRIENDS_OF_TYPE(entity_creation_cmd);
+
+public:
+    FIELD oid id;
+    FIELD std::string name;
+    FIELD bool        created;
+};
+
+struct entity_mutation_cmd
+{
+    HA_FRIENDS_OF_TYPE(entity_mutation_cmd);
+
+public:
+    FIELD oid id;
+    FIELD std::vector<std::string> mixins;
+    FIELD json_buf mixins_state;
+    FIELD bool     added;
+};
+
+struct compound_cmd
+{
+    HA_FRIENDS_OF_TYPE(compound_cmd);
+
+public:
+    typedef boost::variant<attribute_changed_cmd, entity_mutation_cmd, entity_creation_cmd,
+                           compound_cmd>
+                                         command_variant;
+    typedef std::vector<command_variant> commands_vector;
+
+    FIELD commands_vector commands;
+};
+
+typedef compound_cmd::command_variant command_variant;
+typedef compound_cmd::commands_vector commands_vector;
+
+class editor : public UpdatableMixin<editor>, public InputEventListener, public Singleton<editor>
 {
     HA_SINGLETON(editor);
     HA_MESSAGES_IN_MIXIN(editor)
+    HA_FRIENDS_OF_TYPE(editor);
+
+    FIELD std::vector<oid> selected;
+    FIELD commands_vector undo_redo_commands;
+    FIELD int             curr_undo_redo            = -1;
+    FIELD bool            mouse_button_left_changed = false;
 
     // these members are OK to not be serialized because they are constantly updated - for all other members use the .mix file!
     tinygizmo::gizmo_application_state m_gizmo_state;
@@ -349,7 +400,7 @@ public:
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(selected.size() > 0) {
-                    compound_cmd_gen comp_cmd;
+                    compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
                         // remove selected component ---> TEMP HACK!
@@ -371,9 +422,9 @@ public:
 
                         HA_SUPPRESS_WARNINGS
                         comp_cmd.commands.push_back(
-                                entity_mutation_cmd_gen({curr, mixin_names, state.data(), false}));
+                                entity_mutation_cmd({curr, mixin_names, state.data(), false}));
                         comp_cmd.commands.push_back(
-                                entity_creation_cmd_gen({curr, curr.get().name(), false}));
+                                entity_creation_cmd({curr, curr.get().name(), false}));
                         HA_SUPPRESS_WARNINGS_END
 
                         ObjectManager::get().destroy(curr);
@@ -392,17 +443,17 @@ public:
         }
     }
 
-    void handle_command(command_variant_type& command_variant, bool undo) {
-        if(command_variant.type() == boost::typeindex::type_id<attribute_changed_cmd_gen>()) {
-            auto&       cmd = boost::get<attribute_changed_cmd_gen>(command_variant);
+    void handle_command(command_variant& command_variant, bool undo) {
+        if(command_variant.type() == boost::typeindex::type_id<attribute_changed_cmd>()) {
+            auto&       cmd = boost::get<attribute_changed_cmd>(command_variant);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
             JsonData    state(val);
             const auto& doc = state.parse();
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize(cmd.e, root);
-        } else if(command_variant.type() == boost::typeindex::type_id<entity_mutation_cmd_gen>()) {
-            auto& cmd = boost::get<entity_mutation_cmd_gen>(command_variant);
+        } else if(command_variant.type() == boost::typeindex::type_id<entity_mutation_cmd>()) {
+            auto& cmd = boost::get<entity_mutation_cmd>(command_variant);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
                 for(auto& mixin : cmd.mixins)
@@ -418,15 +469,15 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().remMixin(mixin.c_str());
             }
-        } else if(command_variant.type() == boost::typeindex::type_id<entity_creation_cmd_gen>()) {
-            auto& cmd = boost::get<entity_creation_cmd_gen>(command_variant);
+        } else if(command_variant.type() == boost::typeindex::type_id<entity_creation_cmd>()) {
+            auto& cmd = boost::get<entity_creation_cmd>(command_variant);
             if((cmd.created && undo) || (!cmd.created && !undo)) {
                 ObjectManager::get().destroy(cmd.id);
             } else {
                 ObjectManager::get().createFromId(cmd.id, cmd.name);
             }
-        } else if(command_variant.type() == boost::typeindex::type_id<compound_cmd_gen>()) {
-            auto& cmd = boost::get<compound_cmd_gen>(command_variant);
+        } else if(command_variant.type() == boost::typeindex::type_id<compound_cmd>()) {
+            auto& cmd = boost::get<compound_cmd>(command_variant);
             if(undo)
                 for(auto& curr : boost::adaptors::reverse(cmd.commands))
                     handle_command(curr, undo);
@@ -436,7 +487,7 @@ public:
         }
     }
 
-    void add_command(const command_variant_type& command) {
+    void add_command(const command_variant& command) {
         if(undo_redo_commands.size())
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
@@ -449,7 +500,7 @@ public:
 
     void add_changed_attribute(oid e, const json_buf& old_val, const json_buf& new_val) {
         HA_SUPPRESS_WARNINGS
-        add_command(attribute_changed_cmd_gen({e, old_val, new_val}));
+        add_command(attribute_changed_cmd({e, old_val, new_val}));
         HA_SUPPRESS_WARNINGS_END
     }
 };
@@ -477,3 +528,5 @@ HA_SINGLETON_INSTANCE(editor);
 // and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom
 HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor,
                                 common::serialize_msg& common::deserialize_msg& Interface_editor);
+
+#include <gen/editor.cpp.inl>

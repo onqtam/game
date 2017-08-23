@@ -42,7 +42,7 @@ endif()
 
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
-add_mix_dirs(TO registry_src "core/registry" FILTER_POP 2)
+ucm_add_dirs(TO registry_src "core/registry" FILTER_POP 2)
 add_library(registry STATIC ${registry_src})
 target_link_libraries(registry sajson dynamix)
 add_fPIC_to_target(registry)
@@ -52,25 +52,25 @@ add_fPIC_to_target(registry)
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
-add_mix_dirs(TO SOURCES "core")
-add_mix_dirs(TO SOURCES "core/imgui")
-add_mix_dirs(TO SOURCES "core/serialization")
-add_mix_dirs(TO SOURCES "core/messages")
-add_mix_dirs(TO SOURCES "utils")
-add_mix_dirs(TO SOURCES "utils/base64")
-add_mix_dirs(TO SOURCES "utils/aabb")
+ucm_add_dirs(TO SOURCES "core")
+ucm_add_dirs(TO SOURCES "core/imgui")
+ucm_add_dirs(TO SOURCES "core/serialization")
+ucm_add_dirs(TO SOURCES "core/messages")
+ucm_add_dirs(TO SOURCES "utils")
+ucm_add_dirs(TO SOURCES "utils/base64")
+ucm_add_dirs(TO SOURCES "utils/aabb")
 
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)
 
 # ========= PLUGINS =============
 
-#add_mix_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
-add_mix_dirs(TO plugin_src "plugins/omg"    FILTER_POP 1)
-add_mix_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
-add_mix_dirs(TO plugin_src "plugins/editor" FILTER_POP 1)
+#ucm_add_dirs(TO plugin_src "plugins/dummy"  FILTER_POP 1)
+ucm_add_dirs(TO plugin_src "plugins/omg"    FILTER_POP 1)
+ucm_add_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
+ucm_add_dirs(TO plugin_src "plugins/editor" FILTER_POP 1)
 add_plugin(NAME plugin ${plugin_src})
-add_mix_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
+ucm_add_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
 add_plugin(NAME camera ${plugin_camera})
 
 # ========= PLUGINS END =========

@@ -68,7 +68,7 @@ for type in types:
     # do not continue if empty
     if not types[type]:
         continue
-    code += strln("void serialize(const " + type + "& src, JsonData& out, bool as_object = true) {")
+    code += strln("void serialize(const " + type + "& src, JsonData& out, bool as_object) {")
     code += strln("if(as_object) out.startObject();", tabs = 1)
     for field in types[type]:
         code += strln("HA_SERIALIZE_VARIABLE(\"" + field["name"] + "\", src." + field["name"] + ");", tabs = 1)

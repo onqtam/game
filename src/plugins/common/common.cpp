@@ -1,13 +1,21 @@
-#include "common_gen.h"
+#include "core/registry/registry.h"
+#include "core/serialization/serialization.h"
+#include "core/serialization/serialization_2.h"
+#include "core/imgui/imgui_stuff.h"
 
 #include "core/GraphicsHelpers.h"
 
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
-class transform : public transform_gen
+class transform
 {
+    HA_FRIENDS_OF_TYPE(transform);
     HA_MESSAGES_IN_MIXIN(transform)
+    FIELD glm::vec3 pos = {0, 0, 0};
+    FIELD glm::vec3 scl = {1, 1, 1};
+    FIELD glm::quat rot = {1, 0, 0, 0};
+
 public:
     void set_pos(const glm::vec3& in) { pos = in; }
     void set_scl(const glm::vec3& in) { scl = in; }
@@ -28,8 +36,13 @@ public:
 
 HA_MIXIN_DEFINE(transform, Interface_transform);
 
-class mesh : public mesh_gen
+class mesh
 {
+    HA_FRIENDS_OF_TYPE(mesh);
+    FIELD mesh_path _path;
+    FIELD MeshHandle _mesh;
+    FIELD ShaderHandle _shader;
+
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
 
@@ -90,9 +103,13 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
                                                          rend::get_aabb_msg);
 //HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
-class hierarchical : public hierarchical_gen
+class hierarchical
 {
     HA_MESSAGES_IN_MIXIN(hierarchical)
+    HA_FRIENDS_OF_TYPE(hierarchical);
+    FIELD oid parent;
+    FIELD std::vector<oid> children;
+
 public:
     oid                     get_parent() const { return parent; }
     const std::vector<oid>& get_children() const { return children; }
@@ -114,9 +131,19 @@ public:
 
 HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
 
-class selected : public selected_gen
+class selected
 {
     HA_MESSAGES_IN_MIXIN(selected)
+    HA_FRIENDS_OF_TYPE(selected);
+    FIELD tinygizmo::rigid_transform gizmo_transform;
+    FIELD tinygizmo::rigid_transform gizmo_transform_last;
+    FIELD bool                       clicky = false;
+    FIELD float                      dragy  = 42;
+    FIELD double                     dragy2 = 42;
+    FIELD int                        dragy3 = 42;
+    FIELD std::string texty                 = "happy!!";
+    FIELD std::string texty2                = ":(";
+
 public:
     tinygizmo::rigid_transform& get_gizmo_transform() {
         gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
@@ -138,3 +165,5 @@ public:
 };
 
 HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg& Interface_selected);
+
+#include <gen/common.cpp.inl>

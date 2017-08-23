@@ -1,4 +1,6 @@
-#include "camera_gen.h"
+#include "core/registry/registry.h"
+#include "core/serialization/serialization.h"
+#include "core/imgui/imgui_stuff.h"
 
 #include "core/InputEvent.h"
 #include "core/Application.h"
@@ -14,11 +16,18 @@ const glm::vec3 k_forward             = {0, 0, -1};
 //const glm::vec3 k_up                  = {0, 1, 0};
 //const glm::vec3 k_right               = {1, 0, 0};
 
-class HA_EMPTY_BASE camera : public camera_gen,
-                             public InputEventListener,
-                             public UpdatableMixin<camera>
+class camera;
+void serialize(const camera& src, JsonData& out, bool as_object);
+
+class camera : public InputEventListener, public UpdatableMixin<camera>
 {
+    HA_FRIENDS_OF_TYPE(camera);
     HA_MESSAGES_IN_MIXIN(camera)
+
+    FIELD float cursor_x = 0.f;
+    FIELD float cursor_y = 0.f;
+    FIELD float scroll   = 0.f;
+
 public:
     camera() {
         cursor_x = Application::get().width() / 2.f;
@@ -56,8 +65,8 @@ public:
         auto pos = tr::get_pos(ha_this);
         pos += move_vec;
         glm::vec3 fix_vec(0);
-        auto half_w = World::get().width() / 2;
-        auto half_h = World::get().height() / 2;
+        auto      half_w = World::get().width() / 2;
+        auto      half_h = World::get().height() / 2;
         if(abs(pos.x) > half_w)
             fix_vec.x = Utils::sign(pos.x) * half_w - pos.x;
         if(abs(pos.z) > half_h)
@@ -86,4 +95,7 @@ public:
     void no_gizmo() const {}
 };
 
-HA_MIXIN_DEFINE(camera, cam::get_view_matrix_msg& cam::get_projection_matrix_msg& sel::no_gizmo_msg);
+HA_MIXIN_DEFINE(camera,
+                cam::get_view_matrix_msg& cam::get_projection_matrix_msg& sel::no_gizmo_msg);
+
+#include <gen/camera.cpp.inl>
