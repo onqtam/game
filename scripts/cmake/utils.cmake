@@ -2,6 +2,8 @@
 set(CURRENT_LIST_DIR_CACHED ${CMAKE_CURRENT_LIST_DIR})
 
 # parse all files (header and source) and generate code based on the annotated types in them
+# will add a "CMake Rules" folder to the target because MAIN_DEPENDENCY cannot be used
+# for more info read this: https://stackoverflow.com/questions/40876070/get-rid-of-cmake-rules-folder
 function(target_parse_sources target)
     if(NOT EXISTS ${CMAKE_BINARY_DIR}/gen)
         file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gen)
@@ -18,7 +20,7 @@ function(target_parse_sources target)
             add_custom_command(
                 OUTPUT ${gen_h}
                 DEPENDS ${src} # cannot use MAIN_DEPENDENCY - see this: https://gitlab.kitware.com/cmake/cmake/issues/16580
-                COMMAND python ${CURRENT_LIST_DIR_CACHED}/../python/parse_header.py ${src} ${gen_h}
+                COMMAND python ${CURRENT_LIST_DIR_CACHED}/../python/parse_source.py ${src} ${gen_h}
                 COMMENT "[codegen] parsing ${src}")
             
             target_sources(${target} PRIVATE ${gen_h}) # so the custom command is attached somewhere - no MAIN_DEPENDENCY :(
