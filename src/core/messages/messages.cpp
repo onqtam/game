@@ -4,10 +4,10 @@
 #include "messages_editor.h"
 
 // common
-HA_DEFINE_MSG(common, serialize)
-HA_DEFINE_MSG(common, deserialize)
-HA_DEFINE_MSG(common, set_attribute)
-HA_DEFINE_MSG(common, imgui_bind_attributes)
+HA_DEFINE_MSG(common, serialize_mixins)
+HA_DEFINE_MSG(common, deserialize_mixins)
+HA_DEFINE_MSG(common, set_attribute_mixins)
+HA_DEFINE_MSG(common, imgui_bind_attributes_mixins)
 
 // transform
 HA_DEFINE_MSG(tr, set_pos)

@@ -92,28 +92,28 @@ load_unload_proc getUnloadProc() {
 
 #define HA_MESSAGES_IN_MIXIN(name)                                                                 \
     /* clang-format fix */ public:                                                                 \
-    void serialize(JsonData& out) const {                                                          \
+    void serialize_mixins(JsonData& out) const {                                                   \
         out.append("\"" #name "\":");                                                              \
-        ::serialize(*this, out);                                                                   \
+        serialize(*this, out);                                                                     \
         out.addComma();                                                                            \
     }                                                                                              \
-    void deserialize(const sajson::value& in) {                                                    \
+    void deserialize_mixins(const sajson::value& in) {                                             \
         auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
         if(in.find_object_key(str) != in.get_length())                                             \
-            ::deserialize(*this, in.get_value_of_key(str));                                        \
+            deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    void set_attribute(const char* mixin, const char* attr, const sajson::value& in) {             \
+    void set_attribute_mixins(const char* mixin, const char* attr, const sajson::value& in) {      \
         auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
         if(in.find_object_key(str) != in.get_length()) {                                           \
             auto value = in.get_value_of_key(str);                                                 \
             hassert(value.get_length() == 1);                                                      \
-            auto num_deserialized = ::deserialize(*this, value);                                   \
+            auto num_deserialized = deserialize(*this, value);                                     \
             hassert(num_deserialized == 1);                                                        \
         }                                                                                          \
     }                                                                                              \
-    void imgui_bind_attributes() {                                                                 \
+    void imgui_bind_attributes_mixins() {                                                          \
         if(ImGui::TreeNode(#name)) {                                                               \
-            ::imgui_bind_attributes(ha_this, #name, *this);                                        \
+            imgui_bind_attributes(ha_this, #name, *this);                                          \
             ImGui::TreePop();                                                                      \
         }                                                                                          \
     }                                                                                              \
@@ -140,8 +140,9 @@ load_unload_proc getUnloadProc() {
 
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     HA_MIXIN_DEFINE_COMMON(                                                                        \
-            n, common::serialize_msg& common::deserialize_msg& common::set_attribute_msg&          \
-                       common::imgui_bind_attributes_msg& f)
+            n,                                                                                     \
+            common::serialize_mixins_msg& common::deserialize_mixins_msg&                          \
+                    common::set_attribute_mixins_msg& common::imgui_bind_attributes_mixins_msg& f)
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

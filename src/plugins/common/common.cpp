@@ -8,6 +8,11 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
+class camera;
+void        serialize(const camera& src, JsonData& out, bool as_object);
+size_t      deserialize(camera& dest, const sajson::value& val);
+const char* imgui_bind_attributes(Object& e, const char* mixin_name, camera& obj);
+
 class transform
 {
     HA_FRIENDS_OF_TYPE(transform);
@@ -46,28 +51,28 @@ class mesh
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
 
-    void serialize(JsonData& out) const {
+    void serialize_mixins(JsonData& out) const {
         out.append("\"mesh\":");
-        ::serialize(*this, out);
+        serialize(*this, out);
         out.addComma();
     }
-    void deserialize(const sajson::value& in) {
+    void deserialize_mixins(const sajson::value& in) {
         auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
         if(in.find_object_key(str) != in.get_length())
-            ::deserialize(*this, in.get_value_of_key(str));
+            deserialize(*this, in.get_value_of_key(str));
     }
-    void set_attribute(const char* mixin, const char* attr, const sajson::value& in) {
+    void set_attribute_mixins(const char* mixin, const char* attr, const sajson::value& in) {
         auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
         if(in.find_object_key(str) != in.get_length()) {
             auto value = in.get_value_of_key(str);
             hassert(value.get_length() == 1);
-            auto num_deserialized = ::deserialize(*this, value);
+            auto num_deserialized = deserialize(*this, value);
             hassert(num_deserialized == 1);
         }
     }
-    void imgui_bind_attributes() {
+    void imgui_bind_attributes_mixins() {
         if(ImGui::TreeNode("mesh")) {
-            auto changed_attr = ::imgui_bind_attributes(ha_this, "mesh", *this);
+            auto changed_attr = imgui_bind_attributes(ha_this, "mesh", *this);
             if(changed_attr && attr_changed_callbacks.count(changed_attr)) {
                 for(auto& cb : attr_changed_callbacks[changed_attr])
                     cb();
@@ -98,9 +103,9 @@ public:
 };
 
 HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
-        mesh, common::serialize_msg& common::deserialize_msg& common::set_attribute_msg&
-                      common::imgui_bind_attributes_msg& rend::get_rendering_parts_msg&
-                                                         rend::get_aabb_msg);
+        mesh, common::serialize_mixins_msg& common::deserialize_mixins_msg&
+                      common::set_attribute_mixins_msg& common::imgui_bind_attributes_mixins_msg&
+                              rend::get_rendering_parts_msg& rend::get_aabb_msg);
 //HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
 class hierarchical

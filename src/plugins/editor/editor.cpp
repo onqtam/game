@@ -288,8 +288,8 @@ public:
             for(auto& id : selected) {
                 auto& obj = id.get();
                 if(ImGui::TreeNode(obj.name().c_str())) {
-                    if(obj.implements(common::imgui_bind_attributes_msg)) {
-                        common::imgui_bind_attributes(obj);
+                    if(obj.implements(common::imgui_bind_attributes_mixins_msg)) {
+                        common::imgui_bind_attributes_mixins(obj);
                     }
 
                     ImGui::TreePop();
@@ -417,7 +417,7 @@ public:
                         JsonData state;
                         state.reserve(10000);
                         state.startObject();
-                        common::serialize(curr.get(), state);
+                        common::serialize_mixins(curr.get(), state);
                         state.endObject();
 
                         HA_SUPPRESS_WARNINGS
@@ -451,7 +451,7 @@ public:
             const auto& doc = state.parse();
             hassert(doc.is_valid());
             const auto root = doc.get_root();
-            common::deserialize(cmd.e, root);
+            common::deserialize_mixins(cmd.e, root);
         } else if(command_variant.type() == boost::typeindex::type_id<entity_mutation_cmd>()) {
             auto& cmd = boost::get<entity_mutation_cmd>(command_variant);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
@@ -463,7 +463,7 @@ public:
                 const auto& doc = state.parse();
                 hassert(doc.is_valid());
                 const auto root = doc.get_root();
-                common::deserialize(cmd.id, root);
+                common::deserialize_mixins(cmd.id, root);
             } else {
                 // remove the mixins
                 for(auto& mixin : cmd.mixins)
@@ -527,6 +527,6 @@ HA_SINGLETON_INSTANCE(editor);
 // defining it as without codegen for convenience - the singleton macro adds a dummy member variable
 // and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom
 HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor,
-                                common::serialize_msg& common::deserialize_msg& Interface_editor);
+                                common::serialize_mixins_msg& common::deserialize_mixins_msg& Interface_editor);
 
 #include <gen/editor.cpp.inl>

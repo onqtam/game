@@ -7,11 +7,11 @@ HA_SUPPRESS_WARNINGS
 #include <tinygizmo/tiny-gizmo.hpp>
 
 // common
-HA_CONST_MULTI_MSG_1(common, void, serialize, JsonData&, out)
-HA_MULTI_MSG_1(common, void, deserialize, const sajson::value&, in)
-HA_MULTI_MSG_3(common, void, set_attribute, const char*, mixin, const char*, attr,
+HA_CONST_MULTI_MSG_1(common, void, serialize_mixins, JsonData&, out)
+HA_MULTI_MSG_1(common, void, deserialize_mixins, const sajson::value&, in)
+HA_MULTI_MSG_3(common, void, set_attribute_mixins, const char*, mixin, const char*, attr,
                const sajson::value&, in)
-HA_MULTI_MSG_0(common, void, imgui_bind_attributes)
+HA_MULTI_MSG_0(common, void, imgui_bind_attributes_mixins)
 
 // transform
 HA_MSG_1(tr, void, set_pos, const glm::vec3&, pos)

@@ -17,7 +17,9 @@ const glm::vec3 k_forward             = {0, 0, -1};
 //const glm::vec3 k_right               = {1, 0, 0};
 
 class camera;
-void serialize(const camera& src, JsonData& out, bool as_object);
+void        serialize(const camera& src, JsonData& out, bool as_object);
+size_t      deserialize(camera& dest, const sajson::value& val);
+const char* imgui_bind_attributes(Object& e, const char* mixin_name, camera& obj);
 
 class camera : public InputEventListener, public UpdatableMixin<camera>
 {
