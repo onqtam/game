@@ -59,36 +59,39 @@ for line in header:
                 attributes["TAG"] = attribute
             else:
                 attributes[attribute] = True
+
+header.close()
 code = ""
 
 for type in types:
     # do not continue if empty
     if not types[type]:
         continue
-    code += strln("inline void serialize(const " + type + "& src, JsonData& out) {")
+    code += strln('inline void serialize(const %s& src, JsonData& out) {' % (type))
     for field in types[type]:
-        code += strln("HA_SERIALIZE_VARIABLE(\"" + field["name"] + "\", src." + field["name"] + ");", tabs = 1)
-    code += strln("}")
-    code += strln("")
+        code += strln('HA_SERIALIZE_VARIABLE("%s", src.%s);' % (field["name"], field["name"]), tabs = 1)
+    code += strln('}')
+    code += strln('')
     
-    code += strln("inline size_t deserialize(" + type + "& dest, const sajson::value& val) {")
-    code += strln("const size_t val_len = val.get_length();", tabs = 1)
-    code += strln("size_t num_deserialized = 0;", tabs = 1)
-    code += strln("for(size_t i = 0; i < val_len; ++i) {", tabs = 1)
+    code += strln('inline size_t deserialize(%s& dest, const sajson::value& val) {' % (type))
+    code += strln('const size_t val_len = val.get_length();', tabs = 1)
+    code += strln('size_t num_deserialized = 0;', tabs = 1)
+    code += strln('for(size_t i = 0; i < val_len; ++i) {', tabs = 1)
     for field in types[type]:
-        code += strln("HA_DESERIALIZE_VARIABLE(\"" + field["name"] + "\", dest." + field["name"] + ");", tabs = 2)
-    code += strln("}", tabs = 1)
-    code += strln("return num_deserialized;", tabs = 1)
-    code += strln("}")
-    code += strln("")
+        code += strln('HA_DESERIALIZE_VARIABLE("%s", dest.%s);' % (field["name"], field["name"]), tabs = 2)
+    code += strln('}', tabs = 1)
+    code += strln('return num_deserialized;', tabs = 1)
+    code += strln('}')
+    code += strln('')
     
-    code += strln("inline const char* imgui_bind_attributes(Object& e, const char* mixin, " + type + "& obj) {")
-    code += strln("const char *out = nullptr, *temp = nullptr;", tabs = 1)
+    code += strln('inline const char* imgui_bind_attributes(Object& e, const char* mixin, %s& obj) {' % (type))
+    code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
     for field in types[type]:
-        code += strln("temp = imgui_bind_attribute(e, mixin, \"" + field["name"] + "\", obj." + field["name"] + ((", " + field["attributes"]["TAG"]) if "TAG" in field["attributes"] else "") + "); if(temp) out = temp;", tabs = 1)
-    code += strln("return out;", tabs = 1)
-    code += strln("}")
-    code += strln("")
+        code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"]) if "TAG" in field["attributes"] else "")), tabs = 1)
+        
+    code += strln('return out;', tabs = 1)
+    code += strln('}')
+    code += strln('')
 
 # always generate the header - even if "code" is an empty string
 # otherwise the build system will always run the custom commands for each header that haven't generated the output
@@ -96,37 +99,3 @@ code = "#pragma once\n\n" + code
 gen = open(sys.argv[2], 'w+')
 gen.write(code)
 gen.close()
-
-header.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

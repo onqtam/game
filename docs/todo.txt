@@ -2,7 +2,6 @@
 tagged file dialog stuffs
 
 type parser
-    - rewrite using formatting instead of string concatenation
     - support for nested types
     - error checking
     - ability to parse fields without needing FIELD at the start - hard because of inline methods...
