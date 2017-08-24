@@ -68,8 +68,10 @@ for type in types:
     if not types[type]:
         continue
     code += strln('inline void serialize(const %s& src, JsonData& out) {' % (type))
+    code += strln('out.startObject();', tabs = 1)
     for field in types[type]:
         code += strln('HA_SERIALIZE_VARIABLE("%s", src.%s);' % (field["name"], field["name"]), tabs = 1)
+    code += strln('out.endObject();', tabs = 1)
     code += strln('}')
     code += strln('')
     
