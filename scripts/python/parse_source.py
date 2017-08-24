@@ -12,9 +12,6 @@ def writeln(f, string, tabs = 0):
 
 header = open(sys.argv[1], 'r')
 
-# file should start with a line containing this
-#if not "REFLECT" in next(header): sys.exit(0)
-
 current_type = ""
 attributes = {}
 types = {}
@@ -68,11 +65,9 @@ for type in types:
     # do not continue if empty
     if not types[type]:
         continue
-    code += strln("inline void serialize(const " + type + "& src, JsonData& out, bool as_object) {")
-    code += strln("if(as_object) out.startObject();", tabs = 1)
+    code += strln("inline void serialize(const " + type + "& src, JsonData& out) {")
     for field in types[type]:
         code += strln("HA_SERIALIZE_VARIABLE(\"" + field["name"] + "\", src." + field["name"] + ");", tabs = 1)
-    code += strln("if(as_object) out.endObject();", tabs = 1)
     code += strln("}")
     code += strln("")
     

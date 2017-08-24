@@ -1,6 +1,5 @@
 
 type parser
-    - move from friends to static methods - and perhaps generate free functions that call the static methods
     - clear the build/gen folder when the python script changes
     - rewrite using formatting instead of string concatenation
     - support for nested types
