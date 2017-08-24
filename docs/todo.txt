@@ -94,6 +94,9 @@ questionable:
     - support for types in namespaces
     - error checking
     - ability to parse fields without needing FIELD at the start - hard because of inline methods...
+        - or find a way to use magic_get with classes with private fields to compare against the count of FIELD
+            - see this: https://github.com/apolukhin/magic_get/issues/10
+        - or use real parsing and compare results - python cppheaderparser?
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
 - look into https://github.com/macton/DDLParser
 

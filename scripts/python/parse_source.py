@@ -101,3 +101,28 @@ code = "#pragma once\n\n" + code
 gen = open(sys.argv[2], 'w+')
 gen.write(code)
 gen.close()
+
+#if len(types) > 0:
+#    import CppHeaderParser # pip install CppHeaderParser
+#    try:
+#        parsed = CppHeaderParser.CppHeader(sys.argv[1])
+#    except CppHeaderParser.CppParseError as e:
+#        print(e)
+#        sys.exit(1)
+#    
+#    for type in types:
+#        # do not continue if empty
+#        if not types[type]:
+#            continue
+#        # do not continue if not parsed by CppHeaderParser
+#        if not type in parsed.classes:
+#            print type + " not parsed by CppHeaderParser!"
+#            continue
+#        
+#        num_fields = 0
+#        for visibility in ["private", "public", "protected"]:
+#            num_fields += len(parsed.classes[type]["properties"][visibility])
+#        
+#        print type + ":"
+#        print "  CppHeaderParser: " + str(num_fields)
+#        print "  my file parser:  " + str(len(types[type]))
