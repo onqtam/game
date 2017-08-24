@@ -54,7 +54,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 #== INCLUDE PATHS ==================================================================================
 #===================================================================================================
 
-set(BOOST_DIR "boost_1_64_0")
+set(BOOST_DIR "boost_1_65_0")
 
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
