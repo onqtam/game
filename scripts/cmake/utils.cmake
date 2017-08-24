@@ -1,21 +1,22 @@
 # cache this for use inside of the function
 set(CURRENT_LIST_DIR_CACHED ${CMAKE_CURRENT_LIST_DIR})
 
+# create the gen folder
+if(NOT EXISTS ${CMAKE_BINARY_DIR}/gen/gen)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gen/gen)
+endif()
+
 # parse all files (header and source) and generate code based on the annotated types in them
 # will add a "CMake Rules" folder to the target because MAIN_DEPENDENCY cannot be used
 # for more info read this: https://stackoverflow.com/questions/40876070/get-rid-of-cmake-rules-folder
 function(target_parse_sources target)
-    if(NOT EXISTS ${CMAKE_BINARY_DIR}/gen)
-        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gen)
-    endif()
-    
     get_target_property(sources ${target} SOURCES)
 	foreach(src ${sources})
         if(src MATCHES \\.\(h|cpp|hpp|hh|cc|cxx\)$ AND NOT src MATCHES "precompiled|_tests")
             set(src ${CMAKE_CURRENT_SOURCE_DIR}/${src})
             
             get_filename_component(src_name ${src} NAME)
-            set(gen_h ${CMAKE_BINARY_DIR}/gen/${src_name}.inl)
+            set(gen_h ${CMAKE_BINARY_DIR}/gen/gen/${src_name}.inl)
             
             add_custom_command(
                 OUTPUT ${gen_h}
@@ -28,7 +29,7 @@ function(target_parse_sources target)
             SOURCE_GROUP("gen" FILES ${gen_h})
         endif()
     endforeach()
-    target_include_directories(${target} PRIVATE ${CMAKE_BINARY_DIR}/)
+    target_include_directories(${target} PRIVATE ${CMAKE_BINARY_DIR}/gen)
 endfunction()
 
 # add_precompiled_header
