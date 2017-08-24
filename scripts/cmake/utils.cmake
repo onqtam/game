@@ -1,10 +1,15 @@
-# cache this for use inside of the function
-set(CURRENT_LIST_DIR_CACHED ${CMAKE_CURRENT_LIST_DIR})
+set(gen_folder ${CMAKE_BINARY_DIR}/gen/gen)
 
-# create the gen folder
-if(NOT EXISTS ${CMAKE_BINARY_DIR}/gen/gen)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gen/gen)
-endif()
+# a routine to delete all generated code when the parser is modified
+add_custom_command(
+    OUTPUT ${gen_folder}/touched.txt # dummy output file so the custom target can be attached to this command
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${gen_folder}
+    COMMAND ${CMAKE_COMMAND} -E make_directory   ${gen_folder}
+    COMMAND ${CMAKE_COMMAND} -E touch            ${gen_folder}/touched.txt
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/python/parse_source.py # the parser script as a dependency
+    COMMENT "[codegen] deleting all generated files because the parser has been modified")
+add_custom_target(parser_modified DEPENDS ${gen_folder}/touched.txt) # so parsed targets can depend on it
+set_target_properties(parser_modified PROPERTIES FOLDER "CMakePredefinedTargets") # hide it
 
 # parse all files (header and source) and generate code based on the annotated types in them
 # will add a "CMake Rules" folder to the target because MAIN_DEPENDENCY cannot be used
@@ -16,20 +21,21 @@ function(target_parse_sources target)
             set(src ${CMAKE_CURRENT_SOURCE_DIR}/${src})
             
             get_filename_component(src_name ${src} NAME)
-            set(gen_h ${CMAKE_BINARY_DIR}/gen/gen/${src_name}.inl)
+            set(gen_h ${gen_folder}/${src_name}.inl)
             
             add_custom_command(
                 OUTPUT ${gen_h}
                 DEPENDS ${src} # cannot use MAIN_DEPENDENCY - see this: https://gitlab.kitware.com/cmake/cmake/issues/16580
-                COMMAND python ${CURRENT_LIST_DIR_CACHED}/../python/parse_source.py ${src} ${gen_h}
+                COMMAND python ${CMAKE_SOURCE_DIR}/scripts/python/parse_source.py ${src} ${gen_h}
                 COMMENT "[codegen] parsing ${src}")
             
             target_sources(${target} PRIVATE ${gen_h}) # so the custom command is attached somewhere - no MAIN_DEPENDENCY :(
             set_source_files_properties(${gen_h} PROPERTIES GENERATED TRUE)
-            SOURCE_GROUP("gen" FILES ${gen_h})
+            source_group("gen" FILES ${gen_h})
         endif()
     endforeach()
     target_include_directories(${target} PRIVATE ${CMAKE_BINARY_DIR}/gen)
+    add_dependencies(${target} parser_modified)
 endfunction()
 
 # add_precompiled_header
@@ -42,7 +48,7 @@ function(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER)
     set(PRECOMPILED_HEADER ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.h)
     set(PRECOMPILED_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/precompiled_${TARGET_NAME}.cpp)
     target_sources(${TARGET_NAME} PRIVATE ${PRECOMPILED_SOURCE})
-    SOURCE_GROUP("" FILES ${PRECOMPILED_SOURCE})
+    source_group("" FILES ${PRECOMPILED_SOURCE})
 
     # from here on goes the chobo
     get_filename_component(PRECOMPILED_HEADER_NAME ${PRECOMPILED_HEADER} NAME)
