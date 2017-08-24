@@ -1,11 +1,4 @@
 
-tagged file dialog stuffs
-
-type parser
-    - support for nested types
-    - error checking
-    - ability to parse fields without needing FIELD at the start - hard because of inline methods...
-
 attribute changed callbacks
 
 setting attributes explicitly - separately from the serialize() functionality of the whole mixins
@@ -96,8 +89,12 @@ questionable:
 - https://github.com/friggog/tree-gen
 
 == codegen:
+- type parser
+    - support for nested types
+    - support for types in namespaces
+    - error checking
+    - ability to parse fields without needing FIELD at the start - hard because of inline methods...
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
-- types in namespaces
 - look into https://github.com/macton/DDLParser
 
 == random:

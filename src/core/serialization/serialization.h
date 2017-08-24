@@ -6,8 +6,6 @@
 
 #include "core/tags.h"
 
-typedef std::string mesh_path;
-
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
 #define serialize_c serialize_c_impl(__COUNTER__)

@@ -87,7 +87,7 @@ for type in types:
     code += strln('inline const char* imgui_bind_attributes(Object& e, const char* mixin, %s& obj) {' % (type))
     code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
     for field in types[type]:
-        code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"]) if "TAG" in field["attributes"] else "")), tabs = 1)
+        code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"] + "()") if "TAG" in field["attributes"] else "")), tabs = 1)
         
     code += strln('return out;', tabs = 1)
     code += strln('}')

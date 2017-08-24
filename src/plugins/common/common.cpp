@@ -44,7 +44,10 @@ HA_MIXIN_DEFINE(transform, Interface_transform);
 class mesh
 {
     HA_FRIENDS_OF_TYPE(mesh);
-    FIELD mesh_path _path;
+    ATTRIBUTES(tag::mesh)
+    FIELD std::string _path;
+    ATTRIBUTES(tag::image)
+    FIELD std::string _image_path;
     FIELD MeshHandle _mesh;
     FIELD ShaderHandle _shader;
 
