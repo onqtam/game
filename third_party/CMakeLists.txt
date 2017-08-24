@@ -26,27 +26,27 @@ add_library(imgui SHARED "${imgui.sources}")
 target_include_directories(imgui INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 target_compile_definitions(imgui PRIVATE "IMGUI_API=${ha_symbol_export}")
 set_target_properties(imgui PROPERTIES FOLDER "3rdparty")
-add_fPIC_to_target(imgui)
+target_add_fPIC(imgui)
 
 # LIBRARY dynamix
 ucm_add_dirs("dynamix/include/dynamix" "dynamix/src" RECURSIVE TO dynamix.sources REC FILTER_POP 1)
 ucm_add_target(NAME dynamix TYPE SHARED CPP_PER_UNITY 20 SOURCES "${dynamix.sources}")
 target_include_directories(dynamix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/dynamix/include)
 set_target_properties(dynamix PROPERTIES FOLDER "3rdparty")
-add_fPIC_to_target(dynamix)
+target_add_fPIC(dynamix)
 
 # LIBRARY ppk_assert
 ucm_add_dirs("ppk_assert" TO ppk_assert.sources)
 add_library(ppk_assert STATIC "${ppk_assert.sources}")
 target_include_directories(ppk_assert PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ppk_assert)
 set_target_properties(ppk_assert PROPERTIES FOLDER "3rdparty")
-add_fPIC_to_target(ppk_assert)
+target_add_fPIC(ppk_assert)
 
 # LIBRARY tinygizmo
 ucm_add_dirs("tinygizmo" TO tinygizmo.sources)
 add_library(tinygizmo STATIC "${tinygizmo.sources}")
 set_target_properties(tinygizmo PROPERTIES FOLDER "3rdparty")
-add_fPIC_to_target(tinygizmo)
+target_add_fPIC(tinygizmo)
 
 # LIBRARY nativefiledialog
 if(WIN32)
@@ -62,7 +62,7 @@ if(WIN32)
     add_library(nativefiledialog STATIC "${nativefiledialog.sources}")
     target_include_directories(nativefiledialog PUBLIC nativefiledialog/src/include)
     set_target_properties(nativefiledialog PROPERTIES FOLDER "3rdparty")
-    add_fPIC_to_target(nativefiledialog)
+    target_add_fPIC(nativefiledialog)
 endif()
 
 # LIBRARY doctest

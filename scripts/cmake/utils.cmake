@@ -178,7 +178,7 @@ function(add_plugin)
 endfunction()
 
 # should be used on libraries (static or dynamic) which will be linked to other dynamic libraries
-function(add_fPIC_to_target lib)
+function(target_add_fPIC lib)
     if(NOT WIN32)
         target_compile_options(${lib} PRIVATE -fPIC)
     endif()
