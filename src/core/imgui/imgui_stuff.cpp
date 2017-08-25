@@ -192,7 +192,8 @@ const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop,
 const char* imgui_bind_file_popup(Object& e, const char* mixin, const char* prop, std::string& data,
                                   const char* filters) {
     ImGui::PushItemWidth(200);
-    ImGui::InputText("", data.data(), data.length(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("##input", data.data(), data.length(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::PopItemWidth();
     ImGui::SameLine();
 
     char buf[200];
@@ -214,7 +215,7 @@ const char* imgui_bind_file_popup(Object& e, const char* mixin, const char* prop
         }
     }
     ImGui::SameLine();
-    ImGui::LabelText("", prop);
+    ImGui::LabelText("##text", prop);
     return nullptr;
 }
 #endif // _WIN32

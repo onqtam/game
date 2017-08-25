@@ -17,7 +17,6 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     bugs
         sometimes a scale operation gets inserted into the undo/redo queue
-        cannot collapse the mesh component in the editor once opened o_O
     postponed
         - object snapping (with the gizmos)
         - editing an attribute of multiple objects at once
