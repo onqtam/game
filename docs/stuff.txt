@@ -1,3 +1,75 @@
+type of game:
+    top-down viewed - like Diablo 3
+    multiplayer
+    pvp and pve (meaning with hostile NPCs)
+    platforms: desktop/browser
+    instance-based - no zones
+    target around 20 minutes of play
+    no character progression between sessions
+    character customization - visual only
+    should be viable as an e-sport
+    not an open world - no streaming
+    world size - a few times larger than the one in Dota
+    
+    not sure yet:
+        if demo will be aimed at investors or players for crowdfunding
+        about the art style - low poly or not
+    genre:
+        survival
+        FFA (pvp/pve)
+
+technical:
+    constraints:
+        browsers:
+            single threaded (can have multithreaded mode for when a desktop client)
+            perhaps no UDP
+            GLES3/WebGL2
+        no pointers - only handles (for everything - resources, other objects, etc.)
+    can serialize/hash entire game state
+    hot-reloadable engine - game used as a server (+ ability to change class layout at runtime)
+    embedded editor with ability to pause the game and inspect/edit anything
+    no scripting - only C++
+    GUI: nothing in mind yet
+    sending only inputs over the network - deterministic engine (will make replays trivial even with many game objects)
+    server instances should scale/replicate on the cloud - perhaps AWS - hardware will only be rented
+    project structure:
+        no client/server separation - server is just stripped from rendering client
+
+milestones:
+    editor (with imgui)
+        save levels with prefabs (object templates)
+        usability - selection, copying objects, GUI, splines, etc.
+    textured/animated characters
+    pathfinding & basic AI
+    basic in-game GUI
+    multiplayer - local & hardcoded - no server/lobby/instances/chat/social/scalability
+    physics - ragdolls
+    demo with purchased assets for it
+    
+    nice to have along the way:
+        profiling/logging tools
+        improved development process - streamlining the hot-reloading process
+        enforced static analysis & coding standard
+        asset reloading at runtime
+    not for demo:
+        advanced editor
+            animation events/blending
+            particle editor
+        scalable multiplayer
+        update-able client
+        replays?
+        GUI
+        tracking & analytics
+        ingame shop
+
+
+
+
+
+
+
+
+
 epic stuff:
 http://ithare.com/c-for-games-performance-allocations-and-data-locality/
 http://ithare.com/c-performance-common-wisdoms-and-common-wisdoms/
