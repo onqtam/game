@@ -117,6 +117,13 @@ if(TOOLCHAIN STREQUAL "msvc")
 endif()
 
 if(NOT TOOLCHAIN STREQUAL "js")
+    # LIBRARY glew
+    ucm_add_dirs("${GLEW_DIR}/include/" TO glew.sources REC TRIM_FILTER 3)
+    ucm_add_files("${GLEW_DIR}/src/glew.c" TO glew.sources)
+    add_library(glew STATIC ${glew.sources})
+    target_link_libraries(glew "${GLEW_LINK_LIBRARIES}")
+    set_target_properties(glew PROPERTIES FOLDER "3rdparty")
+    
     # LIBRARY glfw
     set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
