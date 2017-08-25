@@ -9,6 +9,7 @@ class HAPI Application : public Singleton<Application>
     HA_SINGLETON(Application);
     Application()
             : Singleton(this) {}
+    ~Application() { hassert(m_inputEventListeners.size() == 0); }
     friend int main(int, char**);
 
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
