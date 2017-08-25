@@ -1,95 +1,64 @@
 
-attribute changed callbacks
+editor:
+    prefabs
+    mixin annotations - like "selected" - not to be saved in prefabs
+    save/load
+    IDs
+    copy/paste
+    GUI
+        setting attributes explicitly - separately from the serialize() functionality of the whole mixins
+        add/remove mixins to/from objects
+    attribute changed callbacks (to update handles when the path to a mesh changes - also as a proof of concept)
+        or add optional dirty flags for attributes and query it in an update procedure
+    picking
+        raycast
+        rectangle selection
+    rendering
+        - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
+    bugs
+        sometimes a scale operation gets inserted into the undo/redo queue
+        cannot collapse the mesh component in the editor once opened o_O
+    postponed
+        - object snapping (with the gizmos)
+        - editing an attribute of multiple objects at once
+        - command script for editing the level
+        - resource viewer - all resources with preview when appropriate and refcounts
+        - undo/redo
+            mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
 
-setting attributes explicitly - separately from the serialize() functionality of the whole mixins
-
-mesh component
-
-prefabs
-
-editing an attribute of multiple objects at once
-
-command script for editing the level
-
-- level
-    - save
-    - load
-- ingame editor
-    - GUI for add mixin to objects
-    - enter/leave editor mode
-        - controls for that
-        - remove mixins like "selected"
-        - start/stop updating objects
-        - make a second camera used for the editor mode and leave the ingame one as is
-    - picking
-    - undo/redo
-        mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
-    - copy/paste
-    - resource viewer - all resources with preview when appropriate and refcounts
-    - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
-    - object snapping (with the gizmos)
-- spatial queries about objects
-- hierarchical
-    - objects inheriting transformations
-    - when deleting a parent in the editor - fix parental information also
-
-PagedMixinAllocator - keep vectors of object ids for each mixin type
-    requires dynamix extension - bobi will do it
-    rework the selection to not keep a std::vector<eid> but use the allocator
+ditch bgfx
+ditch glm in favor of yama
+ditch glfw in favor of sdl
+PagedMixinAllocator - keep vectors of object ids for each mixin type (requires dynamix allocator extension - bobi will do it)
 
 == questions:
-- my codegen sux - the _gen prefixes, the order of declaration... what to do?
-    - the downside of using overloads is the coupling & dependencies - so many overloads in one header file...
-    - also what if I want 2 floats to be treated differently? use a strong typedef for one of them? or add a tagging system?
-- bgfx threading? look at https://github.com/bkaradzic/bgfx/blob/master/examples/common/entry/entry_glfw.cpp
-- size_t everywhere? wtf is up with these int16 micro optimizations on my side...
-- bgfx has internal refcounting of textures/programs/etc but the handles it gives for them dont interact with the refcount ?!?!?!
-- is glm a good choice at all? will compile times skyrocket even if I use a pch? how to measure this? will extern template help?
-- switch from using c++ overloads to id based type system for reflection & stuffs - with big switches & void*
 
 == bugs:
-gcc cannot build shaders - it hangs (also ruins the .bin files themselves)
 CI - appveyor emscripten build fails for some reason
-
-
 
 == to test:
 - aabb class
 
-== engine:
-- on floating point:
-    - http://msdn.microsoft.com/en-us/library/vstudio/e9b52ceh(v=vs.110).aspx
-    - http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
-
 == build system:
-- link to third parties dynamically when possible
-- remove as much as possible from emscripten build
-    - doctest
-    - imgui demo
-- shared precompiled headers for plugins...?
-- make a proper release config - with LTO, no plugins, etc.
-- be able to build everything in release except for gameplay code (debug iterators?)
-- faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
-- ninja instead of msbuild - see this: https://blogs.msdn.microsoft.com/vcblog/2017/08/14/cmake-support-in-visual-studio-customizing-your-environment/
-- unity builds
-- consider including parts of glm as needed and not the entire thing - also read the manual again
+to think about:
+    - link to third parties dynamically when possible
+    - remove as much as possible from emscripten build (doctest, imgui demo)
+    - shared precompiled headers for plugins...?
+    - make a proper release config - with LTO, no plugins, etc.
+    - be able to build everything in release except for gameplay code (debug iterators?)
+    - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
+    - ninja instead of msbuild - see this: https://blogs.msdn.microsoft.com/vcblog/2017/08/14/cmake-support-in-visual-studio-customizing-your-environment/
+    - unity builds
+    - optimizations for STL and others even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
 questionable:
-- ability to have only the game code in the solution - no third parties
-- test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
-- optimizations for GLM (and STL and others) even in debug builds... #pragma GCC push_options #pragma GCC optimize("O2") ...
+    - test all headers option for build system (that makes a dummy cpp for each header and just includes it to see if headers are stand-alone) - https://github.com/ldionne/dyno/blob/master/cmake/TestHeaders.cmake
 
-== assets:
-- https://github.com/tlorach/Bak3d
-- Animation Compression Library - https://github.com/nfrechette/acl
-- inverse kinematics - https://github.com/TheComet93/ik
-- https://github.com/mp3butcher/Cal3D/
-- https://github.com/nem0/OpenFBX
-- https://github.com/guillaumeblanc/ozz-animation
-- https://github.com/libgdx/fbx-conv
-- https://github.com/friggog/tree-gen
-
-== strings/localization:
-https://github.com/sheredom/utf8.h
+== plugin hot swap system:
+- hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
+- optional on demand reloading - instead of automatic polling
+- background compiler process
+- catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
+- undo system - by keeping a copy of a last working .dll version of a plugin (one which hasn't crashed during it's update())
 
 == codegen:
 - type parser
@@ -101,29 +70,6 @@ https://github.com/sheredom/utf8.h
             - see this: https://github.com/apolukhin/magic_get/issues/10
         - or use real parsing and compare results - python cppheaderparser?
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
-- look into https://github.com/macton/DDLParser
-
-== random:
-- filesystem watcher for added files - touches root cmake file (in python)
-- decouple rendering/logic in separate threads
-- mark a function to be without optimizations - __attribute__((optnone)) / __attribute__((optimize("O0"))) / #pragma optimize("", off)
-
-== graphics:
-https://github.com/andr3wmac/lightmapper_bgfx
-https://github.com/jdryg/vg-renderer
-shader compiler
-    should probably have a committed binary from a release build which to use
-    write my own cmake
-    build a shader with different defines
-
-== profiler:
-- the one from chobo
-- http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
-- https://github.com/catapult-project/catapult
-- https://github.com/seanmiddleditch/yardstick
-
-== logging:
-- https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
 
 == coding standard:
 - prefix with _ all function arguments?
@@ -154,51 +100,50 @@ shader compiler
     - https://github.com/kbenzie/git-cmake-format
     - IncludeCategories for clang-format and headers!!!
     - also SortIncludes
-
-== developer tools:
-- rabbitvcs - like TortoiseGit for linux - http://rabbitvcs.org/
-
-== scripting:
-- checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
+- rabbitvcs - TortoiseGit for linux - http://rabbitvcs.org/
 
 == libraries:
-https://github.com/mattiasgustavsson/libs
-integrate typesafe stuff
+general:
     https://github.com/Microsoft/GSL
-    https://github.com/foonathan/type_safe
     https://github.com/nholthaus/units
-- math
+math:
     https://github.com/herumi/fmath
-- UI
+scripting:
+    - checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
+UI:
     - librocket
     - turbobadger
     - imgui
     - nuklear
-- physics
+physics:
     - bullet
     box2d
     https://github.com/slembcke/Chipmunk2D
     https://github.com/InteractiveComputerGraphics/PositionBasedDynamics
-- compression
+compression:
     - zlib - the big beast
     - miniz - tiny zlib implementation
     - fastlz - fast compression lib
-- crypto
+    - zstd
+    - lz4 - https://github.com/lz4/lz4
+crypto:
     - https://github.com/jedisct1/libsodium
-- threading
+threading:
     https://github.com/seanmiddleditch/jobxx
-- video
+logging:
+    - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
+video:
     - ogg theora
     - theora play - theora nice API (http://icculus.org/theoraplay/)
     - https://github.com/libav/libav
-- audio
+audio:
     - openal
     - fmod
     - ogg vorbis - patent-free audio codec (oggvorbisfile - library with nice API) - https://github.com/soundcloud/vorbis
     - speex - patent-free format for voip - https://github.com/stoiczek/speex
     https://github.com/neXyon/audaspace
     https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=audio
-- networking
+networking:
     - enet - https://github.com/lsalzman/enet
     - raknet
     - zmq
@@ -208,7 +153,28 @@ integrate typesafe stuff
     https://github.com/networkprotocol/netcode.io
     https://github.com/networkprotocol/yojimbo
     https://github.com/HumbleNet/HumbleNet
-- miscellaneous
+graphics/assets:
+    - https://github.com/ands/lightmapper
+    - https://github.com/tlorach/Bak3d
+    - Animation Compression Library - https://github.com/nfrechette/acl
+    - inverse kinematics - https://github.com/TheComet93/ik
+    - https://github.com/mp3butcher/Cal3D/
+    - https://github.com/nem0/OpenFBX
+    - https://github.com/guillaumeblanc/ozz-animation
+    - https://github.com/libgdx/fbx-conv
+    - https://github.com/friggog/tree-gen
+    - texture stuff
+        - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
+        - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
+strings/localization:
+    https://github.com/sheredom/utf8.h
+profiler:
+    - the one from chobo
+    - http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
+    - https://github.com/catapult-project/catapult
+    - https://github.com/seanmiddleditch/yardstick
+miscellaneous:
+    https://github.com/mattiasgustavsson/libs
     - google breakpad - to send crash report from a remote system
     - sqlite - light sql using normal files
     - small random number generator:
@@ -222,25 +188,13 @@ integrate typesafe stuff
     - signals and slots
         - https://aboutcpp.wordpress.com/2015/01/16/an-update-on-a-simple-signal-system/
         - http://ideone.com/x02YXi
-- texture stuff
-    - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
-    - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
-
-== plugin hot swap system:
-- hit 1 button and have the game rebuild and reload what is necessary while debugger is attached
-- optional on demand reloading - instead of automatic polling
-- background compiler process
-- catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
-- serialization and field mapping to be only by name and not type - so a float could go to a double
-- undo system - by keeping a copy of a last working .dll version of a plugin (one which hasn't crashed during it's update())
+debugging:
+    a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
+    Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
 
 == code review:
 - https://www.reviewboard.org/
 - phabricator
-
-== debugging:
-a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
-Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
 
 == automation:
 - https://www.ansible.com/
@@ -261,18 +215,17 @@ Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-du
     //            _dynamix_get_mixin_type_info((MIXIN_TYPE*)nullptr));
 
 == dynamix:
-- minor:
-    - make the cloning functionality of objects virtual
+wanted:
+    - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
+    - add has/get methods to object class that work with C strings and not just mixin_id / template parameters
+    - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
+optimization:
+    - currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message impls are dropped it can become 2 pointers
     - object::get_mixin_names() - do a .reserve() before the push_back-s
-- add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
-- prefix everything after _dynamix_internal: with "internal"
-- make dynamix::object extentable - by inheriting from user types
-    - see the "extend_object" branch in my fork of dynamix...
-    - alternatively just inherit from it and use the resulting type
-- add has/get methods to object class that work with C strings and not just mixin_id / template parameters
-- forward declaring messages - for better link times - or maybe not - might lead to slower messages
-- currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message implementations are dropped it can become 2 pointers
-- moving stuff like this back into the header so it can get inlined with optimizations:
-    https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
-    or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...
-    even checking if a mixin is implemented has no chance of getting inlined! :(
+    - moving stuff like this back into the header so it can get inlined with optimizations:
+        https://github.com/iboB/dynamix/blob/4fa52dda8205680dfa90c671674f980bbf492e16/src/mixin_collection.cpp#L30
+        or maybe just when my project is big enough - move lots of dynamix stuff into the headers and profile...
+        even checking if a mixin is implemented has no chance of getting inlined! :(
+    - forward declaring messages - for better link times - or maybe not - might lead to slower messages
+hygiene:
+    - prefix everything after _dynamix_internal: with "internal"

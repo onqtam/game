@@ -9,6 +9,9 @@ http://www.gamedev.net/blog/1729/entry-2261185-niklas-frykholms-articles-on-mana
 
 https://blogs.msdn.microsoft.com/vcblog/2016/07/11/debugging-tips-and-tricks-for-c-in-visual-studio/
 
+on floating point:
+- http://msdn.microsoft.com/en-us/library/vstudio/e9b52ceh(v=vs.110).aspx
+- http://yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 lots of resources about optimization:
 - https://github.com/fenbf/AwesomePerfCpp
@@ -37,10 +40,6 @@ No non-const references as arguments to functions! ==> leads to pointers and "&"
 
 list of libraries being used and a hint how to use them:
 - boost scope exit (scope success/fail now implementable since c++17! see cppcon 2015 Andrei Alexandrescu “Declarative Control Flow"
-- boost noncopyable (boost/utility.hpp)
-- to be continued...
-smallstring (from llvm)
-rand (from c++11)
 
 ================================================
 == OTHER =======================================
