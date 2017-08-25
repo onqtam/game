@@ -31,11 +31,36 @@ class Object : public dynamix::object
     oid         m_id;
     std::string m_name;
 
+    void copy_inherited_fields(const Object& other) {
+        m_id   = other.m_id;
+        m_name = other.m_name;
+    }
+
 public:
     // TODO: make private?
     Object(oid id = oid::invalid(), const std::string& name = "")
             : m_id(id)
             , m_name(name) {}
+
+    Object copy() const {
+        Object o;
+        o.copy_from(*this);
+        return o;
+    }
+    void copy_from(const Object& o) {
+        if(this == &o)
+            return;
+
+        dynamix::object::copy_from(o);
+        copy_inherited_fields(o);
+    }
+    void copy_matching_from(const Object& o) {
+        if(this == &o)
+            return;
+
+        dynamix::object::copy_matching_from(o);
+        copy_inherited_fields(o);
+    }
 
     const oid id() const { return m_id; }
     oid       id() { return m_id; }
