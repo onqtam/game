@@ -27,7 +27,7 @@ if args.b != 'msvc':
     gen_dir = args.b + '_' + args.c
 if make_dir(gen_dir):
     os.chdir("../")
-    subprocess.check_call(['python', 'r', '-g', args.b, '-c', args.c])
+    subprocess.check_call(['python', 'ha', '-g', args.b, '-c', args.c])
     os.chdir("build")
 os.chdir(gen_dir)
 
