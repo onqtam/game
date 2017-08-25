@@ -88,6 +88,9 @@ questionable:
 - https://github.com/libgdx/fbx-conv
 - https://github.com/friggog/tree-gen
 
+== strings/localization:
+https://github.com/sheredom/utf8.h
+
 == codegen:
 - type parser
     - support for nested types
@@ -173,6 +176,8 @@ integrate typesafe stuff
     - nuklear
 - physics
     - bullet
+    box2d
+    https://github.com/slembcke/Chipmunk2D
     https://github.com/InteractiveComputerGraphics/PositionBasedDynamics
 - compression
     - zlib - the big beast
@@ -235,6 +240,7 @@ integrate typesafe stuff
 
 == debugging:
 a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
+Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
 
 == automation:
 - https://www.ansible.com/
@@ -257,7 +263,6 @@ a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://g
 == dynamix:
 - minor:
     - make the cloning functionality of objects virtual
-    - ensure that the offset to the object is already added when constructing a mixin
     - object::get_mixin_names() - do a .reserve() before the push_back-s
 - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
 - prefix everything after _dynamix_internal: with "internal"

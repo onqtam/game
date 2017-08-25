@@ -78,8 +78,8 @@ before_script:
 
 script:
   - pip install --user colorama
-  - python ./r -s
-  - python ./r -b gcc
+  - python ./ha -s
+  - python ./ha -b gcc
 
 #  - ccache -s
 
