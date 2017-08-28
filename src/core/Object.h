@@ -30,7 +30,7 @@ class Object : public dynamix::object
 {
     friend HAPI void serialize(const Object& src, JsonData& out);
     friend HAPI size_t      deserialize(Object& dest, const sajson::value& val);
-    friend HAPI const char* imgui_bind_attributes(Object& e, const char* mixin_name, Object& obj);
+    friend HAPI const char* imgui_bind_attributes(Object& e, const char* mixin, Object& obj);
 
     oid   m_id;
     FIELD std::string m_name;

@@ -8,11 +8,6 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
-class camera;
-void        serialize(const camera& src, JsonData& out, bool as_object);
-size_t      deserialize(camera& dest, const sajson::value& val);
-const char* imgui_bind_attributes(Object& e, const char* mixin_name, camera& obj);
-
 class transform
 {
     HA_FRIENDS_OF_TYPE(transform);
