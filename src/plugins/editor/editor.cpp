@@ -343,18 +343,18 @@ public:
                                         const tinygizmo::rigid_transform& t) {
         // NOTE that these also get triggered when I move the object with the float drags of the transform...
         if(last.position != t.position) {
-            JsonData ov = command("transform", "pos", *(glm::vec3*)&last.position);
-            JsonData nv = command("transform", "pos", *(glm::vec3*)&t.position);
+            JsonData ov = command("transform", "pos", *(const glm::vec3*)&last.position);
+            JsonData nv = command("transform", "pos", *(const glm::vec3*)&t.position);
             add_changed_attribute(id, ov.data(), nv.data());
         }
         if(last.orientation != t.orientation) {
-            JsonData ov = command("transform", "rot", *(glm::quat*)&last.orientation);
-            JsonData nv = command("transform", "rot", *(glm::quat*)&t.orientation);
+            JsonData ov = command("transform", "rot", *(const glm::quat*)&last.orientation);
+            JsonData nv = command("transform", "rot", *(const glm::quat*)&t.orientation);
             add_changed_attribute(id, ov.data(), nv.data());
         }
         if(last.scale != t.scale) {
-            JsonData ov = command("transform", "scl", *(glm::vec3*)&last.scale);
-            JsonData nv = command("transform", "scl", *(glm::vec3*)&t.scale);
+            JsonData ov = command("transform", "scl", *(const glm::vec3*)&last.scale);
+            JsonData nv = command("transform", "scl", *(const glm::vec3*)&t.scale);
             add_changed_attribute(id, ov.data(), nv.data());
         }
     }
