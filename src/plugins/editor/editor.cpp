@@ -328,13 +328,13 @@ public:
                     auto last = sel::get_last_stable_gizmo_transform(obj);
                     handle_gizmo_transform_changed(id, last, t);
                 }
-
-                mouse_button_left_changed = false;
             }
             tr::set_pos(obj, (glm::vec3&)t.position);
             tr::set_scl(obj, (glm::vec3&)t.scale);
             tr::set_rot(obj, (glm::quat&)t.orientation);
         }
+
+		mouse_button_left_changed = false;
 
         m_gizmo_ctx.draw();
     }
