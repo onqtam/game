@@ -17,10 +17,10 @@ public:
     json_buf& data() { return m_data; }
     void      reserve(size_t size) { m_data.reserve(size); }
 
-    sajson::document parse() {
-        return sajson::parse(sajson::dynamic_allocation(),
-                             sajson::string(m_data.data(), m_data.size()));
-    }
+	static sajson::document parse(const json_buf& data) {
+		return sajson::parse(sajson::dynamic_allocation(),
+			sajson::string(data.data(), data.size()));
+	}
 
     void addComma() { m_data.push_back(','); }
     void addNull() { m_data.push_back('\0'); }

@@ -23,8 +23,9 @@ World::World()
     //common::serialize_mixins(m_camera, nullptr, state);
     //state.endObject();
     //om.destroy(m_camera);
-    //om.createFromId(m_camera, "camera");
-    //const auto& doc = state.parse();
+    //om.createFromId(m_camera);
+    //m.camera.get().setName("camera");
+    //const auto& doc = JsonData::parse(state.data());
     //hassert(doc.is_valid());
     //auto root = doc.get_root();
     //for(size_t i = 0; i < root.get_length(); ++i)

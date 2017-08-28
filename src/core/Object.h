@@ -115,9 +115,9 @@ public:
         return oid(m_curr_id++);
     }
 
-    oid createFromId(oid id, const std::string& name) {
+    oid createFromId(oid id) {
         hassert(!has(id));
-        return m_objects.emplace(id, Object(id, name)).first->second;
+        return m_objects.emplace(id, Object(id)).first->second;
     }
 
     void destroy(oid id) {

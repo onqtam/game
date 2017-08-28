@@ -70,7 +70,7 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
             auto& plugin = *plugin_iter;
 
             std::map<std::string, ObjectJsonMap> mixinPersistence;
-            JsonData globalsPersistence;
+            JsonData                             globalsPersistence;
             globalsPersistence.reserve(1000); // for less allocations for resizing of the array
 
             {
@@ -116,11 +116,10 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
                 const auto getGlobalsProc = GetProc(cast_to_dynlib(plugin.plugin), "getGlobals");
                 hassert(getGlobalsProc);
                 const auto& globals         = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
-                const sajson::document& doc = globalsPersistence.parse();
+                const sajson::document& doc = JsonData::parse(globalsPersistence.data());
                 hassert(doc.is_valid());
-                const sajson::value& root = doc.get_root();
                 for(auto& global : globals) {
-                    global.second.deserialize(root);
+                    global.second.deserialize(doc.get_root());
 
                     // also update procs by re-registering
                     registerGlobal(global.first.c_str(), global.second);

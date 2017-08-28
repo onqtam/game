@@ -25,7 +25,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
     serialize(data_in, state);
     state.endObject();
 
-    const sajson::document& doc = state.parse();
+    const sajson::document& doc = JsonData::parse(state.data());
     require_un(doc.is_valid());
 
     T                   data_out;

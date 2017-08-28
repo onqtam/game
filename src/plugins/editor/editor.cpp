@@ -36,8 +36,8 @@ struct object_creation_cmd
 
 public:
     FIELD oid id;
-    FIELD std::string name;
-    FIELD bool        created;
+    FIELD json_buf object_state;
+    FIELD bool     created;
 };
 
 struct object_mutation_cmd
@@ -452,20 +452,23 @@ public:
                                        [](auto in) { return in; });
 
                         // serialize the state of the mixins
-                        JsonData state(10000);
-                        state.startObject();
-						// mixins
-                        common::serialize_mixins(curr.get(), nullptr, state);
-						// the object itself
-                        //state.append("\"\":");
-                        //serialize(curr.get(), state);
-                        state.endObject();
+                        JsonData mixins_state(10000);
+                        mixins_state.startObject();
+                        common::serialize_mixins(curr.get(), nullptr, mixins_state);
+                        mixins_state.endObject();
+
+                        // serialize the state of the object itself
+                        JsonData object_state(10000);
+                        object_state.startObject();
+                        object_state.append("\"\":");
+                        serialize(curr.get(), object_state);
+                        object_state.endObject();
 
                         HA_SUPPRESS_WARNINGS
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, mixin_names, mixins_state.data(), false}));
                         comp_cmd.commands.push_back(
-                                object_mutation_cmd({curr, mixin_names, state.data(), false}));
-                        comp_cmd.commands.push_back(
-                                object_creation_cmd({curr, curr.get().name(), false}));
+                                object_creation_cmd({curr, object_state.data(), false}));
                         HA_SUPPRESS_WARNINGS_END
 
                         ObjectManager::get().destroy(curr);
@@ -488,8 +491,7 @@ public:
         if(command_var.type() == boost::typeindex::type_id<attribute_changed_cmd>()) {
             auto&       cmd = boost::get<attribute_changed_cmd>(command_var);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
-            JsonData    state(val);
-            const auto& doc = state.parse();
+            const auto& doc = JsonData::parse(val);
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             hassert(root.get_length() == 1);
@@ -504,11 +506,9 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().addMixin(mixin.c_str());
                 // deserialize the mixins
-                JsonData    state(cmd.mixins_state);
-                const auto& doc = state.parse();
+                const auto& doc = JsonData::parse(cmd.mixins_state);
                 hassert(doc.is_valid());
-                const auto root = doc.get_root();
-                common::deserialize_mixins(cmd.id, root);
+                common::deserialize_mixins(cmd.id, doc.get_root());
             } else {
                 // remove the mixins
                 for(auto& mixin : cmd.mixins)
@@ -519,7 +519,10 @@ public:
             if((cmd.created && undo) || (!cmd.created && !undo)) {
                 ObjectManager::get().destroy(cmd.id);
             } else {
-                ObjectManager::get().createFromId(cmd.id, cmd.name);
+                ObjectManager::get().createFromId(cmd.id);
+                const auto& doc = JsonData::parse(cmd.object_state);
+                hassert(doc.is_valid());
+                deserialize(cmd.id.get(), doc.get_root().get_object_value(0)); // object attributes
             }
         } else if(command_var.type() == boost::typeindex::type_id<compound_cmd>()) {
             auto& cmd = boost::get<compound_cmd>(command_var);
