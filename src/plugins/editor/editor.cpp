@@ -318,9 +318,11 @@ public:
                 auto& obj = id.get();
                 if(ImGui::TreeNodeEx((const void*)obj.name().c_str(),
                                      ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str())) {
-                    if(obj.implements(common::imgui_bind_attributes_mixins_msg)) {
+                    // attributes of the object itself
+                    imgui_bind_attributes(obj, "", obj);
+                    // attributes of the mixins
+                    if(obj.implements(common::imgui_bind_attributes_mixins_msg))
                         common::imgui_bind_attributes_mixins(obj);
-                    }
 
                     ImGui::TreePop();
                 }
@@ -452,7 +454,11 @@ public:
                         // serialize the state of the mixins
                         JsonData state(10000);
                         state.startObject();
+						// mixins
                         common::serialize_mixins(curr.get(), nullptr, state);
+						// the object itself
+                        //state.append("\"\":");
+                        //serialize(curr.get(), state);
                         state.endObject();
 
                         HA_SUPPRESS_WARNINGS
@@ -486,7 +492,11 @@ public:
             const auto& doc = state.parse();
             hassert(doc.is_valid());
             const auto root = doc.get_root();
-            common::deserialize_mixins(cmd.e, root);
+            hassert(root.get_length() == 1);
+            if(strcmp(root.get_object_key(0).data(), "") == 0)
+                deserialize(cmd.e.get(), root.get_object_value(0)); // object attribute
+            else
+                common::deserialize_mixins(cmd.e, root); // mixin attribute
         } else if(command_var.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
             auto& cmd = boost::get<object_mutation_cmd>(command_var);
             if((!cmd.added && undo) || (cmd.added && !undo)) {

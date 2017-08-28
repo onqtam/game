@@ -1,6 +1,6 @@
-#include "Object.h"
-
 #include "core/registry/registry.h"
+#include "core/serialization/serialization.h"
+#include "core/imgui/imgui_stuff.h"
 
 HA_SINGLETON_INSTANCE(ObjectManager);
 
@@ -15,3 +15,5 @@ void Object::remMixin(const char* mixin) {
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(this);
 }
+
+#include <gen/Object.h.inl>

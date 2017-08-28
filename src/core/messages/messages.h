@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core/serialization/JsonData.h"
-
 HA_SUPPRESS_WARNINGS
 
 #include <tinygizmo/tiny-gizmo.hpp>

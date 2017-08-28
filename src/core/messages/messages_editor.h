@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core/serialization/JsonData.h"
-
 template <typename T>
 JsonData command(const char* mixin, const char* prop, const T& data) {
     JsonData out;

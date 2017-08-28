@@ -46,6 +46,7 @@ ucm_add_dirs(TO registry_src "core/registry" FILTER_POP 2)
 add_library(registry STATIC ${registry_src})
 target_link_libraries(registry sajson dynamix)
 target_add_fPIC(registry)
+target_parse_sources(registry)
 
 # cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
 #ucm_add_files(TO SOURCES "precompiled.cpp")

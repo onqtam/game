@@ -28,8 +28,12 @@ public:
 
 class Object : public dynamix::object
 {
-    oid         m_id;
-    std::string m_name;
+    friend HAPI void serialize(const Object& src, JsonData& out);
+    friend HAPI size_t      deserialize(Object& dest, const sajson::value& val);
+    friend HAPI const char* imgui_bind_attributes(Object& e, const char* mixin_name, Object& obj);
+
+    oid   m_id;
+    FIELD std::string m_name;
 
     void copy_inherited_fields(const Object& other) {
         m_id   = other.m_id;
@@ -42,11 +46,13 @@ public:
             : m_id(id)
             , m_name(name) {}
 
+    // hides dynamix::object::copy()
     Object copy() const {
         Object o;
         o.copy_from(*this);
         return o;
     }
+    // hides dynamix::object::copy_from()
     void copy_from(const Object& o) {
         if(this == &o)
             return;
@@ -54,6 +60,7 @@ public:
         dynamix::object::copy_from(o);
         copy_inherited_fields(o);
     }
+    // hides dynamix::object::copy_matching_from()
     void copy_matching_from(const Object& o) {
         if(this == &o)
             return;

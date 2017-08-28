@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core/serialization/JsonData.h"
-
 #include "core/PagedMixinAllocator.h"
 
 // =================================================================================================
@@ -221,8 +219,3 @@ int registerGlobal(const char* name, GlobalInfo info);
     friend void        serialize(const name& src, JsonData& out);                                  \
     friend size_t      deserialize(name& dest, const sajson::value& val);                          \
     friend const char* imgui_bind_attributes(Object& e, const char* mixin_name, name& obj)
-
-// helpers that don't expand to anything - used by the type parser
-#define FIELD           // indicates the start of a field definition inside of a type
-#define EXPORT          // attribute - indicates that the field should be exported
-#define ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this

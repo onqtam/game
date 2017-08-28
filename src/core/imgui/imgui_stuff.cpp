@@ -200,8 +200,8 @@ const char* imgui_bind_file_popup(Object& e, const char* mixin, const char* prop
     snprintf(buf, HA_COUNT_OF(buf), "browse##%s", prop);
 
     if(ImGui::Button(buf)) {
-        nfdchar_t*  outPath = NULL;
-        nfdresult_t result  = NFD_OpenDialog(filters, NULL, &outPath);
+        nfdchar_t*  outPath = nullptr;
+        nfdresult_t result  = NFD_OpenDialog(filters, nullptr, &outPath);
         hassert(result != NFD_ERROR, "Error: %s\n", NFD_GetError());
         if(result == NFD_OKAY) {
             JsonData old_val = command(mixin, prop, data);
