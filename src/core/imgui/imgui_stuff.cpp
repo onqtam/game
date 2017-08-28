@@ -82,7 +82,7 @@ static bool DragFloats(const char* label, float* items, int numItems, bool* pJus
 
 static bool DragInts(const char* label, int* items, int numItems, bool* pJustReleased = nullptr,
                      bool* pJustActivated = nullptr, float v_speed = 1.0f, int v_min = 0,
-                     int v_max = 0, const char* display_format = "%d") {
+                     int v_max = 0, const char* display_format = "%.0f") {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if(window->SkipItems)
         return false;
