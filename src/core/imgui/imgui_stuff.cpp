@@ -117,11 +117,11 @@ static bool DragInts(const char* label, int* items, int numItems, bool* pJustRel
 }
 
 template <typename T>
-const char* bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
+const char* bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_elements) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
-    DragFloats(prop, (float*)&data, num_floats, &justReleased, &justActivated);
+    DragFloats(prop, (float*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
         data_when_dragging_started = data;
     }
@@ -135,11 +135,11 @@ const char* bind_floats(Object& e, const char* mixin, const char* prop, T& data,
 }
 
 template <typename T>
-const char* bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_floats) {
+const char* bind_ints(Object& e, const char* mixin, const char* prop, T& data, int num_elements) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
-    DragInts(prop, (int*)&data, num_floats, &justReleased, &justActivated);
+    DragInts(prop, (int*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
         data_when_dragging_started = data;
     }

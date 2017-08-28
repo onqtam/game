@@ -20,10 +20,6 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
-//class editor;
-//void serialize(const editor& src, JsonData& out);
-//void deserialize(editor& dest, const sajson::value& val);
-
 struct attribute_changed_cmd
 {
     HA_FRIENDS_OF_TYPE(attribute_changed_cmd);
@@ -82,7 +78,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     FIELD int             curr_undo_redo            = -1;
     FIELD bool            mouse_button_left_changed = false;
 
-    // these members are OK to not be serialized because they are constantly updated - for all other members use the .mix file!
+    // these members are OK to not be serialized because they are constantly updated
     tinygizmo::gizmo_application_state m_gizmo_state;
     tinygizmo::gizmo_context           m_gizmo_ctx;
     std::vector<char>                  m_verts;
@@ -285,9 +281,11 @@ public:
         ImGui::SetNextWindowPos(ImVec2(float(app.width() - 400), 0), ImGuiSetCond_FirstUseEver);
 
         if(ImGui::Begin("object attributes", nullptr, window_flags)) {
+            ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_DefaultOpen;
             for(auto& id : selected) {
                 auto& obj = id.get();
-                if(ImGui::TreeNode(obj.name().c_str())) {
+                if(ImGui::TreeNodeEx((void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
+                                     obj.name().c_str())) {
                     if(obj.implements(common::imgui_bind_attributes_mixins_msg)) {
                         common::imgui_bind_attributes_mixins(obj);
                     }
@@ -505,28 +503,8 @@ public:
     }
 };
 
-//void serialize(const editor& src, JsonData& out) {
-//    out.startObject();
-//    serialize(src, out, false);
-//    HA_SERIALIZE_VARIABLE("selected", src.selected);
-//    out.endObject();
-//}
-//
-//void deserialize(editor& dest, const sajson::value& val) {
-//    const size_t val_len = val.get_length();
-//    for(size_t i = 0; i < val_len; ++i) {
-//        HA_DESERIALIZE_VARIABLE("selected", dest.selected);
-//        HA_DESERIALIZE_VARIABLE("undo_redo_commands", dest.undo_redo_commands);
-//        HA_DESERIALIZE_VARIABLE("curr_undo_redo", dest.curr_undo_redo);
-//        HA_DESERIALIZE_VARIABLE("mouse_button_left_changed", dest.mouse_button_left_changed);
-//    }
-//}
-
 HA_SINGLETON_INSTANCE(editor);
 
-// defining it as without codegen for convenience - the singleton macro adds a dummy member variable
-// and also tinygizmo::gizmo_context cannot be properly serialized because it uses the pimpl idiom
-HA_MIXIN_DEFINE_WITHOUT_CODEGEN(editor,
-                                common::serialize_mixins_msg& common::deserialize_mixins_msg& Interface_editor);
+HA_MIXIN_DEFINE(editor, Interface_editor);
 
 #include <gen/editor.cpp.inl>
