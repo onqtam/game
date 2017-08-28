@@ -326,22 +326,7 @@ public:
             if(mouse_button_left_changed) {
                 if(!m_gizmo_state.mouse_left) {
                     auto last = sel::get_last_stable_gizmo_transform(obj);
-                    // NOTE that these also get triggered when I move the object with the float drags of the transform...
-                    if(last.position != t.position) {
-                        JsonData ov = command("transform", "pos", *(glm::vec3*)&last.position);
-                        JsonData nv = command("transform", "pos", *(glm::vec3*)&t.position);
-                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
-                    }
-                    if(last.orientation != t.orientation) {
-                        JsonData ov = command("transform", "rot", *(glm::quat*)&last.orientation);
-                        JsonData nv = command("transform", "rot", *(glm::quat*)&t.orientation);
-                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
-                    }
-                    if(last.scale != t.scale) {
-                        JsonData ov = command("transform", "scl", *(glm::vec3*)&last.scale);
-                        JsonData nv = command("transform", "scl", *(glm::vec3*)&t.scale);
-                        edit::add_changed_attribute(ha_this, obj.id(), ov.data(), nv.data());
-                    }
+                    handle_gizmo_transform_changed(id, last, t);
                 }
 
                 mouse_button_left_changed = false;
@@ -352,6 +337,26 @@ public:
         }
 
         m_gizmo_ctx.draw();
+    }
+
+    void handle_gizmo_transform_changed(oid id, const tinygizmo::rigid_transform& last,
+                                        const tinygizmo::rigid_transform& t) {
+        // NOTE that these also get triggered when I move the object with the float drags of the transform...
+        if(last.position != t.position) {
+            JsonData ov = command("transform", "pos", *(glm::vec3*)&last.position);
+            JsonData nv = command("transform", "pos", *(glm::vec3*)&t.position);
+            add_changed_attribute(id, ov.data(), nv.data());
+        }
+        if(last.orientation != t.orientation) {
+            JsonData ov = command("transform", "rot", *(glm::quat*)&last.orientation);
+            JsonData nv = command("transform", "rot", *(glm::quat*)&t.orientation);
+            add_changed_attribute(id, ov.data(), nv.data());
+        }
+        if(last.scale != t.scale) {
+            JsonData ov = command("transform", "scl", *(glm::vec3*)&last.scale);
+            JsonData nv = command("transform", "scl", *(glm::vec3*)&t.scale);
+            add_changed_attribute(id, ov.data(), nv.data());
+        }
     }
 
     void process_event(const InputEvent& ev) {
@@ -396,6 +401,10 @@ public:
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
+                        auto last = sel::get_last_stable_gizmo_transform(curr);
+                        auto t    = sel::get_gizmo_transform(curr);
+                        handle_gizmo_transform_changed(curr, last, t);
+
                         // remove selected component ---> TEMP HACK!
                         curr.get().remMixin("selected");
 

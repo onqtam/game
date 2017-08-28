@@ -153,6 +153,13 @@ class selected
     FIELD std::string texty2                = ":(";
 
 public:
+    selected() {
+        gizmo_transform_last =
+                tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
+                                           (const minalg::float3&)tr::get_pos(ha_this),
+                                           (const minalg::float3&)tr::get_scl(ha_this));
+    }
+
     tinygizmo::rigid_transform& get_gizmo_transform() {
         gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
                                                      (const minalg::float3&)tr::get_pos(ha_this),
