@@ -91,6 +91,17 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 
+    // until the allocator model of dynamix is extended we shall update this list manually like this
+    void updateSelected() {
+        auto selected_mixin_id =
+                dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
+
+        selected.clear();
+        for(const auto& curr : ObjectManager::get().getEntities())
+            if(curr.second.has(selected_mixin_id))
+                selected.push_back(curr.second);
+    }
+
 public:
     editor()
             : Singleton(this) {
@@ -172,100 +183,83 @@ public:
         ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
         // clang-format on
 
+        updateSelected();
+
         if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
-            if(ImGui::TreeNode("objects")) {
+            if(ImGui::TreeNodeEx((const void*)"objects", ImGuiTreeNodeFlags_DefaultOpen,
+                                 "objects")) {
                 auto selected_mixin_id =
                         dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
 
                 static ImGuiTextFilter filter;
                 filter.Draw("Filter (inc,-exc)");
 
-                for(const auto& curr : om.getEntities()) {
-                    // recursive select/deselect
-                    std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
-                        auto& obj = root.get();
-                        auto  it  = std::find(selected.begin(), selected.end(), root);
-                        if(select) {
-                            if(it == selected.end()) {
-                                selected.push_back(root);
+                // recursive select/deselect
+                std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
+                    auto& root_obj = root.get();
+                    if(select && !root_obj.has(selected_mixin_id))
+                        root_obj.addMixin("selected");
+                    else if(root_obj.has(selected_mixin_id))
+                        root_obj.remMixin("selected");
+
+                    // recurse through children
+                    const auto& children = ::get_children(root_obj);
+                    if(children.size() > 0)
+                        for(const auto& c : children)
+                            recursiveSelecter(c, select);
+                };
+
+                // recursive tree build
+                std::function<void(oid, bool)> buildTree = [&](oid root, bool display) {
+                    auto&              obj = root.get();
+                    ImGuiTreeNodeFlags node_flags =
+                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
+                            ImGuiTreeNodeFlags_DefaultOpen |
+                            (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
+
+                    const auto& children = ::get_children(obj);
+                    if(children.size() == 0) // make the node a leaf node if no children
+                        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+                    auto name = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
+
+                    bool is_open        = false;
+                    bool filter_passing = filter.PassFilter(name.c_str());
+
+                    // display the current node only if its parent is displayed (and there are no filters) or it has passed filtering
+                    if((filter_passing && display) || (filter_passing && filter.IsActive())) {
+                        is_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
+                                                    name.c_str());
+                        display &= is_open; // update the display flag for the children
+
+                        if(ImGui::IsItemClicked()) {
+                            bool shouldSelect = !obj.has(selected_mixin_id);
+
+                            if(ImGui::GetIO().KeyShift) {
+                                recursiveSelecter(root, shouldSelect);
+                            } else if(ImGui::GetIO().KeyCtrl) {
+                                if(shouldSelect)
+                                    obj.addMixin("selected");
+                                else
+                                    obj.remMixin("selected");
+                            } else if(shouldSelect) {
+                                for(auto& it : selected)
+                                    it.get().remMixin("selected");
                                 obj.addMixin("selected");
                             }
-                        } else {
-                            if(it != selected.end()) {
-                                selected.erase(it);
-                                obj.remMixin("selected");
-                            }
                         }
+                    }
 
-                        // recurse through children
-                        const auto& children = ::get_children(obj);
-                        if(children.size() > 0)
-                            for(const auto& c : children)
-                                recursiveSelecter(c, select);
-                    };
+                    // always recurse through children because they should be displayed when filtering even if their parent is closed
+                    if(children.size() > 0) {
+                        for(const auto& c : children)
+                            buildTree(c, display);
+                        if(is_open)
+                            ImGui::TreePop();
+                    }
+                };
 
-                    // recursive tree build
-                    std::function<void(oid, bool)> buildTree = [&](oid root, bool display) {
-                        auto&              obj = root.get();
-                        ImGuiTreeNodeFlags node_flags =
-                                ImGuiTreeNodeFlags_OpenOnArrow |
-                                ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                                ImGuiTreeNodeFlags_DefaultOpen |
-                                (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
-
-                        const auto& children = ::get_children(obj);
-                        if(children.size() == 0) // make the node a leaf node if no children
-                            node_flags |=
-                                    ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-                        auto name = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
-
-                        bool is_open        = false;
-                        bool filter_passing = filter.PassFilter(name.c_str());
-
-                        // display the current node only if its parent is displayed (and there are no filters) or it has passed filtering
-                        if((filter_passing && display) || (filter_passing && filter.IsActive())) {
-                            is_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
-                                                        name.c_str());
-                            display &= is_open; // update the display flag for the children
-
-                            if(ImGui::IsItemClicked()) {
-                                bool shouldSelect = !obj.has(selected_mixin_id);
-
-                                if(ImGui::GetIO().KeyShift) {
-                                    recursiveSelecter(root, shouldSelect);
-                                } else if(ImGui::GetIO().KeyCtrl) {
-                                    if(shouldSelect) {
-                                        selected.push_back(root);
-                                        obj.addMixin("selected");
-                                    } else {
-                                        selected.erase(
-                                                std::find(selected.begin(), selected.end(), root));
-                                        obj.remMixin("selected");
-                                    }
-                                } else if(!obj.has(selected_mixin_id)) {
-                                    for(auto& it : selected) {
-                                        it.get().remMixin("selected");
-                                    }
-                                    selected.clear();
-                                    if(shouldSelect)
-                                        obj.addMixin("selected");
-                                    else
-                                        obj.remMixin("selected");
-                                    selected.push_back(root);
-                                }
-                            }
-                        }
-
-                        // always recurse through children because they should be displayed when filtering even if their parent is closed
-                        if(children.size() > 0) {
-                            for(const auto& c : children)
-                                buildTree(c, display);
-                            if(is_open)
-                                ImGui::TreePop();
-                        }
-                    };
-
+                for(const auto& curr : om.getEntities()) {
                     // recurse from those without a parent only
                     if(curr.second.implements(get_parent_msg)) {
                         if(::get_parent(curr.second) == oid::invalid())
@@ -277,15 +271,16 @@ public:
         }
         ImGui::End();
 
+        updateSelected();
+
         ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(float(app.width() - 400), 0), ImGuiSetCond_FirstUseEver);
 
         if(ImGui::Begin("object attributes", nullptr, window_flags)) {
-            ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_DefaultOpen;
             for(auto& id : selected) {
                 auto& obj = id.get();
-                if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
-                                     obj.name().c_str())) {
+                if(ImGui::TreeNodeEx((const void*)obj.name().c_str(),
+                                     ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str())) {
                     if(obj.implements(common::imgui_bind_attributes_mixins_msg)) {
                         common::imgui_bind_attributes_mixins(obj);
                     }
@@ -296,7 +291,7 @@ public:
         }
         ImGui::End();
 
-        ImGui::ShowTestWindow();
+        //ImGui::ShowTestWindow();
 
         m_gizmo_state.viewport_size     = {float(app.width()), float(app.height())};
         m_gizmo_state.cam.near_clip     = 0.1f;
