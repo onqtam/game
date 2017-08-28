@@ -116,12 +116,18 @@ static bool DragInts(const char* label, int* items, int numItems, bool* pJustRel
     return value_changed;
 }
 
+inline const char* no_prefix(const char* prop) {
+    if(prop[0] != '\0' && prop[0] == 'm' && prop[1] != '\0' && prop[1] == '_')
+        return prop + 2;
+    return prop;
+}
+
 template <typename T>
 const char* bind_floats(Object& e, const char* mixin, const char* prop, T& data, int num_elements) {
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
-    DragFloats(prop, (float*)&data, num_elements, &justReleased, &justActivated);
+    DragFloats(no_prefix(prop), (float*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
         data_when_dragging_started = data;
     }
@@ -139,7 +145,7 @@ const char* bind_ints(Object& e, const char* mixin, const char* prop, T& data, i
     static T data_when_dragging_started;
     bool     justReleased  = false;
     bool     justActivated = false;
-    DragInts(prop, (int*)&data, num_elements, &justReleased, &justActivated);
+    DragInts(no_prefix(prop), (int*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
         data_when_dragging_started = data;
     }
@@ -153,7 +159,7 @@ const char* bind_ints(Object& e, const char* mixin, const char* prop, T& data, i
 }
 
 const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, bool& data) {
-    if(ImGui::Checkbox(prop, &data)) {
+    if(ImGui::Checkbox(no_prefix(prop), &data)) {
         JsonData old_val = command(mixin, prop, !data);
         JsonData new_val = command(mixin, prop, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
@@ -178,7 +184,7 @@ const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop,
                                  std::string& data) {
     static char buf[128] = "";
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
-    if(ImGui::InputText(prop, buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if(ImGui::InputText(no_prefix(prop), buf, HA_COUNT_OF(buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
         JsonData old_val = command(mixin, prop, data);
         data             = buf;
         JsonData new_val = command(mixin, prop, data);
@@ -197,7 +203,7 @@ const char* imgui_bind_file_popup(Object& e, const char* mixin, const char* prop
     ImGui::SameLine();
 
     char buf[200];
-    snprintf(buf, HA_COUNT_OF(buf), "browse##%s", prop);
+    snprintf(buf, HA_COUNT_OF(buf), "browse##%s", no_prefix(prop));
 
     if(ImGui::Button(buf)) {
         nfdchar_t*  outPath = nullptr;

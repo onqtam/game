@@ -34,10 +34,12 @@ class Object : public dynamix::object
 
     oid   m_id;
     FIELD std::string m_name;
+    FIELD int         m_flags = 0;
 
     void copy_inherited_fields(const Object& other) {
-        m_id   = other.m_id;
-        m_name = other.m_name;
+        m_id    = other.m_id;
+        m_name  = other.m_name;
+        m_flags = other.m_flags;
     }
 
 public:
