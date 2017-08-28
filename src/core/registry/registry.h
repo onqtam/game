@@ -104,7 +104,8 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    void set_attribute_mixins(const char* mixin, const char* attr, const sajson::value& in) {      \
+    void set_attribute_mixins(const char* /*mixin*/, const char* /*attr*/,                         \
+                              const sajson::value& in) {                                           \
         auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
         if(in.find_object_key(str) != in.get_length()) {                                           \
             auto value = in.get_value_of_key(str);                                                 \

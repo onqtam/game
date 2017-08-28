@@ -170,7 +170,7 @@ const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop,
 const char* imgui_bind_attribute(Object& e, const char* mixin, const char* prop, double& data) {
     float temp = static_cast<float>(data);
     auto  res  = bind_floats(e, mixin, prop, temp, 1);
-    data       = temp;
+    data       = static_cast<double>(temp);
     return res;
 }
 
