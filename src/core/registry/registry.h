@@ -92,7 +92,9 @@ load_unload_proc getUnloadProc() {
 
 #define HA_MESSAGES_IN_MIXIN(name)                                                                 \
     /* clang-format fix */ public:                                                                 \
-    void serialize_mixins(JsonData& out) const {                                                   \
+    void serialize_mixins(const char* concrete_mixin, JsonData& out) const {                       \
+        if(concrete_mixin && strcmp(#name, concrete_mixin) != 0)                                   \
+            return;                                                                                \
         out.append("\"" #name "\":");                                                              \
         serialize(*this, out);                                                                     \
         out.addComma();                                                                            \

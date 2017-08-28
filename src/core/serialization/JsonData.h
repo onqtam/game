@@ -7,7 +7,7 @@ class JsonData
     json_buf m_data;
 
 public:
-    JsonData() = default;
+    JsonData(size_t reserve_size = 0) { m_data.reserve(reserve_size); }
     JsonData(const json_buf& data)
             : m_data(data) {}
     JsonData(json_buf&& data)

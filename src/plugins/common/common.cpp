@@ -54,7 +54,9 @@ class mesh
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
 
-    void serialize_mixins(JsonData& out) const {
+    void serialize_mixins(const char* concrete_mixin, JsonData& out) const {
+        if(concrete_mixin && strcmp("mesh", concrete_mixin) != 0)
+            return;
         out.append("\"mesh\":");
         serialize(*this, out);
         out.addComma();
@@ -153,12 +155,12 @@ class selected
     FIELD std::string texty2                = ":(";
 
 public:
-    selected() {
-        gizmo_transform_last =
-                tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
-                                           (const minalg::float3&)tr::get_pos(ha_this),
-                                           (const minalg::float3&)tr::get_scl(ha_this));
-    }
+    //selected() {
+    //    gizmo_transform_last =
+    //            tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
+    //                                       (const minalg::float3&)tr::get_pos(ha_this),
+    //                                       (const minalg::float3&)tr::get_scl(ha_this));
+    //}
 
     tinygizmo::rigid_transform& get_gizmo_transform() {
         gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),

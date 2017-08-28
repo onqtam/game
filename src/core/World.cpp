@@ -20,7 +20,7 @@ World::World()
     // EXAMPLE: serialize and deserialize an object - may not work if the constructor of a mixin expects the presense of other mixins
     //JsonData state;
     //state.startObject();
-    //common::serialize_mixins(m_camera, state);
+    //common::serialize_mixins(m_camera, nullptr, state);
     //state.endObject();
     //om.destroy(m_camera);
     //om.createFromId(m_camera, "camera");

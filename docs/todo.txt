@@ -1,4 +1,6 @@
 
+dependent components - ordered creation...
+
 editor:
     prefabs
     mixin annotations - like "selected" - not to be saved in prefabs

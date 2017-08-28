@@ -88,14 +88,14 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
+    dynamix::mixin_id selected_mixin_id =
+            dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
+
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 
     // until the allocator model of dynamix is extended we shall update this list manually like this
     void updateSelected() {
-        auto selected_mixin_id =
-                dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
-
         selected.clear();
         for(const auto& curr : ObjectManager::get().getObjects())
             if(curr.second.has(selected_mixin_id))
@@ -186,11 +186,10 @@ public:
         updateSelected();
 
         if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
-            if(ImGui::TreeNodeEx((const void*)"objects", ImGuiTreeNodeFlags_DefaultOpen,
-                                 "objects")) {
-                auto selected_mixin_id =
-                        dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
+            std::vector<oid> to_select;
+            std::vector<oid> to_deselect;
 
+            if(ImGui::TreeNodeEx((const void*)"obs", ImGuiTreeNodeFlags_DefaultOpen, "objects")) {
                 static ImGuiTextFilter filter;
                 filter.Draw("Filter (inc,-exc)");
 
@@ -198,9 +197,9 @@ public:
                 std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
                     auto& root_obj = root.get();
                     if(select && !root_obj.has(selected_mixin_id))
-                        root_obj.addMixin("selected");
+                        to_select.push_back(root);
                     else if(root_obj.has(selected_mixin_id))
-                        root_obj.remMixin("selected");
+                        to_deselect.push_back(root);
 
                     // recurse through children
                     const auto& children = ::get_children(root_obj);
@@ -239,13 +238,13 @@ public:
                                 recursiveSelecter(root, shouldSelect);
                             } else if(ImGui::GetIO().KeyCtrl) {
                                 if(shouldSelect)
-                                    obj.addMixin("selected");
+                                    to_select.push_back(root);
                                 else
-                                    obj.remMixin("selected");
+                                    to_deselect.push_back(root);
                             } else if(shouldSelect) {
                                 for(auto& it : selected)
-                                    it.get().remMixin("selected");
-                                obj.addMixin("selected");
+                                    to_deselect.push_back(it);
+                                to_select.push_back(root);
                             }
                         }
                     }
@@ -268,10 +267,48 @@ public:
                 }
                 ImGui::TreePop();
             }
+
+            // if the selection has changed - construct a compound command for the selected mixin and the affected objects
+            if(to_select.size() + to_deselect.size() > 0) {
+                compound_cmd comp_cmd;
+                comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
+
+                for(auto curr : to_select) {
+                    JsonData state(10000);
+                    state.startObject();
+                    common::serialize_mixins(curr.get(), "selected", state);
+                    state.endObject();
+
+                    HA_SUPPRESS_WARNINGS
+                    comp_cmd.commands.push_back(
+                            object_mutation_cmd({curr, {"selected"}, state.data(), true}));
+                    HA_SUPPRESS_WARNINGS_END
+
+                    curr.get().addMixin("selected");
+                }
+                for(auto curr : to_deselect) {
+                    JsonData state(10000);
+                    state.startObject();
+                    common::serialize_mixins(curr.get(), "selected", state);
+                    state.endObject();
+
+                    HA_SUPPRESS_WARNINGS
+                    comp_cmd.commands.push_back(
+                            object_mutation_cmd({curr, {"selected"}, state.data(), false}));
+                    HA_SUPPRESS_WARNINGS_END
+
+                    curr.get().remMixin("selected");
+                }
+
+                HA_SUPPRESS_WARNINGS
+                add_command(comp_cmd);
+                HA_SUPPRESS_WARNINGS_END
+
+                //re-update the list for later usage
+                updateSelected();
+            }
         }
         ImGui::End();
-
-        updateSelected();
 
         ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(float(app.width() - 400), 0), ImGuiSetCond_FirstUseEver);
@@ -334,7 +371,7 @@ public:
             tr::set_rot(obj, (glm::quat&)t.orientation);
         }
 
-		mouse_button_left_changed = false;
+        mouse_button_left_changed = false;
 
         m_gizmo_ctx.draw();
     }
@@ -405,9 +442,6 @@ public:
                         auto t    = sel::get_gizmo_transform(curr);
                         handle_gizmo_transform_changed(curr, last, t);
 
-                        // remove selected component ---> TEMP HACK!
-                        curr.get().remMixin("selected");
-
                         // get the list of mixin names
                         std::vector<const char*> mixins;
                         curr.get().get_mixin_names(mixins);
@@ -416,10 +450,9 @@ public:
                                        [](auto in) { return in; });
 
                         // serialize the state of the mixins
-                        JsonData state;
-                        state.reserve(10000);
+                        JsonData state(10000);
                         state.startObject();
-                        common::serialize_mixins(curr.get(), state);
+                        common::serialize_mixins(curr.get(), nullptr, state);
                         state.endObject();
 
                         HA_SUPPRESS_WARNINGS
