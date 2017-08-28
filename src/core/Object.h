@@ -74,15 +74,15 @@ public:
     HAPI void addMixin(const char* mixin);
     HAPI void remMixin(const char* mixin);
 
-    static Object& cast_to_entity(void* in) {
+    static Object& cast_to_object(void* in) {
         return static_cast<Object&>(*::dynamix::object_of(in));
     }
-    static const Object& cast_to_entity(const void* in) {
+    static const Object& cast_to_object(const void* in) {
         return static_cast<const Object&>(*::dynamix::object_of(in));
     }
 };
 
-#define ha_this Object::cast_to_entity(this)
+#define ha_this Object::cast_to_object(this)
 
 class HAPI ObjectManager : public Singleton<ObjectManager>
 {
@@ -94,15 +94,15 @@ class HAPI ObjectManager : public Singleton<ObjectManager>
 private:
     int16 m_curr_id = 0;
 
-    std::map<oid, Object> m_entities;
+    std::map<oid, Object> m_objects;
 
 public:
     oid create(const std::string& in_name = std::string()) {
         std::string name = in_name;
         if(name.empty())
-            name = "entity_" + std::to_string(m_curr_id);
+            name = "object_" + std::to_string(m_curr_id);
 
-        auto it = m_entities.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
+        auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
         it.first->second.addMixin("transform");
         it.first->second.addMixin("hierarchical");
         return oid(m_curr_id++);
@@ -110,22 +110,22 @@ public:
 
     oid createFromId(oid id, const std::string& name) {
         hassert(!has(id));
-        return m_entities.emplace(id, Object(id, name)).first->second;
+        return m_objects.emplace(id, Object(id, name)).first->second;
     }
 
     void destroy(oid id) {
         hassert(id.isValid());
-        m_entities.erase(id);
+        m_objects.erase(id);
     }
 
-    bool has(oid id) const { return m_entities.count(id) > 0; }
+    bool has(oid id) const { return m_objects.count(id) > 0; }
 
     Object& getById(oid id) {
         hassert(has(id));
-        return m_entities.at(id);
+        return m_objects.at(id);
     }
 
-    auto& getEntities() { return m_entities; }
+    auto& getObjects() { return m_objects; }
 };
 
 inline bool oid::isValid() const {

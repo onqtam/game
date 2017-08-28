@@ -80,9 +80,9 @@ load_unload_proc getUnloadProc() {
         for(size_t i = 0; i < flags_size; ++i) {
             if(flags[i]) {
                 auto& mixin  = allocator[i];
-                auto& entity = Object::cast_to_entity(&mixin);
-                out[&entity].reserve(200); // for small mixins - just 1 allocation
-                serialize(mixin, out[&entity]);
+                auto& object = Object::cast_to_object(&mixin);
+                out[&object].reserve(200); // for small mixins - just 1 allocation
+                serialize(mixin, out[&object]);
             }
         }
         for(auto& curr : out)

@@ -30,9 +30,9 @@ public:
     FIELD json_buf new_val;
 };
 
-struct entity_creation_cmd
+struct object_creation_cmd
 {
-    HA_FRIENDS_OF_TYPE(entity_creation_cmd);
+    HA_FRIENDS_OF_TYPE(object_creation_cmd);
 
 public:
     FIELD oid id;
@@ -40,9 +40,9 @@ public:
     FIELD bool        created;
 };
 
-struct entity_mutation_cmd
+struct object_mutation_cmd
 {
-    HA_FRIENDS_OF_TYPE(entity_mutation_cmd);
+    HA_FRIENDS_OF_TYPE(object_mutation_cmd);
 
 public:
     FIELD oid id;
@@ -56,7 +56,7 @@ struct compound_cmd
     HA_FRIENDS_OF_TYPE(compound_cmd);
 
 public:
-    typedef boost::variant<attribute_changed_cmd, entity_mutation_cmd, entity_creation_cmd,
+    typedef boost::variant<attribute_changed_cmd, object_mutation_cmd, object_creation_cmd,
                            compound_cmd>
                                          command_variant;
     typedef std::vector<command_variant> commands_vector;
@@ -97,7 +97,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
                 dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
 
         selected.clear();
-        for(const auto& curr : ObjectManager::get().getEntities())
+        for(const auto& curr : ObjectManager::get().getObjects())
             if(curr.second.has(selected_mixin_id))
                 selected.push_back(curr.second);
     }
@@ -259,7 +259,7 @@ public:
                     }
                 };
 
-                for(const auto& curr : om.getEntities()) {
+                for(const auto& curr : om.getObjects()) {
                     // recurse from those without a parent only
                     if(curr.second.implements(get_parent_msg)) {
                         if(::get_parent(curr.second) == oid::invalid())
@@ -415,9 +415,9 @@ public:
 
                         HA_SUPPRESS_WARNINGS
                         comp_cmd.commands.push_back(
-                                entity_mutation_cmd({curr, mixin_names, state.data(), false}));
+                                object_mutation_cmd({curr, mixin_names, state.data(), false}));
                         comp_cmd.commands.push_back(
-                                entity_creation_cmd({curr, curr.get().name(), false}));
+                                object_creation_cmd({curr, curr.get().name(), false}));
                         HA_SUPPRESS_WARNINGS_END
 
                         ObjectManager::get().destroy(curr);
@@ -445,8 +445,8 @@ public:
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize_mixins(cmd.e, root);
-        } else if(command_var.type() == boost::typeindex::type_id<entity_mutation_cmd>()) {
-            auto& cmd = boost::get<entity_mutation_cmd>(command_var);
+        } else if(command_var.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
+            auto& cmd = boost::get<object_mutation_cmd>(command_var);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
                 for(auto& mixin : cmd.mixins)
@@ -462,8 +462,8 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().remMixin(mixin.c_str());
             }
-        } else if(command_var.type() == boost::typeindex::type_id<entity_creation_cmd>()) {
-            auto& cmd = boost::get<entity_creation_cmd>(command_var);
+        } else if(command_var.type() == boost::typeindex::type_id<object_creation_cmd>()) {
+            auto& cmd = boost::get<object_creation_cmd>(command_var);
             if((cmd.created && undo) || (!cmd.created && !undo)) {
                 ObjectManager::get().destroy(cmd.id);
             } else {

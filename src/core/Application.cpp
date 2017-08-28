@@ -394,22 +394,22 @@ int Application::run(int argc, char** argv) {
     // introduce this scope in order to control the lifetimes of managers
     {
         // resource managers should be created first and destroyed last - all
-        // entities should be destroyed so the refcounts to the resources are 0
+        // objects should be destroyed so the refcounts to the resources are 0
         MeshMan   meshMan;
         ShaderMan shaderMan;
         GeomMan   geomMan;
 
-        ObjectManager entityMan;
+        ObjectManager objectMan;
 
         World world;
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
-#else   // EMSCRIPTEN                                                                              \
+#else  // EMSCRIPTEN                                                                              \
         // Loop until the user closes the window
         while(!glfwWindowShouldClose(m_window))
             update();
-#endif  // EMSCRIPTEN
+#endif // EMSCRIPTEN
     }
 
     imguiShutdown();

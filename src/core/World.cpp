@@ -83,14 +83,14 @@ void World::update() {
 
     std::vector<renderPart> renderData;
 
-    for(const auto& e : ObjectManager::get().getEntities())
+    for(const auto& e : ObjectManager::get().getObjects())
         if(e.second.implements(rend::get_rendering_parts_msg))
             rend::get_rendering_parts(e.second, renderData);
     for(const auto& data : renderData) {
         if(data.mesh.isValid()) {
             meshSubmit(data.mesh.get(), 0, data.shader.get(), (const float*)&data.transform
                        //, BGFX_STATE_DEFAULT
-                       );
+            );
         } else if(data.geom.isValid()) {
             bgfx_set_transform((const float*)&data.transform, 1);
             bgfx_set_state(BGFX_STATE_DEFAULT | data.geom.get().state, 0);
