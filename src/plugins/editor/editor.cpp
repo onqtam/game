@@ -284,7 +284,7 @@ public:
             ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_DefaultOpen;
             for(auto& id : selected) {
                 auto& obj = id.get();
-                if(ImGui::TreeNodeEx((void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
+                if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
                                      obj.name().c_str())) {
                     if(obj.implements(common::imgui_bind_attributes_mixins_msg)) {
                         common::imgui_bind_attributes_mixins(obj);
@@ -441,17 +441,17 @@ public:
         }
     }
 
-    void handle_command(command_variant& command_variant, bool undo) {
-        if(command_variant.type() == boost::typeindex::type_id<attribute_changed_cmd>()) {
-            auto&       cmd = boost::get<attribute_changed_cmd>(command_variant);
+    void handle_command(command_variant& command_var, bool undo) {
+        if(command_var.type() == boost::typeindex::type_id<attribute_changed_cmd>()) {
+            auto&       cmd = boost::get<attribute_changed_cmd>(command_var);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
             JsonData    state(val);
             const auto& doc = state.parse();
             hassert(doc.is_valid());
             const auto root = doc.get_root();
             common::deserialize_mixins(cmd.e, root);
-        } else if(command_variant.type() == boost::typeindex::type_id<entity_mutation_cmd>()) {
-            auto& cmd = boost::get<entity_mutation_cmd>(command_variant);
+        } else if(command_var.type() == boost::typeindex::type_id<entity_mutation_cmd>()) {
+            auto& cmd = boost::get<entity_mutation_cmd>(command_var);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
                 for(auto& mixin : cmd.mixins)
@@ -467,15 +467,15 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.get().remMixin(mixin.c_str());
             }
-        } else if(command_variant.type() == boost::typeindex::type_id<entity_creation_cmd>()) {
-            auto& cmd = boost::get<entity_creation_cmd>(command_variant);
+        } else if(command_var.type() == boost::typeindex::type_id<entity_creation_cmd>()) {
+            auto& cmd = boost::get<entity_creation_cmd>(command_var);
             if((cmd.created && undo) || (!cmd.created && !undo)) {
                 ObjectManager::get().destroy(cmd.id);
             } else {
                 ObjectManager::get().createFromId(cmd.id, cmd.name);
             }
-        } else if(command_variant.type() == boost::typeindex::type_id<compound_cmd>()) {
-            auto& cmd = boost::get<compound_cmd>(command_variant);
+        } else if(command_var.type() == boost::typeindex::type_id<compound_cmd>()) {
+            auto& cmd = boost::get<compound_cmd>(command_var);
             if(undo)
                 for(auto& curr : boost::adaptors::reverse(cmd.commands))
                     handle_command(curr, undo);
