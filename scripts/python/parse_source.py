@@ -27,7 +27,9 @@ for line in header:
             current_type = words[2]
         else:
             current_type = words[1]
-        types[current_type] = []
+        types[current_type] = {"attributes" : attributes, "fields" : []}
+        # reset attributes for the following fields
+        attributes = {}
         continue
     # end a type
     if line.strip() == "};" and current_type != "":
@@ -44,11 +46,11 @@ for line in header:
         # get the last word by splitting into words the line up until the index we found
         field = line[:ind].split()[-1]
         # add the field to the current type
-        types[current_type].append({"name" : field, "attributes" : attributes})
+        types[current_type]["fields"].append({"name" : field, "attributes" : attributes})
         # reset attributes for the following fields
         attributes = {}
-    # detect attributes
-    if current_type != "" and words[0].startswith("ATTRIBUTES("):
+    # detect field or type attributes
+    if words[0].startswith("ATTRIBUTES("):
         # split the contents between the 2 most outer brackets
         attributes_list = line.partition('(')[-1].rpartition(')')[0].split(",")
         # remove the whitespace in each attribute
@@ -65,11 +67,11 @@ code = ""
 
 for type in types:
     # do not continue if empty
-    if not types[type]:
+    if not types[type]["fields"] and "NO_SKIP" not in types[type]["attributes"]:
         continue
     code += strln('inline void serialize(const %s& src, JsonData& out) {' % (type))
     code += strln('out.startObject();', tabs = 1)
-    for field in types[type]:
+    for field in types[type]["fields"]:
         code += strln('HA_SERIALIZE_VARIABLE("%s", src.%s);' % (field["name"], field["name"]), tabs = 1)
     code += strln('out.endObject();', tabs = 1)
     code += strln('}')
@@ -79,7 +81,7 @@ for type in types:
     code += strln('const size_t val_len = val.get_length();', tabs = 1)
     code += strln('size_t num_deserialized = 0;', tabs = 1)
     code += strln('for(size_t i = 0; i < val_len; ++i) {', tabs = 1)
-    for field in types[type]:
+    for field in types[type]["fields"]:
         code += strln('HA_DESERIALIZE_VARIABLE("%s", dest.%s);' % (field["name"], field["name"]), tabs = 2)
     code += strln('}', tabs = 1)
     code += strln('return num_deserialized;', tabs = 1)
@@ -88,7 +90,7 @@ for type in types:
     
     code += strln('inline const char* imgui_bind_attributes(Object& e, const char* mixin, %s& obj) {' % (type))
     code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
-    for field in types[type]:
+    for field in types[type]["fields"]:
         code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"] + "()") if "TAG" in field["attributes"] else "")), tabs = 1)
         
     code += strln('return out;', tabs = 1)

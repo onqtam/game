@@ -33,8 +33,6 @@
 
 #include "utils/suppress_warnings.h"
 #include "utils/visibility.h"
-#include "utils/preprocessor.h"
-#include "utils/doctest/doctest_proxy.h"
 
 HA_SUPPRESS_WARNINGS
 
@@ -89,13 +87,10 @@ using glm::uint16;
 using glm::uint32;
 using glm::uint64;
 
-// helpers that don't expand to anything - used by the type parser
-#define FIELD           // indicates the start of a field definition inside of a type
-#define EXPORT          // attribute - indicates that the field should be exported
-#define ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
-
+#include "utils/preprocessor.h"
+#include "utils/doctest/doctest_proxy.h"
 #include "utils/singleton.h"
-#include "core/serialization/JsonData.h"
 #include "core/messages/message_macros.h"
-
+#include "core/serialization/JsonData.h"
+#include "core/tags.h"
 #include "core/Object.h"

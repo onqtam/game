@@ -64,3 +64,9 @@ template<int s> struct print_ct;
 #else // _MSC_VER
 #define HA_NOINLINE __attribute__((noinline))
 #endif // _MSC_VER
+
+// helpers that don't expand to anything - used by the type parser
+#define FIELD           // indicates the start of a field definition inside of a type
+#define EXPORT          // attribute - indicates that the field should be exported
+#define NO_SKIP         // attribute - emit reflection for the class even if without any fields
+#define ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
