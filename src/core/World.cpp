@@ -41,8 +41,13 @@ World::World()
 
     auto& obj2 = om.create("with_mesh_2!").get();
     obj2.addMixin("mesh");
-    tr::set_scl(obj2, {7, 7, 7});
-    tr::set_pos(obj2, {20, 0, 20});
+    tr::set_scl(obj2, {3, 3, 3});
+    tr::set_pos(obj2, {10, 0, 10});
+
+    auto& obj3 = om.create("with_mesh_3!").get();
+    obj3.addMixin("mesh");
+    tr::set_scl(obj3, {3, 3, 3});
+    tr::set_pos(obj3, {15, 0, -10});
 
     auto& dummy1 = om.create("with_no_brain").get();
     auto& dummy2 = om.create("with_no_brain 2").get();

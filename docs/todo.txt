@@ -1,6 +1,9 @@
 
+copy_from & friends of Object - copy the id as well - should request a new id from the OM
+
+link error with emscripten ?!?!?!
+
 editor:
-    1 gizmo for all selected objects - only translation is done so far
     grouping
     copy/paste (or just duplicate)
     mixin annotations - like "selected" - not to be saved in prefabs
@@ -23,6 +26,7 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
+        rotation gizmo doesn't work properly - quaternion fail...
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
     postponed
         - object snapping (with the gizmos)

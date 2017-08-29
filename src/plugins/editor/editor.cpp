@@ -348,22 +348,29 @@ public:
         m_gizmo_state.cam.far_clip      = 1000.f;
         m_gizmo_state.cam.yfov          = glm::radians(45.0f);
         m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
-        glm::vec3 pos                   = tr::get_pos(World::get().camera());
-        glm::quat rot                   = tr::get_rot(World::get().camera());
-        m_gizmo_state.cam.position      = {pos.x, pos.y, pos.z};
-        m_gizmo_state.cam.orientation   = {rot.x, rot.y, rot.z, rot.w};
+        auto cam_pos                    = tr::get_pos(World::get().camera());
+        auto cam_rot                    = tr::get_rot(World::get().camera());
+        m_gizmo_state.cam.position      = {cam_pos.x, cam_pos.y, cam_pos.z};
+        m_gizmo_state.cam.orientation   = {cam_rot.x, cam_rot.y, cam_rot.z, cam_rot.w};
         m_gizmo_ctx.update(m_gizmo_state);
 
         // update gizmo position to be between all selected objects
         if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
             glm::vec3 avg_pos = {0, 0, 0};
+            glm::quat avg_rot =
+                    (selected_with_gizmo.size() == 1) ?           // based on number of objects
+                            tr::get_rot(selected_with_gizmo[0]) : // orientation of object
+                            glm::quat(1, 0, 0, 0);                // generic default rotation
             for(auto& curr : selected_with_gizmo)
                 avg_pos += tr::get_pos(curr);
             avg_pos /= selected_with_gizmo.size();
-            gizmo_transform.position = {avg_pos.x, avg_pos.y, avg_pos.z};
+
+            gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
+            gizmo_transform.orientation = {avg_rot.x, avg_rot.y, avg_rot.z, avg_rot.w};
+            gizmo_transform.scale       = {1, 1, 1}; // no need for anything different
         }
 
-        // record gizmo transform on start of usage
+        // record gizmo transform on start of usage (+transforms of selected objects)
         if(mouse_button_left_changed) {
             if(m_gizmo_state.mouse_left) {
                 gizmo_transform_last = gizmo_transform;
@@ -378,13 +385,19 @@ public:
         // if (probably) using gizmo - need this to really determine it: https://github.com/ddiakopoulos/tinygizmo/issues/6
         if(m_gizmo_state.mouse_left) {
             auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
-            //auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
-            //auto diff_rot = gizmo_transform.orientation - gizmo_transform_last.orientation;
-            if(minalg::length(diff_pos) > 0) {
+            auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
+            auto rot      = glm::quat(gizmo_transform.orientation.w, gizmo_transform.orientation.x,
+                                 gizmo_transform.orientation.y, gizmo_transform.orientation.z);
+            // commented out condition - always update these things - I suck at math :(
+            //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
+            {
                 for(auto& id : selected_with_gizmo) {
                     auto t = sel::get_transform_on_gizmo_start(id);
                     t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
-                    tr::set_pos(id, t.pos);
+                    t.scl += glm::vec3(diff_scl.x, diff_scl.y, diff_scl.z);
+                    // this quaternion stuff is probably wrong
+                    t.rot = glm::quat(rot.w, rot.x, rot.y, rot.z) * t.rot;
+                    tr::set_transform(id, t);
                 }
             }
         }
@@ -392,7 +405,7 @@ public:
         // check if anything changed after release
         if(mouse_button_left_changed) {
             if(!m_gizmo_state.mouse_left) {
-                handle_gizmo_changes_from_multi_selection();
+                handle_gizmo_changes_on_multi_selection();
             }
         }
         mouse_button_left_changed = false;
@@ -400,7 +413,7 @@ public:
         m_gizmo_ctx.draw();
     }
 
-    void handle_gizmo_changes_from_multi_selection() {
+    void handle_gizmo_changes_on_multi_selection() {
         compound_cmd comp_cmd;
 
         for(auto& id : selected_with_gizmo) {
@@ -461,7 +474,7 @@ public:
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(!selected.empty()) {
-                    handle_gizmo_changes_from_multi_selection();
+                    handle_gizmo_changes_on_multi_selection();
 
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
