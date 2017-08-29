@@ -382,8 +382,8 @@ public:
             //auto diff_rot = gizmo_transform.orientation - gizmo_transform_last.orientation;
             if(minalg::length(diff_pos) > 0) {
                 for(auto& id : selected_with_gizmo) {
-					auto t = sel::get_transform_on_gizmo_start(id);
-					t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
+                    auto t = sel::get_transform_on_gizmo_start(id);
+                    t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
                     tr::set_pos(id, t.pos);
                 }
             }
@@ -392,29 +392,34 @@ public:
         // check if anything changed after release
         if(mouse_button_left_changed) {
             if(!m_gizmo_state.mouse_left) {
-                compound_cmd comp_cmd;
-                comp_cmd.commands.reserve(selected_with_gizmo.size());
-
-                for(auto& id : selected_with_gizmo) {
-                    auto old_t = sel::get_transform_on_gizmo_start(id);
-                    auto new_t = tr::get_transform(id);
-                    if(old_t.pos != new_t.pos) {
-                        JsonData ov = command("tform", "t", old_t);
-                        JsonData nv = command("tform", "t", new_t);
-                        HA_SUPPRESS_WARNINGS
-                        comp_cmd.commands.push_back(
-                                attribute_changed_cmd({id, ov.data(), nv.data()}));
-                        HA_SUPPRESS_WARNINGS_END
-                    }
-                }
-                HA_SUPPRESS_WARNINGS
-                add_command(comp_cmd);
-                HA_SUPPRESS_WARNINGS_END
+                handle_gizmo_changes_from_multi_selection();
             }
         }
         mouse_button_left_changed = false;
 
         m_gizmo_ctx.draw();
+    }
+
+    void handle_gizmo_changes_from_multi_selection() {
+        compound_cmd comp_cmd;
+
+        for(auto& id : selected_with_gizmo) {
+            auto old_t = sel::get_transform_on_gizmo_start(id);
+            auto new_t = tr::get_transform(id);
+            if(old_t != new_t) {
+                JsonData ov = command("tform", "t", old_t);
+                JsonData nv = command("tform", "t", new_t);
+                HA_SUPPRESS_WARNINGS
+                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                HA_SUPPRESS_WARNINGS_END
+                // update this - even though we havent started using the gizmo - or else this might break when deleting the object
+                sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
+            }
+        }
+        HA_SUPPRESS_WARNINGS
+        if(!comp_cmd.commands.empty())
+            add_command(comp_cmd);
+        HA_SUPPRESS_WARNINGS_END
     }
 
     void process_event(const InputEvent& ev) {
@@ -456,13 +461,11 @@ public:
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(!selected.empty()) {
+                    handle_gizmo_changes_from_multi_selection();
+
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
-                        //auto last = sel::get_last_stable_gizmo_transform(curr);
-                        //auto t    = sel::get_gizmo_transform(curr);
-                        //handle_gizmo_transform_changed(curr, last, t);
-
                         // get the list of mixin names
                         std::vector<const char*> mixins;
                         curr.get().get_mixin_names(mixins);

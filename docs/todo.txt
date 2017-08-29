@@ -1,6 +1,6 @@
 
 editor:
-    1 gizmo for all selected objects
+    1 gizmo for all selected objects - only translation is done so far
     grouping
     copy/paste (or just duplicate)
     mixin annotations - like "selected" - not to be saved in prefabs
@@ -23,8 +23,7 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
-        dependent components - ordered creation...
-        sometimes a scale command is inserted - due to default-initialized data in the selected mixin - fix is reverted...
+        dependent components - ordered creation... currently the camera mixin calls messages in its ctor
     postponed
         - object snapping (with the gizmos)
         - editing an attribute of multiple objects at once
