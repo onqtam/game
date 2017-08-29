@@ -49,6 +49,10 @@ World::World()
     tr::set_scl(obj3, {3, 3, 3});
     tr::set_pos(obj3, {15, 0, -10});
 
+    auto& copied = om.create().get();
+    copied.copy_from(obj3);
+    tr::move(copied, {0, 0, 5});
+
     auto& dummy1 = om.create("with_no_brain").get();
     auto& dummy2 = om.create("with_no_brain 2").get();
     auto& dummy3 = om.create("blabla").get();

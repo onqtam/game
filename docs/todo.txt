@@ -1,6 +1,4 @@
 
-copy_from & friends of Object - copy the id as well - should request a new id from the OM
-
 link error with emscripten ?!?!?!
 
 editor:
