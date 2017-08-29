@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core/tags.h"
-
 template <typename... Args>
 const char* imgui_bind_attribute(Object&, const char*, const char* attr, Args&&...) {
     ImGui::TextDisabled("couldn't bind \"%s\"", attr);

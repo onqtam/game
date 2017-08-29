@@ -112,7 +112,7 @@ public:
             name = "object_" + std::to_string(m_curr_id);
 
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
-        it.first->second.addMixin("transform");
+        it.first->second.addMixin("tform");
         it.first->second.addMixin("hierarchical");
         return oid(m_curr_id++);
     }

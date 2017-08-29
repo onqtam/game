@@ -1,12 +1,16 @@
 
-dependent components - ordered creation...
-
 editor:
-    prefabs
+    1 gizmo for all selected objects
+    grouping
+    copy/paste (or just duplicate)
     mixin annotations - like "selected" - not to be saved in prefabs
+    prefabs
     save/load
+    flags
+        no_gizmo
+    focus
     IDs
-    copy/paste
+    force uniqueness of object names
     GUI
         setting attributes explicitly - separately from the serialize() functionality of the whole mixins
         add/remove mixins to/from objects
@@ -19,6 +23,7 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
+        dependent components - ordered creation...
         sometimes a scale command is inserted - due to default-initialized data in the selected mixin - fix is reverted...
     postponed
         - object snapping (with the gizmos)
@@ -34,6 +39,7 @@ ditch glfw in favor of sdl
 PagedMixinAllocator - keep vectors of object ids for each mixin type (requires dynamix allocator extension - bobi will do it)
 
 == questions:
+const-correctness around the oid and Object classes
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
@@ -120,6 +126,7 @@ UI:
 physics:
     - bullet
     box2d
+    https://github.com/kroitor/gjk.c
     https://github.com/slembcke/Chipmunk2D
     https://github.com/InteractiveComputerGraphics/PositionBasedDynamics
 compression:

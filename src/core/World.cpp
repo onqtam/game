@@ -24,7 +24,7 @@ World::World()
     //state.endObject();
     //om.destroy(m_camera);
     //om.createFromId(m_camera);
-    //m.camera.get().setName("camera");
+    //m_camera.get().setName("camera");
     //const auto& doc = JsonData::parse(state.data());
     //hassert(doc.is_valid());
     //auto root = doc.get_root();

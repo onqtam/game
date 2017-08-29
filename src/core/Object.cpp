@@ -16,4 +16,5 @@ void Object::remMixin(const char* mixin) {
     mixins[mixin].remove(this);
 }
 
+// included here and not in Object.h to contain dependencies
 #include <gen/Object.h.inl>

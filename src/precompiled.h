@@ -90,6 +90,7 @@ using glm::uint64;
 #include "utils/preprocessor.h"
 #include "utils/doctest/doctest_proxy.h"
 #include "utils/singleton.h"
+#include "utils/transform.h"
 #include "core/messages/message_macros.h"
 #include "core/serialization/JsonData.h"
 #include "core/tags.h"

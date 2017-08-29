@@ -118,7 +118,8 @@ load_unload_proc getUnloadProc() {
             ImGui::TreePop();                                                                      \
         }                                                                                          \
     }                                                                                              \
-    /* clang-format fix */ private:
+    /* clang-format fix */ private:                                                                \
+    HA_FRIENDS_OF_TYPE(name)
 
 #ifdef HA_PLUGIN
 #define HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n) getLoadProc<n>()

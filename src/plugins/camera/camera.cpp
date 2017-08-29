@@ -18,8 +18,7 @@ const glm::vec3 k_forward             = {0, 0, -1};
 
 class camera : public InputEventListener, public UpdatableMixin<camera>
 {
-    HA_FRIENDS_OF_TYPE(camera);
-    HA_MESSAGES_IN_MIXIN(camera)
+	HA_MESSAGES_IN_MIXIN(camera);
 
     FIELD float cursor_x = 0.f;
     FIELD float cursor_y = 0.f;

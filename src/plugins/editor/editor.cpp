@@ -10,8 +10,6 @@
 #include "core/GraphicsHelpers.h"
 #include "core/InputEvent.h"
 
-#include <iostream>
-
 HA_SUPPRESS_WARNINGS
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -70,13 +68,15 @@ typedef compound_cmd::commands_vector commands_vector;
 class editor : public UpdatableMixin<editor>, public InputEventListener, public Singleton<editor>
 {
     HA_SINGLETON(editor);
-    HA_MESSAGES_IN_MIXIN(editor)
-    HA_FRIENDS_OF_TYPE(editor);
+    HA_MESSAGES_IN_MIXIN(editor);
 
     FIELD std::vector<oid> selected;
+    FIELD std::vector<oid> selected_with_gizmo;
     FIELD commands_vector undo_redo_commands;
     FIELD int             curr_undo_redo            = -1;
     FIELD bool            mouse_button_left_changed = false;
+    FIELD tinygizmo::rigid_transform gizmo_transform;
+    FIELD tinygizmo::rigid_transform gizmo_transform_last;
 
     // these members are OK to not be serialized because they are constantly updated
     tinygizmo::gizmo_application_state m_gizmo_state;
@@ -97,9 +97,15 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     // until the allocator model of dynamix is extended we shall update this list manually like this
     void updateSelected() {
         selected.clear();
-        for(const auto& curr : ObjectManager::get().getObjects())
-            if(curr.second.has(selected_mixin_id))
+        selected_with_gizmo.clear();
+        for(const auto& curr : ObjectManager::get().getObjects()) {
+            if(curr.second.has(selected_mixin_id)) {
                 selected.push_back(curr.second);
+                if(curr.second.implements(sel::no_gizmo_msg))
+                    continue;
+                selected_with_gizmo.push_back(curr.second);
+            }
+        }
     }
 
 public:
@@ -203,7 +209,7 @@ public:
 
                     // recurse through children
                     const auto& children = ::get_children(root_obj);
-                    if(children.size() > 0)
+                    if(!children.empty())
                         for(const auto& c : children)
                             recursiveSelecter(c, select);
                 };
@@ -217,7 +223,7 @@ public:
                             (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
 
                     const auto& children = ::get_children(obj);
-                    if(children.size() == 0) // make the node a leaf node if no children
+                    if(children.empty()) // make the node a leaf node if no children
                         node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
                     auto name = obj.name() + " (" + std::to_string(int16(obj.id())) + ")";
@@ -250,7 +256,7 @@ public:
                     }
 
                     // always recurse through children because they should be displayed when filtering even if their parent is closed
-                    if(children.size() > 0) {
+                    if(!children.empty()) {
                         for(const auto& c : children)
                             buildTree(c, display);
                         if(is_open)
@@ -273,30 +279,24 @@ public:
                 compound_cmd comp_cmd;
                 comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
-                for(auto curr : to_select) {
+                auto add_mutate_command = [&](oid id, bool select) {
                     JsonData state(10000);
                     state.startObject();
-                    common::serialize_mixins(curr.get(), "selected", state);
+                    common::serialize_mixins(id.get(), "selected", state);
                     state.endObject();
 
                     HA_SUPPRESS_WARNINGS
                     comp_cmd.commands.push_back(
-                            object_mutation_cmd({curr, {"selected"}, state.data(), true}));
+                            object_mutation_cmd({id, {"selected"}, state.data(), select}));
                     HA_SUPPRESS_WARNINGS_END
+                };
 
+                for(auto curr : to_select) {
+                    add_mutate_command(curr, true);
                     curr.get().addMixin("selected");
                 }
                 for(auto curr : to_deselect) {
-                    JsonData state(10000);
-                    state.startObject();
-                    common::serialize_mixins(curr.get(), "selected", state);
-                    state.endObject();
-
-                    HA_SUPPRESS_WARNINGS
-                    comp_cmd.commands.push_back(
-                            object_mutation_cmd({curr, {"selected"}, state.data(), false}));
-                    HA_SUPPRESS_WARNINGS_END
-
+                    add_mutate_command(curr, false);
                     curr.get().remMixin("selected");
                 }
 
@@ -332,6 +332,17 @@ public:
 
         //ImGui::ShowTestWindow();
 
+        updateGizmo();
+    }
+
+    void updateGizmo() {
+        // don't continue if no gizmo-able objects are selected
+        if(selected_with_gizmo.empty())
+            return;
+
+        auto& app = Application::get();
+
+        // gizmo context/state update
         m_gizmo_state.viewport_size     = {float(app.width()), float(app.height())};
         m_gizmo_state.cam.near_clip     = 0.1f;
         m_gizmo_state.cam.far_clip      = 1000.f;
@@ -341,61 +352,69 @@ public:
         glm::quat rot                   = tr::get_rot(World::get().camera());
         m_gizmo_state.cam.position      = {pos.x, pos.y, pos.z};
         m_gizmo_state.cam.orientation   = {rot.x, rot.y, rot.z, rot.w};
-
         m_gizmo_ctx.update(m_gizmo_state);
 
-        for(auto& id : selected) {
-            auto& obj = id.get();
-            auto& t   = sel::get_gizmo_transform(obj);
-
-            if(obj.implements(sel::no_gizmo_msg))
-                continue;
-
-            // record transform after press
-            if(mouse_button_left_changed) {
-                if(m_gizmo_state.mouse_left) {
-                    sel::get_last_stable_gizmo_transform(obj) = t;
-                }
-            }
-
-            // update transform
-            tinygizmo::transform_gizmo(obj.name(), m_gizmo_ctx, t);
-
-            // check if anything changed after release
-            if(mouse_button_left_changed) {
-                if(!m_gizmo_state.mouse_left) {
-                    auto last = sel::get_last_stable_gizmo_transform(obj);
-                    handle_gizmo_transform_changed(id, last, t);
-                }
-            }
-            tr::set_pos(obj, (glm::vec3&)t.position);
-            tr::set_scl(obj, (glm::vec3&)t.scale);
-            tr::set_rot(obj, (glm::quat&)t.orientation);
+        // update gizmo position to be between all selected objects
+        if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
+            glm::vec3 avg_pos = {0, 0, 0};
+            for(auto& curr : selected_with_gizmo)
+                avg_pos += tr::get_pos(curr);
+            avg_pos /= selected_with_gizmo.size();
+            gizmo_transform.position = {avg_pos.x, avg_pos.y, avg_pos.z};
         }
 
+        // record gizmo transform on start of usage
+        if(mouse_button_left_changed) {
+            if(m_gizmo_state.mouse_left) {
+                gizmo_transform_last = gizmo_transform;
+                for(auto& id : selected_with_gizmo)
+                    sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
+            }
+        }
+
+        // update gizmo
+        tinygizmo::transform_gizmo("gizmo", m_gizmo_ctx, gizmo_transform);
+
+        // if (probably) using gizmo - need this to really determine it: https://github.com/ddiakopoulos/tinygizmo/issues/6
+        if(m_gizmo_state.mouse_left) {
+            auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
+            //auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
+            //auto diff_rot = gizmo_transform.orientation - gizmo_transform_last.orientation;
+            if(minalg::length(diff_pos) > 0) {
+                for(auto& id : selected_with_gizmo) {
+					auto t = sel::get_transform_on_gizmo_start(id);
+					t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
+                    tr::set_pos(id, t.pos);
+                }
+            }
+        }
+
+        // check if anything changed after release
+        if(mouse_button_left_changed) {
+            if(!m_gizmo_state.mouse_left) {
+                compound_cmd comp_cmd;
+                comp_cmd.commands.reserve(selected_with_gizmo.size());
+
+                for(auto& id : selected_with_gizmo) {
+                    auto old_t = sel::get_transform_on_gizmo_start(id);
+                    auto new_t = tr::get_transform(id);
+                    if(old_t.pos != new_t.pos) {
+                        JsonData ov = command("tform", "t", old_t);
+                        JsonData nv = command("tform", "t", new_t);
+                        HA_SUPPRESS_WARNINGS
+                        comp_cmd.commands.push_back(
+                                attribute_changed_cmd({id, ov.data(), nv.data()}));
+                        HA_SUPPRESS_WARNINGS_END
+                    }
+                }
+                HA_SUPPRESS_WARNINGS
+                add_command(comp_cmd);
+                HA_SUPPRESS_WARNINGS_END
+            }
+        }
         mouse_button_left_changed = false;
 
         m_gizmo_ctx.draw();
-    }
-
-    void handle_gizmo_transform_changed(oid id, const tinygizmo::rigid_transform& last,
-                                        const tinygizmo::rigid_transform& t) {
-        // NOTE that these also get triggered when I move the object with the float drags of the transform...
-        if(last.position != t.position) {
-            JsonData ov = command("transform", "pos", *(const glm::vec3*)&last.position);
-            JsonData nv = command("transform", "pos", *(const glm::vec3*)&t.position);
-            add_changed_attribute(id, ov.data(), nv.data());
-        }
-        if(last.orientation != t.orientation) {
-            JsonData ov = command("transform", "rot", *(const glm::quat*)&last.orientation);
-            JsonData nv = command("transform", "rot", *(const glm::quat*)&t.orientation);
-            add_changed_attribute(id, ov.data(), nv.data());
-        }
-        if(last.scale != t.scale) {
-            JsonData ov = command("transform", "scl", *(const glm::vec3*)&last.scale);
-            JsonData nv = command("transform", "scl", *(const glm::vec3*)&t.scale);
-            add_changed_attribute(id, ov.data(), nv.data());
-        }
     }
 
     void process_event(const InputEvent& ev) {
@@ -436,13 +455,13 @@ public:
 
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
-                if(selected.size() > 0) {
+                if(!selected.empty()) {
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
-                        auto last = sel::get_last_stable_gizmo_transform(curr);
-                        auto t    = sel::get_gizmo_transform(curr);
-                        handle_gizmo_transform_changed(curr, last, t);
+                        //auto last = sel::get_last_stable_gizmo_transform(curr);
+                        //auto t    = sel::get_gizmo_transform(curr);
+                        //handle_gizmo_transform_changed(curr, last, t);
 
                         // get the list of mixin names
                         std::vector<const char*> mixins;
@@ -536,7 +555,7 @@ public:
     }
 
     void add_command(const command_variant& command) {
-        if(undo_redo_commands.size())
+        if(!undo_redo_commands.empty())
             undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                      undo_redo_commands.end());
 

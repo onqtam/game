@@ -8,33 +8,33 @@
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
-class transform
+class tform
 {
-    HA_FRIENDS_OF_TYPE(transform);
-    HA_MESSAGES_IN_MIXIN(transform)
-    FIELD glm::vec3 pos = {0, 0, 0};
-    FIELD glm::vec3 scl = {1, 1, 1};
-    FIELD glm::quat rot = {1, 0, 0, 0};
+    HA_MESSAGES_IN_MIXIN(tform);
+    FIELD transform t = {{0, 0, 0}, {1, 1, 1}, {1, 0, 0, 0}};
 
 public:
-    void set_pos(const glm::vec3& in) { pos = in; }
-    void set_scl(const glm::vec3& in) { scl = in; }
-    void set_rot(const glm::quat& in) { rot = in; }
+	void set_pos(const glm::vec3& in) { t.pos = in; }
+	void set_scl(const glm::vec3& in) { t.scl = in; }
+	void set_rot(const glm::quat& in) { t.rot = in; }
 
-    const glm::vec3& get_pos() const { return pos; }
-    const glm::vec3& get_scl() const { return scl; }
-    const glm::quat& get_rot() const { return rot; }
+	const glm::vec3& get_pos() const { return t.pos; }
+	const glm::vec3& get_scl() const { return t.scl; }
+	const glm::quat& get_rot() const { return t.rot; }
 
-    void move(const glm::vec3& in) { pos += in; }
+    void set_transform(const transform& in) { t = in; }
+	const transform& get_transform() const { return t; }
 
-    glm::mat4 get_model_transform() const {
-        glm::mat4 t = glm::translate(glm::mat4(1.f), pos);
-        glm::mat4 r = glm::toMat4(rot);
-        return glm::scale(t * r, scl);
+    void move(const glm::vec3& in) { t.pos += in; }
+
+    glm::mat4 get_transform_mat() const {
+        glm::mat4 tr = glm::translate(glm::mat4(1.f), t.pos);
+        glm::mat4 rt = glm::toMat4(t.rot);
+        return glm::scale(tr * rt, t.scl);
     }
 };
 
-HA_MIXIN_DEFINE(transform, Interface_transform);
+HA_MIXIN_DEFINE(tform, Interface_transform);
 
 class mesh
 {
@@ -45,6 +45,13 @@ class mesh
     FIELD std::string _image_path;
     FIELD MeshHandle _mesh;
     FIELD ShaderHandle _shader;
+
+    FIELD bool   clicky      = false;
+    FIELD float  dragy       = 42;
+    FIELD double dragy2      = 42;
+    FIELD int    dragy3      = 42;
+    FIELD std::string texty  = "happy!!";
+    FIELD std::string texty2 = ":(";
 
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
@@ -96,7 +103,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, tr::get_model_transform(ha_this)});
+        out.push_back({_mesh, {}, _shader, tr::get_transform_mat(ha_this)});
     }
 
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
@@ -110,8 +117,7 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
 
 class hierarchical
 {
-    HA_MESSAGES_IN_MIXIN(hierarchical)
-    HA_FRIENDS_OF_TYPE(hierarchical);
+	HA_MESSAGES_IN_MIXIN(hierarchical);
     FIELD oid parent;
     FIELD std::vector<oid> children;
 
@@ -138,44 +144,22 @@ HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
 
 class selected
 {
-    HA_MESSAGES_IN_MIXIN(selected)
-    HA_FRIENDS_OF_TYPE(selected);
-    FIELD tinygizmo::rigid_transform gizmo_transform;
-    FIELD tinygizmo::rigid_transform gizmo_transform_last;
-    FIELD bool                       clicky = false;
-    FIELD float                      dragy  = 42;
-    FIELD double                     dragy2 = 42;
-    FIELD int                        dragy3 = 42;
-    FIELD std::string texty                 = "happy!!";
-    FIELD std::string texty2                = ":(";
+    HA_MESSAGES_IN_MIXIN(selected);
+    FIELD transform old_t;
 
 public:
-    //selected() {
-    //    gizmo_transform_last =
-    //            tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
-    //                                       (const minalg::float3&)tr::get_pos(ha_this),
-    //                                       (const minalg::float3&)tr::get_scl(ha_this));
-    //}
-
-    tinygizmo::rigid_transform& get_gizmo_transform() {
-        gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
-                                                     (const minalg::float3&)tr::get_pos(ha_this),
-                                                     (const minalg::float3&)tr::get_scl(ha_this));
-        return gizmo_transform;
-    }
-
-    tinygizmo::rigid_transform& get_last_stable_gizmo_transform() { return gizmo_transform_last; }
-
     void get_rendering_parts(std::vector<renderPart>& out) const {
         if(ha_this.implements(rend::get_aabb_msg)) {
             auto diag   = rend::get_aabb(ha_this).getDiagonal();
             auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
             auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, tr::get_model_transform(ha_this)});
+            out.push_back({{}, geom, shader, tr::get_transform_mat(ha_this)});
         }
     }
+
+    transform& get_transform_on_gizmo_start() { return old_t; }
 };
 
-HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg& Interface_selected);
+HA_MIXIN_DEFINE(selected, sel::get_transform_on_gizmo_start_msg& rend::get_rendering_parts_msg);
 
 #include <gen/common.cpp.inl>

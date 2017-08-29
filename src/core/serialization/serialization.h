@@ -2,8 +2,6 @@
 
 #include "core/GraphicsHelpers.h"
 
-#include "core/tags.h"
-
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
 #define serialize_c serialize_c_impl(__COUNTER__)
@@ -47,6 +45,9 @@ void deserialize(glm::vec<S, T>& data, const sajson::value& val) {
 
 HAPI void serialize_c(const glm::quat& data, JsonData& out);
 HAPI void deserialize(glm::quat& data, const sajson::value& val);
+
+HAPI void serialize_c(const transform& data, JsonData& out);
+HAPI void deserialize(transform& data, const sajson::value& val);
 
 HAPI void serialize_c(oid data, JsonData& out);
 HAPI void deserialize(oid& data, const sajson::value& val);
