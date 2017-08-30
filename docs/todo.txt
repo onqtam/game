@@ -1,20 +1,27 @@
 
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
+fix the handle <=> path attribute updating problem
+
+all custom types should begin with a capital letter!
+
 editor:
     parental
         inheriting transformations
+        when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
+        perhaps move out of a mixin and into the object class?
         detecting cycles ???
     grouping
     duplicate objects
-    mixin annotations - like "selected" - not to be saved in prefabs
     prefabs
+        field/mixin annotations for being skipped from prefabs
         single object templates
         groups of object templates - group template
     save/load
     flags
         no_gizmo
     focus
+    switching states between editing and gameplay
     IDs
     force uniqueness of object names
     GUI
@@ -31,6 +38,7 @@ editor:
     curve editing
     bugs
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
+            resolution: forbid the calling of messages in constructors and move widely used fields to the object itself!
     postponed
         - copy/paste of objects
         - gizmos - rotation around pivot different from the object center
@@ -45,10 +53,11 @@ editor:
 ditch bgfx
 ditch glm in favor of yama
 ditch glfw in favor of sdl
-PagedMixinAllocator - keep vectors of object ids for each mixin type (requires dynamix allocator extension - bobi will do it)
 
 == questions:
 const-correctness around the oid and Object classes
+not having the entire simulation state in clients - to prevent cheating?
+can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
@@ -234,7 +243,7 @@ debugging:
 == dynamix:
 wanted:
     - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
-    - add has/get methods to object class that work with C strings and not just mixin_id / template parameters
+    - add has/get methods to object class that work with C strings (and mixin_id) and not just template parameters
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
 optimization:
     - currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message impls are dropped it can become 2 pointers

@@ -43,7 +43,7 @@ static bgfx_uniform_handle imguiFontUniform;
 static bgfx_program_handle imguiProgram;
 static void                imguiRender(ImDrawData* drawData);
 static void                imguiShutdown();
-static cstr         imguiGetClipboardText(void* userData);
+static cstr                imguiGetClipboardText(void* userData);
 static void                imguiSetClipboardText(void* userData, cstr text);
 
 static void imguiInit() {
@@ -405,8 +405,7 @@ int Application::run(int argc, char** argv) {
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
-#else  // EMSCRIPTEN                                                                              \
-        // Loop until the user closes the window
+#else  // EMSCRIPTEN
         while(!glfwWindowShouldClose(m_window))
             update();
 #endif // EMSCRIPTEN

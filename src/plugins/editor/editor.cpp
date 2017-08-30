@@ -330,7 +330,7 @@ public:
         }
         ImGui::End();
 
-        //ImGui::ShowTestWindow();
+        ImGui::ShowTestWindow();
 
         updateGizmo();
     }

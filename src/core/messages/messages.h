@@ -30,11 +30,8 @@ HA_MSG_1(tr, void, move, const glm::vec3&, pos)
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, oid, get_parent)
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, const std::vector<oid>&, get_children)
 DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, oid, _parent)
-DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, add_child, oid, child)
-DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, remove_child, oid, child)
 
-#define Interface_hierarchical                                                                     \
-    get_parent_msg& get_children_msg& set_parent_msg& add_child_msg& remove_child_msg
+#define Interface_parental get_parent_msg& get_children_msg& set_parent_msg
 
 // selected
 HA_CONST_MULTI_MSG_0(sel, void, no_gizmo) // for simulating a mixin fact - see dynamix roadmap

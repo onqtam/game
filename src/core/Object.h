@@ -14,6 +14,7 @@ public:
 
     bool operator<(const oid& other) const { return m_value < other.m_value; }
     bool operator==(const oid& other) const { return m_value == other.m_value; }
+    bool operator!=(const oid& other) const { return m_value != other.m_value; }
 
     bool isValid() const;
 

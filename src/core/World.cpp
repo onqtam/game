@@ -60,17 +60,12 @@ World::World()
     auto& dummy5 = om.create("dummy with 5").get();
 
     set_parent(dummy1, obj);
-    add_child(obj, dummy1);
     set_parent(dummy2, obj);
-    add_child(obj, dummy2);
 
     set_parent(dummy3, dummy1);
-    add_child(dummy1, dummy3);
     set_parent(dummy4, dummy1);
-    add_child(dummy1, dummy4);
 
     set_parent(dummy5, obj2);
-    add_child(obj2, dummy5);
 }
 
 void World::update() {

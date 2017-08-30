@@ -3,6 +3,7 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_stuff.h"
 
+#include "core/Application.h"
 #include "core/GraphicsHelpers.h"
 
 #include "core/messages/messages.h"
@@ -124,31 +125,56 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
 class parental
 {
     HA_MESSAGES_IN_MIXIN(parental);
-    FIELD oid parent;
-    FIELD std::vector<oid> children;
+    FIELD oid m_parent;
+    FIELD std::vector<oid> m_children;
+
+    void orphan() {
+        if(m_parent.isValid()) {
+            hassert(m_parent.get().has<parental>());
+            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
+            hassert(me_in_parent_iter != parent_ch.end());
+            std::swap(*me_in_parent_iter, parent_ch.back());
+            parent_ch.pop_back();
+        }
+    }
+
+    void unparent() {
+        while(m_children.size()) {
+            auto& ch = m_children.back();
+            hassert(ch.isValid());
+            hassert(ch.get().has<parental>());
+            ch.get().get<parental>()->m_parent = oid::invalid();
+            m_children.pop_back();
+        }
+    }
 
 public:
-    oid                     get_parent() const { return parent; }
-    const std::vector<oid>& get_children() const { return children; }
-
-    void set_parent(oid _parent) {
-        hassert(parent == oid::invalid());
-        parent = _parent;
-
-        //_parent.get().get<parental>()->set_attribute_mixins
+    ~parental() {
+        if(Application::get().state() != Application::State::EDITOR) {
+            orphan();
+            unparent();
+        }
     }
-    void add_child(oid child) {
-        hassert(std::find(children.begin(), children.end(), child) == children.end());
-        children.push_back(child);
-    }
-    void remove_child(oid child) {
-        auto it = std::find(children.begin(), children.end(), child);
-        hassert(it != children.end());
-        children.erase(it);
+
+    oid                     get_parent() const { return m_parent; }
+    const std::vector<oid>& get_children() const { return m_children; }
+
+    void set_parent(oid parent) {
+        orphan();
+        m_parent = parent;
+        if(m_parent != oid::invalid()) {
+            hassert(m_parent.isValid());
+            hassert(m_parent.get().has<parental>());
+            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
+            hassert(me_in_parent_iter == parent_ch.end());
+            parent_ch.push_back(ha_this.id());
+        }
     }
 };
 
-HA_MIXIN_DEFINE(parental, Interface_hierarchical);
+HA_MIXIN_DEFINE(parental, Interface_parental);
 
 class selected
 {

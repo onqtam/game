@@ -25,8 +25,6 @@ HA_DEFINE_MSG(tr, move)
 DYNAMIX_DEFINE_MESSAGE(get_parent);
 DYNAMIX_DEFINE_MESSAGE(get_children);
 DYNAMIX_DEFINE_MESSAGE(set_parent);
-DYNAMIX_DEFINE_MESSAGE(add_child);
-DYNAMIX_DEFINE_MESSAGE(remove_child);
 
 // selected
 HA_DEFINE_MSG(sel, no_gizmo)
