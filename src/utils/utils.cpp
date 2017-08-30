@@ -23,7 +23,7 @@ HA_SUPPRESS_WARNINGS_END
 namespace Utils
 {
 // taken from http://www.emoticode.net/c/simple-wildcard-string-compare-globbing-function.html
-int wildcmp(const char* str, const char* wild) {
+int wildcmp(cstr str, cstr wild) {
     const char *cp = NULL, *mp = NULL;
 
     while((*str) && (*wild != '*')) {
@@ -82,7 +82,7 @@ string getPathToExe() {
 }
 
 // template <size_t charCount>
-// void strcpy_safe(char (&output)[charCount], const char* pSrc) {
+// void strcpy_safe(char (&output)[charCount], cstr pSrc) {
 //    strncpy(output, pSrc, charCount);
 //    output[charCount - 1] = 0;
 //}

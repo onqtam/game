@@ -37,12 +37,12 @@ T lerp(T x, T low, T high) {
 }
 
 // wildcard function - can use for masking '*' for any sequence and '?' for any single char
-int wildcmp(const char* str, const char* wild);
+int wildcmp(cstr str, cstr wild);
 
 // if the first string ends with the second
 bool endsWith(const std::string& fullString, const std::string& ending);
 
-inline char* strncpy(char* destination, const char* source, size_t num) {
+inline char* strncpy(char* destination, cstr source, size_t num) {
     auto res             = ::strncpy(destination, source, num);
     destination[num - 1] = '\0';
     return res;

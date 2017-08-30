@@ -1,6 +1,7 @@
 #include "precompiled.h"
+
 // include this after "precompiled.h" because the registry target is one of the few that doesn't use the same shared pch
-#include "core/registry/registry.h"
+#include "registry.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -12,7 +13,7 @@ extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins() {
     return data;
 }
 
-int registerMixin(const char* name, MixinInfo info) {
+int registerMixin(cstr name, MixinInfo info) {
     getMixins()[name] = info;
     return 0;
 }
@@ -22,14 +23,14 @@ extern "C" HA_SYMBOL_EXPORT GlobalInfoMap& getGlobals() {
     return data;
 }
 
-int registerGlobal(const char* name, GlobalInfo info) {
+int registerGlobal(cstr name, GlobalInfo info) {
     getGlobals()[name] = info;
     return 0;
 }
 
 static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
-        const char* file, int line, const char* function, const char* expression, int level,
-        const char* message) {
+        cstr file, int line, cstr function, cstr expression, int level,
+        cstr message) {
     using namespace ppk::assert::implementation;
 
     char buf[2048];

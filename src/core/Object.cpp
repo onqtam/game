@@ -4,16 +4,17 @@
 
 HA_SINGLETON_INSTANCE(ObjectManager);
 
-void Object::addMixin(const char* mixin) {
+void Object::addMixin(cstr mixin) {
     auto& mixins = getMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].add(this);
 }
 
-void Object::remMixin(const char* mixin) {
+void Object::remMixin(cstr mixin) {
     auto& mixins = getMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(this);
 }
 
+// included here and not in Object.h to contain dependencies
 #include <gen/Object.h.inl>

@@ -32,6 +32,13 @@ public:
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }
 
+    enum State {
+        EDITOR,
+        PLAY
+    };
+
+    State state() const { return m_state; }
+
     void addInputEventListener(InputEventListener* in);
     void removeInputEventListener(InputEventListener* in);
 
@@ -45,6 +52,8 @@ private:
     uint32      m_height          = 768;
     bool        m_mousePressed[3] = {false, false, false};
     float       m_mouseWheel      = 0.0f;
+
+    State m_state = State::EDITOR;
 
     float m_lastTime = 0.f;
     float m_dt       = 0.f;

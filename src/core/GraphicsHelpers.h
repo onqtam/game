@@ -2,16 +2,16 @@
 
 #include "utils/aabb/aabb.hpp"
 
-HAPI const bgfx_memory* loadMemory(const char* filename);
-HAPI bgfx_shader_handle loadShader(const char* shader);
-HAPI bgfx_program_handle loadProgram(const char* vsName, const char* fsName);
+HAPI const bgfx_memory* loadMemory(cstr filename);
+HAPI bgfx_shader_handle loadShader(cstr shader);
+HAPI bgfx_program_handle loadProgram(cstr vsName, cstr fsName);
 
-HAPI bgfx_texture_handle loadTexture(const char* _name, uint32 _flags = BGFX_TEXTURE_NONE,
+HAPI bgfx_texture_handle loadTexture(cstr _name, uint32 _flags = BGFX_TEXTURE_NONE,
                                      uint8_t _skip = 0, bgfx_texture_info* _info = nullptr);
 
 struct Mesh;
 
-HAPI Mesh* meshLoad(const char* _filePath);
+HAPI Mesh* meshLoad(cstr _filePath);
 HAPI AABB getMeshBBox(Mesh* _mesh);
 HAPI void meshUnload(Mesh* _mesh);
 HAPI void meshSubmit(const Mesh* _mesh, uint8_t _id, bgfx_program_handle _program,

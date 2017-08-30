@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename T>
-JsonData command(const char* mixin, const char* attr, const T& data) {
+JsonData command(cstr mixin, cstr attr, const T& data) {
     JsonData out;
     out.startObject();
     out.append("\"");
@@ -24,6 +24,5 @@ HA_MSG_3(edit, void, add_changed_attribute, oid, e, const json_buf&, old_val, co
          new_val)
 
 #define Interface_editor edit::add_changed_attribute_msg
-//& edit::add_change_started_data& edit::get_change_started_data
 
 HA_SUPPRESS_WARNINGS_END

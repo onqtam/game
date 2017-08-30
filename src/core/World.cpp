@@ -24,7 +24,7 @@ World::World()
     //state.endObject();
     //om.destroy(m_camera);
     //om.createFromId(m_camera);
-    //m.camera.get().setName("camera");
+    //m_camera.get().setName("camera");
     //const auto& doc = JsonData::parse(state.data());
     //hassert(doc.is_valid());
     //auto root = doc.get_root();
@@ -41,8 +41,17 @@ World::World()
 
     auto& obj2 = om.create("with_mesh_2!").get();
     obj2.addMixin("mesh");
-    tr::set_scl(obj2, {7, 7, 7});
-    tr::set_pos(obj2, {20, 0, 20});
+    tr::set_scl(obj2, {3, 3, 3});
+    tr::set_pos(obj2, {10, 0, 10});
+
+    auto& obj3 = om.create("with_mesh_3!").get();
+    obj3.addMixin("mesh");
+    tr::set_scl(obj3, {3, 3, 3});
+    tr::set_pos(obj3, {15, 0, -10});
+
+    auto& copied = om.create().get();
+    copied.copy_from(obj3);
+    tr::move(copied, {0, 0, 5});
 
     auto& dummy1 = om.create("with_no_brain").get();
     auto& dummy2 = om.create("with_no_brain 2").get();
@@ -51,17 +60,12 @@ World::World()
     auto& dummy5 = om.create("dummy with 5").get();
 
     set_parent(dummy1, obj);
-    add_child(obj, dummy1);
     set_parent(dummy2, obj);
-    add_child(obj, dummy2);
 
     set_parent(dummy3, dummy1);
-    add_child(dummy1, dummy3);
     set_parent(dummy4, dummy1);
-    add_child(dummy1, dummy4);
 
     set_parent(dummy5, obj2);
-    add_child(obj2, dummy5);
 }
 
 void World::update() {

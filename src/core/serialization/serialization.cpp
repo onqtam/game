@@ -83,6 +83,21 @@ void deserialize(glm::quat& data, const sajson::value& val) {
     deserialize(data.z, val.get_array_element(2));
     deserialize(data.w, val.get_array_element(3));
 }
+void serialize(const transform& data, JsonData& out) {
+	out.startArray();
+	serialize(data.pos, out);
+	out.addComma();
+	serialize(data.scl, out);
+	out.addComma();
+	serialize(data.rot, out);
+	out.endArray();
+}
+void deserialize(transform& data, const sajson::value& val) {
+	deserialize(data.pos, val.get_array_element(0));
+	deserialize(data.scl, val.get_array_element(1));
+	deserialize(data.rot, val.get_array_element(2));
+}
+
 void serialize(oid data, JsonData& out) { serialize(int16(data), out); }
 void deserialize(oid& data, const sajson::value& val) {
     data = oid(int16(val.get_integer_value()));
@@ -125,7 +140,7 @@ void serialize(const tinygizmo::gizmo_application_state& data, JsonData& out) {
     base64::encode(reinterpret_cast<const uint8*>(&data),
                    sizeof(tinygizmo::gizmo_application_state), buff.data(), int(buff.size()));
     out.append("\"", 1);
-    out.append(reinterpret_cast<const char*>(buff.data()), buff.size());
+    out.append(reinterpret_cast<cstr>(buff.data()), buff.size());
     out.append("\"", 1);
 }
 

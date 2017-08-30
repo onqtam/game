@@ -43,7 +43,7 @@ public:
     }
 
     // len should NOT include the null terminating character
-    void append(const char* text, size_t len) { m_data.insert(m_data.end(), text, text + len); }
+    void append(cstr text, size_t len) { m_data.insert(m_data.end(), text, text + len); }
 
     template <size_t N>
     void append(const char (&text)[N]) {

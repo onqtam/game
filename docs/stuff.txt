@@ -96,8 +96,8 @@ http://antongerdelan.net/opengl/
 http://www.opengl-tutorial.org/
 
 math:
-- https://github.com/Pomax/BezierInfo-2
-
+    https://github.com/Pomax/BezierInfo-2
+    http://colah.github.io/posts/2015-09-Visual-Information/
 
 
 

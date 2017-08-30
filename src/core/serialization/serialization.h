@@ -2,8 +2,6 @@
 
 #include "core/GraphicsHelpers.h"
 
-#include "core/tags.h"
-
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
 #define serialize_c serialize_c_impl(__COUNTER__)
@@ -47,6 +45,9 @@ void deserialize(typename yama::dim<S>::template vector_t<T>& data, const sajson
 
 HAPI void serialize_c(const yama::quaternion& data, JsonData& out);
 HAPI void deserialize(yama::quaternion& data, const sajson::value& val);
+
+HAPI void serialize_c(const transform& data, JsonData& out);
+HAPI void deserialize(transform& data, const sajson::value& val);
 
 HAPI void serialize_c(oid data, JsonData& out);
 HAPI void deserialize(oid& data, const sajson::value& val);

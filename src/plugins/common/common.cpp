@@ -3,15 +3,15 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_stuff.h"
 
+#include "core/Application.h"
 #include "core/GraphicsHelpers.h"
 
 #include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
-class transform
+class tform
 {
-    HA_FRIENDS_OF_TYPE(transform);
-    HA_MESSAGES_IN_MIXIN(transform)
+    HA_MESSAGES_IN_MIXIN(tform);
     FIELD glm::vec3 pos = {0, 0, 0};
     FIELD glm::vec3 scl = {1, 1, 1};
     FIELD glm::quat rot = {1, 0, 0, 0};
@@ -25,31 +25,45 @@ public:
     const glm::vec3& get_scl() const { return scl; }
     const glm::quat& get_rot() const { return rot; }
 
+    void set_transform(const transform& in) {
+        pos = in.pos;
+        scl = in.scl;
+        rot = in.rot;
+    }
+    transform get_transform() const { return {pos, scl, rot}; }
+
     void move(const glm::vec3& in) { pos += in; }
 
-    glm::mat4 get_model_transform() const {
-        glm::mat4 t = glm::translate(glm::mat4(1.f), pos);
-        glm::mat4 r = glm::toMat4(rot);
-        return glm::scale(t * r, scl);
+    glm::mat4 get_transform_mat() const {
+        glm::mat4 tr = glm::translate(glm::mat4(1.f), pos);
+        glm::mat4 rt = glm::toMat4(rot);
+        return glm::scale(tr * rt, scl);
     }
 };
 
-HA_MIXIN_DEFINE(transform, Interface_transform);
+HA_MIXIN_DEFINE(tform, Interface_transform);
 
 class mesh
 {
     HA_FRIENDS_OF_TYPE(mesh);
-    ATTRIBUTES(tag::mesh)
+    REFL_ATTRIBUTES(tag::mesh)
     FIELD std::string _path;
-    ATTRIBUTES(tag::image)
+    REFL_ATTRIBUTES(tag::image)
     FIELD std::string _image_path;
     FIELD MeshHandle _mesh;
     FIELD ShaderHandle _shader;
 
+    FIELD bool   clicky      = false;
+    FIELD float  dragy       = 42;
+    FIELD double dragy2      = 42;
+    FIELD int    dragy3      = 42;
+    FIELD std::string texty  = "happy!!";
+    FIELD std::string texty2 = ":(";
+
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
 
-    void serialize_mixins(const char* concrete_mixin, JsonData& out) const {
+    void serialize_mixins(cstr concrete_mixin, JsonData& out) const {
         if(concrete_mixin && strcmp("mesh", concrete_mixin) != 0)
             return;
         out.append("\"mesh\":");
@@ -61,7 +75,7 @@ public:
         if(in.find_object_key(str) != in.get_length())
             deserialize(*this, in.get_value_of_key(str));
     }
-    void set_attribute_mixins(const char*, const char*, const sajson::value& in) {
+    void set_attribute_mixins(cstr, cstr, const sajson::value& in) {
         auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
         if(in.find_object_key(str) != in.get_length()) {
             auto value = in.get_value_of_key(str);
@@ -81,7 +95,7 @@ public:
         }
     }
 
-    //HA_MESSAGES_IN_MIXIN(mesh)
+    //HA_MESSAGES_IN_MIXIN(mesh);
 public:
     mesh() {
         _path = "meshes/bunny.bin";
@@ -96,7 +110,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, tr::get_model_transform(ha_this)});
+        out.push_back({_mesh, {}, _shader, tr::get_transform_mat(ha_this)});
     }
 
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
@@ -108,74 +122,78 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
                               rend::get_rendering_parts_msg& rend::get_aabb_msg);
 //HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
-class hierarchical
+class parental
 {
-    HA_MESSAGES_IN_MIXIN(hierarchical)
-    HA_FRIENDS_OF_TYPE(hierarchical);
-    FIELD oid parent;
-    FIELD std::vector<oid> children;
+    HA_MESSAGES_IN_MIXIN(parental);
+    FIELD oid m_parent;
+    FIELD std::vector<oid> m_children;
+
+    void orphan() {
+        if(m_parent.isValid()) {
+            hassert(m_parent.get().has<parental>());
+            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
+            hassert(me_in_parent_iter != parent_ch.end());
+            std::swap(*me_in_parent_iter, parent_ch.back());
+            parent_ch.pop_back();
+        }
+    }
+
+    void unparent() {
+        while(m_children.size()) {
+            auto& ch = m_children.back();
+            hassert(ch.isValid());
+            hassert(ch.get().has<parental>());
+            ch.get().get<parental>()->m_parent = oid::invalid();
+            m_children.pop_back();
+        }
+    }
 
 public:
-    oid                     get_parent() const { return parent; }
-    const std::vector<oid>& get_children() const { return children; }
+    ~parental() {
+        if(Application::get().state() != Application::State::EDITOR) {
+            orphan();
+            unparent();
+        }
+    }
 
-    void set_parent(oid _parent) {
-        hassert(parent == oid::invalid());
-        parent = _parent;
-    }
-    void add_child(oid child) {
-        hassert(std::find(children.begin(), children.end(), child) == children.end());
-        children.push_back(child);
-    }
-    void remove_child(oid child) {
-        auto it = std::find(children.begin(), children.end(), child);
-        hassert(it != children.end());
-        children.erase(it);
+    oid                     get_parent() const { return m_parent; }
+    const std::vector<oid>& get_children() const { return m_children; }
+
+    void set_parent(oid parent) {
+        orphan();
+        m_parent = parent;
+        if(m_parent != oid::invalid()) {
+            hassert(m_parent.isValid());
+            hassert(m_parent.get().has<parental>());
+            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
+            hassert(me_in_parent_iter == parent_ch.end());
+            parent_ch.push_back(ha_this.id());
+        }
     }
 };
 
-HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
+HA_MIXIN_DEFINE(parental, Interface_parental);
 
 class selected
 {
-    HA_MESSAGES_IN_MIXIN(selected)
-    HA_FRIENDS_OF_TYPE(selected);
-    FIELD tinygizmo::rigid_transform gizmo_transform;
-    FIELD tinygizmo::rigid_transform gizmo_transform_last;
-    FIELD bool                       clicky = false;
-    FIELD float                      dragy  = 42;
-    FIELD double                     dragy2 = 42;
-    FIELD int                        dragy3 = 42;
-    FIELD std::string texty                 = "happy!!";
-    FIELD std::string texty2                = ":(";
+    HA_MESSAGES_IN_MIXIN(selected);
+    FIELD transform old_t;
 
 public:
-    //selected() {
-    //    gizmo_transform_last =
-    //            tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
-    //                                       (const minalg::float3&)tr::get_pos(ha_this),
-    //                                       (const minalg::float3&)tr::get_scl(ha_this));
-    //}
-
-    tinygizmo::rigid_transform& get_gizmo_transform() {
-        gizmo_transform = tinygizmo::rigid_transform((const minalg::float4&)tr::get_rot(ha_this),
-                                                     (const minalg::float3&)tr::get_pos(ha_this),
-                                                     (const minalg::float3&)tr::get_scl(ha_this));
-        return gizmo_transform;
-    }
-
-    tinygizmo::rigid_transform& get_last_stable_gizmo_transform() { return gizmo_transform_last; }
-
     void get_rendering_parts(std::vector<renderPart>& out) const {
         if(ha_this.implements(rend::get_aabb_msg)) {
             auto diag   = rend::get_aabb(ha_this).getDiagonal();
             auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
             auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, tr::get_model_transform(ha_this)});
+            out.push_back({{}, geom, shader, tr::get_transform_mat(ha_this)});
         }
     }
+
+    transform& get_transform_on_gizmo_start() { return old_t; }
 };
 
-HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg& Interface_selected);
+HA_MIXIN_DEFINE(selected, sel::get_transform_on_gizmo_start_msg& rend::get_rendering_parts_msg);
 
 #include <gen/common.cpp.inl>

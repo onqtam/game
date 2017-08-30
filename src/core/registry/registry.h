@@ -27,7 +27,7 @@ HA_SUPPRESS_WARNINGS
 extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins();
 HA_SUPPRESS_WARNINGS_END
 
-int registerMixin(const char* name, MixinInfo info);
+int registerMixin(cstr name, MixinInfo info);
 
 template <typename T>
 struct UpdatableMixin
@@ -90,7 +90,7 @@ load_unload_proc getUnloadProc() {
 
 #define HA_MESSAGES_IN_MIXIN(name)                                                                 \
     /* clang-format fix */ public:                                                                 \
-    void serialize_mixins(const char* concrete_mixin, JsonData& out) const {                       \
+    void serialize_mixins(cstr concrete_mixin, JsonData& out) const {                              \
         if(concrete_mixin && strcmp(#name, concrete_mixin) != 0)                                   \
             return;                                                                                \
         out.append("\"" #name "\":");                                                              \
@@ -102,8 +102,7 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    void set_attribute_mixins(const char* /*mixin*/, const char* /*attr*/,                         \
-                              const sajson::value& in) {                                           \
+    void set_attribute_mixins(cstr /*mixin*/, cstr /*attr*/, const sajson::value& in) {            \
         auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
         if(in.find_object_key(str) != in.get_length()) {                                           \
             auto value = in.get_value_of_key(str);                                                 \
@@ -118,7 +117,8 @@ load_unload_proc getUnloadProc() {
             ImGui::TreePop();                                                                      \
         }                                                                                          \
     }                                                                                              \
-    /* clang-format fix */ private:
+    /* clang-format fix */ private:                                                                \
+    HA_FRIENDS_OF_TYPE(name)
 
 #ifdef HA_PLUGIN
 #define HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n) getLoadProc<n>()
@@ -167,7 +167,7 @@ HA_SUPPRESS_WARNINGS
 extern "C" HA_SYMBOL_EXPORT GlobalInfoMap& getGlobals();
 HA_SUPPRESS_WARNINGS_END
 
-int registerGlobal(const char* name, GlobalInfo info);
+int registerGlobal(cstr name, GlobalInfo info);
 
 // TODO: figure out how to escape the file - so it can be used as a json key
 // perhaps using cmake? http://stackoverflow.com/questions/1706346/file-macro-manipulation-handling-at-compile-time
@@ -216,6 +216,6 @@ int registerGlobal(const char* name, GlobalInfo info);
     }
 
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \
-    friend void        serialize(const name& src, JsonData& out);                                  \
-    friend size_t      deserialize(name& dest, const sajson::value& val);                          \
-    friend const char* imgui_bind_attributes(Object& e, const char* mixin, name& obj)
+    friend void   serialize(const name& src, JsonData& out);                                       \
+    friend size_t deserialize(name& dest, const sajson::value& val);                               \
+    friend cstr   imgui_bind_attributes(Object& e, cstr mixin, name& obj)
