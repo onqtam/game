@@ -11,26 +11,32 @@
 class tform
 {
     HA_MESSAGES_IN_MIXIN(tform);
-    FIELD transform t = {{0, 0, 0}, {1, 1, 1}, {1, 0, 0, 0}};
+    FIELD glm::vec3 pos = {0, 0, 0};
+    FIELD glm::vec3 scl = {1, 1, 1};
+    FIELD glm::quat rot = {1, 0, 0, 0};
 
 public:
-    void set_pos(const glm::vec3& in) { t.pos = in; }
-    void set_scl(const glm::vec3& in) { t.scl = in; }
-    void set_rot(const glm::quat& in) { t.rot = in; }
+    void set_pos(const glm::vec3& in) { pos = in; }
+    void set_scl(const glm::vec3& in) { scl = in; }
+    void set_rot(const glm::quat& in) { rot = in; }
 
-    const glm::vec3& get_pos() const { return t.pos; }
-    const glm::vec3& get_scl() const { return t.scl; }
-    const glm::quat& get_rot() const { return t.rot; }
+    const glm::vec3& get_pos() const { return pos; }
+    const glm::vec3& get_scl() const { return scl; }
+    const glm::quat& get_rot() const { return rot; }
 
-    void             set_transform(const transform& in) { t = in; }
-    const transform& get_transform() const { return t; }
+    void set_transform(const transform& in) {
+        pos = in.pos;
+        scl = in.scl;
+        rot = in.rot;
+    }
+    transform get_transform() const { return {pos, scl, rot}; }
 
-    void move(const glm::vec3& in) { t.pos += in; }
+    void move(const glm::vec3& in) { pos += in; }
 
     glm::mat4 get_transform_mat() const {
-        glm::mat4 tr = glm::translate(glm::mat4(1.f), t.pos);
-        glm::mat4 rt = glm::toMat4(t.rot);
-        return glm::scale(tr * rt, t.scl);
+        glm::mat4 tr = glm::translate(glm::mat4(1.f), pos);
+        glm::mat4 rt = glm::toMat4(rot);
+        return glm::scale(tr * rt, scl);
     }
 };
 

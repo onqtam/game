@@ -17,7 +17,7 @@ HA_CONST_MSG_0(tr, const glm::vec3&, get_pos)
 HA_CONST_MSG_0(tr, const glm::vec3&, get_scl)
 HA_CONST_MSG_0(tr, const glm::quat&, get_rot)
 HA_MSG_1(tr, void, set_transform, const transform&, in)
-HA_CONST_MSG_0(tr, const transform&, get_transform)
+HA_CONST_MSG_0(tr, transform, get_transform)
 HA_CONST_MSG_0(tr, glm::mat4, get_transform_mat)
 HA_MSG_1(tr, void, move, const glm::vec3&, pos)
 

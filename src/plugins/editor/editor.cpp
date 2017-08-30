@@ -185,7 +185,7 @@ public:
         if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
         if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
         if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
-        ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(300,600), ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
         // clang-format on
 
@@ -197,7 +197,7 @@ public:
 
             if(ImGui::TreeNodeEx((const void*)"obs", ImGuiTreeNodeFlags_DefaultOpen, "objects")) {
                 static ImGuiTextFilter filter;
-                filter.Draw("Filter (inc,-exc)");
+                filter.Draw("Filter (inc,-exc)", 150.f);
 
                 // recursive select/deselect
                 std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
@@ -425,15 +425,29 @@ public:
         for(auto& id : selected_with_gizmo) {
             auto old_t = sel::get_transform_on_gizmo_start(id);
             auto new_t = tr::get_transform(id);
-            if(old_t != new_t) {
-                JsonData ov = command("tform", "t", old_t);
-                JsonData nv = command("tform", "t", new_t);
+            if(old_t.pos != new_t.pos) {
+                JsonData ov = command("tform", "pos", old_t.pos);
+                JsonData nv = command("tform", "pos", new_t.pos);
                 HA_SUPPRESS_WARNINGS
                 comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
                 HA_SUPPRESS_WARNINGS_END
-                // update this - even though we havent started using the gizmo - or else this might break when deleting the object
-                sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
             }
+            if(old_t.scl != new_t.scl) {
+                JsonData ov = command("tform", "scl", old_t.scl);
+                JsonData nv = command("tform", "scl", new_t.scl);
+                HA_SUPPRESS_WARNINGS
+                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                HA_SUPPRESS_WARNINGS_END
+            }
+            if(old_t.rot != new_t.rot) {
+                JsonData ov = command("tform", "rot", old_t.rot);
+                JsonData nv = command("tform", "rot", new_t.rot);
+                HA_SUPPRESS_WARNINGS
+                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                HA_SUPPRESS_WARNINGS_END
+            }
+            // update this - even though we havent started using the gizmo - or else this might break when deleting the object
+            sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
         }
         HA_SUPPRESS_WARNINGS
         if(!comp_cmd.commands.empty())
