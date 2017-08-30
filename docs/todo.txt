@@ -1,8 +1,4 @@
 
-attribute prefixes for the parser
-
-ability for a class to get the instance of its type of a dynamix object using a C string and a void* ptr message
-
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
 editor:

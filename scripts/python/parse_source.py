@@ -50,7 +50,7 @@ for line in header:
         # reset attributes for the following fields
         attributes = {}
     # detect field or type attributes
-    if words[0].startswith("ATTRIBUTES("):
+    if words[0].startswith("REFL_ATTRIBUTES("):
         # split the contents between the 2 most outer brackets
         attributes_list = line.partition('(')[-1].rpartition(')')[0].split(",")
         # remove the whitespace in each attribute
@@ -67,10 +67,10 @@ code = ""
 
 for type in types:
     # do not continue if empty
-    if not types[type]["fields"] and "NO_SKIP" not in types[type]["attributes"]:
+    if not types[type]["fields"] and "REFL_NO_SKIP" not in types[type]["attributes"]:
         continue
     inline = 'inline '
-    if "NO_INLINE" in types[type]["attributes"]:
+    if "REFL_NO_INLINE" in types[type]["attributes"]:
         inline = ''
     
     code += strln('%svoid serialize(const %s& src, JsonData& out) {' % (inline, type))

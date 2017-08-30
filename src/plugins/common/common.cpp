@@ -45,9 +45,9 @@ HA_MIXIN_DEFINE(tform, Interface_transform);
 class mesh
 {
     HA_FRIENDS_OF_TYPE(mesh);
-    ATTRIBUTES(tag::mesh)
+    REFL_ATTRIBUTES(tag::mesh)
     FIELD std::string _path;
-    ATTRIBUTES(tag::image)
+    REFL_ATTRIBUTES(tag::image)
     FIELD std::string _image_path;
     FIELD MeshHandle _mesh;
     FIELD ShaderHandle _shader;
@@ -94,7 +94,7 @@ public:
         }
     }
 
-    //HA_MESSAGES_IN_MIXIN(mesh)
+    //HA_MESSAGES_IN_MIXIN(mesh);
 public:
     mesh() {
         _path = "meshes/bunny.bin";
@@ -134,6 +134,8 @@ public:
     void set_parent(oid _parent) {
         hassert(parent == oid::invalid());
         parent = _parent;
+
+        //_parent.get().get<parental>()->set_attribute_mixins
     }
     void add_child(oid child) {
         hassert(std::find(children.begin(), children.end(), child) == children.end());

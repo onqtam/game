@@ -56,7 +56,8 @@ char (&_ArraySizeHelper(T (&array)[N]))[N];
 #define HA_EMPTY_BASE
 #endif // _MSC_VER
 
-template<int s> struct print_ct;
+template <int s>
+struct print_ct;
 #define HA_PRINT_CT(x) print_ct<x> HA_ANONYMOUS(ct_)
 
 #ifdef _MSC_VER
@@ -66,8 +67,7 @@ template<int s> struct print_ct;
 #endif // _MSC_VER
 
 // helpers that don't expand to anything - used by the type parser
-#define FIELD     // indicates the start of a field definition inside of a type
-#define EXPORT    // field attribute - indicates that the field should be exported
-#define NO_SKIP   // class attribute - emit reflection for the class even if without any fields
-#define NO_INLINE // class attribute - emitted reflection methods should not be marked as inline
-#define ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
+#define FIELD          // indicates the start of a field definition inside of a type
+#define REFL_NO_SKIP   // class attribute - emit reflection for the class even if without any fields
+#define REFL_NO_INLINE // class attribute - emitted reflection methods should not be marked as inline
+#define REFL_ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
