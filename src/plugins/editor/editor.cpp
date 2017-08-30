@@ -386,6 +386,7 @@ public:
         if(m_gizmo_state.mouse_left) {
             auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
             auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
+            // TODO: figure quaternion stuff out
             auto rot      = glm::quat(gizmo_transform.orientation.w, gizmo_transform.orientation.x,
                                  gizmo_transform.orientation.y, gizmo_transform.orientation.z);
             // commented out condition - always update these things - I suck at math :(
@@ -395,7 +396,7 @@ public:
                     auto t = sel::get_transform_on_gizmo_start(id);
                     t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
                     t.scl += glm::vec3(diff_scl.x, diff_scl.y, diff_scl.z);
-                    // this quaternion stuff is probably wrong
+                    // TODO: this quaternion stuff is probably wrong
                     t.rot = glm::quat(rot.w, rot.x, rot.y, rot.z) * t.rot;
                     tr::set_transform(id, t);
                 }

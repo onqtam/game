@@ -69,7 +69,11 @@ for type in types:
     # do not continue if empty
     if not types[type]["fields"] and "NO_SKIP" not in types[type]["attributes"]:
         continue
-    code += strln('inline void serialize(const %s& src, JsonData& out) {' % (type))
+    inline = 'inline '
+    if "NO_INLINE" in types[type]["attributes"]:
+        inline = ''
+    
+    code += strln('%svoid serialize(const %s& src, JsonData& out) {' % (inline, type))
     code += strln('out.startObject();', tabs = 1)
     for field in types[type]["fields"]:
         code += strln('HA_SERIALIZE_VARIABLE("%s", src.%s);' % (field["name"], field["name"]), tabs = 1)
@@ -77,7 +81,7 @@ for type in types:
     code += strln('}')
     code += strln('')
     
-    code += strln('inline size_t deserialize(%s& dest, const sajson::value& val) {' % (type))
+    code += strln('%ssize_t deserialize(%s& dest, const sajson::value& val) {' % (inline, type))
     code += strln('const size_t val_len = val.get_length();', tabs = 1)
     code += strln('size_t num_deserialized = 0;', tabs = 1)
     code += strln('for(size_t i = 0; i < val_len; ++i) {', tabs = 1)
@@ -88,7 +92,7 @@ for type in types:
     code += strln('}')
     code += strln('')
     
-    code += strln('inline const char* imgui_bind_attributes(Object& e, const char* mixin, %s& obj) {' % (type))
+    code += strln('%sconst char* imgui_bind_attributes(Object& e, const char* mixin, %s& obj) {' % (inline, type))
     code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
     for field in types[type]["fields"]:
         code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"] + "()") if "TAG" in field["attributes"] else "")), tabs = 1)

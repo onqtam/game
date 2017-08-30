@@ -26,6 +26,7 @@ public:
     static oid invalid() { return oid(-1); }
 };
 
+ATTRIBUTES(NO_INLINE)
 class Object : public dynamix::object
 {
     friend HAPI void serialize(const Object& src, JsonData& out);

@@ -1,5 +1,5 @@
 
-link error with emscripten ?!?!?!
+to test: local space gizmos
 
 editor:
     grouping
@@ -27,6 +27,7 @@ editor:
         rotation gizmo doesn't work properly - quaternion fail...
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
     postponed
+        - gizmos - rotation around pivot different from the object center
         - object snapping (with the gizmos)
         - editing an attribute of multiple objects at once
         - command script for editing the level
@@ -151,7 +152,6 @@ audio:
     - fmod
     - ogg vorbis - patent-free audio codec (oggvorbisfile - library with nice API) - https://github.com/soundcloud/vorbis
     - speex - patent-free format for voip - https://github.com/stoiczek/speex
-    https://github.com/neXyon/audaspace
     https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=audio
 networking:
     - enet - https://github.com/lsalzman/enet
