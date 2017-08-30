@@ -186,7 +186,7 @@ public:
         if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
         if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
         ImGui::SetNextWindowSize(ImVec2(400,600), ImGuiSetCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(0, 100), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
         // clang-format on
 
         updateSelected();
@@ -311,7 +311,7 @@ public:
         ImGui::End();
 
         ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(float(app.width() - 400), 0), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(float(app.width() - 410), 10), ImGuiSetCond_FirstUseEver);
 
         if(ImGui::Begin("object attributes", nullptr, window_flags)) {
             for(auto& id : selected) {
@@ -400,8 +400,8 @@ public:
                         t.rot = rot; // the gizmo is attached to the object's orientation so this is a straight copy
                     } else {
                         // can change the order - does something else but is still ok and sort-of logical
-                        //t.rot = t.rot * glm::quat(rot.w, rot.x, rot.y, rot.z); // local space
-                        t.rot = glm::quat(rot.w, rot.x, rot.y, rot.z) * t.rot; // world space
+                        //t.rot = t.rot * rot; // local space
+                        t.rot = rot * t.rot; // world space
                     }
                     tr::set_transform(id, t);
                 }
