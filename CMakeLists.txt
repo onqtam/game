@@ -61,7 +61,7 @@ set(GLEW_DIR "glew-2.1.0")
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
 
 include_directories("third_party/${BOOST_DIR}")
-include_directories("third_party/glm")
+include_directories("third_party/yama/include")
 
 if(TOOLCHAIN STREQUAL "js")
     include_directories("emscripten/emscripten/1.37.9/system/include")
@@ -76,14 +76,14 @@ if(TOOLCHAIN STREQUAL "js")
         ucm_add_flags(-s SAFE_HEAP=1)
         ucm_add_flags(-s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=1)
     endif()
-    
+
     add_definitions(-DDOCTEST_CONFIG_DISABLE)
 
     # add this because dynamix uses it
     include_directories("${EMSCRIPTEN_ROOT}/system/lib/libcxxabi/include")
 else()
     include_directories("third_party/${GLEW_DIR}/include")
-    
+
     add_definitions(-DGLEW_BUILD)
     if(UNIX)
         set(GLEW_LINK_LIBRARIES GL)

@@ -25,5 +25,5 @@ inline const char* imgui_bind_attribute(Object& e, const char* mixin, const char
 }
 #endif // _WIN32
 
-HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* attr, glm::vec3& data);
-HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* attr, glm::quat& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* attr, yama::vector3& data);
+HAPI const char* imgui_bind_attribute(Object& e, const char* mixin, const char* attr, yama::quaternion& data);

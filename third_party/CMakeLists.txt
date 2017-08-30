@@ -6,15 +6,8 @@ ucm_add_flags(${ha_3rdparty_compiler_flags})
 #ucm_add_files("format/format.h" "format/format.cc" TO format.sources FILTER_POP 1)
 #add_library(format STATIC ${format.sources})
 
-# LIBRARY glm
-ucm_add_dirs("glm/glm" TO glm.sources RECURSIVE FILTER_POP 2)
-ucm_remove_files("glm/glm/detail/glm.cpp" "glm/glm/detail/dummy.cpp" FROM glm.sources)
-add_library(glm STATIC ${glm.sources})
-#add_library(glm INTERFACE)
-#target_sources(glm INTERFACE ${glm.sources})
-#target_include_directories(glm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/glm)
-set_target_properties(glm PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(glm PROPERTIES FOLDER "3rdparty")
+add_library(yama INTERFACE)
+target_include_directories(yama INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/yama/include)
 
 # LIBRARY sajson
 add_library(sajson INTERFACE)
@@ -123,16 +116,16 @@ if(NOT TOOLCHAIN STREQUAL "js")
     add_library(glew STATIC ${glew.sources})
     target_link_libraries(glew "${GLEW_LINK_LIBRARIES}")
     set_target_properties(glew PROPERTIES FOLDER "3rdparty")
-    
+
     # LIBRARY glfw
     set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(GLFW_INSTALL        OFF CACHE BOOL "" FORCE)
-    
+
     add_subdirectory(glfw)
     set_target_properties(glfw PROPERTIES FOLDER "3rdparty")
-    
+
     # LIBRARY file_watcher
     ucm_add_dirs("FileWatcher" TO file_watcher.sources)
     ucm_add_target(NAME file_watcher TYPE STATIC SOURCES "${file_watcher.sources}")

@@ -11,8 +11,8 @@
 
 const float k_speed = 25.f;
 
-const glm::vec3 k_init_look_direction = {0, -1, -0.2};
-const glm::vec3 k_forward             = {0, 0, -1};
+const yama::vector3 k_init_look_direction = {0, -1, -0.2f};
+const yama::vector3 k_forward             = {0, 0, -1};
 //const glm::vec3 k_up                  = {0, 1, 0};
 //const glm::vec3 k_right               = {1, 0, 0};
 
@@ -30,7 +30,7 @@ public:
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
 
-        tr::set_pos(ha_this, glm::vec3(0, 50, 2));
+        tr::set_pos(ha_this, yama::vector3::coord(0, 50, 2));
         tr::set_rot(ha_this, Utils::rotationBetweenVectors(k_forward, k_init_look_direction));
     }
 
@@ -48,20 +48,20 @@ public:
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
 
-        glm::vec3 move_vec(0);
+        auto move_vec = yama::vector3::zero();
 
         if(cursor_x < 10)
-            move_vec += glm::vec3(-k_speed * dt, 0, 0);
+            move_vec += yama::vector3::coord(-k_speed * dt, 0, 0);
         if(cursor_x > w - 10)
-            move_vec += glm::vec3(k_speed * dt, 0, 0);
+            move_vec += yama::vector3::coord(k_speed * dt, 0, 0);
         if(cursor_y < 10)
-            move_vec += glm::vec3(0, 0, -k_speed * dt);
+            move_vec += yama::vector3::coord(0, 0, -k_speed * dt);
         if(cursor_y > h - 10)
-            move_vec += glm::vec3(0, 0, k_speed * dt);
+            move_vec += yama::vector3::coord(0, 0, k_speed * dt);
 
         auto pos = tr::get_pos(ha_this);
         pos += move_vec;
-        glm::vec3 fix_vec(0);
+        auto      fix_vec = yama::vector3::zero();
         auto      half_w = World::get().width() / 2;
         auto      half_h = World::get().height() / 2;
         if(abs(pos.x) > half_w)
@@ -73,20 +73,20 @@ public:
 
         tr::move(ha_this, move_vec);
 
-        tr::move(ha_this, glm::normalize(tr::get_rot(ha_this) * k_forward) * scroll * 2.f);
+        tr::move(ha_this, yama::normalize(rotate(k_forward, tr::get_rot(ha_this))) * scroll * 2.f);
         scroll = 0.f;
     }
 
-    glm::mat4 get_view_matrix() {
-        glm::mat4 t = glm::translate(glm::mat4(1.f), tr::get_pos(ha_this));
-        glm::mat4 r = glm::toMat4(tr::get_rot(ha_this));
-        return glm::inverse(t * r);
+    yama::matrix get_view_matrix() {
+        auto t = yama::matrix::translation(tr::get_pos(ha_this));
+        auto r = yama::matrix::rotation_quaternion(tr::get_rot(ha_this));
+        return yama::inverse(t * r);
     }
 
-    glm::mat4 get_projection_matrix() {
+    yama::matrix get_projection_matrix() {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
-        return glm::perspective(glm::radians(45.0f), float(w) / float(h), 0.1f, 1000.0f);
+        return yama::matrix::perspective_fov_lh(yama::deg_to_rad(45.0f), float(w) / float(h), 0.1f, 1000.0f);
     }
 
     void no_gizmo() const {}

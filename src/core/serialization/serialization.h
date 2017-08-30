@@ -27,8 +27,8 @@ HAPI void deserialize(bool& data, const sajson::value& val);
 HAPI void serialize_c(const std::string& data, JsonData& out);
 HAPI void deserialize(std::string& data, const sajson::value& val);
 
-template <int S, typename T>
-void serialize_c(const glm::vec<S, T>& data, JsonData& out) {
+template <size_t S, typename T>
+void serialize_c(const typename yama::dim<S>::template vector_t<T>& data, JsonData& out) {
     out.startArray();
     for(int i = 0; i < S; ++i) {
         serialize(data[i], out);
@@ -37,16 +37,16 @@ void serialize_c(const glm::vec<S, T>& data, JsonData& out) {
     out.endArray();
 }
 
-template <int S, typename T>
-void deserialize(glm::vec<S, T>& data, const sajson::value& val) {
+template <size_t S, typename T>
+void deserialize(typename yama::dim<S>::template vector_t<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
     hassert(S == val.get_length());
     for(size_t i = 0; i < S; ++i)
-        deserialize(data[glm::length_t(i)], val.get_array_element(i));
+        deserialize(data[i], val.get_array_element(i));
 }
 
-HAPI void serialize_c(const glm::quat& data, JsonData& out);
-HAPI void deserialize(glm::quat& data, const sajson::value& val);
+HAPI void serialize_c(const yama::quaternion& data, JsonData& out);
+HAPI void deserialize(yama::quaternion& data, const sajson::value& val);
 
 HAPI void serialize_c(oid data, JsonData& out);
 HAPI void deserialize(oid& data, const sajson::value& val);

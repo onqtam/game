@@ -12,15 +12,15 @@ HA_MULTI_MSG_3(common, void, set_attribute_mixins, const char*, mixin, const cha
 HA_MULTI_MSG_0(common, void, imgui_bind_attributes_mixins)
 
 // transform
-HA_MSG_1(tr, void, set_pos, const glm::vec3&, pos)
-HA_MSG_1(tr, void, set_scl, const glm::vec3&, scl)
-HA_MSG_1(tr, void, set_rot, const glm::quat&, rot)
-HA_CONST_MSG_0(tr, const glm::vec3&, get_pos)
-HA_CONST_MSG_0(tr, const glm::vec3&, get_scl)
-HA_CONST_MSG_0(tr, const glm::quat&, get_rot)
+HA_MSG_1(tr, void, set_pos, const yama::vector3&, pos)
+HA_MSG_1(tr, void, set_scl, const yama::vector3&, scl)
+HA_MSG_1(tr, void, set_rot, const yama::quaternion&, rot)
+HA_CONST_MSG_0(tr, const yama::vector3&, get_pos)
+HA_CONST_MSG_0(tr, const yama::vector3&, get_scl)
+HA_CONST_MSG_0(tr, const yama::quaternion&, get_rot)
 
-HA_CONST_MSG_0(tr, glm::mat4, get_model_transform)
-HA_MSG_1(tr, void, move, const glm::vec3&, pos)
+HA_CONST_MSG_0(tr, yama::matrix, get_model_transform)
+HA_MSG_1(tr, void, move, const yama::vector3&, pos)
 
 #define Interface_transform                                                                        \
     tr::set_pos_msg& tr::set_scl_msg& tr::set_rot_msg& tr::get_pos_msg& tr::get_scl_msg&           \
