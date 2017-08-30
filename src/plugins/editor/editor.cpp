@@ -386,18 +386,23 @@ public:
         if(m_gizmo_state.mouse_left) {
             auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
             auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
-            // TODO: figure quaternion stuff out
             auto rot      = glm::quat(gizmo_transform.orientation.w, gizmo_transform.orientation.x,
                                  gizmo_transform.orientation.y, gizmo_transform.orientation.z);
-            // commented out condition - always update these things - I suck at math :(
+
+            // always update transforms - cannot figure out how to check for the rotation - I suck at math :(
             //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
             {
                 for(auto& id : selected_with_gizmo) {
                     auto t = sel::get_transform_on_gizmo_start(id);
                     t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
                     t.scl += glm::vec3(diff_scl.x, diff_scl.y, diff_scl.z);
-                    // TODO: this quaternion stuff is probably wrong
-                    t.rot = glm::quat(rot.w, rot.x, rot.y, rot.z) * t.rot;
+                    if(selected_with_gizmo.size() == 1) {
+                        t.rot = rot; // the gizmo is attached to the object's orientation so this is a straight copy
+                    } else {
+                        // can change the order - does something else but is still ok and sort-of logical
+                        //t.rot = t.rot * glm::quat(rot.w, rot.x, rot.y, rot.z); // local space
+                        t.rot = glm::quat(rot.w, rot.x, rot.y, rot.z) * t.rot; // world space
+                    }
                     tr::set_transform(id, t);
                 }
             }

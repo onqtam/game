@@ -1,9 +1,7 @@
 
-to test: local space gizmos
-
 editor:
     grouping
-    copy/paste (or just duplicate)
+    duplicate objects
     mixin annotations - like "selected" - not to be saved in prefabs
     prefabs
     save/load
@@ -24,11 +22,12 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
-        rotation gizmo doesn't work properly - quaternion fail...
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
     postponed
+        - copy/paste of objects
         - gizmos - rotation around pivot different from the object center
-        - object snapping (with the gizmos)
+        - gizmos - local space (also supported by tiny-gizmo) - test it/think about it
+        - object transform snapping (also with gizmos)
         - editing an attribute of multiple objects at once
         - command script for editing the level
         - resource viewer - all resources with preview when appropriate and refcounts
