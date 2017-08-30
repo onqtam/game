@@ -21,7 +21,7 @@ HA_DEFINE_MSG(tr, get_transform)
 HA_DEFINE_MSG(tr, get_transform_mat)
 HA_DEFINE_MSG(tr, move)
 
-// hierarchical
+// parental
 DYNAMIX_DEFINE_MESSAGE(get_parent);
 DYNAMIX_DEFINE_MESSAGE(get_children);
 DYNAMIX_DEFINE_MESSAGE(set_parent);

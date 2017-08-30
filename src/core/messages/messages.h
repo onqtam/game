@@ -26,7 +26,7 @@ HA_MSG_1(tr, void, move, const glm::vec3&, pos)
             tr::get_rot_msg& tr::set_transform_msg& tr::get_transform_msg&                         \
                     tr::get_transform_mat_msg& tr::move_msg
 
-// hierarchical
+// parental
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, oid, get_parent)
 DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, const std::vector<oid>&, get_children)
 DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, oid, _parent)

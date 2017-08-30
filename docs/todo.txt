@@ -1,9 +1,20 @@
 
+attribute prefixes for the parser
+
+ability for a class to get the instance of its type of a dynamix object using a C string and a void* ptr message
+
+separate attribute name and label for imgui bindings
+
 editor:
+    parental
+        inheriting transformations
+        detecting cycles ???
     grouping
     duplicate objects
     mixin annotations - like "selected" - not to be saved in prefabs
     prefabs
+        single object templates
+        groups of object templates - group template
     save/load
     flags
         no_gizmo
@@ -11,6 +22,7 @@ editor:
     IDs
     force uniqueness of object names
     GUI
+        dragging objects in the scene explorer - also editing parental information
         setting attributes explicitly - separately from the serialize() functionality of the whole mixins
         add/remove mixins to/from objects
     attribute changed callbacks (to update handles when the path to a mesh changes - also as a proof of concept)

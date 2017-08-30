@@ -114,7 +114,7 @@ public:
 
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
         it.first->second.addMixin("tform");
-        it.first->second.addMixin("hierarchical");
+        it.first->second.addMixin("parental");
         return oid(m_curr_id++);
     }
 

@@ -115,9 +115,9 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
                               rend::get_rendering_parts_msg& rend::get_aabb_msg);
 //HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
-class hierarchical
+class parental
 {
-	HA_MESSAGES_IN_MIXIN(hierarchical);
+	HA_MESSAGES_IN_MIXIN(parental);
     FIELD oid parent;
     FIELD std::vector<oid> children;
 
@@ -140,7 +140,7 @@ public:
     }
 };
 
-HA_MIXIN_DEFINE(hierarchical, Interface_hierarchical);
+HA_MIXIN_DEFINE(parental, Interface_hierarchical);
 
 class selected
 {
