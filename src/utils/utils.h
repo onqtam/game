@@ -89,9 +89,9 @@ char* itoa_fast(T value, char* dst) {
         itoa_fast(-value, dst + 1);
         return dst;
     }
-    glm::uint32 const length = numDigits(value);
+    uint32 const length = numDigits(value);
     dst[length]              = '\0';
-    glm::uint32 next         = length - 1;
+    uint32 next         = length - 1;
     while(value >= 100) {
         auto const i = (value % 100) * 2;
         value /= 100;
@@ -104,13 +104,11 @@ char* itoa_fast(T value, char* dst) {
     if(value < 10) {
         dst[next] = '0' + char(value);
     } else {
-        auto i        = glm::uint32(value) * 2;
+        auto i        = uint32(value) * 2;
         dst[next]     = digits[i + 1];
         dst[next - 1] = digits[i];
     }
     return dst;
 }
-
-HAPI yama::quaternion rotationBetweenVectors(yama::vector3 start, yama::vector3 dest);
 
 } // namespace Utils

@@ -18,8 +18,8 @@ HA_CONST_MSG_0(tr, const yama::vector3&, get_scl)
 HA_CONST_MSG_0(tr, const yama::quaternion&, get_rot)
 HA_MSG_1(tr, void, set_transform, const transform&, in)
 HA_CONST_MSG_0(tr, transform, get_transform)
-HA_CONST_MSG_0(tr, glm::mat4, get_transform_mat)
-HA_MSG_1(tr, void, move, const glm::vec3&, pos)
+HA_CONST_MSG_0(tr, yama::matrix, get_transform_mat)
+HA_MSG_1(tr, void, move, const yama::vector3&, pos)
 
 #define Interface_transform                                                                        \
     tr::set_pos_msg& tr::set_scl_msg& tr::set_rot_msg& tr::get_pos_msg& tr::get_scl_msg&           \

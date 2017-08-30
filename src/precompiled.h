@@ -66,12 +66,10 @@ HA_SUPPRESS_WARNINGS
 
 HA_SUPPRESS_WARNINGS_END
 
-// to be moved to types.h when bobi's branch is merged
-typedef const char* cstr;
+#include "utils/types.h"
 
 #include "utils/preprocessor.h"
 #include "utils/doctest/doctest_proxy.h"
-#include "utils/types.h"
 #include "utils/singleton.h"
 #include "utils/transform.h"
 #include "core/messages/message_macros.h"

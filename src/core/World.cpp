@@ -77,8 +77,8 @@ void World::update() {
     bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     mixins["camera"].update(dt);
-    glm::mat4 view = cam::get_view_matrix(m_camera);
-    glm::mat4 proj = cam::get_projection_matrix(m_camera);
+    yama::matrix view = cam::get_view_matrix(m_camera);
+    yama::matrix proj = cam::get_projection_matrix(m_camera);
 
     // Set view and projection matrix for view 0.
     bgfx_set_view_transform(0, (float*)&view, (float*)&proj);

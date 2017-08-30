@@ -15,7 +15,7 @@ public:
     AABB(const yama::vector3& center, float radius);
 
     /// Builds an AABB that contains the two points.
-    AABB(const yama::vector3& p1, yama::vector3& p2);
+    AABB(const yama::vector3& p1, const yama::vector3& p2);
 
     AABB(const AABB& aabb);
     ~AABB();

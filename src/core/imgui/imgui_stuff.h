@@ -23,6 +23,6 @@ inline cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, std::string& 
 }
 #endif // _WIN32
 
-HAPI cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, glm::vec3& data);
-HAPI cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, glm::quat& data);
+HAPI cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, yama::vector3& data);
+HAPI cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, yama::quaternion& data);
 //HAPI cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, transform& data);

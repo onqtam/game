@@ -70,6 +70,13 @@ typedef MeshMan::Handle MeshHandle;
 
 struct ha_mesh
 {
+    ha_mesh() = default;
+    ha_mesh(const bgfx_vertex_buffer_handle& v, const bgfx_index_buffer_handle& i, uint64 s, const AABB& bb)
+        : vbh(v)
+        , ibh(i)
+        , state(s)
+        , bbox(bb)
+    {}
     bgfx_vertex_buffer_handle vbh   = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle  ibh   = {BGFX_INVALID_HANDLE};
     uint64                    state = BGFX_STATE_NONE;

@@ -11,10 +11,10 @@
 
 const float k_speed = 25.f;
 
-const yama::vector3 k_init_look_direction = {0, -1, -0.2f};
+const yama::vector3 k_init_look_direction = yama::normalize(yama::v(0, -1, -0.2f));;
 const yama::vector3 k_forward             = {0, 0, -1};
-//const glm::vec3 k_up                  = {0, 1, 0};
-//const glm::vec3 k_right               = {1, 0, 0};
+//const yama::vector3 k_up                  = {0, 1, 0};
+//const yama::vector3 k_right               = {1, 0, 0};
 
 class camera : public InputEventListener, public UpdatableMixin<camera>
 {
@@ -30,7 +30,7 @@ public:
         cursor_y = Application::get().height() / 2.f;
 
         tr::set_pos(ha_this, yama::vector3::coord(0, 50, 2));
-        tr::set_rot(ha_this, Utils::rotationBetweenVectors(k_forward, k_init_look_direction));
+        tr::set_rot(ha_this, yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
     }
 
     void process_event(const InputEvent& ev) override {

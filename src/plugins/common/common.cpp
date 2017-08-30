@@ -12,18 +12,18 @@
 class tform
 {
     HA_MESSAGES_IN_MIXIN(tform);
-    FIELD glm::vec3 pos = {0, 0, 0};
-    FIELD glm::vec3 scl = {1, 1, 1};
-    FIELD glm::quat rot = {1, 0, 0, 0};
+    FIELD yama::vector3 pos = {0, 0, 0};
+    FIELD yama::vector3 scl = {1, 1, 1};
+    FIELD yama::quaternion rot = {1, 0, 0, 0};
 
 public:
-    void set_pos(const glm::vec3& in) { pos = in; }
-    void set_scl(const glm::vec3& in) { scl = in; }
-    void set_rot(const glm::quat& in) { rot = in; }
+    void set_pos(const yama::vector3& in) { pos = in; }
+    void set_scl(const yama::vector3& in) { scl = in; }
+    void set_rot(const yama::quaternion& in) { rot = in; }
 
-    const glm::vec3& get_pos() const { return pos; }
-    const glm::vec3& get_scl() const { return scl; }
-    const glm::quat& get_rot() const { return rot; }
+    const yama::vector3& get_pos() const { return pos; }
+    const yama::vector3& get_scl() const { return scl; }
+    const yama::quaternion& get_rot() const { return rot; }
 
     void set_transform(const transform& in) {
         pos = in.pos;
@@ -32,12 +32,13 @@ public:
     }
     transform get_transform() const { return {pos, scl, rot}; }
 
-    void move(const glm::vec3& in) { pos += in; }
+    void move(const yama::vector3& in) { pos += in; }
 
-    glm::mat4 get_transform_mat() const {
-        glm::mat4 tr = glm::translate(glm::mat4(1.f), pos);
-        glm::mat4 rt = glm::toMat4(rot);
-        return glm::scale(tr * rt, scl);
+    yama::matrix get_transform_mat() const {
+        auto tr = yama::matrix::translation(pos);
+        auto rt = yama::matrix::rotation_quaternion(rot);
+        auto sc = yama::matrix::scaling(scl);
+        return tr * rt * sc;
     }
 };
 

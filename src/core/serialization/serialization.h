@@ -25,26 +25,23 @@ HAPI void deserialize(bool& data, const sajson::value& val);
 HAPI void serialize_c(const std::string& data, JsonData& out);
 HAPI void deserialize(std::string& data, const sajson::value& val);
 
-template <size_t S, typename T>
-void serialize_c(const typename yama::dim<S>::template vector_t<T>& data, JsonData& out) {
+template <typename Y, typename = typename std::enable_if<yama::is_yama<Y>::value>::type>
+void serialize_c(const Y& data, JsonData& out) {
     out.startArray();
-    for(int i = 0; i < S; ++i) {
-        serialize(data[i], out);
+    for(auto elem : data) {
+        serialize(elem, out);
         out.addComma();
     }
     out.endArray();
 }
 
-template <size_t S, typename T>
-void deserialize(typename yama::dim<S>::template vector_t<T>& data, const sajson::value& val) {
+template <typename Y, typename = typename std::enable_if<yama::is_yama<Y>::value>::type>
+void deserialize(typename Y& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
-    hassert(S == val.get_length());
-    for(size_t i = 0; i < S; ++i)
+    hassert(Y::value_count == val.get_length());
+    for(size_t i = 0; i < Y::value_count; ++i)
         deserialize(data[i], val.get_array_element(i));
 }
-
-HAPI void serialize_c(const yama::quaternion& data, JsonData& out);
-HAPI void deserialize(yama::quaternion& data, const sajson::value& val);
 
 HAPI void serialize_c(const transform& data, JsonData& out);
 HAPI void deserialize(transform& data, const sajson::value& val);
