@@ -486,7 +486,7 @@ public:
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
                         // get the list of mixin names
-                        std::vector<const char*> mixins;
+                        std::vector<cstr> mixins;
                         curr.get().get_mixin_names(mixins);
                         std::vector<std::string> mixin_names(mixins.size());
                         std::transform(mixins.begin(), mixins.end(), mixin_names.begin(),

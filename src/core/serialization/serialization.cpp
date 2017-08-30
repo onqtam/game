@@ -140,7 +140,7 @@ void serialize(const tinygizmo::gizmo_application_state& data, JsonData& out) {
     base64::encode(reinterpret_cast<const uint8*>(&data),
                    sizeof(tinygizmo::gizmo_application_state), buff.data(), int(buff.size()));
     out.append("\"", 1);
-    out.append(reinterpret_cast<const char*>(buff.data()), buff.size());
+    out.append(reinterpret_cast<cstr>(buff.data()), buff.size());
     out.append("\"", 1);
 }
 

@@ -19,8 +19,8 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 typedef HMODULE    DynamicLib;
-static const char* orig_plugin_tail   = "_plugin.dll";
-static const char* copied_plugin_tail = "_copied.dll";
+static cstr orig_plugin_tail   = "_plugin.dll";
+static cstr copied_plugin_tail = "_copied.dll";
 static const int   plugin_ext_len     = 4;
 
 #define LoadDynlib(lib) LoadLibrary(lib) // ".dll")
@@ -36,8 +36,8 @@ static const int   plugin_ext_len     = 4;
 #include <dirent.h>
 
 typedef void*      DynamicLib;
-static const char* orig_plugin_tail   = "_plugin.so";
-static const char* copied_plugin_tail = "_copied.so";
+static cstr orig_plugin_tail   = "_plugin.so";
+static cstr copied_plugin_tail = "_copied.so";
 static const int   plugin_ext_len     = 3;
 
 #define LoadDynlib(lib) dlopen(lib, RTLD_NOW)
@@ -139,7 +139,7 @@ void PluginManager::init() {
 
         const auto plugin = LoadDynlib(copied.c_str());
 #ifndef _WIN32
-        const char* errstr = dlerror();
+        cstr errstr = dlerror();
         if(errstr != nullptr)
             printf("A dynamic linking error occurred: (%s)\n", errstr);
 #endif // _WIN32

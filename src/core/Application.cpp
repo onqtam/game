@@ -43,8 +43,8 @@ static bgfx_uniform_handle imguiFontUniform;
 static bgfx_program_handle imguiProgram;
 static void                imguiRender(ImDrawData* drawData);
 static void                imguiShutdown();
-static const char*         imguiGetClipboardText(void* userData);
-static void                imguiSetClipboardText(void* userData, const char* text);
+static cstr         imguiGetClipboardText(void* userData);
+static void                imguiSetClipboardText(void* userData, cstr text);
 
 static void imguiInit() {
     unsigned char* data;
@@ -171,11 +171,11 @@ static void imguiShutdown() {
     ImGui::Shutdown();
 }
 
-static const char* imguiGetClipboardText(void* userData) {
+static cstr imguiGetClipboardText(void* userData) {
     return glfwGetClipboardString((GLFWwindow*)userData);
 }
 
-static void imguiSetClipboardText(void* userData, const char* text) {
+static void imguiSetClipboardText(void* userData, cstr text) {
     glfwSetClipboardString((GLFWwindow*)userData, text);
 }
 

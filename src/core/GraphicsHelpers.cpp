@@ -153,7 +153,7 @@ static bx::FileReaderI* getFileReader() {
     return s_fileReader;
 }
 
-static void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const char* _filePath,
+static void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, cstr _filePath,
                   uint32* _size) {
     if(bx::open(_reader, _filePath)) {
         uint32 size = (uint32)bx::getSize(_reader);
@@ -176,7 +176,7 @@ static void* load(bx::FileReaderI* _reader, bx::AllocatorI* _allocator, const ch
 }
 static void unload(void* _ptr) { BX_FREE(getAllocator(), _ptr); }
 
-const bgfx_memory* loadMemory(const char* filename) {
+const bgfx_memory* loadMemory(cstr filename) {
     std::ifstream   file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -188,10 +188,10 @@ const bgfx_memory* loadMemory(const char* filename) {
     return nullptr;
 }
 
-bgfx_shader_handle loadShader(const char* shader) {
+bgfx_shader_handle loadShader(cstr shader) {
     char filePath[512];
 
-    const char* shaderPath = "???";
+    cstr shaderPath = "???";
 
     switch(bgfx_get_renderer_type()) {
         case BGFX_RENDERER_TYPE_NOOP:
@@ -213,7 +213,7 @@ bgfx_shader_handle loadShader(const char* shader) {
     return bgfx_create_shader(loadMemory(filePath));
 }
 
-bgfx_program_handle loadProgram(const char* vsName, const char* fsName) {
+bgfx_program_handle loadProgram(cstr vsName, cstr fsName) {
     bgfx_shader_handle vs = loadShader(vsName);
     bgfx_shader_handle fs = loadShader(fsName);
     return bgfx_create_program(vs, fs, true);
@@ -224,7 +224,7 @@ static void imageReleaseCb(void*, void* _userData) {
     bimg::imageFree(imageContainer);
 }
 
-static bgfx_texture_handle loadTexture(bx::FileReaderI* _reader, const char* _filePath,
+static bgfx_texture_handle loadTexture(bx::FileReaderI* _reader, cstr _filePath,
                                        uint32 _flags, uint8_t, bgfx_texture_info* _info) {
     bgfx_texture_handle handle = {BGFX_INVALID_HANDLE};
 
@@ -263,7 +263,7 @@ static bgfx_texture_handle loadTexture(bx::FileReaderI* _reader, const char* _fi
     return handle;
 }
 
-bgfx_texture_handle loadTexture(const char* _name, uint32 _flags, uint8_t _skip,
+bgfx_texture_handle loadTexture(cstr _name, uint32 _flags, uint8_t _skip,
                                 bgfx_texture_info* _info) {
     return loadTexture(getFileReader(), _name, _flags, _skip, _info);
 }
@@ -462,7 +462,7 @@ static Mesh* meshLoad(bx::ReaderSeekerI* _reader) {
     return mesh;
 }
 
-Mesh* meshLoad(const char* _filePath) {
+Mesh* meshLoad(cstr _filePath) {
     bx::FileReaderI* reader = getFileReader();
     if(bx::open(reader, _filePath)) {
         Mesh* mesh = meshLoad(reader);

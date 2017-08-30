@@ -30,8 +30,8 @@ ATTRIBUTES(NO_INLINE)
 class Object : public dynamix::object
 {
     friend HAPI void serialize(const Object& src, JsonData& out);
-    friend HAPI size_t      deserialize(Object& dest, const sajson::value& val);
-    friend HAPI const char* imgui_bind_attributes(Object& e, const char* mixin, Object& obj);
+    friend HAPI size_t deserialize(Object& dest, const sajson::value& val);
+    friend HAPI cstr imgui_bind_attributes(Object& e, cstr mixin, Object& obj);
 
     oid   m_id;
     FIELD std::string m_name;
@@ -81,8 +81,8 @@ public:
     const std::string& name() const { return m_name; }
     void               setName(const std::string& name) { m_name = name; }
 
-    HAPI void addMixin(const char* mixin);
-    HAPI void remMixin(const char* mixin);
+    HAPI void addMixin(cstr mixin);
+    HAPI void remMixin(cstr mixin);
 
     static Object& cast_to_object(void* in) {
         return static_cast<Object&>(*::dynamix::object_of(in));

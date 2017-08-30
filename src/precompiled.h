@@ -87,6 +87,9 @@ using glm::uint16;
 using glm::uint32;
 using glm::uint64;
 
+// to be moved to types.h when bobi's branch is merged
+typedef const char* cstr;
+
 #include "utils/preprocessor.h"
 #include "utils/doctest/doctest_proxy.h"
 #include "utils/singleton.h"

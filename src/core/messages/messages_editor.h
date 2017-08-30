@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename T>
-JsonData command(const char* mixin, const char* attr, const T& data) {
+JsonData command(cstr mixin, cstr attr, const T& data) {
     JsonData out;
     out.startObject();
     out.append("\"");

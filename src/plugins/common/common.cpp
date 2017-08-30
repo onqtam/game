@@ -14,16 +14,16 @@ class tform
     FIELD transform t = {{0, 0, 0}, {1, 1, 1}, {1, 0, 0, 0}};
 
 public:
-	void set_pos(const glm::vec3& in) { t.pos = in; }
-	void set_scl(const glm::vec3& in) { t.scl = in; }
-	void set_rot(const glm::quat& in) { t.rot = in; }
+    void set_pos(const glm::vec3& in) { t.pos = in; }
+    void set_scl(const glm::vec3& in) { t.scl = in; }
+    void set_rot(const glm::quat& in) { t.rot = in; }
 
-	const glm::vec3& get_pos() const { return t.pos; }
-	const glm::vec3& get_scl() const { return t.scl; }
-	const glm::quat& get_rot() const { return t.rot; }
+    const glm::vec3& get_pos() const { return t.pos; }
+    const glm::vec3& get_scl() const { return t.scl; }
+    const glm::quat& get_rot() const { return t.rot; }
 
-    void set_transform(const transform& in) { t = in; }
-	const transform& get_transform() const { return t; }
+    void             set_transform(const transform& in) { t = in; }
+    const transform& get_transform() const { return t; }
 
     void move(const glm::vec3& in) { t.pos += in; }
 
@@ -56,7 +56,7 @@ class mesh
 public:
     std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
 
-    void serialize_mixins(const char* concrete_mixin, JsonData& out) const {
+    void serialize_mixins(cstr concrete_mixin, JsonData& out) const {
         if(concrete_mixin && strcmp("mesh", concrete_mixin) != 0)
             return;
         out.append("\"mesh\":");
@@ -68,7 +68,7 @@ public:
         if(in.find_object_key(str) != in.get_length())
             deserialize(*this, in.get_value_of_key(str));
     }
-    void set_attribute_mixins(const char*, const char*, const sajson::value& in) {
+    void set_attribute_mixins(cstr, cstr, const sajson::value& in) {
         auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
         if(in.find_object_key(str) != in.get_length()) {
             auto value = in.get_value_of_key(str);
@@ -117,7 +117,7 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
 
 class parental
 {
-	HA_MESSAGES_IN_MIXIN(parental);
+    HA_MESSAGES_IN_MIXIN(parental);
     FIELD oid parent;
     FIELD std::vector<oid> children;
 

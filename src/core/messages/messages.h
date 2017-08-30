@@ -3,10 +3,10 @@
 HA_SUPPRESS_WARNINGS
 
 // common
-HA_CONST_MULTI_MSG_2(common, void, serialize_mixins, const char*, concrete_mixin, JsonData&, out)
+HA_CONST_MULTI_MSG_2(common, void, serialize_mixins, cstr, concrete_mixin, JsonData&, out)
 HA_MULTI_MSG_1(common, void, deserialize_mixins, const sajson::value&, in)
-HA_MULTI_MSG_3(common, void, set_attribute_mixins, const char*, mixin, const char*, attr,
-               const sajson::value&, in)
+HA_MULTI_MSG_3(common, void, set_attribute_mixins, cstr, mixin, cstr, attr, const sajson::value&,
+               in)
 HA_MULTI_MSG_0(common, void, imgui_bind_attributes_mixins)
 
 // transform
