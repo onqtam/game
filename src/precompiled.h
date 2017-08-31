@@ -67,7 +67,6 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 #include "utils/types.h"
-
 #include "utils/preprocessor.h"
 #include "utils/doctest/doctest_proxy.h"
 #include "utils/singleton.h"
