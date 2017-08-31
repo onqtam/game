@@ -50,8 +50,7 @@ HA_SERIALIZE_TEST(float, 42.f);
 HA_SERIALIZE_TEST(double, 42.);
 HA_SERIALIZE_TEST(bool, false);
 HA_SERIALIZE_TEST(std::string, "hello !");
-HA_SERIALIZE_TEST(glm::vec3, {1, 2, 3});
-HA_SERIALIZE_TEST(glm::quat, { 1, 2, 3, 4 });
+HA_SERIALIZE_TEST(yama::vector3, {1, 2, 3});
 HA_SERIALIZE_TEST(transform, {{0, 1, 2}, {3, 4, 5}, {6, 7, 8, 9}});
 HA_SERIALIZE_TEST(oid, oid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
@@ -67,8 +66,9 @@ HA_SUPPRESS_WARNINGS_END
 HA_SERIALIZE_TEST(tinygizmo::rigid_transform, {{0, 1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
 // clang-format off
 HA_SERIALIZE_TEST(tinygizmo::gizmo_application_state,
-                  {true, false, true, false, true, false, 1.f, 2.f, 3.f, 4.f, {5.f, 6.f}, {7.f, 8.f},
-                   {9.f, 10.f, 11.f, {12.f, 13.f, 14.f}, {15.f, 16.f, 17.f, 18.f}}});
+    //{true, false, true, false, true, false, 1.f, 2.f, 3.f, 4.f, {5.f, 6.f}, {7.f, 8.f},
+    //{9.f, 10.f, 11.f, {12.f, 13.f, 14.f}, {15.f, 16.f, 17.f, 18.f}}});
+    tinygizmo::gizmo_application_state());
 // clang-format on
 
 #undef HA_SERIALIZE_TEST

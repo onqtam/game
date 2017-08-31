@@ -224,11 +224,11 @@ cstr imgui_bind_file_popup(Object& e, cstr mixin, cstr attr, std::string& data, 
 }
 #endif // _WIN32
 
-cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, glm::vec3& data) {
+cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, yama::vector3& data) {
     return bind_floats(e, mixin, attr, data, 3);
 }
 
-cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, glm::quat& data) {
+cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, yama::quaternion& data) {
     return bind_floats(e, mixin, attr, data, 4);
 }
 

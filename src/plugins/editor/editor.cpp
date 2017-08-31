@@ -123,7 +123,7 @@ public:
         bgfx_vertex_decl_end(&vd);
 
         m_gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
-            auto identity = glm::mat4(1.f);
+            auto identity = yama::matrix::identity();
             bgfx_set_transform((float*)&identity, 1);
 
             m_verts.resize(r.vertices.size() * sizeof(tinygizmo::geometry_vertex));
@@ -158,7 +158,7 @@ public:
 
     void update(float) {
         // draw grid
-        auto identity = glm::mat4(1.f);
+        auto identity = yama::matrix::identity();
         bgfx_set_transform((float*)&identity, 1);
         bgfx_set_vertex_buffer(0, m_grid.get().vbh, 0, UINT32_MAX);
         bgfx_set_state(BGFX_STATE_DEFAULT | m_grid.get().state, 0);
@@ -346,7 +346,7 @@ public:
         m_gizmo_state.viewport_size     = {float(app.width()), float(app.height())};
         m_gizmo_state.cam.near_clip     = 0.1f;
         m_gizmo_state.cam.far_clip      = 1000.f;
-        m_gizmo_state.cam.yfov          = glm::radians(45.0f);
+        m_gizmo_state.cam.yfov          = yama::deg_to_rad(45.f);
         m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
         auto cam_pos                    = tr::get_pos(World::get().camera());
         auto cam_rot                    = tr::get_rot(World::get().camera());
@@ -356,14 +356,14 @@ public:
 
         // update gizmo position to be between all selected objects
         if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
-            glm::vec3 avg_pos = {0, 0, 0};
-            glm::quat avg_rot =
+            yama::vector3 avg_pos = {0, 0, 0};
+            yama::quaternion avg_rot =
                     (selected_with_gizmo.size() == 1) ?           // based on number of objects
                             tr::get_rot(selected_with_gizmo[0]) : // orientation of object
-                            glm::quat(1, 0, 0, 0);                // generic default rotation
+                            yama::quaternion::identity();                // generic default rotation
             for(auto& curr : selected_with_gizmo)
                 avg_pos += tr::get_pos(curr);
-            avg_pos /= selected_with_gizmo.size();
+            avg_pos /= float(selected_with_gizmo.size());
 
             gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
             gizmo_transform.orientation = {avg_rot.x, avg_rot.y, avg_rot.z, avg_rot.w};
@@ -386,16 +386,16 @@ public:
         if(m_gizmo_state.mouse_left) {
             auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
             auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
-            auto rot      = glm::quat(gizmo_transform.orientation.w, gizmo_transform.orientation.x,
-                                 gizmo_transform.orientation.y, gizmo_transform.orientation.z);
+            auto rot      = yama::quaternion::xyzw(gizmo_transform.orientation.x, gizmo_transform.orientation.y,
+                gizmo_transform.orientation.z, gizmo_transform.orientation.w);
 
             // always update transforms - cannot figure out how to check for the rotation - I suck at math :(
             //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
             {
                 for(auto& id : selected_with_gizmo) {
                     auto t = sel::get_transform_on_gizmo_start(id);
-                    t.pos += glm::vec3(diff_pos.x, diff_pos.y, diff_pos.z);
-                    t.scl += glm::vec3(diff_scl.x, diff_scl.y, diff_scl.z);
+                    t.pos += yama::v(diff_pos.x, diff_pos.y, diff_pos.z);
+                    t.scl += yama::v(diff_scl.x, diff_scl.y, diff_scl.z);
                     if(selected_with_gizmo.size() == 1) {
                         t.rot = rot; // the gizmo is attached to the object's orientation so this is a straight copy
                     } else {

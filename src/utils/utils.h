@@ -49,10 +49,10 @@ inline char* strncpy(char* destination, cstr source, size_t num) {
 }
 
 // Returns the number of digits
-glm::uint32 numDigits(glm::int32 v);
+uint32 numDigits(int32 v);
 
 // Returns the number of digits - recursive for really big number
-glm::uint32 numDigits(glm::int64 v);
+uint32 numDigits(int64 v);
 
 // Returns the path to the current process executable
 std::string getPathToExe();
@@ -89,9 +89,9 @@ char* itoa_fast(T value, char* dst) {
         itoa_fast(-value, dst + 1);
         return dst;
     }
-    glm::uint32 const length = numDigits(value);
+    uint32 const length = numDigits(value);
     dst[length]              = '\0';
-    glm::uint32 next         = length - 1;
+    uint32 next         = length - 1;
     while(value >= 100) {
         auto const i = (value % 100) * 2;
         value /= 100;
@@ -104,13 +104,11 @@ char* itoa_fast(T value, char* dst) {
     if(value < 10) {
         dst[next] = '0' + char(value);
     } else {
-        auto i        = glm::uint32(value) * 2;
+        auto i        = uint32(value) * 2;
         dst[next]     = digits[i + 1];
         dst[next - 1] = digits[i];
     }
     return dst;
 }
-
-HAPI glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
 } // namespace Utils

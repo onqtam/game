@@ -1,6 +1,3 @@
-[submodule "third_party/glm"]
-	path = third_party/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "third_party/glfw"]
 	path = third_party/glfw
 	url = https://github.com/glfw/glfw.git
@@ -38,3 +35,6 @@
 [submodule "third_party/bgfx.cmake"]
 	path = third_party/bgfx.cmake
 	url = https://github.com/onqtam/bgfx.cmake.git
+[submodule "third_party/yama"]
+	path = third_party/yama
+	url = https://github.com/iboB/yama.git

@@ -1,14 +1,15 @@
 #include "aabb.hpp"
-#include <glm/gtx/component_wise.hpp>
+
+using namespace yama;
 
 AABB::AABB() { setNull(); }
 
-AABB::AABB(const glm::vec3& center, glm::float_t radius) {
+AABB::AABB(const yama::vector3& center, float radius) {
     setNull();
     extend(center, radius);
 }
 
-AABB::AABB(const glm::vec3& p1, const glm::vec3& p2) {
+AABB::AABB(const yama::vector3& p1, const yama::vector3& p2) {
     setNull();
     extend(p1);
     extend(p2);
@@ -21,28 +22,28 @@ AABB::AABB(const AABB& aabb) {
 
 AABB::~AABB() {}
 
-void AABB::extend(glm::float_t val) {
+void AABB::extend(float val) {
     if(!isNull()) {
-        mMin -= glm::vec3(val);
-        mMax += glm::vec3(val);
+        mMin -= yama::vector3::uniform(val);
+        mMax += yama::vector3::uniform(val);
     }
 }
 
-void AABB::extend(const glm::vec3& p) {
+void AABB::extend(const yama::vector3& p) {
     if(!isNull()) {
-        mMin = glm::min(p, mMin);
-        mMax = glm::max(p, mMax);
+        mMin = min(p, mMin);
+        mMax = max(p, mMax);
     } else {
         mMin = p;
         mMax = p;
     }
 }
 
-void AABB::extend(const glm::vec3& p, glm::float_t radius) {
-    glm::vec3 r(radius);
+void AABB::extend(const yama::vector3& p, float radius) {
+    auto r = yama::vector3::uniform(radius);
     if(!isNull()) {
-        mMin = glm::min(p - r, mMin);
-        mMax = glm::max(p + r, mMax);
+        mMin = min(p - r, mMin);
+        mMax = max(p + r, mMax);
     } else {
         mMin = p - r;
         mMax = p + r;
@@ -56,53 +57,58 @@ void AABB::extend(const AABB& aabb) {
     }
 }
 
-void AABB::extendDisk(const glm::vec3& c, const glm::vec3& n, glm::float_t r) {
-    if(glm::length(n) < 1.e-12f) {
+void AABB::extendDisk(const yama::vector3& c, const yama::vector3& n, float r) {
+    if(n.length() < 1.e-12f) {
         extend(c);
         return;
     }
-    glm::vec3    norm = glm::normalize(n);
-    glm::float_t x    = sqrt(1 - norm.x) * r;
-    glm::float_t y    = sqrt(1 - norm.y) * r;
-    glm::float_t z    = sqrt(1 - norm.z) * r;
-    extend(c + glm::vec3(x, y, z));
-    extend(c - glm::vec3(x, y, z));
+    yama::vector3    norm = normalize(n);
+    float x    = sqrt(1 - norm.x) * r;
+    float y    = sqrt(1 - norm.y) * r;
+    float z    = sqrt(1 - norm.z) * r;
+    extend(c + v(x, y, z));
+    extend(c - v(x, y, z));
 }
 
-glm::vec3 AABB::getDiagonal() const {
+yama::vector3 AABB::getDiagonal() const {
     if(!isNull())
         return mMax - mMin;
     else
-        return glm::vec3(0);
+        return yama::vector3::zero();
 }
 
-glm::float_t AABB::getLongestEdge() const { return glm::compMax(getDiagonal()); }
+float AABB::getLongestEdge() const {
+    auto d = getDiagonal();
+    return std::max(std::max(d.x, d.y), d.z);
+}
 
-glm::float_t AABB::getShortestEdge() const { return glm::compMin(getDiagonal()); }
+float AABB::getShortestEdge() const {
+    auto d = getDiagonal();
+    return std::min(std::min(d.x, d.y), d.z);
+}
 
-glm::vec3 AABB::getCenter() const {
+yama::vector3 AABB::getCenter() const {
     if(!isNull()) {
-        glm::vec3 d = getDiagonal();
-        return mMin + (d * glm::float_t(0.5));
+        return (mMin + mMax) * 0.5f;
     } else {
-        return glm::vec3(0.0);
+        return yama::vector3::zero();
     }
 }
 
-void AABB::translate(const glm::vec3& v) {
+void AABB::translate(const yama::vector3& v) {
     if(!isNull()) {
         mMin += v;
         mMax += v;
     }
 }
 
-void AABB::scale(const glm::vec3& s, const glm::vec3& o) {
+void AABB::scale(const yama::vector3& s, const yama::vector3& o) {
     if(!isNull()) {
         mMin -= o;
         mMax -= o;
 
-        mMin *= s;
-        mMax *= s;
+        mMin = mul(mMin, s);
+        mMax = mul(mMax, s);
 
         mMin += o;
         mMax += o;
@@ -140,21 +146,21 @@ AABB::INTERSECTION_TYPE AABB::intersect(const AABB& b) const {
     return INTERSECT;
 }
 
-bool AABB::isSimilarTo(const AABB& b, glm::float_t diff) const {
+bool AABB::isSimilarTo(const AABB& b, float diff) const {
     if(isNull() || b.isNull())
         return false;
 
-    glm::vec3 acceptable_diff = ((getDiagonal() + b.getDiagonal()) / glm::float_t(2.0)) * diff;
-    glm::vec3 min_diff(mMin - b.mMin);
-    min_diff = glm::vec3(fabs(min_diff.x), fabs(min_diff.y), fabs(min_diff.z));
+    yama::vector3 acceptable_diff = ((getDiagonal() + b.getDiagonal()) / float(2.0)) * diff;
+    yama::vector3 min_diff(mMin - b.mMin);
+    min_diff = abs(min_diff);
     if(min_diff.x > acceptable_diff.x)
         return false;
     if(min_diff.y > acceptable_diff.y)
         return false;
     if(min_diff.z > acceptable_diff.z)
         return false;
-    glm::vec3 max_diff(mMax - b.mMax);
-    max_diff = glm::vec3(fabs(max_diff.x), fabs(max_diff.y), fabs(max_diff.z));
+    yama::vector3 max_diff(mMax - b.mMax);
+    max_diff = abs(max_diff);
     if(max_diff.x > acceptable_diff.x)
         return false;
     if(max_diff.y > acceptable_diff.y)

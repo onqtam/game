@@ -7,7 +7,7 @@ struct renderPart
     MeshHandle   mesh;
     GeomHandle   geom;
     ShaderHandle shader;
-    glm::mat4 transform;
+    yama::matrix transform;
 };
 
 HA_SUPPRESS_WARNINGS

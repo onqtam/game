@@ -66,23 +66,6 @@ void serialize(const std::string& data, JsonData& out) {
 }
 void deserialize(std::string& data, const sajson::value& val) { data = val.as_cstring(); }
 
-void serialize(const glm::quat& data, JsonData& out) {
-    out.startArray();
-    serialize(data.x, out);
-    out.addComma();
-    serialize(data.y, out);
-    out.addComma();
-    serialize(data.z, out);
-    out.addComma();
-    serialize(data.w, out);
-    out.endArray();
-}
-void deserialize(glm::quat& data, const sajson::value& val) {
-    deserialize(data.x, val.get_array_element(0));
-    deserialize(data.y, val.get_array_element(1));
-    deserialize(data.z, val.get_array_element(2));
-    deserialize(data.w, val.get_array_element(3));
-}
 void serialize(const transform& data, JsonData& out) {
 	out.startArray();
 	serialize(data.pos, out);
@@ -119,18 +102,18 @@ void deserialize(ShaderHandle& data, const sajson::value& val) {
 
 void serialize(const tinygizmo::rigid_transform& data, JsonData& out) {
     out.startArray();
-    serialize((const glm::vec3&)data.position, out);
+    serialize((const yama::vector3&)data.position, out);
     out.addComma();
-    serialize((const glm::vec3&)data.scale, out);
+    serialize((const yama::vector3&)data.scale, out);
     out.addComma();
-    serialize((const glm::vec4&)data.orientation, out);
+    serialize((const yama::vector4&)data.orientation, out);
     out.endArray();
 }
 
 void deserialize(tinygizmo::rigid_transform& data, const sajson::value& val) {
-    deserialize((glm::vec3&)data.position, val.get_array_element(0));
-    deserialize((glm::vec3&)data.scale, val.get_array_element(1));
-    deserialize((glm::vec4&)data.orientation, val.get_array_element(2));
+    deserialize((yama::vector3&)data.position, val.get_array_element(0));
+    deserialize((yama::vector3&)data.scale, val.get_array_element(1));
+    deserialize((yama::vector4&)data.orientation, val.get_array_element(2));
 }
 
 void serialize(const tinygizmo::gizmo_application_state& data, JsonData& out) {
