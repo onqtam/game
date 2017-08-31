@@ -7,11 +7,11 @@ all custom types should begin with a capital letter!
 
 editor:
     parental
+        grouping
         inheriting transformations
         when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
         perhaps move out of a mixin and into the object class?
         detecting cycles ???
-    grouping
     duplicate objects
     prefabs
         field/mixin annotations for being skipped from prefabs
@@ -22,8 +22,10 @@ editor:
         no_gizmo
     focus
     switching states between editing and gameplay
-    IDs
+    camera
+        maya-like - with the same move/pan controls
     force uniqueness of object names
+    IDs
     GUI
         dragging objects in the scene explorer - also editing parental information
         setting attributes explicitly - separately from the serialize() functionality of the whole mixins

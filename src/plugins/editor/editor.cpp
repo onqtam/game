@@ -330,7 +330,7 @@ public:
         }
         ImGui::End();
 
-        ImGui::ShowTestWindow();
+        //ImGui::ShowTestWindow();
 
         updateGizmo();
     }
@@ -473,7 +473,7 @@ public:
             if(key == GLFW_KEY_S)
                 m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
-            // undo
+            // undo - with repeat
             if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo >= 0) {
                     printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
@@ -482,13 +482,24 @@ public:
                 }
             }
 
-            // redo
+            // redo - with repeat
             if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
                 if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
                     printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
                            curr_undo_redo + 1, int(undo_redo_commands.size()));
                     handle_command(undo_redo_commands[++curr_undo_redo], false);
                 }
+            }
+
+            // group
+            if(key == GLFW_KEY_G && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS)) {
+                printf("[GROUP]\n");
+                auto group = ObjectManager::get().create();
+                for(auto& curr : selected) {
+                    set_parent(curr, group);
+                    curr.get().remMixin("selected");
+                }
+                group.get().addMixin("selected");
             }
 
             // delete selected objects
