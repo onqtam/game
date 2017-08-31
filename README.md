@@ -1,6 +1,6 @@
 # the best game ever
 
-[![Windows status](https://ci.appveyor.com/api/projects/status/h2wfkb1y546x5tsw?svg=true)](https://ci.appveyor.com/project/onqtam/game)
+[![Windows status](https://ci.appveyor.com/api/projects/status/h2wfkb1y546x5tsw/branch/master?svg=true)](https://ci.appveyor.com/project/onqtam/game/branch/master)
 [![Linux Status](https://travis-ci.org/onqtam/game.svg?branch=master)](https://travis-ci.org/onqtam/game)
 [![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
