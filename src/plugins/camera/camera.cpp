@@ -85,7 +85,7 @@ public:
     yama::matrix get_projection_matrix() {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
-        return yama::matrix::perspective_fov_lh(yama::deg_to_rad(45.0f), float(w) / float(h), 0.1f, 1000.0f);
+        return yama::matrix::perspective_fov_rh(yama::deg_to_rad(45.0f), float(w) / float(h), 0.1f, 1000.0f);
     }
 
     void no_gizmo() const {}
