@@ -151,7 +151,7 @@ class parental
 
 public:
     ~parental() {
-        if(Application::get().state() != Application::State::EDITOR) {
+        if(Application::get().state() == Application::State::PLAY) {
             orphan();
             unparent();
         }

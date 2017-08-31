@@ -2,6 +2,7 @@
 
 #include "PluginManager.h"
 
+#include "core/Application.h"
 #include "core/registry/registry.h"
 #include "utils/utils.h"
 #include "serialization/serialization.h"
@@ -18,10 +19,10 @@ HA_SUPPRESS_WARNINGS
 
 HA_SUPPRESS_WARNINGS_END
 
-typedef HMODULE    DynamicLib;
-static cstr orig_plugin_tail   = "_plugin.dll";
-static cstr copied_plugin_tail = "_copied.dll";
-static const int   plugin_ext_len     = 4;
+typedef HMODULE  DynamicLib;
+static cstr      orig_plugin_tail   = "_plugin.dll";
+static cstr      copied_plugin_tail = "_copied.dll";
+static const int plugin_ext_len     = 4;
 
 #define LoadDynlib(lib) LoadLibrary(lib) // ".dll")
 #define CloseDynlib FreeLibrary
@@ -35,10 +36,10 @@ static const int   plugin_ext_len     = 4;
 #include <dlfcn.h>
 #include <dirent.h>
 
-typedef void*      DynamicLib;
-static cstr orig_plugin_tail   = "_plugin.so";
-static cstr copied_plugin_tail = "_copied.so";
-static const int   plugin_ext_len     = 3;
+typedef void*    DynamicLib;
+static cstr      orig_plugin_tail   = "_plugin.so";
+static cstr      copied_plugin_tail = "_copied.so";
+static const int plugin_ext_len     = 3;
 
 #define LoadDynlib(lib) dlopen(lib, RTLD_NOW)
 #define CloseDynlib dlclose
@@ -59,6 +60,9 @@ HA_SINGLETON_INSTANCE(PluginManager);
 
 void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::String& filename,
                                      FW::Action action) {
+    Application::State preserved_state = Application::get().state();
+    Application::get().setState(Application::State::RELOADING);
+
     // if an original plugin .dll has been modified
     if(action == FW::Action::Modified && Utils::endsWith(filename, orig_plugin_tail)) {
         auto plugin_iter =
@@ -127,6 +131,8 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
             }
         }
     }
+
+    Application::get().setState(preserved_state);
 }
 
 void PluginManager::init() {

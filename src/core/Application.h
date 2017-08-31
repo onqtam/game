@@ -33,11 +33,13 @@ public:
     float  dt() const { return m_dt; }
 
     enum State {
+        RELOADING,
         EDITOR,
         PLAY
     };
 
     State state() const { return m_state; }
+    void setState(State state) { m_state = state; }
 
     void addInputEventListener(InputEventListener* in);
     void removeInputEventListener(InputEventListener* in);
