@@ -53,7 +53,6 @@ editor:
             mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
 
 ditch bgfx
-ditch glm in favor of yama
 ditch glfw in favor of sdl
 
 == questions:
@@ -195,6 +194,8 @@ graphics/assets:
     - texture stuff
         - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
         - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
+        photoshop psd files - http://molecular-matters.com/products_psd_extract.html
+        photoshop psd files - http://molecular-matters.com/products_psd_sdk.html
 strings/localization:
     https://github.com/sheredom/utf8.h
 profiler:
@@ -220,6 +221,9 @@ miscellaneous:
 debugging:
     a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
     Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
+middleware:
+    http://molecular-matters.com/
+    coherent
 
 == code review:
 - https://www.reviewboard.org/

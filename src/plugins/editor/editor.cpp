@@ -386,8 +386,7 @@ public:
         if(m_gizmo_state.mouse_left) {
             auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
             auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
-            auto rot      = yama::quaternion::xyzw(gizmo_transform.orientation.x, gizmo_transform.orientation.y,
-                gizmo_transform.orientation.z, gizmo_transform.orientation.w);
+            auto rot      = (yama::quaternion&)gizmo_transform.orientation;
 
             // always update transforms - cannot figure out how to check for the rotation - I suck at math :(
             //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)

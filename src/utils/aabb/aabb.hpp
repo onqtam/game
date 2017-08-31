@@ -2,7 +2,7 @@
 
 // TODO: honor MIT license - changed heavily - originally taken from here: https://github.com/iauns/cpm-glm-aabb
 
-/// Standalone axis aligned bounding box implemented built on top of GLM.
+/// Standalone axis aligned bounding box
 class HAPI AABB
 {
 public:
