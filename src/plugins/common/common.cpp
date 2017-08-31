@@ -14,7 +14,7 @@ class tform
     HA_MESSAGES_IN_MIXIN(tform);
     FIELD yama::vector3 pos = {0, 0, 0};
     FIELD yama::vector3 scl = {1, 1, 1};
-    FIELD yama::quaternion rot = {1, 0, 0, 0};
+    FIELD yama::quaternion rot = {0, 0, 0, 1};
 
 public:
     void set_pos(const yama::vector3& in) { pos = in; }
