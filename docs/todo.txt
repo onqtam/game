@@ -3,8 +3,6 @@ think about sub-field handling - "t.pos" instead of just "t" - this will allow f
 
 fix the handle <=> path attribute updating problem
 
-all custom types should begin with a capital letter!
-
 editor:
     parental
         grouping
@@ -60,6 +58,7 @@ const-correctness around the oid and Object classes
 not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
+figure out a coding standard
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
@@ -100,6 +99,7 @@ questionable:
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
 
 == coding standard:
+- all custom types should begin with a capital letter!
 - prefix with _ all function arguments?
 - always call messages with :: prefix if they are in the global scope - to not accidentally call something else
 - get into the habit of declaring every constructor explicit - https://akrzemi1.wordpress.com/2015/10/22/more-than-you-need/

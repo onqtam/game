@@ -60,7 +60,7 @@
     _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
     _Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"") \
     _Pragma("GCC diagnostic ignored \"-Wreorder\"") \
-
+    _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"") \
 
 #endif // __GNUC__
 
