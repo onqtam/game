@@ -89,8 +89,7 @@ float AABB::getShortestEdge() const {
 
 yama::vector3 AABB::getCenter() const {
     if(!isNull()) {
-        yama::vector3 d = getDiagonal();
-        return mMin + (d * float(0.5));
+        return (mMin + mMax) * 0.5f;
     } else {
         return yama::vector3::zero();
     }
