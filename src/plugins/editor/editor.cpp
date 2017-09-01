@@ -521,7 +521,7 @@ public:
                                 attributes_changed_cmd({curr, curr_old.data(), curr_new.data()}));
 
                         // serialize the state of the mixins
-                        JsonData selected_state = mixin_state_command(curr, "parental");
+                        JsonData selected_state = mixin_state_command(curr, "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, {"selected"}, selected_state.data(), false}));
 
@@ -561,8 +561,8 @@ public:
                     for(auto& curr : selected) {
                         // make the copy and add it as a child to the new group
                         auto copy = ObjectManager::get().create();
-                        copy.get().copy_from(copy);
-                        set_parent(copy.get(), curr);
+                        copy.get().copy_from(curr);
+                        set_parent(copy.get(), group);
 
                         // add commands for its creation
                         JsonData state(1000);
@@ -575,6 +575,14 @@ public:
                         JsonData mixin_state = mixin_state_command(copy, nullptr);
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {copy, mixin_names(copy), mixin_state.data(), true}));
+
+                        // serialize the state of the currently selected mixins before unselecting them
+                        JsonData selected_state = mixin_state_command(curr, "selected");
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, {"selected"}, selected_state.data(), false}));
+
+                        // remove the selection
+                        curr.get().remMixin("selected");
                     }
 
                     // select the new group object

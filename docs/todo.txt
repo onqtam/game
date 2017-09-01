@@ -2,8 +2,11 @@
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
 if a function needs to work with an object and not just it's id - it should accept the object - to avoid unnecessary id-to-object lookups - also create() of the object manager should return an object&
+or alternatively use ids everywhere - saving a reference to an object might be bad in the future if the object manager changes how it stores them
 
 reuse more code - editor has some duplicated snippets
+
+duplicating an object part of a hierarchy leads to a crash
 
 editor:
     parental

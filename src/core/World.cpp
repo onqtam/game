@@ -51,6 +51,7 @@ World::World()
 
     auto& copied = om.create().get();
     copied.copy_from(obj3);
+    copied.setName("with_mesh_4   !!!");
     tr::move(copied, {0, 0, 5});
 
     auto& dummy1 = om.create("with_no_brain").get();
