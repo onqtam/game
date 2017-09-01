@@ -1,9 +1,11 @@
 
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
+if a function needs to work with an object and not just it's id - it should accept the object - to avoid unnecessary id-to-object lookups
+
 editor:
     parental
-        grouping
+        grouping mode 2 - changing the current parental relationships without introducing new groups - what hotkeys?
         inheriting transformations
         when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
         perhaps move out of a mixin and into the object class?
@@ -33,6 +35,7 @@ editor:
         - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
+        DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
             resolution: forbid the calling of messages in constructors and move widely used fields to the object itself!
     postponed

@@ -16,11 +16,12 @@ public:
     size_t    size() const { return m_data.size(); }
     json_buf& data() { return m_data; }
     void      reserve(size_t size) { m_data.reserve(size); }
+    void      clear() { m_data.clear(); }
 
-	static sajson::document parse(const json_buf& data) {
-		return sajson::parse(sajson::dynamic_allocation(),
-			sajson::string(data.data(), data.size()));
-	}
+    static sajson::document parse(const json_buf& data) {
+        return sajson::parse(sajson::dynamic_allocation(),
+                             sajson::string(data.data(), data.size()));
+    }
 
     void addComma() { m_data.push_back(','); }
     void addNull() { m_data.push_back('\0'); }

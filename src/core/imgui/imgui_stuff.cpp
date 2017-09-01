@@ -131,8 +131,8 @@ cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
         data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = command(mixin, attr, data_when_dragging_started);
-        JsonData new_val = command(mixin, attr, data);
+        JsonData old_val = attr_changed_command(mixin, attr, data_when_dragging_started);
+        JsonData new_val = attr_changed_command(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
         return attr;
     }
@@ -149,8 +149,8 @@ cstr bind_ints(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
         data_when_dragging_started = data;
     }
     if(justReleased) {
-        JsonData old_val = command(mixin, attr, data_when_dragging_started);
-        JsonData new_val = command(mixin, attr, data);
+        JsonData old_val = attr_changed_command(mixin, attr, data_when_dragging_started);
+        JsonData new_val = attr_changed_command(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
         return attr;
     }
@@ -159,8 +159,8 @@ cstr bind_ints(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
 
 cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, bool& data) {
     if(ImGui::Checkbox(no_prefix(attr), &data)) {
-        JsonData old_val = command(mixin, attr, !data);
-        JsonData new_val = command(mixin, attr, data);
+        JsonData old_val = attr_changed_command(mixin, attr, !data);
+        JsonData new_val = attr_changed_command(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
         return attr;
     }
@@ -184,9 +184,9 @@ cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, std::string& data) {
     Utils::strncpy(buf, data.c_str(), HA_COUNT_OF(buf));
     if(ImGui::InputText(no_prefix(attr), buf, HA_COUNT_OF(buf),
                         ImGuiInputTextFlags_EnterReturnsTrue)) {
-        JsonData old_val = command(mixin, attr, data);
+        JsonData old_val = attr_changed_command(mixin, attr, data);
         data             = buf;
-        JsonData new_val = command(mixin, attr, data);
+        JsonData new_val = attr_changed_command(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
         return attr;
     }
@@ -208,9 +208,9 @@ cstr imgui_bind_file_popup(Object& e, cstr mixin, cstr attr, std::string& data, 
         nfdresult_t result  = NFD_OpenDialog(filters, nullptr, &outPath);
         hassert(result != NFD_ERROR, "Error: %s\n", NFD_GetError());
         if(result == NFD_OKAY) {
-            JsonData old_val = command(mixin, attr, data);
+            JsonData old_val = attr_changed_command(mixin, attr, data);
             data             = outPath;
-            JsonData new_val = command(mixin, attr, data);
+            JsonData new_val = attr_changed_command(mixin, attr, data);
             edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(),
                                         new_val.data());
 

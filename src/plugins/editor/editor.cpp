@@ -20,9 +20,9 @@ HA_SUPPRESS_WARNINGS_END
 
 HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
 
-struct attribute_changed_cmd
+struct attributes_changed_cmd
 {
-    HA_FRIENDS_OF_TYPE(attribute_changed_cmd);
+    HA_FRIENDS_OF_TYPE(attributes_changed_cmd);
 
 public:
     FIELD oid e;
@@ -56,7 +56,7 @@ struct compound_cmd
     HA_FRIENDS_OF_TYPE(compound_cmd);
 
 public:
-    typedef boost::variant<attribute_changed_cmd, object_mutation_cmd, object_creation_cmd,
+    typedef boost::variant<attributes_changed_cmd, object_mutation_cmd, object_creation_cmd,
                            compound_cmd>
                                          command_variant;
     typedef std::vector<command_variant> commands_vector;
@@ -282,9 +282,10 @@ public:
             if(to_select.size() + to_deselect.size() > 0) {
                 compound_cmd comp_cmd;
                 comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
+                JsonData state(10000);
 
                 auto add_mutate_command = [&](oid id, bool select) {
-                    JsonData state(10000);
+                    state.clear();
                     state.startObject();
                     common::serialize_mixins(id.get(), "selected", state);
                     state.endObject();
@@ -427,19 +428,19 @@ public:
             auto old_t = sel::get_transform_on_gizmo_start(id);
             auto new_t = tr::get_transform(id);
             if(old_t.pos != new_t.pos) {
-                JsonData ov = command("tform", "pos", old_t.pos);
-                JsonData nv = command("tform", "pos", new_t.pos);
-                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                JsonData ov = attr_changed_command("tform", "pos", old_t.pos);
+                JsonData nv = attr_changed_command("tform", "pos", new_t.pos);
+                comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             if(old_t.scl != new_t.scl) {
-                JsonData ov = command("tform", "scl", old_t.scl);
-                JsonData nv = command("tform", "scl", new_t.scl);
-                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                JsonData ov = attr_changed_command("tform", "scl", old_t.scl);
+                JsonData nv = attr_changed_command("tform", "scl", new_t.scl);
+                comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             if(old_t.rot != new_t.rot) {
-                JsonData ov = command("tform", "rot", old_t.rot);
-                JsonData nv = command("tform", "rot", new_t.rot);
-                comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
+                JsonData ov = attr_changed_command("tform", "rot", old_t.rot);
+                JsonData nv = attr_changed_command("tform", "rot", new_t.rot);
+                comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             // update this - even though we havent started using the gizmo - or else this might break when deleting the object
             sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
@@ -486,47 +487,90 @@ public:
 
             // group
             if(key == GLFW_KEY_G && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS)) {
-                printf("[GROUP]\n");
-                auto group = ObjectManager::get().create();
-                for(auto& curr : selected) {
-                    set_parent(curr, group);
-                    curr.get().remMixin("selected");
+                if(!selected.empty()) {
+                    printf("[GROUP]\n");
+                    compound_cmd comp_cmd;
+
+                    // create new group object
+                    auto group = ObjectManager::get().create();
+
+                    // mutate all the currently selected objects and deselect them
+                    for(auto& curr : selected) {
+                        // parent old state
+                        auto     parent = get_parent(curr);
+                        JsonData parent_old;
+                        if(parent.isValid())
+                            parent_old = mixin_state_command(parent, "parental");
+
+                        // record parental state of current object before change
+                        JsonData curr_old = mixin_state_command(curr, "parental");
+
+                        // set new parental relationship
+                        set_parent(curr, group);
+
+                        // parent new state & command submit
+                        if(parent.isValid()) {
+                            JsonData parent_new = mixin_state_command(parent, "parental");
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {parent, parent_old.data(), parent_new.data()}));
+                        }
+
+                        // current new state & command submit
+                        JsonData curr_new = mixin_state_command(curr, "parental");
+                        comp_cmd.commands.push_back(
+                                attributes_changed_cmd({curr, curr_old.data(), curr_new.data()}));
+
+                        // serialize the state of the mixins
+                        JsonData selected_state = mixin_state_command(curr, "parental");
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, {"selected"}, selected_state.data(), false}));
+
+                        // remove the selection
+                        curr.get().remMixin("selected");
+                    }
+
+                    // select the new group object
+                    group.get().addMixin("selected");
+
+                    // add the created group object
+                    JsonData state(1000);
+                    state.startObject();
+                    state.append("\"\":");
+                    serialize(group.get(), state);
+                    state.endObject();
+                    comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
+                    JsonData group_state = mixin_state_command(group, nullptr);
+                    comp_cmd.commands.push_back(object_mutation_cmd(
+                            {group, mixin_names(group), group_state.data(), true}));
+
+                    // add the compound command
+                    add_command(comp_cmd);
                 }
-                group.get().addMixin("selected");
             }
 
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(!selected.empty()) {
+                    printf("[DELETE]\n");
                     handle_gizmo_changes_on_multi_selection();
 
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
-                        // get the list of mixin names
-                        std::vector<cstr> mixins;
-                        curr.get().get_mixin_names(mixins);
-                        std::vector<std::string> mixin_names(mixins.size());
-                        std::transform(mixins.begin(), mixins.end(), mixin_names.begin(),
-                                       [](auto in) { return in; });
-
                         // serialize the state of the mixins
-                        JsonData mixins_state(10000);
-                        mixins_state.startObject();
-                        common::serialize_mixins(curr.get(), nullptr, mixins_state);
-                        mixins_state.endObject();
+                        JsonData mixin_state = mixin_state_command(curr, nullptr);
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, mixin_names(curr), mixin_state.data(), false}));
 
                         // serialize the state of the object itself
-                        JsonData object_state(10000);
-                        object_state.startObject();
-                        object_state.append("\"\":");
-                        serialize(curr.get(), object_state);
-                        object_state.endObject();
+                        JsonData state(1000);
+                        state.startObject();
+                        state.append("\"\":");
+                        serialize(curr.get(), state);
+                        state.endObject();
 
-                        comp_cmd.commands.push_back(object_mutation_cmd(
-                                {curr, mixin_names, mixins_state.data(), false}));
                         comp_cmd.commands.push_back(
-                                object_creation_cmd({curr, object_state.data(), false}));
+                                object_creation_cmd({curr, state.data(), false}));
 
                         ObjectManager::get().destroy(curr);
                     }
@@ -543,8 +587,8 @@ public:
     }
 
     void handle_command(command_variant& command_var, bool undo) {
-        if(command_var.type() == boost::typeindex::type_id<attribute_changed_cmd>()) {
-            auto&       cmd = boost::get<attribute_changed_cmd>(command_var);
+        if(command_var.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
+            auto&       cmd = boost::get<attributes_changed_cmd>(command_var);
             auto&       val = undo ? cmd.old_val : cmd.new_val;
             const auto& doc = JsonData::parse(val);
             hassert(doc.is_valid());
@@ -602,7 +646,7 @@ public:
     }
 
     void add_changed_attribute(oid e, const json_buf& old_val, const json_buf& new_val) {
-        add_command(attribute_changed_cmd({e, old_val, new_val}));
+        add_command(attributes_changed_cmd({e, old_val, new_val}));
     }
 };
 

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "messages.h"
+
 template <typename T>
-JsonData command(cstr mixin, cstr attr, const T& data) {
+JsonData attr_changed_command(cstr mixin, cstr attr, const T& data) {
     JsonData out;
     out.startObject();
     out.append("\"");
@@ -15,6 +17,22 @@ JsonData command(cstr mixin, cstr attr, const T& data) {
     out.endObject();
     out.endObject();
 
+    return out;
+}
+
+inline JsonData mixin_state_command(oid id, cstr mixin) {
+    JsonData out(1000);
+    out.startObject();
+    common::serialize_mixins(id, mixin, out);
+    out.endObject();
+    return out;
+}
+
+inline std::vector<std::string> mixin_names(oid id) {
+    std::vector<cstr> mixins;
+    id.get().get_mixin_names(mixins);
+    std::vector<std::string> out(mixins.size());
+    std::transform(mixins.begin(), mixins.end(), out.begin(), [](auto in) { return in; });
     return out;
 }
 
