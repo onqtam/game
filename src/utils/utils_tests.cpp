@@ -66,6 +66,7 @@ test_case("[utils] numDigits") {
     check_eq(numDigits(235576746), 9u);
     check_eq(numDigits(2125767446), 10u);
 
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     check_eq(numDigits(int64(21257674464LL)), 11u);
     check_eq(numDigits(int64(212576744643LL)), 12u);
     check_eq(numDigits(int64(2125767446454LL)), 13u);
@@ -75,6 +76,7 @@ test_case("[utils] numDigits") {
     check_eq(numDigits(int64(21257674445656664LL)), 17u);
     check_eq(numDigits(int64(212576744656566664LL)), 18u);
     check_eq(numDigits(int64(9223372036854775807LL)), 19u);
+    HA_GCC_SUPPRESS_WARNING_END
 }
 
 test_case("[utils] itoa_fast") {
@@ -82,6 +84,8 @@ test_case("[utils] itoa_fast") {
 #define itoa_fast_check_ne(x) check_ne(strcmp(itoa_fast(int64(HA_CAT_1(x, LL)), dest), #x), 0)
     char dest[24];
     ((void)dest); // for the unused variable warning when tests are disabled
+
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     itoa_fast_check_eq(0);
     itoa_fast_check_eq(12);
     itoa_fast_check_eq(431);
@@ -103,6 +107,8 @@ test_case("[utils] itoa_fast") {
 
     itoa_fast_check_ne(012);
     itoa_fast_check_ne(00004543265);
+    HA_GCC_SUPPRESS_WARNING_END
+
 #undef itoa_fast_check_eq
 #undef itoa_fast_check_ne
 }

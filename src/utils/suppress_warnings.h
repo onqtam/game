@@ -33,6 +33,13 @@
     _Pragma("clang diagnostic ignored \"-Wfloat-equal\"") \
     _Pragma("clang diagnostic ignored \"-Wundefined-func-template\"") \
 
+#define HA_CLANG_SUPPRESS_WARNING(w) _Pragma("clang diagnostic push") HA_PRAGMA(clang diagnostic ignored w)
+#define HA_CLANG_SUPPRESS_WARNING_END _Pragma("clang diagnostic pop")
+#define HA_GCC_SUPPRESS_WARNING(w)
+#define HA_GCC_SUPPRESS_WARNING_END
+#define HA_MSVC_SUPPRESS_WARNING(w)
+#define HA_MSVC_SUPPRESS_WARNING_END
+
 #endif // __clang__
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -62,11 +69,26 @@
     _Pragma("GCC diagnostic ignored \"-Wreorder\"") \
     _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"") \
 
+#define HA_CLANG_SUPPRESS_WARNING(w)
+#define HA_CLANG_SUPPRESS_WARNING_END
+#define HA_GCC_SUPPRESS_WARNING(w) _Pragma("GCC diagnostic push") HA_PRAGMA(GCC diagnostic ignored w)
+#define HA_GCC_SUPPRESS_WARNING_END _Pragma("GCC diagnostic pop")
+#define HA_MSVC_SUPPRESS_WARNING(w)
+#define HA_MSVC_SUPPRESS_WARNING_END
+
 #endif // __GNUC__
 
 #ifdef _MSC_VER
 #define HA_SUPPRESS_WARNINGS_END __pragma(warning(pop))
 #define HA_SUPPRESS_WARNINGS __pragma(warning(push, 0))
+
+#define HA_CLANG_SUPPRESS_WARNING(w)
+#define HA_CLANG_SUPPRESS_WARNING_END
+#define HA_GCC_SUPPRESS_WARNING(w)
+#define HA_GCC_SUPPRESS_WARNING_END
+#define HA_MSVC_SUPPRESS_WARNING(w) __pragma(warning(push)) __pragma(warning(disable, w))
+#define HA_MSVC_SUPPRESS_WARNING_END __pragma(warning(pop))
+
 #endif // _MSC_VER
 
 // clang-format on
