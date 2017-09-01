@@ -18,6 +18,8 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
+HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
+
 struct attribute_changed_cmd
 {
     HA_FRIENDS_OF_TYPE(attribute_changed_cmd);
@@ -287,10 +289,8 @@ public:
                     common::serialize_mixins(id.get(), "selected", state);
                     state.endObject();
 
-                    HA_SUPPRESS_WARNINGS
                     comp_cmd.commands.push_back(
                             object_mutation_cmd({id, {"selected"}, state.data(), select}));
-                    HA_SUPPRESS_WARNINGS_END
                 };
 
                 for(auto curr : to_select) {
@@ -302,9 +302,7 @@ public:
                     curr.get().remMixin("selected");
                 }
 
-                HA_SUPPRESS_WARNINGS
                 add_command(comp_cmd);
-                HA_SUPPRESS_WARNINGS_END
 
                 //re-update the list for later usage
                 updateSelected();
@@ -431,31 +429,23 @@ public:
             if(old_t.pos != new_t.pos) {
                 JsonData ov = command("tform", "pos", old_t.pos);
                 JsonData nv = command("tform", "pos", new_t.pos);
-                HA_SUPPRESS_WARNINGS
                 comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
-                HA_SUPPRESS_WARNINGS_END
             }
             if(old_t.scl != new_t.scl) {
                 JsonData ov = command("tform", "scl", old_t.scl);
                 JsonData nv = command("tform", "scl", new_t.scl);
-                HA_SUPPRESS_WARNINGS
                 comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
-                HA_SUPPRESS_WARNINGS_END
             }
             if(old_t.rot != new_t.rot) {
                 JsonData ov = command("tform", "rot", old_t.rot);
                 JsonData nv = command("tform", "rot", new_t.rot);
-                HA_SUPPRESS_WARNINGS
                 comp_cmd.commands.push_back(attribute_changed_cmd({id, ov.data(), nv.data()}));
-                HA_SUPPRESS_WARNINGS_END
             }
             // update this - even though we havent started using the gizmo - or else this might break when deleting the object
             sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
         }
-        HA_SUPPRESS_WARNINGS
         if(!comp_cmd.commands.empty())
             add_command(comp_cmd);
-        HA_SUPPRESS_WARNINGS_END
     }
 
     void process_event(const InputEvent& ev) {
@@ -533,18 +523,14 @@ public:
                         serialize(curr.get(), object_state);
                         object_state.endObject();
 
-                        HA_SUPPRESS_WARNINGS
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, mixin_names, mixins_state.data(), false}));
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({curr, object_state.data(), false}));
-                        HA_SUPPRESS_WARNINGS_END
 
                         ObjectManager::get().destroy(curr);
                     }
-                    HA_SUPPRESS_WARNINGS
                     add_command(comp_cmd);
-                    HA_SUPPRESS_WARNINGS_END
 
                     selected.clear();
                 }
@@ -616,11 +602,11 @@ public:
     }
 
     void add_changed_attribute(oid e, const json_buf& old_val, const json_buf& new_val) {
-        HA_SUPPRESS_WARNINGS
         add_command(attribute_changed_cmd({e, old_val, new_val}));
-        HA_SUPPRESS_WARNINGS_END
     }
 };
+
+HA_GCC_SUPPRESS_WARNING_END
 
 HA_SINGLETON_INSTANCE(editor);
 

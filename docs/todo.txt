@@ -1,8 +1,6 @@
 
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
-remove _tests.cpp files from emscripten build
-
 editor:
     parental
         grouping
@@ -67,9 +65,9 @@ CI - appveyor emscripten build fails for some reason
 == build system:
 to think about:
     - link to third parties dynamically when possible
-    - remove as much as possible from emscripten build (doctest, imgui demo)
     - shared precompiled headers for plugins...?
-    - make a proper release config - with LTO, no plugins, etc.
+    - make a stripped config - no plugins, disabled doctest, no asserts, no *_tests.cpp files
+    - emscripten and release configs - LTO + the stripped config
     - be able to build everything in release except for gameplay code (debug iterators?)
     - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
     - ninja instead of msbuild - see this: https://blogs.msdn.microsoft.com/vcblog/2017/08/14/cmake-support-in-visual-studio-customizing-your-environment/
@@ -84,6 +82,7 @@ questionable:
 - background compiler process
 - catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
 - undo system - by keeping a copy of a last working .dll version of a plugin (one which hasn't crashed during it's update())
+- look at Live++ when it is released - http://molecular-matters.com/products_livepp.html
 
 == codegen:
 - type parser
