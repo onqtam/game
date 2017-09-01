@@ -548,6 +548,54 @@ public:
                 }
             }
 
+            // duplicate
+            if(key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS)) {
+                if(!selected.empty()) {
+                    printf("[DUPLICATE]\n");
+                    compound_cmd comp_cmd;
+
+                    // create new group object
+                    auto group = ObjectManager::get().create();
+
+                    // make copies of all selected objects
+                    for(auto& curr : selected) {
+                        // make the copy and add it as a child to the new group
+                        auto copy = ObjectManager::get().create();
+                        copy.get().copy_from(copy);
+                        set_parent(copy.get(), curr);
+
+                        // add commands for its creation
+                        JsonData state(1000);
+                        state.startObject();
+                        state.append("\"\":");
+                        serialize(copy.get(), state);
+                        state.endObject();
+                        comp_cmd.commands.push_back(
+                                object_creation_cmd({copy, state.data(), true}));
+                        JsonData mixin_state = mixin_state_command(copy, nullptr);
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {copy, mixin_names(copy), mixin_state.data(), true}));
+                    }
+
+                    // select the new group object
+                    group.get().addMixin("selected");
+
+                    // add the created group object
+                    JsonData state(1000);
+                    state.startObject();
+                    state.append("\"\":");
+                    serialize(group.get(), state);
+                    state.endObject();
+                    comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
+                    JsonData group_state = mixin_state_command(group, nullptr);
+                    comp_cmd.commands.push_back(object_mutation_cmd(
+                            {group, mixin_names(group), group_state.data(), true}));
+
+                    // add the compound command
+                    add_command(comp_cmd);
+                }
+            }
+
             // delete selected objects
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(!selected.empty()) {
