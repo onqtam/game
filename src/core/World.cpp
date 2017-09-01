@@ -59,6 +59,8 @@ World::World()
     auto& dummy4 = om.create("dummy 4").get();
     auto& dummy5 = om.create("dummy with 5").get();
 
+    set_parent(obj2, obj);
+
     set_parent(dummy1, obj);
     set_parent(dummy2, obj);
 

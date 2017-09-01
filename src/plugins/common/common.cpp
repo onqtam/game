@@ -142,14 +142,29 @@ class selected
     HA_MESSAGES_IN_MIXIN(selected);
     FIELD transform old_t;
 
-public:
-    void get_rendering_parts(std::vector<renderPart>& out) const {
-        if(ha_this.implements(rend::get_aabb_msg)) {
-            auto diag   = rend::get_aabb(ha_this).getDiagonal();
+    static void submit_aabb_recursively(const Object& curr, std::vector<renderPart>& out) {
+        // if object has a bbox - submit it
+        if(curr.implements(rend::get_aabb_msg)) {
+            auto diag   = rend::get_aabb(curr).getDiagonal();
             auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
             auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, tr::get_transform_mat(ha_this)});
+            out.push_back({{}, geom, shader, tr::get_transform_mat(curr)});
         }
+        // recurse through children
+        if(curr.implements(get_children_msg)) {
+            auto& children = get_children(curr);
+            for(auto& child_id : children) {
+                auto& child = child_id.get();
+                // if child is not selected - to avoid rendering the same bbox multiple times
+                if(!child.has<selected>())
+                    submit_aabb_recursively(child, out);
+            }
+        }
+    }
+
+public:
+    void get_rendering_parts(std::vector<renderPart>& out) const {
+        submit_aabb_recursively(ha_this, out);
     }
 
     transform& get_transform_on_gizmo_start() { return old_t; }
