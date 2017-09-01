@@ -65,6 +65,9 @@ milestones:
 
 
 
+epic lectures/articles:
+    Seven Years in Alpha: The Thumper Postmortem - https://www.youtube.com/watch?v=ckm8_SEIXQM
+
 
 
 

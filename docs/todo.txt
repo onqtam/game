@@ -1,8 +1,6 @@
 
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
-fix the handle <=> path attribute updating problem
-
 editor:
     parental
         grouping
@@ -28,8 +26,6 @@ editor:
         dragging objects in the scene explorer - also editing parental information
         setting attributes explicitly - separately from the serialize() functionality of the whole mixins
         add/remove mixins to/from objects
-    attribute changed callbacks (to update handles when the path to a mesh changes - also as a proof of concept)
-        or add optional dirty flags for attributes and query it in an update procedure
     picking
         raycast
         rectangle selection

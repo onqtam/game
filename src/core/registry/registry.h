@@ -209,10 +209,11 @@ int registerGlobal(cstr name, GlobalInfo info);
     serialize(var, out);                                                                           \
     out.addComma()
 
-#define HA_DESERIALIZE_VARIABLE(key, var)                                                          \
+#define HA_DESERIALIZE_VARIABLE(key, var, callback)                                                \
     if(strcmp(val.get_object_key(i).data(), key) == 0) {                                           \
         deserialize(var, val.get_object_value(i));                                                 \
         ++num_deserialized;                                                                        \
+        callback;                                                                                  \
     }
 
 #define HA_FRIENDS_OF_TYPE(name)                                                                   \

@@ -58,7 +58,9 @@ for line in header:
         # stuff the attributes in a dict
         for attribute in attributes_list:
             if attribute.startswith("tag::"):
-                attributes["TAG"] = attribute
+                attributes["tag"] = attribute
+            elif attribute.startswith("REFL_CALLBACK"):
+                attributes["callback"] = attribute.partition('(')[-1].rpartition(')')[0]
             else:
                 attributes[attribute] = True
 
@@ -86,7 +88,8 @@ for type in types:
     code += strln('size_t num_deserialized = 0;', tabs = 1)
     code += strln('for(size_t i = 0; i < val_len; ++i) {', tabs = 1)
     for field in types[type]["fields"]:
-        code += strln('HA_DESERIALIZE_VARIABLE("%s", dest.%s);' % (field["name"], field["name"]), tabs = 2)
+        callback = (field["attributes"]["callback"] + '(dest)') if "callback" in field["attributes"] else '((void)0)'
+        code += strln('HA_DESERIALIZE_VARIABLE("%s", dest.%s, %s);' % (field["name"], field["name"], callback), tabs = 2)
     code += strln('}', tabs = 1)
     code += strln('return num_deserialized;', tabs = 1)
     code += strln('}')
@@ -95,7 +98,10 @@ for type in types:
     code += strln('%scstr imgui_bind_attributes(Object& e, cstr mixin, %s& obj) {' % (inline, type))
     code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
     for field in types[type]["fields"]:
-        code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], ((", " + field["attributes"]["TAG"] + "()") if "TAG" in field["attributes"] else "")), tabs = 1)
+        tag = (', ' + field["attributes"]["tag"] + '()') if "tag" in field["attributes"] else ''
+        code += strln('temp = imgui_bind_attribute(e, mixin, "%s", obj.%s%s); if(temp) out = temp;' % (field["name"], field["name"], tag), tabs = 1)
+        if "callback" in field["attributes"]:
+            code += strln('if(temp) ' + field["attributes"]["callback"] + '(obj);', tabs = 1)
         
     code += strln('return out;', tabs = 1)
     code += strln('}')

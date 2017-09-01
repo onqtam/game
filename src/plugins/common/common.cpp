@@ -12,8 +12,8 @@
 class tform
 {
     HA_MESSAGES_IN_MIXIN(tform);
-    FIELD yama::vector3 pos = {0, 0, 0};
-    FIELD yama::vector3 scl = {1, 1, 1};
+    FIELD yama::vector3 pos    = {0, 0, 0};
+    FIELD yama::vector3 scl    = {1, 1, 1};
     FIELD yama::quaternion rot = {0, 0, 0, 1};
 
 public:
@@ -21,8 +21,8 @@ public:
     void set_scl(const yama::vector3& in) { scl = in; }
     void set_rot(const yama::quaternion& in) { rot = in; }
 
-    const yama::vector3& get_pos() const { return pos; }
-    const yama::vector3& get_scl() const { return scl; }
+    const yama::vector3&    get_pos() const { return pos; }
+    const yama::vector3&    get_scl() const { return scl; }
     const yama::quaternion& get_rot() const { return rot; }
 
     void set_transform(const transform& in) {
@@ -46,13 +46,16 @@ HA_MIXIN_DEFINE(tform, Interface_transform);
 
 class mesh
 {
-    HA_FRIENDS_OF_TYPE(mesh);
-    REFL_ATTRIBUTES(tag::mesh)
+    HA_MESSAGES_IN_MIXIN(mesh);
+
+    static void mesh_changed_cb(mesh& in) { in._mesh = MeshMan::get().get(in._path); }
+
+    FIELD MeshHandle _mesh;
+    FIELD ShaderHandle _shader;
+    REFL_ATTRIBUTES(tag::mesh, REFL_CALLBACK(mesh::mesh_changed_cb))
     FIELD std::string _path;
     REFL_ATTRIBUTES(tag::image)
     FIELD std::string _image_path;
-    FIELD MeshHandle _mesh;
-    FIELD ShaderHandle _shader;
 
     FIELD bool   clicky      = false;
     FIELD float  dragy       = 42;
@@ -62,52 +65,11 @@ class mesh
     FIELD std::string texty2 = ":(";
 
 public:
-    std::map<std::string, std::vector<std::function<void(void)>>> attr_changed_callbacks;
-
-    void serialize_mixins(cstr concrete_mixin, JsonData& out) const {
-        if(concrete_mixin && strcmp("mesh", concrete_mixin) != 0)
-            return;
-        out.append("\"mesh\":");
-        serialize(*this, out);
-        out.addComma();
-    }
-    void deserialize_mixins(const sajson::value& in) {
-        auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
-        if(in.find_object_key(str) != in.get_length())
-            deserialize(*this, in.get_value_of_key(str));
-    }
-    void set_attribute_mixins(cstr, cstr, const sajson::value& in) {
-        auto str = sajson::string("mesh", HA_COUNT_OF("mesh") - 1);
-        if(in.find_object_key(str) != in.get_length()) {
-            auto value = in.get_value_of_key(str);
-            hassert(value.get_length() == 1);
-            auto num_deserialized = deserialize(*this, value);
-            hassert(num_deserialized == 1);
-        }
-    }
-    void imgui_bind_attributes_mixins() {
-        if(ImGui::TreeNode("mesh")) {
-            auto changed_attr = imgui_bind_attributes(ha_this, "mesh", *this);
-            if(changed_attr && attr_changed_callbacks.count(changed_attr)) {
-                for(auto& cb : attr_changed_callbacks[changed_attr])
-                    cb();
-            }
-            ImGui::TreePop();
-        }
-    }
-
-    //HA_MESSAGES_IN_MIXIN(mesh);
-public:
     mesh() {
         _path = "meshes/bunny.bin";
 
         _mesh   = MeshMan::get().get(_path);
         _shader = ShaderMan::get().get("mesh");
-
-        attr_changed_callbacks["_path"].push_back([&]() {
-            _mesh = MeshMan::get().get(_path);
-            printf("yuhoo!\n");
-        });
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
@@ -117,11 +79,7 @@ public:
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
 };
 
-HA_MIXIN_DEFINE_WITHOUT_CODEGEN(
-        mesh, common::serialize_mixins_msg& common::deserialize_mixins_msg&
-                      common::set_attribute_mixins_msg& common::imgui_bind_attributes_mixins_msg&
-                              rend::get_rendering_parts_msg& rend::get_aabb_msg);
-//HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
+HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
 
 class parental
 {

@@ -70,4 +70,5 @@ struct print_ct;
 #define FIELD          // indicates the start of a field definition inside of a type
 #define REFL_NO_SKIP   // class attribute - emit reflection for the class even if without any fields
 #define REFL_NO_INLINE // class attribute - emitted reflection methods should not be marked as inline
+#define REFL_CALLBACK  // field attribute - the given callback will be called after the field changes
 #define REFL_ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
