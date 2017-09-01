@@ -97,9 +97,11 @@ int decode(const uint8* data, const int dataLen, uint8* decoded, const int decod
     for(int block = 0; block < dataLen / 4; block++) {
         const uint8* chars  = data + block * 4;
         int          offset = block * 3;
+        HA_CLANG_SUPPRESS_WARNING("-Wconversion")
         decoded[offset]     = table[chars[0]] << 2 | table[chars[1]] >> 4;
         decoded[offset + 1] = table[chars[1]] << 4 | table[chars[2]] >> 2;
         decoded[offset + 2] = table[chars[2]] << 6 | table[chars[3]];
+        HA_CLANG_SUPPRESS_WARNING_END
     }
 
     int          countOfDecodedBytes = (dataLen / 4) * 3;

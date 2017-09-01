@@ -109,12 +109,14 @@ class parental
     }
 
 public:
+    HA_CLANG_SUPPRESS_WARNING("-Wdeprecated")
     ~parental() {
         if(Application::get().state() == Application::State::PLAY) {
             orphan();
             unparent();
         }
     }
+    HA_CLANG_SUPPRESS_WARNING_END
 
     oid                     get_parent() const { return m_parent; }
     const std::vector<oid>& get_children() const { return m_children; }

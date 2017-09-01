@@ -119,6 +119,7 @@ public:
         return oid(m_curr_id++);
     }
 
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     oid createFromId(oid id) {
         hassert(!has(id));
         return m_objects.emplace(id, Object(id)).first->second;
@@ -135,6 +136,7 @@ public:
         hassert(has(id));
         return m_objects.at(id);
     }
+    HA_GCC_SUPPRESS_WARNING_END
 
     auto& getObjects() { return m_objects; }
 };
@@ -144,6 +146,8 @@ inline bool oid::isValid() const {
 }
 
 inline Object& oid::get() {
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     hassert(isValid());
+    HA_GCC_SUPPRESS_WARNING_END
     return ObjectManager::get().getById(*this);
 }

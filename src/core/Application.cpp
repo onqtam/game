@@ -113,11 +113,13 @@ static void imguiRender(ImDrawData* drawData) {
         bgfx_alloc_transient_vertex_buffer(&tvb, numVertices, &ivd);
         bgfx_alloc_transient_index_buffer(&tib, numIndices);
 
+        HA_CLANG_SUPPRESS_WARNING("-Wcast-align")
         ImDrawVert* verts = (ImDrawVert*)tvb.data;
         memcpy(verts, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
 
         ImDrawIdx* indices = (ImDrawIdx*)tib.data;
         memcpy(indices, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
+        HA_CLANG_SUPPRESS_WARNING_END
 
         uint32 offset = 0;
         for(const ImDrawCmd *cmd = drawList->CmdBuffer.begin(), *cmdEnd = drawList->CmdBuffer.end();

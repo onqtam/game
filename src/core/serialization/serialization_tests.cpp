@@ -15,6 +15,13 @@ bool operator==(const gizmo_application_state& lhs, const gizmo_application_stat
 template <typename T>
 T getSomeVal();
 
+template <typename T>
+T& addApprox(T& in) {
+    return in;
+}
+doctest::Approx addApprox(float in) { return doctest::Approx(in); }
+doctest::Approx addApprox(double in) { return doctest::Approx(in); }
+
 test_case_template_define("[serialization]", T, serialization_template) {
     const T data_in = getSomeVal<T>();
 
@@ -31,7 +38,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
     T                   data_out;
     const sajson::value root = doc.get_root();
     deserialize(data_out, root.get_object_value(0));
-    check_eq(data_in, data_out);
+    check_eq(addApprox(data_in), data_out);
 }
 
 // helpers for the counting of serialization routine tests
@@ -64,12 +71,7 @@ HA_SUPPRESS_WARNINGS_END
 
 // serialization_2.h
 HA_SERIALIZE_TEST(tinygizmo::rigid_transform, {{0, 1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-// clang-format off
-HA_SERIALIZE_TEST(tinygizmo::gizmo_application_state,
-    //{true, false, true, false, true, false, 1.f, 2.f, 3.f, 4.f, {5.f, 6.f}, {7.f, 8.f},
-    //{9.f, 10.f, 11.f, {12.f, 13.f, 14.f}, {15.f, 16.f, 17.f, 18.f}}});
-    tinygizmo::gizmo_application_state());
-// clang-format on
+HA_SERIALIZE_TEST(tinygizmo::gizmo_application_state, tinygizmo::gizmo_application_state());
 
 #undef HA_SERIALIZE_TEST
 

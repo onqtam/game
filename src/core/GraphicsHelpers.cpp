@@ -144,7 +144,7 @@ namespace stl = tinystl;
 
 HA_SUPPRESS_WARNINGS
 
-bx::DefaultAllocator g_allocator;
+static bx::DefaultAllocator g_allocator;
 
 static bx::AllocatorI* getAllocator() { return &g_allocator; }
 

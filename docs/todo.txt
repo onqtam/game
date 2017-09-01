@@ -1,6 +1,8 @@
 
 think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
+remove _tests.cpp files from emscripten build
+
 editor:
     parental
         grouping

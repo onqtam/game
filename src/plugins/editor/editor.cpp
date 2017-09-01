@@ -233,8 +233,10 @@ public:
 
                     // display the current node only if its parent is displayed (and there are no filters) or it has passed filtering
                     if((filter_passing && display) || (filter_passing && filter.IsActive())) {
+                        HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
                         is_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
                                                     name.c_str());
+                        HA_CLANG_SUPPRESS_WARNING_END
                         display &= is_open; // update the display flag for the children
 
                         if(ImGui::IsItemClicked()) {
@@ -316,8 +318,10 @@ public:
         if(ImGui::Begin("object attributes", nullptr, window_flags)) {
             for(auto& id : selected) {
                 auto& obj = id.get();
+                HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
                 if(ImGui::TreeNodeEx((const void*)obj.name().c_str(),
                                      ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str())) {
+                    HA_CLANG_SUPPRESS_WARNING_END
                     // attributes of the object itself
                     imgui_bind_attributes(obj, "", obj);
                     // attributes of the mixins
@@ -356,11 +360,11 @@ public:
 
         // update gizmo position to be between all selected objects
         if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
-            yama::vector3 avg_pos = {0, 0, 0};
+            yama::vector3    avg_pos = {0, 0, 0};
             yama::quaternion avg_rot =
                     (selected_with_gizmo.size() == 1) ?           // based on number of objects
                             tr::get_rot(selected_with_gizmo[0]) : // orientation of object
-                            yama::quaternion::identity();                // generic default rotation
+                            yama::quaternion::identity();         // generic default rotation
             for(auto& curr : selected_with_gizmo)
                 avg_pos += tr::get_pos(curr);
             avg_pos /= float(selected_with_gizmo.size());
