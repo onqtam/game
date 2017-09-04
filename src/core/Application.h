@@ -22,24 +22,25 @@ class HAPI Application : public Singleton<Application>
 
     void addInputEvent(const InputEvent& ev) { m_inputs.push_back(ev); }
 
-    int run(int argc, char** argv);
+    int  run(int argc, char** argv);
     void processEvents();
     void update();
-    void reset(uint32 flags = 0);
+    void reset(uint32 flags = BGFX_RESET_NONE);
 
 public:
     uint32 width() const { return m_width; }
     uint32 height() const { return m_height; }
     float  dt() const { return m_dt; }
 
-    enum State {
+    enum State
+    {
         RELOADING,
         EDITOR,
         PLAY
     };
 
     State state() const { return m_state; }
-    void setState(State state) { m_state = state; }
+    void  setState(State state) { m_state = state; }
 
     void addInputEventListener(InputEventListener* in);
     void removeInputEventListener(InputEventListener* in);
@@ -60,4 +61,6 @@ private:
     float m_lastTime = 0.f;
     float m_dt       = 0.f;
     float m_time     = 0.f;
+
+    bgfx_uniform_handle u_time;
 };

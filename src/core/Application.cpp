@@ -385,6 +385,9 @@ int Application::run(int argc, char** argv) {
 
     bgfx_set_platform_data(&pd);
     bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr, nullptr);
+    reset();
+
+    u_time = bgfx_create_uniform("u_time", BGFX_UNIFORM_TYPE_VEC4, 1);
 
     // Setup ImGui
     imguiInit();
@@ -412,6 +415,8 @@ int Application::run(int argc, char** argv) {
             update();
 #endif // EMSCRIPTEN
     }
+
+    bgfx_destroy_uniform(u_time);
 
     imguiShutdown();
     bgfx_shutdown();
@@ -442,6 +447,8 @@ void Application::update() {
     m_time     = float(glfwGetTime());
     m_dt       = m_time - m_lastTime;
     m_lastTime = m_time;
+
+    bgfx_set_uniform(u_time, &m_time, 1);
 
     // poll for events - also dispatches to imgui
     glfwPollEvents();

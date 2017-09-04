@@ -1,12 +1,12 @@
 
-think about sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
-
 if a function needs to work with an object and not just it's id - it should accept the object - to avoid unnecessary id-to-object lookups - also create() of the object manager should return an object&
 or alternatively use ids everywhere - saving a reference to an object might be bad in the future if the object manager changes how it stores them
 
 reuse more code - editor has some duplicated snippets
 
 duplicating an object part of a hierarchy leads to a crash
+
+grouping objects already in a group ==> resulting group should be part of that parental group
 
 editor:
     parental
@@ -96,11 +96,10 @@ questionable:
 - type parser
     - support for nested types
     - support for types in namespaces
+    - inheritance
+    - templated types
     - error checking
-    - ability to parse fields without needing FIELD at the start - hard because of inline methods...
-        - or find a way to use magic_get with classes with private fields to compare against the count of FIELD
-            - see this: https://github.com/apolukhin/magic_get/issues/10
-        - or use real parsing and compare results - python cppheaderparser?
+- sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
 
 == coding standard:
@@ -143,10 +142,14 @@ math:
     https://github.com/herumi/fmath
 scripting:
     - checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
+    - https://github.com/pkulchenko/ZeroBraneStudio
 UI:
     - librocket
     - turbobadger
     - imgui
+        https://github.com/aoterodelaroza/imgui-goodies
+        https://github.com/Flix01/imgui
+        https://github.com/ScottMudge/imgui_tabs
     - nuklear
 physics:
     - bullet

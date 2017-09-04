@@ -435,7 +435,7 @@ struct Mesh
                 uint64_t _state) const {
         if(BGFX_STATE_MASK == _state) {
             _state = 0 | BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_DEPTH_WRITE |
-                     BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_CULL_CCW | BGFX_STATE_MSAA;
+                     BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_CULL_CW | BGFX_STATE_MSAA;
         }
 
         bgfx_set_transform(_mtx, 1);

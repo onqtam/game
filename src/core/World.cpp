@@ -37,12 +37,12 @@ World::World()
 
     auto& obj = om.create("with_mesh!").get();
     obj.addMixin("mesh");
-    tr::set_scl(obj, {5, 5, 5});
+    tr::set_scl(obj, {4, 4, 4});
 
     auto& obj2 = om.create("with_mesh_2!").get();
     obj2.addMixin("mesh");
-    tr::set_scl(obj2, {3, 3, 3});
-    tr::set_pos(obj2, {10, 0, 10});
+    tr::set_scl(obj2, {2, 2, 2});
+    tr::set_pos(obj2, {3, 0, 3});
 
     auto& obj3 = om.create("with_mesh_3!").get();
     obj3.addMixin("mesh");
@@ -96,9 +96,7 @@ void World::update() {
             rend::get_rendering_parts(e.second, renderData);
     for(const auto& data : renderData) {
         if(data.mesh.isValid()) {
-            meshSubmit(data.mesh.get(), 0, data.shader.get(), (const float*)&data.transform
-                       //, BGFX_STATE_DEFAULT
-            );
+            meshSubmit(data.mesh.get(), 0, data.shader.get(), (const float*)&data.transform);
         } else if(data.geom.isValid()) {
             bgfx_set_transform((const float*)&data.transform, 1);
             bgfx_set_state(BGFX_STATE_DEFAULT | data.geom.get().state, 0);
