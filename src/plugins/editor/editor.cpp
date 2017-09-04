@@ -147,7 +147,7 @@ public:
             bgfx_set_vertex_buffer(0, m_vert_buf, 0, UINT32_MAX);
             bgfx_set_index_buffer(m_ind_buf, 0, UINT32_MAX);
             bgfx_set_state(BGFX_STATE_DEFAULT, 0);
-            bgfx_submit(0, m_program.get(), 0, false);
+            bgfx_submit(1, m_program.get(), 0, false);
         };
     }
 

@@ -36,8 +36,6 @@ editor:
     picking
         raycast
         rectangle selection
-    rendering
-        - make gizmos draw last - on top of the objects in the scene (but with depth test enabled for themselves!)
     curve editing
     bugs
         DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how

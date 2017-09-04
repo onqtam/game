@@ -158,7 +158,7 @@ static void imguiRender(ImDrawData* drawData) {
                 bgfx_set_texture(0, imguiFontUniform, th, UINT32_MAX);
                 bgfx_set_transient_vertex_buffer(0, &tvb, 0, numVertices);
                 bgfx_set_transient_index_buffer(&tib, offset, cmd->ElemCount);
-                bgfx_submit(0, imguiProgram, 0, false);
+                bgfx_submit(1, imguiProgram, 0, false);
             }
 
             offset += cmd->ElemCount;
@@ -482,4 +482,6 @@ void Application::reset(uint32 flags) {
     bgfx_reset(m_width, m_height, m_reset);
     bgfx_set_view_clear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x880088ff, 1.0f, 0);
     bgfx_set_view_rect(0, 0, 0, uint16(width()), uint16(height()));
+    bgfx_set_view_clear(1, BGFX_CLEAR_DEPTH, 0, 1.0f, 0);
+    bgfx_set_view_rect(1, 0, 0, uint16(width()), uint16(height()));
 }

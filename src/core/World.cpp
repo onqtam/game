@@ -85,9 +85,12 @@ void World::update() {
 
     // Set view and projection matrix for view 0.
     bgfx_set_view_transform(0, (float*)&view, (float*)&proj);
+    bgfx_set_view_transform(1, (float*)&view, (float*)&proj);
     // Set view 0 default viewport.
     bgfx_set_view_rect(0, 0, 0, uint16(app.width()), uint16(app.height()));
+    bgfx_set_view_rect(1, 0, 0, uint16(app.width()), uint16(app.height()));
     bgfx_touch(0);
+    bgfx_touch(1);
 
     std::vector<renderPart> renderData;
 
