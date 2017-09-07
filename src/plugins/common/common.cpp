@@ -146,7 +146,8 @@ class selected
         // if object has a bbox - submit it
         if(curr.implements(rend::get_aabb_msg)) {
             auto diag   = rend::get_aabb(curr).getDiagonal();
-            auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, colors::green);
+            auto color  = curr.has<selected>() ? colors::green : colors::light_green;
+            auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
             auto shader = ShaderMan::get().get("cubes");
             out.push_back({{}, geom, shader, tr::get_transform_mat(curr)});
         }

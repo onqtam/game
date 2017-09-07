@@ -114,4 +114,7 @@ struct GeomCreator
 typedef GeomMan::Handle GeomHandle;
 
 namespace colors
-{ const uint32 green = 0xff00ff00; } // namespace colors
+{
+const uint32 green       = 0xff00dd00;
+const uint32 light_green = 0xffffffff;
+} // namespace colors
