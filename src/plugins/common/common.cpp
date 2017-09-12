@@ -17,28 +17,47 @@ class tform
     FIELD yama::quaternion rot = {0, 0, 0, 1};
 
 public:
-    void set_pos(const yama::vector3& in) { pos = in; }
-    void set_scl(const yama::vector3& in) { scl = in; }
-    void set_rot(const yama::quaternion& in) { rot = in; }
+    void set_pos(const yama::vector3& in) { set_transform({in, scl, rot}); }
+    void set_scl(const yama::vector3& in) { set_transform({pos, in, rot}); }
+    void set_rot(const yama::quaternion& in) { set_transform({pos, scl, in}); }
 
-    const yama::vector3&    get_pos() const { return pos; }
-    const yama::vector3&    get_scl() const { return scl; }
-    const yama::quaternion& get_rot() const { return rot; }
+    yama::vector3    get_pos() const { return get_transform().pos; }
+    yama::vector3    get_scl() const { return get_transform().scl; }
+    yama::quaternion get_rot() const { return get_transform().rot; }
 
     void set_transform(const transform& in) {
-        pos = in.pos;
-        scl = in.scl;
-        rot = in.rot;
+        auto parent = get_parent(ha_this);
+        if(parent.isValid()) {
+            auto child_local = in.multiply(tr::get_transform(parent).inverse());
+            pos              = child_local.pos;
+            scl              = child_local.scl;
+            rot              = child_local.rot;
+        } else {
+            pos = in.pos;
+            scl = in.scl;
+            rot = in.rot;
+        }
     }
-    transform get_transform() const { return {pos, scl, rot}; }
+    transform get_transform() const {
+        transform my     = {pos, scl, rot};
+        auto      parent = get_parent(ha_this);
+        if(parent.isValid())
+            return my.multiply(tr::get_transform(parent));
+        else
+            return my;
+    }
 
     void move(const yama::vector3& in) { pos += in; }
 
     yama::matrix get_transform_mat() const {
+        auto parent     = get_parent(ha_this);
+        auto parent_mat = yama::matrix::identity();
+        if(parent.isValid())
+            parent_mat = tr::get_transform_mat(parent);
         auto tr = yama::matrix::translation(pos);
         auto rt = yama::matrix::rotation_quaternion(rot);
         auto sc = yama::matrix::scaling(scl);
-        return tr * rt * sc;
+        return parent_mat * tr * rt * sc;
     }
 };
 

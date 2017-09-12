@@ -35,6 +35,9 @@ World::World()
     m_editor.setName("editor");
     m_editor.addMixin("editor");
 
+    auto& center = om.create("0,0,0").get();
+    center.addMixin("mesh");
+
     auto& obj = om.create("with_mesh!").get();
     obj.addMixin("mesh");
     tr::set_scl(obj, {4, 4, 4});
