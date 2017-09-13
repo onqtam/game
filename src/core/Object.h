@@ -18,11 +18,8 @@ public:
 
     bool isValid() const;
 
-    operator const Object&() const { return get(); }
-    operator Object&() { return get(); }
-
-    Object&       get();
-    const Object& get() const { return const_cast<oid*>(this)->get(); }
+    Object&       obj();
+    const Object& obj() const { return const_cast<oid*>(this)->obj(); }
 
     static oid invalid() { return oid(-1); }
 };
@@ -46,7 +43,7 @@ class Object : public dynamix::object
 
 public:
     // TODO: make private?
-    Object(oid id = oid::invalid(), const std::string& name = "")
+    explicit Object(oid id = oid::invalid(), const std::string& name = "")
             : m_id(id)
             , m_name(name) {}
 
@@ -75,9 +72,6 @@ public:
 
     const oid id() const { return m_id; }
     oid       id() { return m_id; }
-
-    operator const oid&() const { return m_id; }
-    operator oid&() { return m_id; }
 
     const std::string& name() const { return m_name; }
     void               setName(const std::string& name) { m_name = name; }
@@ -147,9 +141,9 @@ inline bool oid::isValid() const {
     return m_value != int16(invalid()) && ObjectManager::get().has(*this);
 }
 
-inline Object& oid::get() {
+inline Object& oid::obj() {
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
-    hassert(*this != oid::invalid());
+    hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
     HA_GCC_SUPPRESS_WARNING_END
     return ObjectManager::get().getById(*this);
 }

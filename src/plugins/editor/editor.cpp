@@ -102,10 +102,10 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
         selected_with_gizmo.clear();
         for(const auto& curr : ObjectManager::get().getObjects()) {
             if(curr.second.has(selected_mixin_id)) {
-                selected.push_back(curr.second);
+                selected.push_back(curr.second.id());
                 if(curr.second.implements(sel::no_gizmo_msg))
                     continue;
-                selected_with_gizmo.push_back(curr.second);
+                selected_with_gizmo.push_back(curr.second.id());
             }
         }
     }
@@ -203,7 +203,7 @@ public:
 
                 // recursive select/deselect
                 std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
-                    auto& root_obj = root.get();
+                    auto& root_obj = root.obj();
                     if(select && !root_obj.has(selected_mixin_id))
                         to_select.push_back(root);
                     else if(root_obj.has(selected_mixin_id))
@@ -218,7 +218,7 @@ public:
 
                 // recursive tree build
                 std::function<void(oid, bool)> buildTree = [&](oid root, bool display) {
-                    auto&              obj = root.get();
+                    auto&              obj = root.obj();
                     ImGuiTreeNodeFlags node_flags =
                             ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
                             ImGuiTreeNodeFlags_DefaultOpen |
@@ -284,18 +284,18 @@ public:
                 comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
                 auto add_mutate_command = [&](oid id, bool select) {
-                    JsonData state = mixin_state(id.get(), "selected");
+                    JsonData state = mixin_state(id.obj(), "selected");
                     comp_cmd.commands.push_back(
                             object_mutation_cmd({id, {"selected"}, state.data(), select}));
                 };
 
                 for(auto curr : to_select) {
                     add_mutate_command(curr, true);
-                    curr.get().addMixin("selected");
+                    curr.obj().addMixin("selected");
                 }
                 for(auto curr : to_deselect) {
                     add_mutate_command(curr, false);
-                    curr.get().remMixin("selected");
+                    curr.obj().remMixin("selected");
                 }
 
                 add_command(comp_cmd);
@@ -311,7 +311,7 @@ public:
 
         if(ImGui::Begin("object attributes", nullptr, window_flags)) {
             for(auto& id : selected) {
-                auto& obj = id.get();
+                auto& obj = id.obj();
                 HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
                 if(ImGui::TreeNodeEx((const void*)obj.name().c_str(),
                                      ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str())) {
@@ -346,8 +346,8 @@ public:
         m_gizmo_state.cam.far_clip      = 1000.f;
         m_gizmo_state.cam.yfov          = yama::deg_to_rad(45.f);
         m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
-        auto cam_pos                    = tr::get_pos(World::get().camera());
-        auto cam_rot                    = tr::get_rot(World::get().camera());
+        auto cam_pos                    = tr::get_pos(World::get().camera().obj());
+        auto cam_rot                    = tr::get_rot(World::get().camera().obj());
         m_gizmo_state.cam.position      = {cam_pos.x, cam_pos.y, cam_pos.z};
         m_gizmo_state.cam.orientation   = {cam_rot.x, cam_rot.y, cam_rot.z, cam_rot.w};
         m_gizmo_ctx.update(m_gizmo_state);
@@ -356,11 +356,11 @@ public:
         if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
             yama::vector3    avg_pos = {0, 0, 0};
             yama::quaternion avg_rot =
-                    (selected_with_gizmo.size() == 1) ?           // based on number of objects
-                            tr::get_rot(selected_with_gizmo[0]) : // orientation of object
-                            yama::quaternion::identity();         // generic default rotation
+                    (selected_with_gizmo.size() == 1) ? // based on number of objects
+                            tr::get_rot(selected_with_gizmo[0].obj()) : // orientation of object
+                            yama::quaternion::identity();               // generic default rotation
             for(auto& curr : selected_with_gizmo)
-                avg_pos += tr::get_pos(curr);
+                avg_pos += tr::get_pos(curr.obj());
             avg_pos /= float(selected_with_gizmo.size());
 
             gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
@@ -373,8 +373,9 @@ public:
             if(m_gizmo_state.mouse_left) {
                 gizmo_transform_last = gizmo_transform;
                 for(auto& id : selected_with_gizmo) {
-                    sel::get_transform_on_gizmo_start(id)       = tr::get_transform(id);
-                    sel::get_transform_local_on_gizmo_start(id) = tr::get_transform_local(id);
+                    sel::get_transform_on_gizmo_start(id.obj()) = tr::get_transform(id.obj());
+                    sel::get_transform_local_on_gizmo_start(id.obj()) =
+                            tr::get_transform_local(id.obj());
                 }
             }
         }
@@ -392,7 +393,7 @@ public:
             //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
             {
                 for(auto& id : selected_with_gizmo) {
-                    auto t = sel::get_transform_on_gizmo_start(id);
+                    auto t = sel::get_transform_on_gizmo_start(id.obj());
                     t.pos += yama::v(diff_pos.x, diff_pos.y, diff_pos.z);
                     t.scl += yama::v(diff_scl.x, diff_scl.y, diff_scl.z);
                     if(selected_with_gizmo.size() == 1) {
@@ -402,7 +403,7 @@ public:
                         //t.rot = t.rot * rot; // local space
                         t.rot = rot * t.rot; // world space
                     }
-                    tr::set_transform(id, t);
+                    tr::set_transform(id.obj(), t);
                 }
             }
         }
@@ -422,8 +423,8 @@ public:
         compound_cmd comp_cmd;
 
         for(auto& id : selected_with_gizmo) {
-            auto old_t = sel::get_transform_local_on_gizmo_start(id);
-            auto new_t = tr::get_transform_local(id);
+            auto old_t = sel::get_transform_local_on_gizmo_start(id.obj());
+            auto new_t = tr::get_transform_local(id.obj());
             if(old_t.pos != new_t.pos) {
                 JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
                 JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
@@ -440,8 +441,8 @@ public:
                 comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             // update this - even though we havent started using the gizmo - or else this might break when deleting the object
-            sel::get_transform_on_gizmo_start(id)       = tr::get_transform(id);
-            sel::get_transform_local_on_gizmo_start(id) = tr::get_transform_local(id);
+            sel::get_transform_on_gizmo_start(id.obj())       = tr::get_transform(id.obj());
+            sel::get_transform_local_on_gizmo_start(id.obj()) = tr::get_transform_local(id.obj());
         }
         if(!comp_cmd.commands.empty())
             add_command(comp_cmd);
@@ -495,36 +496,36 @@ public:
                     // mutate all the currently selected objects and deselect them
                     for(auto& curr : selected) {
                         // parent old state
-                        auto     parent = get_parent(curr);
+                        auto     parent = get_parent(curr.obj());
                         JsonData parent_old;
                         if(parent.isValid())
-                            parent_old = mixin_state(parent, "parental");
+                            parent_old = mixin_state(parent.obj(), "parental");
 
                         // record parental state of current object before change
-                        JsonData curr_old = mixin_state(curr, "parental");
+                        JsonData curr_old = mixin_state(curr.obj(), "parental");
 
                         // set new parental relationship
-                        set_parent(curr, group);
+                        set_parent(curr.obj(), group.id());
 
                         // parent new state & command submit
                         if(parent.isValid()) {
-                            JsonData parent_new = mixin_state(parent, "parental");
+                            JsonData parent_new = mixin_state(parent.obj(), "parental");
                             comp_cmd.commands.push_back(attributes_changed_cmd(
                                     {parent, parent_old.data(), parent_new.data()}));
                         }
 
                         // current new state & command submit
-                        JsonData curr_new = mixin_state(curr, "parental");
+                        JsonData curr_new = mixin_state(curr.obj(), "parental");
                         comp_cmd.commands.push_back(
                                 attributes_changed_cmd({curr, curr_old.data(), curr_new.data()}));
 
                         // serialize the state of the mixins
-                        JsonData selected_state = mixin_state(curr, "selected");
+                        JsonData selected_state = mixin_state(curr.obj(), "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, {"selected"}, selected_state.data(), false}));
 
                         // remove the selection
-                        curr.get().remMixin("selected");
+                        curr.obj().remMixin("selected");
                     }
 
                     // select the new group object
@@ -532,10 +533,11 @@ public:
 
                     // add the created group object
                     JsonData state = object_state(group);
-                    comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
+                    comp_cmd.commands.push_back(
+                            object_creation_cmd({group.id(), state.data(), true}));
                     JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(
-                            {group, mixin_names(group), group_state.data(), true}));
+                            {group.id(), mixin_names(group), group_state.data(), true}));
 
                     // add the compound command
                     add_command(comp_cmd);
@@ -555,24 +557,24 @@ public:
                     for(auto& curr : selected) {
                         // make the copy and add it as a child to the new group
                         auto& copy = ObjectManager::get().create();
-                        copy.copy_from(curr);
-                        set_parent(copy, group);
+                        copy.copy_from(curr.obj());
+                        set_parent(copy, group.id());
 
                         // add commands for its creation
                         JsonData state = object_state(copy);
                         comp_cmd.commands.push_back(
-                                object_creation_cmd({copy, state.data(), true}));
+                                object_creation_cmd({copy.id(), state.data(), true}));
                         JsonData mix_state = mixin_state(copy, nullptr);
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {copy, mixin_names(copy), mix_state.data(), true}));
+                                {copy.id(), mixin_names(copy), mix_state.data(), true}));
 
                         // serialize the state of the currently selected mixins before unselecting them
-                        JsonData selected_state = mixin_state(curr, "selected");
+                        JsonData selected_state = mixin_state(curr.obj(), "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, {"selected"}, selected_state.data(), false}));
 
                         // remove the selection
-                        curr.get().remMixin("selected");
+                        curr.obj().remMixin("selected");
                     }
 
                     // select the new group object
@@ -580,10 +582,11 @@ public:
 
                     // add the created group object
                     JsonData state = object_state(group);
-                    comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
+                    comp_cmd.commands.push_back(
+                            object_creation_cmd({group.id(), state.data(), true}));
                     JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(
-                            {group, mixin_names(group), group_state.data(), true}));
+                            {group.id(), mixin_names(group), group_state.data(), true}));
 
                     // add the compound command
                     add_command(comp_cmd);
@@ -600,12 +603,12 @@ public:
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
                         // serialize the state of the mixins
-                        JsonData mix_state = mixin_state(curr, nullptr);
+                        JsonData mix_state = mixin_state(curr.obj(), nullptr);
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {curr, mixin_names(curr), mix_state.data(), false}));
+                                {curr, mixin_names(curr.obj()), mix_state.data(), false}));
 
                         // serialize the state of the object itself
-                        JsonData state = object_state(curr.get());
+                        JsonData state = object_state(curr.obj());
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({curr, state.data(), false}));
 
@@ -632,23 +635,23 @@ public:
             const auto root = doc.get_root();
             hassert(root.get_length() == 1);
             if(strcmp(root.get_object_key(0).data(), "") == 0)
-                deserialize(cmd.e.get(), root.get_object_value(0)); // object attribute
+                deserialize(cmd.e.obj(), root.get_object_value(0)); // object attribute
             else
-                common::deserialize_mixins(cmd.e, root); // mixin attribute
+                common::deserialize_mixins(cmd.e.obj(), root); // mixin attribute
         } else if(command_var.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
             auto& cmd = boost::get<object_mutation_cmd>(command_var);
             if((!cmd.added && undo) || (cmd.added && !undo)) {
                 // add the mixins
                 for(auto& mixin : cmd.mixins)
-                    cmd.id.get().addMixin(mixin.c_str());
+                    cmd.id.obj().addMixin(mixin.c_str());
                 // deserialize the mixins
                 const auto& doc = JsonData::parse(cmd.mixins_state);
                 hassert(doc.is_valid());
-                common::deserialize_mixins(cmd.id, doc.get_root());
+                common::deserialize_mixins(cmd.id.obj(), doc.get_root());
             } else {
                 // remove the mixins
                 for(auto& mixin : cmd.mixins)
-                    cmd.id.get().remMixin(mixin.c_str());
+                    cmd.id.obj().remMixin(mixin.c_str());
             }
         } else if(command_var.type() == boost::typeindex::type_id<object_creation_cmd>()) {
             auto& cmd = boost::get<object_creation_cmd>(command_var);
@@ -658,7 +661,7 @@ public:
                 ObjectManager::get().createFromId(cmd.id);
                 const auto& doc = JsonData::parse(cmd.object_state);
                 hassert(doc.is_valid());
-                deserialize(cmd.id.get(), doc.get_root().get_object_value(0)); // object attributes
+                deserialize(cmd.id.obj(), doc.get_root().get_object_value(0)); // object attributes
             }
         } else if(command_var.type() == boost::typeindex::type_id<compound_cmd>()) {
             auto& cmd = boost::get<compound_cmd>(command_var);

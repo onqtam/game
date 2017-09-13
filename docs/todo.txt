@@ -1,13 +1,18 @@
 
+deleting does not recurse through children
+
+sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
+
 duplicating an object part of a hierarchy leads to a crash
 
 grouping objects already in a group ==> resulting group should be part of that parental group
 
+when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
+
+grouping mode 2 - changing the current parental relationships without introducing new groups - what hotkeys?
+
 editor:
     parental
-        grouping mode 2 - changing the current parental relationships without introducing new groups - what hotkeys?
-        inheriting transformations
-        when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
         perhaps move out of a mixin and into the object class?
         detecting cycles ???
     duplicate objects
@@ -26,7 +31,6 @@ editor:
     IDs
     GUI
         dragging objects in the scene explorer - also editing parental information
-        setting attributes explicitly - separately from the serialize() functionality of the whole mixins
         add/remove mixins to/from objects
     picking
         raycast
@@ -35,8 +39,6 @@ editor:
     bugs
         things break when scaling not uniformly objects with parental relationships
         DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
-        dependent components - ordered creation... currently the camera mixin calls messages in its ctor
-            resolution: forbid the calling of messages in constructors and move widely used fields to the object itself!
     postponed
         - copy/paste of objects
         - gizmos - rotation around pivot different from the object center
@@ -45,23 +47,16 @@ editor:
         - editing an attribute of multiple objects at once
         - command script for editing the level
         - resource viewer - all resources with preview when appropriate and refcounts
-        - undo/redo
-            mutating objects - serialization/deserialization only for the relevant mixins - currently done for all...
 
 ditch bgfx
 ditch glfw in favor of sdl
 
 == questions:
 const-correctness around the oid and Object classes
-implicit conversion operators between oid and Object classes
 not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
 figure out a coding standard
-
-== coding guidelines:
-don't call any messages in ctors/dtors
-prefer accepting references/pointers to objects in functions that will use the object anyway instead of object ids - to avoid unnecessary id-to-object lookups
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
@@ -98,7 +93,6 @@ questionable:
     - inheritance
     - templated types
     - error checking
-- sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
 
 == coding standard:
@@ -108,6 +102,8 @@ questionable:
 - get into the habit of declaring every constructor explicit - https://akrzemi1.wordpress.com/2015/10/22/more-than-you-need/
 - prefer explicit casts (for example !! is bad - do a static_cast<bool>)
 - use the keywords form <ciso646>
+- don't call any messages in ctors/dtors
+- prefer accepting references/pointers to objects in functions that will use the object anyway instead of object ids - to avoid unnecessary id-to-object lookups
 - make a linter rule against "!" - better make the expression explicit! or use "not"
 - use the prefix increment operators instead of postfix - http://www.viva64.com/en/b/0093/
 - http://llvm.org/docs/CodingStandards.html

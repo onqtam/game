@@ -14,8 +14,8 @@ World::World()
         : Singleton<World>(this) {
     auto& om = ObjectManager::get();
 
-    m_camera = om.create("camera");
-    m_camera.get().addMixin("camera");
+    m_camera = om.create("camera").id();
+    m_camera.obj().addMixin("camera");
 
     // EXAMPLE: serialize and deserialize an object - may not work if the constructor of a mixin expects the presense of other mixins
     //JsonData state;
@@ -63,15 +63,15 @@ World::World()
     auto& dummy4 = om.create("dummy 4");
     auto& dummy5 = om.create("dummy with 5");
 
-    set_parent(obj2, obj);
+    set_parent(obj2, obj.id());
 
-    set_parent(dummy1, obj);
-    set_parent(dummy2, obj);
+    set_parent(dummy1, obj.id());
+    set_parent(dummy2, obj.id());
 
-    set_parent(dummy3, dummy1);
-    set_parent(dummy4, dummy1);
+    set_parent(dummy3, dummy1.id());
+    set_parent(dummy4, dummy1.id());
 
-    set_parent(dummy5, obj2);
+    set_parent(dummy5, obj2.id());
 }
 
 void World::update() {
@@ -83,8 +83,8 @@ void World::update() {
     bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     mixins["camera"].update(dt);
-    yama::matrix view = cam::get_view_matrix(m_camera.get());
-    yama::matrix proj = cam::get_projection_matrix(m_camera.get());
+    yama::matrix view = cam::get_view_matrix(m_camera.obj());
+    yama::matrix proj = cam::get_projection_matrix(m_camera.obj());
 
     // Set view and projection matrix for view 0.
     bgfx_set_view_transform(0, (float*)&view, (float*)&proj);

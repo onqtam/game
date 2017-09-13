@@ -33,7 +33,7 @@ public:
     void set_transform(const transform& in) {
         auto parent = get_parent(ha_this);
         if(parent.isValid()) {
-            auto child_local = in.multiply(tr::get_transform(parent).inverse());
+            auto child_local = in.multiply(tr::get_transform(parent.obj()).inverse());
             set_transform_local(child_local);
         } else {
             set_transform_local(in);
@@ -44,7 +44,7 @@ public:
         transform my     = get_transform_local();
         auto      parent = get_parent(ha_this);
         if(parent.isValid())
-            return my.multiply(tr::get_transform(parent));
+            return my.multiply(tr::get_transform(parent.obj()));
         else
             return my;
     }
@@ -100,8 +100,8 @@ class parental
 
     void orphan() {
         if(m_parent.isValid()) {
-            hassert(m_parent.get().has<parental>());
-            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            hassert(m_parent.obj().has<parental>());
+            auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
             auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
             hassert(me_in_parent_iter != parent_ch.end());
             std::swap(*me_in_parent_iter, parent_ch.back());
@@ -113,8 +113,8 @@ class parental
         while(m_children.size()) {
             auto& ch = m_children.back();
             hassert(ch.isValid());
-            hassert(ch.get().has<parental>());
-            ch.get().get<parental>()->m_parent = oid::invalid();
+            hassert(ch.obj().has<parental>());
+            ch.obj().get<parental>()->m_parent = oid::invalid();
             m_children.pop_back();
         }
     }
@@ -137,8 +137,8 @@ public:
         m_parent = parent;
         if(m_parent != oid::invalid()) {
             hassert(m_parent.isValid());
-            hassert(m_parent.get().has<parental>());
-            auto& parent_ch         = m_parent.get().get<parental>()->m_children;
+            hassert(m_parent.obj().has<parental>());
+            auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
             auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
             hassert(me_in_parent_iter == parent_ch.end());
             parent_ch.push_back(ha_this.id());
@@ -167,7 +167,7 @@ class selected
         if(curr.implements(get_children_msg)) {
             auto& children = get_children(curr);
             for(auto& child_id : children) {
-                auto& child = child_id.get();
+                auto& child = child_id.obj();
                 // if child is not selected - to avoid rendering the same bbox multiple times
                 if(!child.has<selected>())
                     submit_aabb_recursively(child, out);
