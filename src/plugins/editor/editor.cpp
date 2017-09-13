@@ -496,15 +496,16 @@ public:
                     auto average_pos = yama::vector3::zero();
 
                     // save the transforms of the selected objects before changing parental information
-                    std::vector<std::pair<oid, transform>> old_transforms;
-                    // >>> OMGOMGOMG NOT LIKE THIS!!! <<< local vs world!
+                    std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
 
                     // mutate all the currently selected objects and deselect them
                     for(auto& curr : selected) {
                         // accumulate the position
                         average_pos += tr::get_pos(curr.obj());
                         // record the old transform
-                        old_transforms.push_back({curr, tr::get_transform(curr.obj())});
+                        old_transforms.push_back({curr,
+                                                  {tr::get_transform(curr.obj()),
+                                                   mixin_state(curr.obj(), "tform")}});
 
                         // parent old state
                         auto     parent = get_parent(curr.obj());
@@ -542,6 +543,16 @@ public:
                     // set position of newly created group to be the average position of all selected objects
                     average_pos /= float(selected.size());
                     tr::set_pos(group, average_pos);
+
+                    // fix the transforms after the position of the group has been set
+                    for(auto& curr : old_transforms) {
+                        // set the old world transform (will recalculate the local transform of the object)
+                        tr::set_transform(curr.first.obj(), curr.second.first);
+                        // add the changed transform to the undo/redo command list
+                        JsonData new_tform = mixin_state(curr.first.obj(), "tform");
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr.first, curr.second.second.data(), new_tform.data()}));
+                    }
 
                     // select the new group object
                     group.addMixin("selected");
