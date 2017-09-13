@@ -1,7 +1,4 @@
 
-if a function needs to work with an object and not just it's id - it should accept the object - to avoid unnecessary id-to-object lookups - also create() of the object manager should return an object&
-or alternatively use ids everywhere - saving a reference to an object might be bad in the future if the object manager changes how it stores them
-
 duplicating an object part of a hierarchy leads to a crash
 
 grouping objects already in a group ==> resulting group should be part of that parental group
@@ -56,6 +53,7 @@ ditch glfw in favor of sdl
 
 == questions:
 const-correctness around the oid and Object classes
+implicit conversion operators between oid and Object classes
 not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed

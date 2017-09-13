@@ -490,7 +490,7 @@ public:
                     compound_cmd comp_cmd;
 
                     // create new group object
-                    auto group = ObjectManager::get().create();
+                    auto& group = ObjectManager::get().create();
 
                     // mutate all the currently selected objects and deselect them
                     for(auto& curr : selected) {
@@ -528,10 +528,10 @@ public:
                     }
 
                     // select the new group object
-                    group.get().addMixin("selected");
+                    group.addMixin("selected");
 
                     // add the created group object
-                    JsonData state = object_state(group.get());
+                    JsonData state = object_state(group);
                     comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
                     JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(
@@ -549,17 +549,17 @@ public:
                     compound_cmd comp_cmd;
 
                     // create new group object
-                    auto group = ObjectManager::get().create();
+                    auto& group = ObjectManager::get().create();
 
                     // make copies of all selected objects
                     for(auto& curr : selected) {
                         // make the copy and add it as a child to the new group
-                        auto copy = ObjectManager::get().create();
-                        copy.get().copy_from(curr);
-                        set_parent(copy.get(), group);
+                        auto& copy = ObjectManager::get().create();
+                        copy.copy_from(curr);
+                        set_parent(copy, group);
 
                         // add commands for its creation
-                        JsonData state = object_state(copy.get());
+                        JsonData state = object_state(copy);
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({copy, state.data(), true}));
                         JsonData mix_state = mixin_state(copy, nullptr);
@@ -576,10 +576,10 @@ public:
                     }
 
                     // select the new group object
-                    group.get().addMixin("selected");
+                    group.addMixin("selected");
 
                     // add the created group object
-                    JsonData state = object_state(group.get());
+                    JsonData state = object_state(group);
                     comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
                     JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(

@@ -108,7 +108,7 @@ private:
     std::map<oid, Object> m_objects;
 
 public:
-    oid create(const std::string& in_name = std::string()) {
+    Object& create(const std::string& in_name = std::string()) {
         std::string name = in_name;
         if(name.empty())
             name = "object_" + std::to_string(m_curr_id);
@@ -116,11 +116,13 @@ public:
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
         it.first->second.addMixin("tform");
         it.first->second.addMixin("parental");
-        return oid(m_curr_id++);
+
+        ++m_curr_id;
+        return it.first->second;
     }
 
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
-    oid createFromId(oid id) {
+    Object& createFromId(oid id) {
         hassert(!has(id));
         return m_objects.emplace(id, Object(id)).first->second;
     }
@@ -147,7 +149,7 @@ inline bool oid::isValid() const {
 
 inline Object& oid::get() {
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
-    hassert(isValid());
+    hassert(*this != oid::invalid());
     HA_GCC_SUPPRESS_WARNING_END
     return ObjectManager::get().getById(*this);
 }

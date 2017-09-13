@@ -35,33 +35,33 @@ World::World()
     m_editor.setName("editor");
     m_editor.addMixin("editor");
 
-    auto& center = om.create("0,0,0").get();
+    auto& center = om.create("0,0,0");
     center.addMixin("mesh");
 
-    auto& obj = om.create("with_mesh!").get();
+    auto& obj = om.create("with_mesh!");
     obj.addMixin("mesh");
     tr::set_scl(obj, {4, 4, 4});
 
-    auto& obj2 = om.create("with_mesh_2!").get();
+    auto& obj2 = om.create("with_mesh_2!");
     obj2.addMixin("mesh");
     tr::set_scl(obj2, {2, 2, 2});
     tr::set_pos(obj2, {3, 0, 3});
 
-    auto& obj3 = om.create("with_mesh_3!").get();
+    auto& obj3 = om.create("with_mesh_3!");
     obj3.addMixin("mesh");
     tr::set_scl(obj3, {3, 3, 3});
     tr::set_pos(obj3, {15, 0, -10});
 
-    auto& copied = om.create().get();
+    auto& copied = om.create();
     copied.copy_from(obj3);
     copied.setName("with_mesh_4   !!!");
     tr::move(copied, {0, 0, 5});
 
-    auto& dummy1 = om.create("with_no_brain").get();
-    auto& dummy2 = om.create("with_no_brain 2").get();
-    auto& dummy3 = om.create("blabla").get();
-    auto& dummy4 = om.create("dummy 4").get();
-    auto& dummy5 = om.create("dummy with 5").get();
+    auto& dummy1 = om.create("with_no_brain");
+    auto& dummy2 = om.create("with_no_brain 2");
+    auto& dummy3 = om.create("blabla");
+    auto& dummy4 = om.create("dummy 4");
+    auto& dummy5 = om.create("dummy with 5");
 
     set_parent(obj2, obj);
 
@@ -83,8 +83,8 @@ void World::update() {
     bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
     mixins["camera"].update(dt);
-    yama::matrix view = cam::get_view_matrix(m_camera);
-    yama::matrix proj = cam::get_projection_matrix(m_camera);
+    yama::matrix view = cam::get_view_matrix(m_camera.get());
+    yama::matrix proj = cam::get_projection_matrix(m_camera.get());
 
     // Set view and projection matrix for view 0.
     bgfx_set_view_transform(0, (float*)&view, (float*)&proj);
