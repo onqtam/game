@@ -490,10 +490,22 @@ public:
                     compound_cmd comp_cmd;
 
                     // create new group object
-                    auto& group = ObjectManager::get().create();
+                    auto& group = ObjectManager::get().create("group");
+
+                    // average position for the new group object
+                    auto average_pos = yama::vector3::zero();
+
+                    // save the transforms of the selected objects before changing parental information
+                    std::vector<std::pair<oid, transform>> old_transforms;
+                    // >>> OMGOMGOMG NOT LIKE THIS!!! <<< local vs world!
 
                     // mutate all the currently selected objects and deselect them
                     for(auto& curr : selected) {
+                        // accumulate the position
+                        average_pos += tr::get_pos(curr.obj());
+                        // record the old transform
+                        old_transforms.push_back({curr, tr::get_transform(curr.obj())});
+
                         // parent old state
                         auto     parent = get_parent(curr.obj());
                         JsonData parent_old;
@@ -526,6 +538,10 @@ public:
                         // remove the selection
                         curr.obj().remMixin("selected");
                     }
+
+                    // set position of newly created group to be the average position of all selected objects
+                    average_pos /= float(selected.size());
+                    tr::set_pos(group, average_pos);
 
                     // select the new group object
                     group.addMixin("selected");

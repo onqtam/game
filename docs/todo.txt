@@ -1,6 +1,4 @@
 
-sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
-
 duplicating an object part of a hierarchy leads to a crash
 
 grouping objects already in a group ==> resulting group should be part of that parental group
@@ -90,6 +88,7 @@ questionable:
     - inheritance
     - templated types
     - error checking
+- sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
 
 == coding standard:

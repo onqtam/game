@@ -119,10 +119,9 @@ private:
     std::map<oid, Object> m_objects;
 
 public:
-    Object& create(const std::string& in_name = std::string()) {
+    Object& create(const std::string& in_name = "object") {
         std::string name = in_name;
-        if(name.empty())
-            name = "object_" + std::to_string(m_curr_id);
+        name += "_" + std::to_string(m_curr_id);
 
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
         it.first->second.addMixin("tform");
