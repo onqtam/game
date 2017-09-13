@@ -66,6 +66,17 @@ inline void hash_combine(std::size_t& seed, const T& v, Rest... rest) {
     hash_combine(seed, rest...);
 }
 
+// taken from here: https://stackoverflow.com/a/16597048/3162383
+template <typename ContainerT, typename PredicateT>
+void erase_if(ContainerT& items, const PredicateT& predicate) {
+    for(auto it = items.begin(); it != items.end();) {
+        if(predicate(*it))
+            it = items.erase(it);
+        else
+            ++it;
+    }
+}
+
 // A fast and portable version of itoa for base 10
 // Its 2.5 to 6 times faster than the non standart one (faster with larger numbers)
 template <typename T>

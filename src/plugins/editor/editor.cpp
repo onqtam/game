@@ -489,6 +489,42 @@ public:
                     printf("[GROUP]\n");
                     compound_cmd comp_cmd;
 
+                    auto find_lowest_common_ancestor = [&]() {
+                        // go upwards from each selected node and update the visited count for each node
+                        std::map<oid, int> visited_counts;
+                        for(auto curr : selected) {
+                            while(curr != oid::invalid()) {
+                                visited_counts[curr]++;
+                                curr = get_parent(curr.obj());
+                            }
+                        }
+
+                        // remove any node that has been visited less times than the number of selected objects
+                        Utils::erase_if(visited_counts,
+                                        [&](auto in) { return in.second < int(selected.size()); });
+
+                        if(visited_counts.size() == 1 &&
+                           std::find(selected.begin(), selected.end(),
+                                     visited_counts.begin()->first) == selected.end()) {
+                            // if only one object is left after the filtering (common ancestor to all) and is not part of the selection
+                            return visited_counts.begin()->first;
+                        } else if(visited_counts.size() > 1) {
+                            // if atleast 2 nodes have the same visited count - means that one of the selected
+                            // nodes is also a common ancestor - we need to find it and get its parent
+                            for(auto& curr : visited_counts)
+                                if(curr.first.obj().has(selected_mixin_id))
+                                    return get_parent(curr.first.obj());
+                        }
+                        // all other cases
+                        return oid::invalid();
+                    };
+
+                    auto common_ancestor = find_lowest_common_ancestor();
+                    if(common_ancestor.isValid())
+                        printf("%s\n", common_ancestor.obj().name().c_str());
+                    else
+                        printf("invalid!!!\n");
+
                     // create new group object
                     auto& group = ObjectManager::get().create("group");
 

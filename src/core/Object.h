@@ -35,7 +35,7 @@ public:
     explicit oid(int16 value = -1)
             : const_oid(value) {}
 
-    Object& obj(); // not const - intentionally
+    Object& obj() const; // returns a non-const reference to the object - intentionally
 
     static oid invalid() { return oid(); }
 };
@@ -173,7 +173,7 @@ inline const Object& const_oid::obj() const {
     return ObjectManager::get().getById(*this);
 }
 
-inline Object& oid::obj() {
+inline Object& oid::obj() const {
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
     HA_GCC_SUPPRESS_WARNING_END
