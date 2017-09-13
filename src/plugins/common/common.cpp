@@ -25,21 +25,23 @@ public:
     yama::vector3    get_scl() const { return get_transform().scl; }
     yama::quaternion get_rot() const { return get_transform().rot; }
 
+    void set_transform_local(const transform& in) {
+        pos = in.pos;
+        scl = in.scl;
+        rot = in.rot;
+    }
     void set_transform(const transform& in) {
         auto parent = get_parent(ha_this);
         if(parent.isValid()) {
             auto child_local = in.multiply(tr::get_transform(parent).inverse());
-            pos              = child_local.pos;
-            scl              = child_local.scl;
-            rot              = child_local.rot;
+            set_transform_local(child_local);
         } else {
-            pos = in.pos;
-            scl = in.scl;
-            rot = in.rot;
+            set_transform_local(in);
         }
     }
+    transform get_transform_local() const { return {pos, scl, rot}; }
     transform get_transform() const {
-        transform my     = {pos, scl, rot};
+        transform my     = get_transform_local();
         auto      parent = get_parent(ha_this);
         if(parent.isValid())
             return my.multiply(tr::get_transform(parent));
@@ -47,18 +49,8 @@ public:
             return my;
     }
 
+    // TODO: rename - because it's currently in local only
     void move(const yama::vector3& in) { pos += in; }
-
-    yama::matrix get_transform_mat() const {
-        auto parent     = get_parent(ha_this);
-        auto parent_mat = yama::matrix::identity();
-        if(parent.isValid())
-            parent_mat = tr::get_transform_mat(parent);
-        auto tr = yama::matrix::translation(pos);
-        auto rt = yama::matrix::rotation_quaternion(rot);
-        auto sc = yama::matrix::scaling(scl);
-        return parent_mat * tr * rt * sc;
-    }
 };
 
 HA_MIXIN_DEFINE(tform, Interface_transform);
@@ -92,7 +84,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, tr::get_transform_mat(ha_this)});
+        out.push_back({_mesh, {}, _shader, tr::get_transform(ha_this).as_mat()});
     }
 
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
@@ -160,6 +152,7 @@ class selected
 {
     HA_MESSAGES_IN_MIXIN(selected);
     FIELD transform old_t;
+    FIELD transform old_local_t;
 
     static void submit_aabb_recursively(const Object& curr, std::vector<renderPart>& out) {
         // if object has a bbox - submit it
@@ -168,7 +161,7 @@ class selected
             auto color  = curr.has<selected>() ? colors::green : colors::light_green;
             auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
             auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, tr::get_transform_mat(curr)});
+            out.push_back({{}, geom, shader, tr::get_transform(curr).as_mat()});
         }
         // recurse through children
         if(curr.implements(get_children_msg)) {
@@ -188,8 +181,9 @@ public:
     }
 
     transform& get_transform_on_gizmo_start() { return old_t; }
+    transform& get_transform_local_on_gizmo_start() { return old_local_t; }
 };
 
-HA_MIXIN_DEFINE(selected, sel::get_transform_on_gizmo_start_msg& rend::get_rendering_parts_msg);
+HA_MIXIN_DEFINE(selected, Interface_selected& rend::get_rendering_parts_msg);
 
 #include <gen/common.cpp.inl>

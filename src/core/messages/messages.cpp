@@ -16,9 +16,10 @@ HA_DEFINE_MSG(tr, set_rot)
 HA_DEFINE_MSG(tr, get_pos)
 HA_DEFINE_MSG(tr, get_scl)
 HA_DEFINE_MSG(tr, get_rot)
+HA_DEFINE_MSG(tr, set_transform_local)
 HA_DEFINE_MSG(tr, set_transform)
+HA_DEFINE_MSG(tr, get_transform_local)
 HA_DEFINE_MSG(tr, get_transform)
-HA_DEFINE_MSG(tr, get_transform_mat)
 HA_DEFINE_MSG(tr, move)
 
 // parental
@@ -29,6 +30,7 @@ DYNAMIX_DEFINE_MESSAGE(set_parent);
 // selected
 HA_DEFINE_MSG(sel, no_gizmo)
 HA_DEFINE_MSG(sel, get_transform_on_gizmo_start)
+HA_DEFINE_MSG(sel, get_transform_local_on_gizmo_start)
 
 // camera
 HA_DEFINE_MSG(cam, get_view_matrix)

@@ -15,6 +15,7 @@ struct transform
 
     // thanks to @ongamex
     transform inverse() const {
+        // TODO: optimize this
         auto inv = yama::inverse(as_mat());
         return {{inv.m03, inv.m13, inv.m23},
                 {1.f / scl.x, 1.f / scl.y, 1.f / scl.z},

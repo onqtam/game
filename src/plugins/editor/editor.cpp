@@ -377,8 +377,10 @@ public:
         if(mouse_button_left_changed) {
             if(m_gizmo_state.mouse_left) {
                 gizmo_transform_last = gizmo_transform;
-                for(auto& id : selected_with_gizmo)
-                    sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
+                for(auto& id : selected_with_gizmo) {
+                    sel::get_transform_on_gizmo_start(id)       = tr::get_transform(id);
+                    sel::get_transform_local_on_gizmo_start(id) = tr::get_transform_local(id);
+                }
             }
         }
 
@@ -413,7 +415,7 @@ public:
         // check if anything changed after release
         if(mouse_button_left_changed) {
             if(!m_gizmo_state.mouse_left) {
-                handle_gizmo_changes_on_multi_selection();
+                handle_gizmo_changes();
             }
         }
         mouse_button_left_changed = false;
@@ -421,12 +423,12 @@ public:
         m_gizmo_ctx.draw();
     }
 
-    void handle_gizmo_changes_on_multi_selection() {
+    void handle_gizmo_changes() {
         compound_cmd comp_cmd;
 
         for(auto& id : selected_with_gizmo) {
-            auto old_t = sel::get_transform_on_gizmo_start(id);
-            auto new_t = tr::get_transform(id);
+            auto old_t = sel::get_transform_local_on_gizmo_start(id);
+            auto new_t = tr::get_transform_local(id);
             if(old_t.pos != new_t.pos) {
                 JsonData ov = attr_changed_command("tform", "pos", old_t.pos);
                 JsonData nv = attr_changed_command("tform", "pos", new_t.pos);
@@ -443,7 +445,8 @@ public:
                 comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             // update this - even though we havent started using the gizmo - or else this might break when deleting the object
-            sel::get_transform_on_gizmo_start(id) = tr::get_transform(id);
+            sel::get_transform_on_gizmo_start(id)       = tr::get_transform(id);
+            sel::get_transform_local_on_gizmo_start(id) = tr::get_transform_local(id);
         }
         if(!comp_cmd.commands.empty())
             add_command(comp_cmd);
@@ -608,7 +611,7 @@ public:
             if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE)) {
                 if(!selected.empty()) {
                     printf("[DELETE]\n");
-                    handle_gizmo_changes_on_multi_selection();
+                    handle_gizmo_changes();
 
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);

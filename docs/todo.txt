@@ -38,6 +38,7 @@ editor:
         rectangle selection
     curve editing
     bugs
+        things break when scaling not uniformly objects with parental relationships
         DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
         dependent components - ordered creation... currently the camera mixin calls messages in its ctor
             resolution: forbid the calling of messages in constructors and move widely used fields to the object itself!
@@ -61,6 +62,10 @@ not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
 figure out a coding standard
+
+== coding guidelines:
+don't call any messages in ctors/dtors
+prefer accepting references/pointers to objects in functions that will use the object anyway instead of object ids - to avoid unnecessary id-to-object lookups
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
