@@ -1,41 +1,21 @@
 #pragma once
 
 class Object;
-
-class oid
-{
-    int16 m_value;
-
-public:
-    explicit oid(int16 value = -1)
-            : m_value(value) {}
-    explicit operator int16() const { return m_value; }
-
-    bool operator<(const oid& other) const { return m_value < other.m_value; }
-    bool operator==(const oid& other) const { return m_value == other.m_value; }
-    bool operator!=(const oid& other) const { return m_value != other.m_value; }
-
-    explicit operator bool() const { return isValid(); }
-    bool     isValid() const;
-
-    Object& obj(); // not const - intentionally
-
-    static oid invalid() { return oid(); }
-};
+class oid;
 
 class const_oid
 {
     friend class ObjectManager;
+    friend class oid;
 
-    int16    m_value;
-    explicit operator int16() { return m_value; }
+    int16 m_value;
 
 public:
     explicit const_oid(int16 value = -1)
             : m_value(value) {}
+    explicit operator int16() const { return m_value; }
 
-    const_oid(const oid& id)
-            : m_value(int16(id)) {}
+    const_oid(const oid& id);
 
     bool operator<(const const_oid& other) const { return m_value < other.m_value; }
     bool operator==(const const_oid& other) const { return m_value == other.m_value; }
@@ -47,6 +27,17 @@ public:
     const Object& obj() const;
 
     static const_oid invalid() { return const_oid(); }
+};
+
+class oid : public const_oid
+{
+public:
+    explicit oid(int16 value = -1)
+            : const_oid(value) {}
+
+    Object& obj(); // not const - intentionally
+
+    static oid invalid() { return oid(); }
 };
 
 REFL_ATTRIBUTES(REFL_NO_INLINE)
@@ -169,22 +160,21 @@ public:
     auto& getObjects() { return m_objects; }
 };
 
-inline bool oid::isValid() const {
-    return m_value != int16(invalid()) && ObjectManager::get().has(*this);
-}
-
-inline Object& oid::obj() {
-    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
-    hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
-    HA_GCC_SUPPRESS_WARNING_END
-    return ObjectManager::get().getById(*this);
-}
+inline const_oid::const_oid(const oid& id)
+        : m_value(int16(id)) {}
 
 inline bool const_oid::isValid() const {
     return m_value != int16(invalid()) && ObjectManager::get().has(*this);
 }
 
 inline const Object& const_oid::obj() const {
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
+    hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
+    HA_GCC_SUPPRESS_WARNING_END
+    return ObjectManager::get().getById(*this);
+}
+
+inline Object& oid::obj() {
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
     HA_GCC_SUPPRESS_WARNING_END
