@@ -32,8 +32,8 @@ World::World()
     //    m_camera.get().addMixin(root.get_object_key(i).data());
     //common::deserialize_mixins(m_camera, root);
 
-    m_editor.setName("editor");
-    m_editor.addMixin("editor");
+    m_editor = om.create("editor").id();
+    m_editor.obj().addMixin("editor");
 
     auto& center = om.create("0,0,0");
     center.addMixin("mesh");

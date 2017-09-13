@@ -100,7 +100,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     void updateSelected() {
         selected.clear();
         selected_with_gizmo.clear();
-        for(const auto& curr : ObjectManager::get().getObjects()) {
+        for(auto& curr : ObjectManager::get().getObjects()) {
             if(curr.second.has(selected_mixin_id)) {
                 selected.push_back(curr.second.id());
                 if(curr.second.implements(sel::no_gizmo_msg))
@@ -268,9 +268,9 @@ public:
                     }
                 };
 
-                for(const auto& curr : om.getObjects()) {
+                for(auto& curr : om.getObjects()) {
                     // recurse from those without a parent only
-                    if(curr.second.implements(get_parent_msg)) {
+                    if(curr.second.implements(get_const_parent_msg)) {
                         if(::get_parent(curr.second) == oid::invalid())
                             buildTree(curr.second.id(), true);
                     }

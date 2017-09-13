@@ -129,8 +129,12 @@ public:
     }
     HA_CLANG_SUPPRESS_WARNING_END
 
-    oid                     get_parent() const { return m_parent; }
-    const std::vector<oid>& get_children() const { return m_children; }
+    const_oid                     get_parent() const { return m_parent; }
+    oid                           get_parent() { return m_parent; }
+    std::vector<oid>&             get_children() { return m_children; }
+    const std::vector<const_oid>& get_children() const {
+        return reinterpret_cast<const std::vector<const_oid>&>(m_children);
+    }
 
     void set_parent(oid parent) {
         orphan();
@@ -164,7 +168,7 @@ class selected
             out.push_back({{}, geom, shader, tr::get_transform(curr).as_mat()});
         }
         // recurse through children
-        if(curr.implements(get_children_msg)) {
+        if(curr.implements(get_const_children_msg)) {
             auto& children = get_children(curr);
             for(auto& child_id : children) {
                 auto& child = child_id.obj();

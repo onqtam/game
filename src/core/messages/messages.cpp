@@ -23,8 +23,10 @@ HA_DEFINE_MSG(tr, get_transform)
 HA_DEFINE_MSG(tr, move)
 
 // parental
-DYNAMIX_DEFINE_MESSAGE(get_parent);
-DYNAMIX_DEFINE_MESSAGE(get_children);
+DYNAMIX_DEFINE_MESSAGE(get_const_parent);
+DYNAMIX_DEFINE_MESSAGE(get_non_const_parent);
+DYNAMIX_DEFINE_MESSAGE(get_const_children);
+DYNAMIX_DEFINE_MESSAGE(get_non_const_children);
 DYNAMIX_DEFINE_MESSAGE(set_parent);
 
 // selected

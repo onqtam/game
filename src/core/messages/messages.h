@@ -28,11 +28,15 @@ HA_MSG_1(tr, void, move, const yama::vector3&, pos)
                     tr::get_transform_local_msg& tr::get_transform_msg& tr::move_msg
 
 // parental
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, oid, get_parent)
-DYNAMIX_EXPORTED_CONST_MESSAGE_0(HAPI, const std::vector<oid>&, get_children)
+DYNAMIX_EXPORTED_CONST_MESSAGE_0_OVERLOAD(HAPI, get_const_parent, const_oid, get_parent)
+DYNAMIX_EXPORTED_MESSAGE_0_OVERLOAD(HAPI, get_non_const_parent, oid, get_parent)
+DYNAMIX_EXPORTED_CONST_MESSAGE_0_OVERLOAD(HAPI, get_const_children, const std::vector<const_oid>&, get_children)
+DYNAMIX_EXPORTED_MESSAGE_0_OVERLOAD(HAPI, get_non_const_children, std::vector<oid>&, get_children)
 DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, oid, _parent)
 
-#define Interface_parental get_parent_msg& get_children_msg& set_parent_msg
+#define Interface_parental                                                                         \
+    get_const_parent_msg& get_non_const_parent_msg& get_const_children_msg&                        \
+            get_non_const_children_msg& set_parent_msg
 
 // selected
 HA_CONST_MULTI_MSG_0(sel, void, no_gizmo) // for simulating a mixin fact - see dynamix roadmap

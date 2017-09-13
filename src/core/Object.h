@@ -2,13 +2,12 @@
 
 class Object;
 
-// TODO: rethink this - currently a const oid can be copied and non-const messages can be called on the copy - is that ok?
 class oid
 {
     int16 m_value;
 
 public:
-    explicit oid(int16 value = int16(invalid()))
+    explicit oid(int16 value = -1)
             : m_value(value) {}
     explicit operator int16() const { return m_value; }
 
@@ -16,17 +15,45 @@ public:
     bool operator==(const oid& other) const { return m_value == other.m_value; }
     bool operator!=(const oid& other) const { return m_value != other.m_value; }
 
-    bool isValid() const;
+    explicit operator bool() const { return isValid(); }
+    bool     isValid() const;
 
-    Object&       obj();
-    const Object& obj() const { return const_cast<oid*>(this)->obj(); }
+    Object& obj(); // not const - intentionally
 
-    static oid invalid() { return oid(-1); }
+    static oid invalid() { return oid(); }
+};
+
+class const_oid
+{
+    friend class ObjectManager;
+
+    int16    m_value;
+    explicit operator int16() { return m_value; }
+
+public:
+    explicit const_oid(int16 value = -1)
+            : m_value(value) {}
+
+    const_oid(const oid& id)
+            : m_value(int16(id)) {}
+
+    bool operator<(const const_oid& other) const { return m_value < other.m_value; }
+    bool operator==(const const_oid& other) const { return m_value == other.m_value; }
+    bool operator!=(const const_oid& other) const { return m_value != other.m_value; }
+
+    explicit operator bool() const { return isValid(); }
+    bool     isValid() const;
+
+    const Object& obj() const;
+
+    static const_oid invalid() { return const_oid(); }
 };
 
 REFL_ATTRIBUTES(REFL_NO_INLINE)
 class Object : public dynamix::object
 {
+    friend class ObjectManager;
+
     friend HAPI void serialize(const Object& src, JsonData& out);
     friend HAPI size_t deserialize(Object& dest, const sajson::value& val);
     friend HAPI cstr imgui_bind_attributes(Object& e, cstr mixin, Object& obj);
@@ -41,12 +68,11 @@ class Object : public dynamix::object
         m_flags = other.m_flags;
     }
 
-public:
-    // TODO: make private?
     explicit Object(oid id = oid::invalid(), const std::string& name = "")
             : m_id(id)
             , m_name(name) {}
 
+public:
     // hides dynamix::object::copy()
     Object copy() const {
         Object o;
@@ -70,7 +96,7 @@ public:
         copy_inherited_fields(o);
     }
 
-    const oid id() const { return m_id; }
+    const_oid id() const { return m_id; }
     oid       id() { return m_id; }
 
     const std::string& name() const { return m_name; }
@@ -127,10 +153,16 @@ public:
     }
 
     bool has(oid id) const { return m_objects.count(id) > 0; }
+    bool has(const_oid id) const { return m_objects.count(oid(int16(id))) > 0; }
 
     Object& getById(oid id) {
         hassert(has(id));
         return m_objects.at(id);
+    }
+
+    const Object& getById(const_oid id) {
+        hassert(has(oid((int16)id)));
+        return m_objects.at(oid((int16)id));
     }
     HA_GCC_SUPPRESS_WARNING_END
 
@@ -142,6 +174,17 @@ inline bool oid::isValid() const {
 }
 
 inline Object& oid::obj() {
+    HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
+    hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
+    HA_GCC_SUPPRESS_WARNING_END
+    return ObjectManager::get().getById(*this);
+}
+
+inline bool const_oid::isValid() const {
+    return m_value != int16(invalid()) && ObjectManager::get().has(*this);
+}
+
+inline const Object& const_oid::obj() const {
     HA_GCC_SUPPRESS_WARNING("-Wuseless-cast")
     hassert(*this != oid::invalid()); // not using isValid() to not duplicate ObjectManager::has()
     HA_GCC_SUPPRESS_WARNING_END
