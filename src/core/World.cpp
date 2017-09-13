@@ -16,21 +16,24 @@ World::World()
 
     m_camera = om.create("camera").id();
     m_camera.obj().addMixin("camera");
+    tr::set_pos(m_camera.obj(), yama::vector3::coord(0, 50, 2));
+    tr::set_rot(m_camera.obj(),
+                yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
 
-    // EXAMPLE: serialize and deserialize an object - may not work if the constructor of a mixin expects the presense of other mixins
+    // EXAMPLE: serialize and deserialize an object
     //JsonData state;
     //state.startObject();
-    //common::serialize_mixins(m_camera, nullptr, state);
+    //common::serialize_mixins(m_camera.obj(), nullptr, state);
     //state.endObject();
     //om.destroy(m_camera);
     //om.createFromId(m_camera);
-    //m_camera.get().setName("camera");
+    //m_camera.obj().setName("camera");
     //const auto& doc = JsonData::parse(state.data());
     //hassert(doc.is_valid());
     //auto root = doc.get_root();
     //for(size_t i = 0; i < root.get_length(); ++i)
-    //    m_camera.get().addMixin(root.get_object_key(i).data());
-    //common::deserialize_mixins(m_camera, root);
+    //    m_camera.obj().addMixin(root.get_object_key(i).data());
+    //common::deserialize_mixins(m_camera.obj(), root);
 
     m_editor = om.create("editor").id();
     m_editor.obj().addMixin("editor");

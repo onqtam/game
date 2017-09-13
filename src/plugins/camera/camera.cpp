@@ -11,8 +11,6 @@
 
 const float k_speed = 25.f;
 
-const yama::vector3 k_init_look_direction = yama::normalize(yama::v(0, -1, -0.2f));
-const yama::vector3 k_forward             = {0, 0, -1};
 //const yama::vector3 k_up                  = {0, 1, 0};
 //const yama::vector3 k_right               = {1, 0, 0};
 
@@ -28,9 +26,6 @@ public:
     camera() {
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
-
-        tr::set_pos(ha_this, yama::vector3::coord(0, 50, 2));
-        tr::set_rot(ha_this, yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
     }
 
     void process_event(const InputEvent& ev) override {
@@ -60,9 +55,9 @@ public:
 
         auto pos = tr::get_pos(ha_this);
         pos += move_vec;
-        auto      fix_vec = yama::vector3::zero();
-        auto      half_w = World::get().width() / 2;
-        auto      half_h = World::get().height() / 2;
+        auto fix_vec = yama::vector3::zero();
+        auto half_w  = World::get().width() / 2;
+        auto half_h  = World::get().height() / 2;
         if(abs(pos.x) > half_w)
             fix_vec.x = Utils::sign(pos.x) * half_w - pos.x;
         if(abs(pos.z) > half_h)
@@ -85,7 +80,8 @@ public:
     yama::matrix get_projection_matrix() {
         uint32 w = Application::get().width();
         uint32 h = Application::get().height();
-        return yama::matrix::perspective_fov_rh(yama::deg_to_rad(45.0f), float(w) / float(h), 0.1f, 1000.0f);
+        return yama::matrix::perspective_fov_rh(yama::deg_to_rad(45.0f), float(w) / float(h), 0.1f,
+                                                1000.0f);
     }
 
     void no_gizmo() const {}

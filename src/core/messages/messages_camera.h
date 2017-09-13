@@ -1,5 +1,8 @@
 #pragma once
 
+const yama::vector3 k_init_look_direction = yama::normalize(yama::v(0, -1, -0.2f));
+const yama::vector3 k_forward             = {0, 0, -1};
+
 HA_SUPPRESS_WARNINGS
 
 HA_MSG_0(cam, yama::matrix, get_view_matrix)

@@ -599,7 +599,6 @@ public:
                     handle_gizmo_changes();
 
                     compound_cmd comp_cmd;
-                    comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
                         auto detele_object = [&](Object& obj) {
                             // serialize the state of the mixins
