@@ -1,6 +1,4 @@
 
-deleting does not recurse through children
-
 sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 
 duplicating an object part of a hierarchy leads to a crash

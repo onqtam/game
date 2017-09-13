@@ -29,8 +29,7 @@ int registerGlobal(cstr name, GlobalInfo info) {
 }
 
 static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
-        cstr file, int line, cstr function, cstr expression, int level,
-        cstr message) {
+        cstr file, int line, cstr function, cstr expression, int level, cstr message) {
     using namespace ppk::assert::implementation;
 
     char buf[2048];

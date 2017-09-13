@@ -211,9 +211,8 @@ public:
 
                     // recurse through children
                     const auto& children = ::get_children(root_obj);
-                    if(!children.empty())
-                        for(const auto& c : children)
-                            recursiveSelecter(c, select);
+                    for(const auto& c : children)
+                        recursiveSelecter(c, select);
                 };
 
                 // recursive tree build
@@ -602,17 +601,33 @@ public:
                     compound_cmd comp_cmd;
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
-                        // serialize the state of the mixins
-                        JsonData mix_state = mixin_state(curr.obj(), nullptr);
-                        comp_cmd.commands.push_back(object_mutation_cmd(
-                                {curr, mixin_names(curr.obj()), mix_state.data(), false}));
+                        auto detele_object = [&](Object& obj) {
+                            // serialize the state of the mixins
+                            JsonData mix_state = mixin_state(obj, nullptr);
+                            comp_cmd.commands.push_back(object_mutation_cmd(
+                                    {obj.id(), mixin_names(obj), mix_state.data(), false}));
 
-                        // serialize the state of the object itself
-                        JsonData state = object_state(curr.obj());
-                        comp_cmd.commands.push_back(
-                                object_creation_cmd({curr, state.data(), false}));
+                            // serialize the state of the object itself
+                            JsonData state = object_state(obj);
+                            comp_cmd.commands.push_back(
+                                    object_creation_cmd({obj.id(), state.data(), false}));
 
-                        ObjectManager::get().destroy(curr);
+                            ObjectManager::get().destroy(obj.id());
+                        };
+
+                        std::function<void(oid)> delete_unselected_children = [&](oid root) {
+                            auto& root_obj = root.obj();
+                            // recurse through children
+                            const auto& children = ::get_children(root_obj);
+                            for(const auto& c : children)
+                                delete_unselected_children(c);
+                            // delete only if not selected because we are iterating through the selected objects anyway
+                            if(!root_obj.has(selected_mixin_id))
+                                detele_object(root_obj);
+                        };
+
+                        delete_unselected_children(curr);
+                        detele_object(curr.obj());
                     }
                     add_command(comp_cmd);
 
