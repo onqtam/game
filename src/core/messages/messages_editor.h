@@ -3,7 +3,7 @@
 #include "messages.h"
 
 template <typename T>
-JsonData attr_changed_command(cstr mixin, cstr attr, const T& data) {
+JsonData mixin_attr_state(cstr mixin, cstr attr, const T& data) {
     JsonData out;
     out.startObject();
     out.append("\"");
@@ -20,17 +20,26 @@ JsonData attr_changed_command(cstr mixin, cstr attr, const T& data) {
     return out;
 }
 
-inline JsonData mixin_state_command(oid id, cstr mixin) {
+inline JsonData mixin_state(const Object& obj, cstr mixin) {
     JsonData out(1000);
     out.startObject();
-    common::serialize_mixins(id, mixin, out);
+    common::serialize_mixins(obj, mixin, out);
     out.endObject();
     return out;
 }
 
-inline std::vector<std::string> mixin_names(oid id) {
+inline JsonData object_state(const Object& obj) {
+    JsonData state(1000);
+    state.startObject();
+    state.append("\"\":");
+    serialize(obj, state);
+    state.endObject();
+    return state;
+}
+
+inline std::vector<std::string> mixin_names(const Object& obj) {
     std::vector<cstr> mixins;
-    id.get().get_mixin_names(mixins);
+    obj.get_mixin_names(mixins);
     std::vector<std::string> out(mixins.size());
     std::transform(mixins.begin(), mixins.end(), out.begin(), [](auto in) { return in; });
     return out;

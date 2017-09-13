@@ -282,14 +282,9 @@ public:
             if(to_select.size() + to_deselect.size() > 0) {
                 compound_cmd comp_cmd;
                 comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
-                JsonData state(10000);
 
                 auto add_mutate_command = [&](oid id, bool select) {
-                    state.clear();
-                    state.startObject();
-                    common::serialize_mixins(id.get(), "selected", state);
-                    state.endObject();
-
+                    JsonData state = mixin_state(id.get(), "selected");
                     comp_cmd.commands.push_back(
                             object_mutation_cmd({id, {"selected"}, state.data(), select}));
                 };
@@ -430,18 +425,18 @@ public:
             auto old_t = sel::get_transform_local_on_gizmo_start(id);
             auto new_t = tr::get_transform_local(id);
             if(old_t.pos != new_t.pos) {
-                JsonData ov = attr_changed_command("tform", "pos", old_t.pos);
-                JsonData nv = attr_changed_command("tform", "pos", new_t.pos);
+                JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
+                JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
                 comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             if(old_t.scl != new_t.scl) {
-                JsonData ov = attr_changed_command("tform", "scl", old_t.scl);
-                JsonData nv = attr_changed_command("tform", "scl", new_t.scl);
+                JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
+                JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
                 comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             if(old_t.rot != new_t.rot) {
-                JsonData ov = attr_changed_command("tform", "rot", old_t.rot);
-                JsonData nv = attr_changed_command("tform", "rot", new_t.rot);
+                JsonData ov = mixin_attr_state("tform", "rot", old_t.rot);
+                JsonData nv = mixin_attr_state("tform", "rot", new_t.rot);
                 comp_cmd.commands.push_back(attributes_changed_cmd({id, ov.data(), nv.data()}));
             }
             // update this - even though we havent started using the gizmo - or else this might break when deleting the object
@@ -503,28 +498,28 @@ public:
                         auto     parent = get_parent(curr);
                         JsonData parent_old;
                         if(parent.isValid())
-                            parent_old = mixin_state_command(parent, "parental");
+                            parent_old = mixin_state(parent, "parental");
 
                         // record parental state of current object before change
-                        JsonData curr_old = mixin_state_command(curr, "parental");
+                        JsonData curr_old = mixin_state(curr, "parental");
 
                         // set new parental relationship
                         set_parent(curr, group);
 
                         // parent new state & command submit
                         if(parent.isValid()) {
-                            JsonData parent_new = mixin_state_command(parent, "parental");
+                            JsonData parent_new = mixin_state(parent, "parental");
                             comp_cmd.commands.push_back(attributes_changed_cmd(
                                     {parent, parent_old.data(), parent_new.data()}));
                         }
 
                         // current new state & command submit
-                        JsonData curr_new = mixin_state_command(curr, "parental");
+                        JsonData curr_new = mixin_state(curr, "parental");
                         comp_cmd.commands.push_back(
                                 attributes_changed_cmd({curr, curr_old.data(), curr_new.data()}));
 
                         // serialize the state of the mixins
-                        JsonData selected_state = mixin_state_command(curr, "selected");
+                        JsonData selected_state = mixin_state(curr, "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, {"selected"}, selected_state.data(), false}));
 
@@ -536,13 +531,9 @@ public:
                     group.get().addMixin("selected");
 
                     // add the created group object
-                    JsonData state(1000);
-                    state.startObject();
-                    state.append("\"\":");
-                    serialize(group.get(), state);
-                    state.endObject();
+                    JsonData state = object_state(group.get());
                     comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
-                    JsonData group_state = mixin_state_command(group, nullptr);
+                    JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(
                             {group, mixin_names(group), group_state.data(), true}));
 
@@ -568,19 +559,15 @@ public:
                         set_parent(copy.get(), group);
 
                         // add commands for its creation
-                        JsonData state(1000);
-                        state.startObject();
-                        state.append("\"\":");
-                        serialize(copy.get(), state);
-                        state.endObject();
+                        JsonData state = object_state(copy.get());
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({copy, state.data(), true}));
-                        JsonData mixin_state = mixin_state_command(copy, nullptr);
+                        JsonData mix_state = mixin_state(copy, nullptr);
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {copy, mixin_names(copy), mixin_state.data(), true}));
+                                {copy, mixin_names(copy), mix_state.data(), true}));
 
                         // serialize the state of the currently selected mixins before unselecting them
-                        JsonData selected_state = mixin_state_command(curr, "selected");
+                        JsonData selected_state = mixin_state(curr, "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {curr, {"selected"}, selected_state.data(), false}));
 
@@ -592,13 +579,9 @@ public:
                     group.get().addMixin("selected");
 
                     // add the created group object
-                    JsonData state(1000);
-                    state.startObject();
-                    state.append("\"\":");
-                    serialize(group.get(), state);
-                    state.endObject();
+                    JsonData state = object_state(group.get());
                     comp_cmd.commands.push_back(object_creation_cmd({group, state.data(), true}));
-                    JsonData group_state = mixin_state_command(group, nullptr);
+                    JsonData group_state = mixin_state(group, nullptr);
                     comp_cmd.commands.push_back(object_mutation_cmd(
                             {group, mixin_names(group), group_state.data(), true}));
 
@@ -617,17 +600,12 @@ public:
                     comp_cmd.commands.reserve(selected.size() * 2);
                     for(auto& curr : selected) {
                         // serialize the state of the mixins
-                        JsonData mixin_state = mixin_state_command(curr, nullptr);
+                        JsonData mix_state = mixin_state(curr, nullptr);
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {curr, mixin_names(curr), mixin_state.data(), false}));
+                                {curr, mixin_names(curr), mix_state.data(), false}));
 
                         // serialize the state of the object itself
-                        JsonData state(1000);
-                        state.startObject();
-                        state.append("\"\":");
-                        serialize(curr.get(), state);
-                        state.endObject();
-
+                        JsonData state = object_state(curr.get());
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({curr, state.data(), false}));
 
