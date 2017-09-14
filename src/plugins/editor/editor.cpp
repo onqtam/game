@@ -503,14 +503,15 @@ public:
                         Utils::erase_if(visited_counts,
                                         [&](auto in) { return in.second < int(selected.size()); });
 
+                        // if there is a common ancestor - it will have the same visited count as the number of selected objects
                         if(visited_counts.size() == 1 &&
                            std::find(selected.begin(), selected.end(),
                                      visited_counts.begin()->first) == selected.end()) {
                             // if only one object is left after the filtering (common ancestor to all) and is not part of the selection
                             return visited_counts.begin()->first;
                         } else if(visited_counts.size() > 1) {
-                            // if atleast 2 nodes have the same visited count - means that one of the selected
-                            // nodes is also a common ancestor - we need to find it and get its parent
+                            // if atleast 2 nodes have the same visited count - means that one of the selected nodes
+                            // is also a common ancestor (also to itself) - we need to find it and get its parent
                             for(auto& curr : visited_counts)
                                 if(curr.first.obj().has(selected_mixin_id))
                                     return get_parent(curr.first.obj());
@@ -519,14 +520,18 @@ public:
                         return oid::invalid();
                     };
 
-                    auto common_ancestor = find_lowest_common_ancestor();
-                    if(common_ancestor.isValid())
-                        printf("%s\n", common_ancestor.obj().name().c_str());
-                    else
-                        printf("invalid!!!\n");
-
                     // create new group object
                     auto& group = ObjectManager::get().create("group");
+
+                    // if there is a common ancestor - add the new group object as its child
+                    auto common_ancestor = find_lowest_common_ancestor();
+                    if(common_ancestor.isValid()) {
+                        JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
+                        set_parent(group, common_ancestor);
+                        JsonData ancestor_new = mixin_state(common_ancestor.obj(), "parental");
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {common_ancestor, ancestor_old.data(), ancestor_new.data()}));
+                    }
 
                     // average position for the new group object
                     auto average_pos = yama::vector3::zero();
@@ -578,7 +583,7 @@ public:
 
                     // set position of newly created group to be the average position of all selected objects
                     average_pos /= float(selected.size());
-                    tr::set_pos(group, average_pos);
+                    tr::set_transform(group, {average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
                     // fix the transforms after the position of the group has been set
                     for(auto& curr : old_transforms) {

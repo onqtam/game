@@ -1,7 +1,7 @@
 
 duplicating an object part of a hierarchy leads to a crash
 
-grouping objects already in a group ==> resulting group should be part of that parental group
+split the editor in multiple files
 
 when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
 
