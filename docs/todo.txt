@@ -1,6 +1,4 @@
 
-ability to unparent objects
-
 remove more code duplication (especially for grouping) - also move to JsonData instead of json_buf in the commands ==> less typing ;d
 
 remove the concept of invalid() and just use default-constructed oids?
@@ -48,7 +46,7 @@ editor:
         - gizmos - local space (also supported by tiny-gizmo) - test it/think about it
         - object transform snapping (also with gizmos)
         - editing an attribute of multiple objects at once
-        - command script for editing the level
+        - command script for editing the level - also exposing the editor hotkey functionality to the script - like "ungroup"
         - resource viewer - all resources with preview when appropriate and refcounts
 
 ditch bgfx
@@ -68,6 +66,8 @@ CI - appveyor emscripten build fails for some reason
 
 == to test:
 - aabb class
+- transform stuffs
+- newly added functions in utils? ...
 
 == build system:
 to think about:

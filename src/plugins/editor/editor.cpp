@@ -698,6 +698,49 @@ public:
                 }
             }
 
+            // ungroup
+            if(key == GLFW_KEY_U && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS)) {
+                if(!selected.empty()) {
+                    printf("[UNGROUP]\n");
+                    compound_cmd comp_cmd;
+
+                    for(auto& curr : selected) {
+                        auto parent = get_parent(curr.obj());
+                        // skip selected objects that have no parents - they are already ungrouped
+                        if(!parent)
+                            continue;
+
+                        // record data before unparenting
+                        auto t            = tr::get_transform(curr.obj());
+                        auto curr_t_old   = mixin_state(curr.obj(), "tform");
+                        auto curr_p_old   = mixin_state(curr.obj(), "parental");
+                        auto parent_p_old = mixin_state(parent.obj(), "parental");
+
+                        // unaprent
+                        set_parent(curr.obj(), oid::invalid());
+                        // set the old world transform - will update the local transform
+                        tr::set_transform(curr.obj(), t);
+
+                        // record data after unparenting
+                        auto curr_t_new   = mixin_state(curr.obj(), "tform");
+                        auto curr_p_new   = mixin_state(curr.obj(), "parental");
+                        auto parent_p_new = mixin_state(parent.obj(), "parental");
+
+                        // submit commands
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr, curr_t_old.data(), curr_t_new.data()}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr, curr_p_old.data(), curr_p_new.data()}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {parent, parent_p_old.data(), parent_p_new.data()}));
+                    }
+
+                    // add the compound command
+                    if(comp_cmd.commands.size())
+                        add_command(comp_cmd);
+                }
+            }
+
             // duplicate
             if(key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS)) {
                 if(!selected.empty()) {
