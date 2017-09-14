@@ -1,10 +1,7 @@
 
-remove more code duplication (especially for grouping)
-
-duplicating an object part of a hierarchy leads to a crash
-when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
-
 ability to unparent objects
+
+remove more code duplication (especially for grouping)
 
 split the editor in multiple files
 
@@ -12,6 +9,8 @@ ask tuti about undo/redo
 
 editor:
     parental
+        copying the parental mixin leads to errors - should it have a copy ctor (and operator=) that don't actually copy anything?
+        should the destructor do anything? currently it does, but with inheriting transformations it doesn't make sense...
         perhaps move out of a mixin and into the object class?
         detecting cycles ???
     duplicate objects
@@ -38,6 +37,9 @@ editor:
     bugs
         things break when scaling not uniformly objects with parental relationships
         DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
+    open questions
+        if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
+        when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya
     postponed
         - copy/paste of objects
         - gizmos - rotation around pivot different from the object center
@@ -55,6 +57,8 @@ not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
 figure out a coding standard
+    underscores for in variables instead of camel case (+ camel case for types and functions)?
+is the extensive use of lambdas ok? is such locality better than extracting the logic in a separate method/function further away?
 rename oid to object_handle?
 
 == bugs:

@@ -167,7 +167,6 @@ public:
         bgfx_submit(0, m_grid_shader.get(), 0, false);
 
         auto& app = Application::get();
-        auto& om  = ObjectManager::get();
 
         static bool no_titlebar  = false;
         static bool no_border    = true;
@@ -284,7 +283,7 @@ public:
                     }
                 };
 
-                for(auto& curr : om.getObjects()) {
+                for(auto& curr : ObjectManager::get().getObjects()) {
                     // recurse from those without a parent only
                     if(curr.second.implements(get_const_parent_msg)) {
                         if(::get_parent(curr.second) == oid::invalid())
@@ -695,17 +694,44 @@ public:
                     printf("[DUPLICATE]\n");
                     compound_cmd comp_cmd;
 
-                    // create new group object
-                    auto& group = ObjectManager::get().create();
-
-                    // make copies of all selected objects
+                    // filter out selected objects which are children (immediate or not) of other selected objects
+                    const std::set<oid> selected_set{selected.begin(), selected.end()};
+                    std::vector<oid>    top_most_selected;
                     for(auto& curr : selected) {
-                        // make the copy and add it as a child to the new group
-                        auto& copy = ObjectManager::get().create();
-                        copy.copy_from(curr.obj());
-                        set_parent(copy, group.id());
+                        // search for the current object (and its parents) in the full set of selected objects
+                        oid  parent = curr;
+                        bool found  = false;
+                        do {
+                            parent = get_parent(parent.obj());
+                            if(selected_set.count(parent))
+                                found = true;
+                        } while(parent && !found);
+                        // if no parent of the current selected object is also in the set of selected objects
+                        if(!found)
+                            top_most_selected.push_back(curr);
+                    }
 
-                        // add commands for its creation
+                    // deselect the selected objects
+                    for(auto& curr : selected) {
+                        JsonData selected_state = mixin_state(curr.obj(), "selected");
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, {"selected"}, selected_state.data(), false}));
+                        curr.obj().remMixin("selected");
+                    }
+
+                    std::function<oid(Object&)> copy_recursive = [&](Object& to_copy) {
+                        // create a new object and copy
+                        auto& copy = ObjectManager::get().create();
+                        copy.copy_from(to_copy);
+
+                        // TODO: UGLY HACK: re-add the parental mixin to clear the broken parental relationships after the copy
+                        copy.remMixin("parental");
+                        copy.addMixin("parental");
+
+                        // save clean aprental state
+                        JsonData copy_old = mixin_state(copy, "parental");
+
+                        // add commands for the creation of the new copy
                         JsonData state = object_state(copy);
                         comp_cmd.commands.push_back(
                                 object_creation_cmd({copy.id(), state.data(), true}));
@@ -713,25 +739,53 @@ public:
                         comp_cmd.commands.push_back(object_mutation_cmd(
                                 {copy.id(), mixin_names(copy), mix_state.data(), true}));
 
-                        // serialize the state of the currently selected mixins before unselecting them
-                        JsonData selected_state = mixin_state(curr.obj(), "selected");
+                        // copy children recursively
+                        for(auto& child_to_copy : get_children(to_copy)) {
+                            auto     child_copy     = copy_recursive(child_to_copy.obj());
+                            JsonData child_copy_old = mixin_state(child_copy.obj(), "parental");
+                            // link parentally
+                            set_parent(child_copy.obj(), copy.id());
+                            // submit a command for that linking
+                            JsonData child_copy_new = mixin_state(child_copy.obj(), "parental");
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {child_copy, child_copy_old.data(), child_copy_new.data()}));
+                        }
+
+                        // update parental information for the current copy
+                        JsonData copy_new = mixin_state(copy, "parental");
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {copy.id(), copy_old.data(), copy_new.data()}));
+
+                        return copy.id();
+                    };
+
+                    // copy the filtered top-most objects + all their children (and select the new top-most object copies)
+                    for(auto& curr : top_most_selected) {
+                        auto new_top = copy_recursive(curr.obj());
+
+                        // select the new top-most copy
+                        new_top.obj().addMixin("selected");
+                        // add a command for that
+                        JsonData selected_state = mixin_state(new_top.obj(), "selected");
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {curr, {"selected"}, selected_state.data(), false}));
+                                {new_top, {"selected"}, selected_state.data(), true}));
 
-                        // remove the selection
-                        curr.obj().remMixin("selected");
+                        // if the current top-most object has a parent - make the copy a child of that parent as well
+                        auto curr_parent = get_parent(curr.obj());
+                        if(curr_parent) {
+                            JsonData new_top_old     = mixin_state(new_top.obj(), "parental");
+                            JsonData curr_parent_old = mixin_state(curr_parent.obj(), "parental");
+                            // link parentally
+                            set_parent(new_top.obj(), curr_parent);
+                            // submit a command for that linking
+                            JsonData new_top_new     = mixin_state(new_top.obj(), "parental");
+                            JsonData curr_parent_new = mixin_state(curr_parent.obj(), "parental");
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {new_top, new_top_old.data(), new_top_new.data()}));
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {curr_parent, curr_parent_old.data(), curr_parent_new.data()}));
+                        }
                     }
-
-                    // select the new group object
-                    group.addMixin("selected");
-
-                    // add the created group object
-                    JsonData state = object_state(group);
-                    comp_cmd.commands.push_back(
-                            object_creation_cmd({group.id(), state.data(), true}));
-                    JsonData group_state = mixin_state(group, nullptr);
-                    comp_cmd.commands.push_back(object_mutation_cmd(
-                            {group.id(), mixin_names(group), group_state.data(), true}));
 
                     // add the compound command
                     add_command(comp_cmd);
