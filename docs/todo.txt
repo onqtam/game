@@ -1,7 +1,9 @@
 
 ability to unparent objects
 
-remove more code duplication (especially for grouping)
+remove more code duplication (especially for grouping) - also move to JsonData instead of json_buf in the commands ==> less typing ;d
+
+remove the concept of invalid() and just use default-constructed oids?
 
 split the editor in multiple files
 

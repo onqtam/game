@@ -320,6 +320,16 @@ public:
                 updateSelected();
             }
 
+            // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
+            if(new_parent_for_selected) {
+                for(auto curr = new_parent_for_selected; curr; curr = get_parent(curr.obj())) {
+                    if(std::find(selected.begin(), selected.end(), curr) != selected.end()) {
+                        printf("[REPARENT] CYCLE DETECTED! cannot reparent\n");
+                        new_parent_for_selected = oid::invalid(); // set it to an invalid state
+                    }
+                }
+            }
+
             // if selected objects have been dragged with the middle mouse button onto an unselected object - make them its children
             if(new_parent_for_selected) {
                 printf("[REPARENT]\n");
