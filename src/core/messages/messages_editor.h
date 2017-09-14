@@ -47,7 +47,7 @@ inline std::vector<std::string> mixin_names(const Object& obj) {
 
 HA_SUPPRESS_WARNINGS
 
-HA_MSG_3(edit, void, add_changed_attribute, oid, e, const json_buf&, old_val, const json_buf&,
+HA_MSG_3(edit, void, add_changed_attribute, oid, e, const JsonData&, old_val, const JsonData&,
          new_val)
 
 #define Interface_editor edit::add_changed_attribute_msg

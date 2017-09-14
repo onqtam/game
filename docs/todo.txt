@@ -1,5 +1,5 @@
 
-remove more code duplication (especially for grouping) - also move to JsonData instead of json_buf in the commands ==> less typing ;d
+remove more code duplication (especially for grouping)
 
 remove the concept of invalid() and just use default-constructed oids?
 
@@ -7,13 +7,13 @@ split the editor in multiple files
 
 ask tuti about undo/redo
 
+move the transform to the object
+
 editor:
     parental
         copying the parental mixin leads to errors - should it have a copy ctor (and operator=) that don't actually copy anything?
         should the destructor do anything? currently it does, but with inheriting transformations it doesn't make sense...
         perhaps move out of a mixin and into the object class?
-        detecting cycles ???
-    duplicate objects
     prefabs
         field/mixin annotations for being skipped from prefabs
         single object templates
@@ -35,7 +35,7 @@ editor:
         rectangle selection
     curve editing
     bugs
-        things break when scaling not uniformly objects with parental relationships
+        things break when scaling not uniformly objects with parental relationships - kosta warned me about the transforms...
         DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
     open questions
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya

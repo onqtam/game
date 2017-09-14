@@ -119,7 +119,7 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
                 const auto getGlobalsProc = GetProc(cast_to_dynlib(plugin.plugin), "getGlobals");
                 hassert(getGlobalsProc);
                 const auto& globals         = reinterpret_cast<get_globals_proc>(getGlobalsProc)();
-                const sajson::document& doc = JsonData::parse(globalsPersistence.data());
+                const sajson::document& doc = globalsPersistence.parse();
                 hassert(doc.is_valid());
                 for(auto& global : globals) {
                     global.second.deserialize(doc.get_root());

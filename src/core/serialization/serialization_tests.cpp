@@ -1,6 +1,8 @@
 #include "serialization.h"
 #include "serialization_2.h"
 
+bool operator==(const JsonData& lhs, const JsonData& rhs) { return lhs.data() == rhs.data(); }
+
 namespace tinygizmo
 {
 bool operator==(const rigid_transform& lhs, const rigid_transform& rhs) {
@@ -32,7 +34,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
     serialize(data_in, state);
     state.endObject();
 
-    const sajson::document& doc = JsonData::parse(state.data());
+    const sajson::document& doc = state.parse();
     require_un(doc.is_valid());
 
     T                   data_out;
@@ -62,6 +64,7 @@ HA_SERIALIZE_TEST(transform, {{0, 1, 2}, {3, 4, 5}, {6, 7, 8, 9}});
 HA_SERIALIZE_TEST(oid, oid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
+HA_SERIALIZE_TEST(JsonData, JsonData());
 HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
 
 HA_SUPPRESS_WARNINGS

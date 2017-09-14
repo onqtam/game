@@ -98,6 +98,9 @@ void deserialize(ShaderHandle& data, const sajson::value& val) {
     data = ShaderMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
 }
 
+void serialize(const JsonData& data, JsonData& out) { serialize(data.data(), out); }
+void deserialize(JsonData& data, const sajson::value& val) { deserialize(data.data(), val); }
+
 // serialization_2.h
 
 void serialize(const tinygizmo::rigid_transform& data, JsonData& out) {

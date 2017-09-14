@@ -133,7 +133,7 @@ cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
     if(justReleased) {
         JsonData old_val = mixin_attr_state(mixin, attr, data_when_dragging_started);
         JsonData new_val = mixin_attr_state(mixin, attr, data);
-        edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val);
         return attr;
     }
     return nullptr;
@@ -151,7 +151,7 @@ cstr bind_ints(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
     if(justReleased) {
         JsonData old_val = mixin_attr_state(mixin, attr, data_when_dragging_started);
         JsonData new_val = mixin_attr_state(mixin, attr, data);
-        edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val);
         return attr;
     }
     return nullptr;
@@ -161,7 +161,7 @@ cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, bool& data) {
     if(ImGui::Checkbox(no_prefix(attr), &data)) {
         JsonData old_val = mixin_attr_state(mixin, attr, !data);
         JsonData new_val = mixin_attr_state(mixin, attr, data);
-        edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val);
         return attr;
     }
     return nullptr;
@@ -187,7 +187,7 @@ cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, std::string& data) {
         JsonData old_val = mixin_attr_state(mixin, attr, data);
         data             = buf;
         JsonData new_val = mixin_attr_state(mixin, attr, data);
-        edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(), new_val.data());
+        edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val);
         return attr;
     }
     return nullptr;
@@ -211,8 +211,7 @@ cstr imgui_bind_file_popup(Object& e, cstr mixin, cstr attr, std::string& data, 
             JsonData old_val = mixin_attr_state(mixin, attr, data);
             data             = outPath;
             JsonData new_val = mixin_attr_state(mixin, attr, data);
-            edit::add_changed_attribute(World::get().editor(), e.id(), old_val.data(),
-                                        new_val.data());
+            edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val);
 
             free(outPath);
             return attr;

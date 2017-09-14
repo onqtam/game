@@ -60,7 +60,7 @@ load_unload_proc getLoadProc() {
     return [](ObjectJsonMap& in) {
         for(auto& curr : in) {
             dynamix::mutate(curr.first).add<T>();
-            const sajson::document& doc = JsonData::parse(curr.second.data());
+            const sajson::document& doc = curr.second.parse();
             hassert(doc.is_valid());
             deserialize(*curr.first->get<T>(), doc.get_root());
         }

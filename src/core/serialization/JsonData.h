@@ -1,26 +1,25 @@
 #pragma once
 
-typedef std::vector<char> json_buf;
-
 class JsonData
 {
-    json_buf m_data;
+    std::vector<char> m_data;
 
 public:
     JsonData(size_t reserve_size = 0) { m_data.reserve(reserve_size); }
-    JsonData(const json_buf& data)
+    JsonData(const std::vector<char>& data)
             : m_data(data) {}
-    JsonData(json_buf&& data)
+    JsonData(std::vector<char>&& data)
             : m_data(std::move(data)) {}
 
-    size_t    size() const { return m_data.size(); }
-    json_buf& data() { return m_data; }
-    void      reserve(size_t size) { m_data.reserve(size); }
-    void      clear() { m_data.clear(); }
+    size_t                   size() const { return m_data.size(); }
+    std::vector<char>&       data() { return m_data; }
+    const std::vector<char>& data() const { return m_data; }
+    void                     reserve(size_t size) { m_data.reserve(size); }
+    void                     clear() { m_data.clear(); }
 
-    static sajson::document parse(const json_buf& data) {
+    sajson::document parse() const {
         return sajson::parse(sajson::dynamic_allocation(),
-                             sajson::string(data.data(), data.size()));
+                             sajson::string(m_data.data(), m_data.size()));
     }
 
     void addComma() { m_data.push_back(','); }

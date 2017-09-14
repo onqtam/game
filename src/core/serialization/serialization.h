@@ -55,6 +55,9 @@ HAPI void deserialize(MeshHandle& data, const sajson::value& val);
 HAPI void serialize_c(ShaderHandle data, JsonData& out);
 HAPI void deserialize(ShaderHandle& data, const sajson::value& val);
 
+HAPI void serialize_c(const JsonData& data, JsonData& out);
+HAPI void deserialize(JsonData& data, const sajson::value& val);
+
 template <typename T>
 void serialize_c(const std::vector<T>& data, JsonData& out) {
     out.startArray();
