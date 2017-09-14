@@ -36,7 +36,7 @@ struct object_creation_cmd
 
 public:
     FIELD oid id;
-    FIELD JsonData object_state;
+    FIELD JsonData state;
     FIELD bool     created;
 };
 
@@ -47,7 +47,7 @@ struct object_mutation_cmd
 public:
     FIELD oid id;
     FIELD std::vector<std::string> mixins;
-    FIELD JsonData mixins_state;
+    FIELD JsonData state;
     FIELD bool     added;
 };
 
@@ -300,9 +300,8 @@ public:
                 comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
                 auto add_mutate_command = [&](oid id, bool select) {
-                    JsonData state = mixin_state(id.obj(), "selected");
-                    comp_cmd.commands.push_back(
-                            object_mutation_cmd({id, {"selected"}, state, select}));
+                    comp_cmd.commands.push_back(object_mutation_cmd(
+                            {id, {"selected"}, mixin_state(id.obj(), "selected"), select}));
                 };
 
                 for(auto curr : to_select) {
@@ -359,15 +358,13 @@ public:
                     set_parent(curr.obj(), new_parent_for_selected);
 
                     // old parent new state & command submit
-                    if(parent) {
-                        JsonData parent_new = mixin_state(parent.obj(), "parental");
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({parent, parent_old, parent_new}));
-                    }
+                    if(parent)
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {parent, parent_old, mixin_state(parent.obj(), "parental")}));
 
                     // current new state & command submit
-                    JsonData curr_new = mixin_state(curr.obj(), "parental");
-                    comp_cmd.commands.push_back(attributes_changed_cmd({curr, curr_old, curr_new}));
+                    comp_cmd.commands.push_back(attributes_changed_cmd(
+                            {curr, curr_old, mixin_state(curr.obj(), "parental")}));
                 }
 
                 // fix the transforms after the position of the group has been set
@@ -375,15 +372,15 @@ public:
                     // set the old world transform (will recalculate the local transform of the object)
                     tr::set_transform(curr.first.obj(), curr.second.first);
                     // add the changed transform to the undo/redo command list
-                    JsonData new_tform = mixin_state(curr.first.obj(), "tform");
                     comp_cmd.commands.push_back(
-                            attributes_changed_cmd({curr.first, curr.second.second, new_tform}));
+                            attributes_changed_cmd({curr.first, curr.second.second,
+                                                    mixin_state(curr.first.obj(), "tform")}));
                 }
 
                 // update the parental part of the new parent
-                auto new_parent_new = mixin_state(new_parent_for_selected.obj(), "parental");
                 comp_cmd.commands.push_back(attributes_changed_cmd(
-                        {new_parent_for_selected, new_parent_old, new_parent_new}));
+                        {new_parent_for_selected, new_parent_old,
+                         mixin_state(new_parent_for_selected.obj(), "parental")}));
 
                 // add the compound command
                 add_command(comp_cmd);
@@ -614,9 +611,9 @@ public:
                     if(common_ancestor) {
                         JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
                         set_parent(group, common_ancestor);
-                        JsonData ancestor_new = mixin_state(common_ancestor.obj(), "parental");
                         comp_cmd.commands.push_back(attributes_changed_cmd(
-                                {common_ancestor, ancestor_old, ancestor_new}));
+                                {common_ancestor, ancestor_old,
+                                 mixin_state(common_ancestor.obj(), "parental")}));
                     }
 
                     // average position for the new group object
@@ -647,21 +644,17 @@ public:
                         set_parent(curr.obj(), group.id());
 
                         // old parent new state & command submit
-                        if(parent) {
-                            JsonData parent_new = mixin_state(parent.obj(), "parental");
-                            comp_cmd.commands.push_back(
-                                    attributes_changed_cmd({parent, parent_old, parent_new}));
-                        }
+                        if(parent)
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {parent, parent_old, mixin_state(parent.obj(), "parental")}));
 
                         // current new state & command submit
-                        JsonData curr_new = mixin_state(curr.obj(), "parental");
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({curr, curr_old, curr_new}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr, curr_old, mixin_state(curr.obj(), "parental")}));
 
                         // serialize the state of the mixins
-                        JsonData selected_state = mixin_state(curr.obj(), "selected");
-                        comp_cmd.commands.push_back(
-                                object_mutation_cmd({curr, {"selected"}, selected_state, false}));
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, {"selected"}, mixin_state(curr.obj(), "selected"), false}));
 
                         // remove the selection
                         curr.obj().remMixin("selected");
@@ -676,20 +669,19 @@ public:
                         // set the old world transform (will recalculate the local transform of the object)
                         tr::set_transform(curr.first.obj(), curr.second.first);
                         // add the changed transform to the undo/redo command list
-                        JsonData new_tform = mixin_state(curr.first.obj(), "tform");
-                        comp_cmd.commands.push_back(attributes_changed_cmd(
-                                {curr.first, curr.second.second, new_tform}));
+                        comp_cmd.commands.push_back(
+                                attributes_changed_cmd({curr.first, curr.second.second,
+                                                        mixin_state(curr.first.obj(), "tform")}));
                     }
 
                     // select the new group object
                     group.addMixin("selected");
 
                     // add the created group object
-                    JsonData state = object_state(group);
-                    comp_cmd.commands.push_back(object_creation_cmd({group.id(), state, true}));
-                    JsonData group_state = mixin_state(group, nullptr);
+                    comp_cmd.commands.push_back(
+                            object_creation_cmd({group.id(), object_state(group), true}));
                     comp_cmd.commands.push_back(object_mutation_cmd(
-                            {group.id(), mixin_names(group), group_state, true}));
+                            {group.id(), mixin_names(group), mixin_state(group, nullptr), true}));
 
                     // add the compound command
                     add_command(comp_cmd);
@@ -719,18 +711,13 @@ public:
                         // set the old world transform - will update the local transform
                         tr::set_transform(curr.obj(), t);
 
-                        // record data after unparenting
-                        auto curr_t_new   = mixin_state(curr.obj(), "tform");
-                        auto curr_p_new   = mixin_state(curr.obj(), "parental");
-                        auto parent_p_new = mixin_state(parent.obj(), "parental");
-
-                        // submit commands
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({curr, curr_t_old, curr_t_new}));
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({curr, curr_p_old, curr_p_new}));
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({parent, parent_p_old, parent_p_new}));
+                        // submit commands with data after unparenting
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr, curr_t_old, mixin_state(curr.obj(), "tform")}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {curr, curr_p_old, mixin_state(curr.obj(), "parental")}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {parent, parent_p_old, mixin_state(parent.obj(), "parental")}));
                     }
 
                     // add the compound command
@@ -764,9 +751,8 @@ public:
 
                     // deselect the selected objects
                     for(auto& curr : selected) {
-                        JsonData selected_state = mixin_state(curr.obj(), "selected");
-                        comp_cmd.commands.push_back(
-                                object_mutation_cmd({curr, {"selected"}, selected_state, false}));
+                        comp_cmd.commands.push_back(object_mutation_cmd(
+                                {curr, {"selected"}, mixin_state(curr.obj(), "selected"), false}));
                         curr.obj().remMixin("selected");
                     }
 
@@ -783,11 +769,10 @@ public:
                         JsonData copy_old = mixin_state(copy, "parental");
 
                         // add commands for the creation of the new copy
-                        JsonData state = object_state(copy);
-                        comp_cmd.commands.push_back(object_creation_cmd({copy.id(), state, true}));
-                        JsonData mix_state = mixin_state(copy, nullptr);
+                        comp_cmd.commands.push_back(
+                                object_creation_cmd({copy.id(), object_state(copy), true}));
                         comp_cmd.commands.push_back(object_mutation_cmd(
-                                {copy.id(), mixin_names(copy), mix_state, true}));
+                                {copy.id(), mixin_names(copy), mixin_state(copy, nullptr), true}));
 
                         // copy children recursively
                         for(auto& child_to_copy : get_children(to_copy)) {
@@ -796,15 +781,14 @@ public:
                             // link parentally
                             set_parent(child_copy.obj(), copy.id());
                             // submit a command for that linking
-                            JsonData child_copy_new = mixin_state(child_copy.obj(), "parental");
                             comp_cmd.commands.push_back(attributes_changed_cmd(
-                                    {child_copy, child_copy_old, child_copy_new}));
+                                    {child_copy, child_copy_old,
+                                     mixin_state(child_copy.obj(), "parental")}));
                         }
 
                         // update parental information for the current copy
-                        JsonData copy_new = mixin_state(copy, "parental");
-                        comp_cmd.commands.push_back(
-                                attributes_changed_cmd({copy.id(), copy_old, copy_new}));
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {copy.id(), copy_old, mixin_state(copy, "parental")}));
 
                         return copy.id();
                     };
@@ -816,9 +800,11 @@ public:
                         // select the new top-most copy
                         new_top.obj().addMixin("selected");
                         // add a command for that
-                        JsonData selected_state = mixin_state(new_top.obj(), "selected");
                         comp_cmd.commands.push_back(
-                                object_mutation_cmd({new_top, {"selected"}, selected_state, true}));
+                                object_mutation_cmd({new_top,
+                                                     {"selected"},
+                                                     mixin_state(new_top.obj(), "selected"),
+                                                     true}));
 
                         // if the current top-most object has a parent - make the copy a child of that parent as well
                         auto curr_parent = get_parent(curr.obj());
@@ -828,12 +814,12 @@ public:
                             // link parentally
                             set_parent(new_top.obj(), curr_parent);
                             // submit a command for that linking
-                            JsonData new_top_new     = mixin_state(new_top.obj(), "parental");
-                            JsonData curr_parent_new = mixin_state(curr_parent.obj(), "parental");
-                            comp_cmd.commands.push_back(
-                                    attributes_changed_cmd({new_top, new_top_old, new_top_new}));
                             comp_cmd.commands.push_back(attributes_changed_cmd(
-                                    {curr_parent, curr_parent_old, curr_parent_new}));
+                                    {new_top, new_top_old,
+                                     mixin_state(new_top.obj(), "parental")}));
+                            comp_cmd.commands.push_back(attributes_changed_cmd(
+                                    {curr_parent, curr_parent_old,
+                                     mixin_state(curr_parent.obj(), "parental")}));
                         }
                     }
 
@@ -852,14 +838,13 @@ public:
                     for(auto& curr : selected) {
                         auto detele_object = [&](Object& obj) {
                             // serialize the state of the mixins
-                            JsonData mix_state = mixin_state(obj, nullptr);
-                            comp_cmd.commands.push_back(object_mutation_cmd(
-                                    {obj.id(), mixin_names(obj), mix_state, false}));
+                            comp_cmd.commands.push_back(
+                                    object_mutation_cmd({obj.id(), mixin_names(obj),
+                                                         mixin_state(obj, nullptr), false}));
 
                             // serialize the state of the object itself
-                            JsonData state = object_state(obj);
                             comp_cmd.commands.push_back(
-                                    object_creation_cmd({obj.id(), state, false}));
+                                    object_creation_cmd({obj.id(), object_state(obj), false}));
 
                             ObjectManager::get().destroy(obj.id());
                         };
@@ -909,7 +894,7 @@ public:
                 for(auto& mixin : cmd.mixins)
                     cmd.id.obj().addMixin(mixin.c_str());
                 // deserialize the mixins
-                const auto& doc = cmd.mixins_state.parse();
+                const auto& doc = cmd.state.parse();
                 hassert(doc.is_valid());
                 common::deserialize_mixins(cmd.id.obj(), doc.get_root());
             } else {
@@ -923,7 +908,7 @@ public:
                 ObjectManager::get().destroy(cmd.id);
             } else {
                 ObjectManager::get().createFromId(cmd.id);
-                const auto& doc = cmd.object_state.parse();
+                const auto& doc = cmd.state.parse();
                 hassert(doc.is_valid());
                 deserialize(cmd.id.obj(), doc.get_root().get_object_value(0)); // object attributes
             }
