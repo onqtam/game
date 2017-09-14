@@ -1,6 +1,4 @@
 
-remove .isValid() calls where possible
-
 remove more code duplication (especially for grouping)
 
 duplicating an object part of a hierarchy leads to a crash

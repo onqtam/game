@@ -32,7 +32,7 @@ public:
     }
     void set_transform(const transform& in) {
         auto parent = get_parent(ha_this);
-        if(parent.isValid()) {
+        if(parent) {
             auto child_local = in.multiply(tr::get_transform(parent.obj()).inverse());
             set_transform_local(child_local);
         } else {
@@ -43,7 +43,7 @@ public:
     transform get_transform() const {
         transform my     = get_transform_local();
         auto      parent = get_parent(ha_this);
-        if(parent.isValid())
+        if(parent)
             return my.multiply(tr::get_transform(parent.obj()));
         else
             return my;
@@ -99,7 +99,7 @@ class parental
     FIELD std::vector<oid> m_children;
 
     void orphan() {
-        if(m_parent.isValid()) {
+        if(m_parent) {
             hassert(m_parent.obj().has<parental>());
             auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
             auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
@@ -112,7 +112,7 @@ class parental
     void unparent() {
         while(m_children.size()) {
             auto& ch = m_children.back();
-            hassert(ch.isValid());
+            hassert(ch);
             hassert(ch.obj().has<parental>());
             ch.obj().get<parental>()->m_parent = oid::invalid();
             m_children.pop_back();
@@ -140,7 +140,7 @@ public:
         orphan();
         m_parent = parent;
         if(m_parent != oid::invalid()) {
-            hassert(m_parent.isValid());
+            hassert(m_parent);
             hassert(m_parent.obj().has<parental>());
             auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
             auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());

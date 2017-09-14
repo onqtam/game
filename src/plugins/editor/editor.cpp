@@ -340,7 +340,7 @@ public:
                     // old parent old state
                     auto     parent = get_parent(curr.obj());
                     JsonData parent_old;
-                    if(parent.isValid())
+                    if(parent)
                         parent_old = mixin_state(parent.obj(), "parental");
 
                     // record parental state of current object before change
@@ -350,7 +350,7 @@ public:
                     set_parent(curr.obj(), new_parent_for_selected);
 
                     // old parent new state & command submit
-                    if(parent.isValid()) {
+                    if(parent) {
                         JsonData parent_new = mixin_state(parent.obj(), "parental");
                         comp_cmd.commands.push_back(attributes_changed_cmd(
                                 {parent, parent_old.data(), parent_new.data()}));
@@ -603,7 +603,7 @@ public:
 
                     // if there is a common ancestor - add the new group object as its child
                     auto common_ancestor = find_lowest_common_ancestor();
-                    if(common_ancestor.isValid()) {
+                    if(common_ancestor) {
                         JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
                         set_parent(group, common_ancestor);
                         JsonData ancestor_new = mixin_state(common_ancestor.obj(), "parental");
@@ -629,7 +629,7 @@ public:
                         // old parent old state
                         auto     parent = get_parent(curr.obj());
                         JsonData parent_old;
-                        if(parent.isValid())
+                        if(parent)
                             parent_old = mixin_state(parent.obj(), "parental");
 
                         // record parental state of current object before change
@@ -639,7 +639,7 @@ public:
                         set_parent(curr.obj(), group.id());
 
                         // old parent new state & command submit
-                        if(parent.isValid()) {
+                        if(parent) {
                             JsonData parent_new = mixin_state(parent.obj(), "parental");
                             comp_cmd.commands.push_back(attributes_changed_cmd(
                                     {parent, parent_old.data(), parent_new.data()}));
