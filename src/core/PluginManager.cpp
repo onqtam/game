@@ -74,8 +74,7 @@ void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::S
             auto& plugin = *plugin_iter;
 
             std::map<std::string, ObjectJsonMap> mixinPersistence;
-            JsonData                             globalsPersistence;
-            globalsPersistence.reserve(1000); // for less allocations for resizing of the array
+            JsonData                             globalsPersistence(1000);
 
             {
                 // unload

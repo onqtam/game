@@ -196,6 +196,7 @@ public:
         if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
             std::vector<oid> to_select;
             std::vector<oid> to_deselect;
+            oid new_parent_for_selected; // will become the parent of middle-mouse-button-dragged selected objects
 
             if(ImGui::TreeNodeEx((const void*)"obs", ImGuiTreeNodeFlags_DefaultOpen, "objects")) {
                 static ImGuiTextFilter filter;
@@ -240,6 +241,22 @@ public:
                         HA_CLANG_SUPPRESS_WARNING_END
                         display &= is_open; // update the display flag for the children
 
+                        // logic for dragging selected objects with the middle mouse button onto unselected objects for reparenting
+                        static bool middle_click_started_on_selected = false;
+                        // if the current item is selected and just got middle clicked
+                        if(ImGui::IsItemClicked(2) && obj.has(selected_mixin_id))
+                            middle_click_started_on_selected = true;
+                        // if the current item is hovered, the middle mouse button just got released
+                        // and we have recorded a middle click start onto a selected item
+                        if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(2) &&
+                           middle_click_started_on_selected) {
+                            middle_click_started_on_selected = false;
+                            // if the current item is not selected
+                            if(!obj.has(selected_mixin_id))
+                                new_parent_for_selected = root;
+                        }
+
+                        // logic for normal selection through the first mouse button
                         if(ImGui::IsItemClicked()) {
                             bool shouldSelect = !obj.has(selected_mixin_id);
 
@@ -274,6 +291,7 @@ public:
                             buildTree(curr.second.id(), true);
                     }
                 }
+
                 ImGui::TreePop();
             }
 
@@ -301,6 +319,66 @@ public:
 
                 //re-update the list for later usage
                 updateSelected();
+            }
+
+            // if selected objects have been dragged with the middle mouse button onto an unselected object - make them its children
+            if(new_parent_for_selected) {
+                printf("[REPARENT]\n");
+                compound_cmd comp_cmd;
+
+                auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
+
+                // save the transforms of the selected objects before changing parental information
+                std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
+
+                for(auto& curr : selected) {
+                    // record the old transform
+                    old_transforms.push_back(
+                            {curr,
+                             {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
+
+                    // old parent old state
+                    auto     parent = get_parent(curr.obj());
+                    JsonData parent_old;
+                    if(parent.isValid())
+                        parent_old = mixin_state(parent.obj(), "parental");
+
+                    // record parental state of current object before change
+                    JsonData curr_old = mixin_state(curr.obj(), "parental");
+
+                    // set new parental relationship
+                    set_parent(curr.obj(), new_parent_for_selected);
+
+                    // old parent new state & command submit
+                    if(parent.isValid()) {
+                        JsonData parent_new = mixin_state(parent.obj(), "parental");
+                        comp_cmd.commands.push_back(attributes_changed_cmd(
+                                {parent, parent_old.data(), parent_new.data()}));
+                    }
+
+                    // current new state & command submit
+                    JsonData curr_new = mixin_state(curr.obj(), "parental");
+                    comp_cmd.commands.push_back(
+                            attributes_changed_cmd({curr, curr_old.data(), curr_new.data()}));
+                }
+
+                // fix the transforms after the position of the group has been set
+                for(auto& curr : old_transforms) {
+                    // set the old world transform (will recalculate the local transform of the object)
+                    tr::set_transform(curr.first.obj(), curr.second.first);
+                    // add the changed transform to the undo/redo command list
+                    JsonData new_tform = mixin_state(curr.first.obj(), "tform");
+                    comp_cmd.commands.push_back(attributes_changed_cmd(
+                            {curr.first, curr.second.second.data(), new_tform.data()}));
+                }
+
+                // update the parental part of the new parent
+                auto new_parent_new = mixin_state(new_parent_for_selected.obj(), "parental");
+                comp_cmd.commands.push_back(attributes_changed_cmd(
+                        {new_parent_for_selected, new_parent_old.data(), new_parent_new.data()}));
+
+                // add the compound command
+                add_command(comp_cmd);
             }
         }
         ImGui::End();
@@ -548,7 +626,7 @@ public:
                                                   {tr::get_transform(curr.obj()),
                                                    mixin_state(curr.obj(), "tform")}});
 
-                        // parent old state
+                        // old parent old state
                         auto     parent = get_parent(curr.obj());
                         JsonData parent_old;
                         if(parent.isValid())
@@ -560,7 +638,7 @@ public:
                         // set new parental relationship
                         set_parent(curr.obj(), group.id());
 
-                        // parent new state & command submit
+                        // old parent new state & command submit
                         if(parent.isValid()) {
                             JsonData parent_new = mixin_state(parent.obj(), "parental");
                             comp_cmd.commands.push_back(attributes_changed_cmd(

@@ -1,11 +1,16 @@
 
+remove .isValid() calls where possible
+
+remove more code duplication (especially for grouping)
+
 duplicating an object part of a hierarchy leads to a crash
+when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
+
+ability to unparent objects
 
 split the editor in multiple files
 
-when ONLY parental information changes - transforms should change accordingly so no object moves in the visual world
-
-grouping mode 2 - changing the current parental relationships without introducing new groups - what hotkeys?
+ask tuti about undo/redo
 
 editor:
     parental
@@ -52,6 +57,7 @@ not having the entire simulation state in clients - to prevent cheating?
 can the state between clients be really the same? indexes in resource managers and allocators and the like...?
 move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
 figure out a coding standard
+rename oid to object_handle?
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
