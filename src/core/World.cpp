@@ -2,7 +2,6 @@
 
 #include "Application.h"
 
-#include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
 #include "core/messages/messages_rendering.h"
 

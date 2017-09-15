@@ -5,7 +5,6 @@
 #include "core/Application.h"
 #include "core/World.h"
 
-#include "core/messages/messages.h"
 #include "core/messages/messages_camera.h"
 
 const float k_speed = 25.f;

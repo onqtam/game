@@ -4,7 +4,6 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_stuff.h"
 
-#include "core/messages/messages.h"
 #include "core/messages/messages_editor.h"
 #include "core/World.h"
 

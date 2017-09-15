@@ -9,8 +9,6 @@ HA_SUPPRESS_WARNINGS_END
 
 #include "core/messages/messages_editor.h"
 
-//HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
-
 struct attributes_changed_cmd
 {
     HA_FRIENDS_OF_TYPE(attributes_changed_cmd);
@@ -114,5 +112,3 @@ public:
 
     void add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val);
 };
-
-//HA_GCC_SUPPRESS_WARNING_END

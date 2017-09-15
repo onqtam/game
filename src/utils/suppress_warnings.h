@@ -80,7 +80,10 @@
 
 #ifdef _MSC_VER
 #define HA_SUPPRESS_WARNINGS_END __pragma(warning(pop))
-#define HA_SUPPRESS_WARNINGS __pragma(warning(push, 0))
+#define HA_SUPPRESS_WARNINGS                                                   \
+    __pragma(warning(push, 0))      /* all */                                  \
+    __pragma(warning(disable:4715)) /* not all control paths return a value */ \
+    __pragma(warning(disable:4702)) /* unreachable code */                     \
 
 #define HA_CLANG_SUPPRESS_WARNING(w)
 #define HA_CLANG_SUPPRESS_WARNING_END

@@ -42,11 +42,6 @@ HA_SUPPRESS_WARNINGS
 #include <ppk_assert.h>
 #define hassert PPK_ASSERT
 
-#ifdef _MSC_VER
-// oddly enough these are not silenced by HA_SUPPRESS_WARNINGS and have to be listed explicitly
-#pragma warning(disable : 4702) // unreachable code
-#pragma warning(disable : 4715) // not all control paths return a value
-#endif                          // _MSC_VER
 #include <sajson/include/sajson.h>
 
 #define BGFX_SHARED_LIB_USE 1
@@ -75,4 +70,5 @@ HA_SUPPRESS_WARNINGS_END
 #include "core/serialization/JsonData.h"
 #include "core/tags.h"
 #include "core/Object.h"
+#include "core/messages/messages_common.h"
 #include "core/registry/registry.h"

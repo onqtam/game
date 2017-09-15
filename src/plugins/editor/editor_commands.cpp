@@ -2,7 +2,6 @@
 
 #include "core/serialization/serialization.h"
 
-#include "core/messages/messages.h"
 #include "core/messages/messages_editor.h"
 
 HA_SUPPRESS_WARNINGS

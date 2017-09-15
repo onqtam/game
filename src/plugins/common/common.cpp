@@ -5,7 +5,6 @@
 #include "core/Application.h"
 #include "core/GraphicsHelpers.h"
 
-#include "core/messages/messages.h"
 #include "core/messages/messages_rendering.h"
 
 class tform

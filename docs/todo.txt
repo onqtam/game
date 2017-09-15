@@ -32,9 +32,6 @@ editor:
         raycast
         rectangle selection
     curve editing
-    bugs
-        things break when scaling not uniformly objects with parental relationships - kosta warned me about the transforms...
-        DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
     open questions
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
         when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya
@@ -62,7 +59,12 @@ rename oid to object_handle?
 
 == bugs:
 CI - appveyor emscripten build fails for some reason
-
+linux
+    when built with the address sanitizer on linux - build crashes on startup in the plugin manager
+editor
+    things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
+    DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
+    >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
 == to test:
 - aabb class
 - transform stuffs
