@@ -1,4 +1,4 @@
-ucm_add_flags(${ha_3rdparty_compiler_flags})
+ucm_add_flags(${ha_third_party_compiler_flags})
 
 # LIBRARY format
 #add_subdirectory(format)

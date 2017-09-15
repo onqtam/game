@@ -79,7 +79,7 @@ if(MSVC)
         /W4
         #/wd4661 # identifier' : no suitable definition provided for explicit template instantiation request
     )
-    list(APPEND third_party_compiler_flags /W0)
+    list(APPEND ha_third_party_compiler_flags /W0)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -90,7 +90,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -fvisibility=hidden # TODO: add this globally - not just to ha_compiler_flags
         -fstrict-aliasing
     )
-    list(APPEND third_party_compiler_flags -w)
+    list(APPEND ha_third_party_compiler_flags -w)
 endif()    
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
