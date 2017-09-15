@@ -27,10 +27,8 @@ DYNAMIX_DEFINE_MESSAGE(get_const_children);
 DYNAMIX_DEFINE_MESSAGE(get_non_const_children);
 DYNAMIX_DEFINE_MESSAGE(set_parent);
 
-// selected
-HA_DEFINE_MSG(sel, no_gizmo)
-HA_DEFINE_MSG(sel, get_transform_on_gizmo_start)
-HA_DEFINE_MSG(sel, get_transform_local_on_gizmo_start)
+// other
+DYNAMIX_DEFINE_MESSAGE(no_gizmo);
 
 // camera
 HA_DEFINE_MSG(cam, get_view_matrix)

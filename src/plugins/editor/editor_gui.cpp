@@ -107,7 +107,7 @@ void editor::update_gui() {
                             else
                                 to_deselect.push_back(root);
                         } else if(shouldSelect) {
-                            for(auto& it : selected)
+                            for(auto& it : m_selected)
                                 to_deselect.push_back(it);
                             to_select.push_back(root);
                         }
@@ -144,7 +144,7 @@ void editor::update_gui() {
                             ImGuiSetCond_FirstUseEver);
 
     if(ImGui::Begin("object attributes", nullptr, window_flags)) {
-        for(auto& id : selected) {
+        for(auto& id : m_selected) {
             auto& obj = id.obj();
             HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
             if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
@@ -162,7 +162,7 @@ void editor::update_gui() {
     }
     ImGui::End();
 
-    //ImGui::ShowTestWindow();
+    ImGui::ShowTestWindow();
 }
 
 void editor::update_gizmo() {
@@ -205,9 +205,8 @@ void editor::update_gizmo() {
         if(m_gizmo_state.mouse_left) {
             gizmo_transform_last = gizmo_transform;
             for(auto& id : selected_with_gizmo) {
-                sel::get_transform_on_gizmo_start(id.obj()) = tr::get_transform(id.obj());
-                sel::get_transform_local_on_gizmo_start(id.obj()) =
-                        tr::get_transform_local(id.obj());
+                id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
+                id.obj().get<selected>()->old_local_t = tr::get_transform_local(id.obj());
             }
         }
     }
@@ -225,7 +224,7 @@ void editor::update_gizmo() {
         //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
         {
             for(auto& id : selected_with_gizmo) {
-                auto t = sel::get_transform_on_gizmo_start(id.obj());
+                auto t = id.obj().get<selected>()->old_t;
                 t.pos += yama::v(diff_pos.x, diff_pos.y, diff_pos.z);
                 t.scl += yama::v(diff_scl.x, diff_scl.y, diff_scl.z);
                 if(selected_with_gizmo.size() == 1) {

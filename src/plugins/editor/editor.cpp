@@ -5,6 +5,7 @@
 #include "core/imgui/imgui_bindings_common.h"
 
 #include "core/messages/messages_editor.h"
+#include "core/messages/messages_rendering.h"
 #include "core/World.h"
 
 HA_SUPPRESS_WARNINGS
@@ -15,12 +16,12 @@ HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::
 
 // until the allocator model of dynamix is extended we shall update this list manually like this
 void editor::update_selected() {
-    selected.clear();
+    m_selected.clear();
     selected_with_gizmo.clear();
     for(auto& curr : ObjectManager::get().getObjects()) {
         if(curr.second.has(selected_mixin_id)) {
-            selected.push_back(curr.second.id());
-            if(curr.second.implements(sel::no_gizmo_msg))
+            m_selected.push_back(curr.second.id());
+            if(curr.second.implements(no_gizmo_msg))
                 continue;
             selected_with_gizmo.push_back(curr.second.id());
         }
@@ -149,5 +150,28 @@ HA_GCC_SUPPRESS_WARNING_END
 HA_SINGLETON_INSTANCE(editor);
 
 HA_MIXIN_DEFINE(editor, Interface_editor);
+
+void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out) {
+    // if object has a bbox - submit it
+    if(curr.implements(rend::get_aabb_msg)) {
+        auto diag   = rend::get_aabb(curr).getDiagonal();
+        auto color  = curr.has<selected>() ? colors::green : colors::light_green;
+        auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
+        auto shader = ShaderMan::get().get("cubes");
+        out.push_back({{}, geom, shader, tr::get_transform(curr).as_mat()});
+    }
+    // recurse through children
+    if(curr.implements(get_const_children_msg)) {
+        auto& children = get_children(curr);
+        for(auto& child_id : children) {
+            auto& child = child_id.obj();
+            // if child is not selected - to avoid rendering the same bbox multiple times
+            if(!child.has<selected>())
+                submit_aabb_rec(child, out);
+        }
+    }
+}
+
+HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg);
 
 #include <gen/editor.h.inl>

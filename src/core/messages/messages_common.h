@@ -36,12 +36,7 @@ DYNAMIX_EXPORTED_MESSAGE_1(HAPI, void, set_parent, oid, _parent)
     get_const_parent_msg& get_non_const_parent_msg& get_const_children_msg&                        \
             get_non_const_children_msg& set_parent_msg
 
-// selected
-HA_CONST_MULTI_MSG_0(sel, void, no_gizmo) // for simulating a mixin fact - see dynamix roadmap
-HA_MSG_0(sel, transform&, get_transform_on_gizmo_start)
-HA_MSG_0(sel, transform&, get_transform_local_on_gizmo_start)
-
-#define Interface_selected                                                                         \
-    sel::get_transform_on_gizmo_start_msg& sel::get_transform_local_on_gizmo_start_msg
+// other
+DYNAMIX_EXPORTED_MULTICAST_MESSAGE_0(HAPI, void, no_gizmo) // used as a fact
 
 HA_SUPPRESS_WARNINGS_END

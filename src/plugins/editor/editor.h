@@ -62,7 +62,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     HA_SINGLETON(editor);
     HA_MESSAGES_IN_MIXIN(editor);
 
-    FIELD std::vector<oid> selected;
+    FIELD std::vector<oid> m_selected;
     FIELD std::vector<oid> selected_with_gizmo;
     FIELD commands_vector undo_redo_commands;
     FIELD int             curr_undo_redo            = -1;
@@ -112,3 +112,20 @@ public:
 
     void add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val);
 };
+
+struct renderPart;
+
+class selected
+{
+    HA_MESSAGES_IN_MIXIN(selected);
+
+    static void submit_aabb_rec(const Object& curr, std::vector<renderPart>& out);
+
+public:
+    FIELD transform old_t;
+    FIELD transform old_local_t;
+
+    void get_rendering_parts(std::vector<renderPart>& out) const { submit_aabb_rec(ha_this, out); }
+};
+
+DYNAMIX_DECLARE_MIXIN(selected);

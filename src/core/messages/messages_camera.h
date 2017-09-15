@@ -8,4 +8,6 @@ HA_SUPPRESS_WARNINGS
 HA_MSG_0(cam, yama::matrix, get_view_matrix)
 HA_MSG_0(cam, yama::matrix, get_projection_matrix)
 
+#define Interface_camera cam::get_view_matrix_msg& cam::get_projection_matrix_msg
+
 HA_SUPPRESS_WARNINGS_END

@@ -82,7 +82,6 @@ public:
     void no_gizmo() const {}
 };
 
-HA_MIXIN_DEFINE(camera,
-                cam::get_view_matrix_msg& cam::get_projection_matrix_msg& sel::no_gizmo_msg);
+HA_MIXIN_DEFINE(camera, Interface_camera/*& no_gizmo_msg*/);
 
 #include <gen/camera.cpp.inl>

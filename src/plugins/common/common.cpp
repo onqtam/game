@@ -150,42 +150,4 @@ public:
 
 HA_MIXIN_DEFINE(parental, Interface_parental);
 
-class selected
-{
-    HA_MESSAGES_IN_MIXIN(selected);
-    FIELD transform old_t;
-    FIELD transform old_local_t;
-
-    static void submit_aabb_recursively(const Object& curr, std::vector<renderPart>& out) {
-        // if object has a bbox - submit it
-        if(curr.implements(rend::get_aabb_msg)) {
-            auto diag   = rend::get_aabb(curr).getDiagonal();
-            auto color  = curr.has<selected>() ? colors::green : colors::light_green;
-            auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
-            auto shader = ShaderMan::get().get("cubes");
-            out.push_back({{}, geom, shader, tr::get_transform(curr).as_mat()});
-        }
-        // recurse through children
-        if(curr.implements(get_const_children_msg)) {
-            auto& children = get_children(curr);
-            for(auto& child_id : children) {
-                auto& child = child_id.obj();
-                // if child is not selected - to avoid rendering the same bbox multiple times
-                if(!child.has<selected>())
-                    submit_aabb_recursively(child, out);
-            }
-        }
-    }
-
-public:
-    void get_rendering_parts(std::vector<renderPart>& out) const {
-        submit_aabb_recursively(ha_this, out);
-    }
-
-    transform& get_transform_on_gizmo_start() { return old_t; }
-    transform& get_transform_local_on_gizmo_start() { return old_local_t; }
-};
-
-HA_MIXIN_DEFINE(selected, Interface_selected& rend::get_rendering_parts_msg);
-
 #include <gen/common.cpp.inl>
