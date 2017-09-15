@@ -1,9 +1,9 @@
 
+fix header dependencies - mainly registry.h
+
 remove more code duplication (especially for grouping)
 
 remove the concept of invalid() and just use default-constructed oids?
-
-split the editor in multiple files
 
 ask tuti about undo/redo
 
@@ -59,6 +59,7 @@ move to RH coordinate system with Z+ up? Tuti put some good arguments forward - 
 figure out a coding standard
     underscores for in variables instead of camel case (+ camel case for types and functions)?
 is the extensive use of lambdas ok? is such locality better than extracting the logic in a separate method/function further away?
+    callstacks are bad - especially when using std::function (needed for recursion) and not just assigning the lambdas to auto
 rename oid to object_handle?
 
 == bugs:
