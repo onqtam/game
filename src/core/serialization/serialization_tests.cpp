@@ -1,4 +1,4 @@
-#include "serialization.h"
+#include "serialization_common.h"
 #include "serialization_2.h"
 
 bool operator==(const JsonData& lhs, const JsonData& rhs) { return lhs.data() == rhs.data(); }

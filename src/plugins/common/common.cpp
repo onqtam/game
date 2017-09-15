@@ -1,6 +1,6 @@
-#include "core/serialization/serialization.h"
+#include "core/serialization/serialization_common.h"
 #include "core/serialization/serialization_2.h"
-#include "core/imgui/imgui_stuff.h"
+#include "core/imgui/imgui_bindings_common.h"
 
 #include "core/Application.h"
 #include "core/GraphicsHelpers.h"

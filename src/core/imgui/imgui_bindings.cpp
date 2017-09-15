@@ -1,9 +1,9 @@
-#include "imgui_stuff.h"
+#include "imgui_bindings_common.h"
 
 #include "utils/utils.h"
 
 #include "core/World.h"
-#include "core/serialization/serialization.h"
+#include "core/serialization/serialization_common.h"
 #include "core/messages/messages_editor.h"
 
 HA_SUPPRESS_WARNINGS

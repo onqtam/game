@@ -1,6 +1,6 @@
 #include "editor.h"
 
-#include "core/serialization/serialization.h"
+#include "core/serialization/serialization_common.h"
 
 #include "core/messages/messages_editor.h"
 
@@ -9,6 +9,31 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
+
+static JsonData mixin_state(const Object& obj, cstr mixin) {
+    JsonData out(1000);
+    out.startObject();
+    common::serialize_mixins(obj, mixin, out);
+    out.endObject();
+    return out;
+}
+
+static JsonData object_state(const Object& obj) {
+    JsonData state(1000);
+    state.startObject();
+    state.append("\"\":");
+    serialize(obj, state);
+    state.endObject();
+    return state;
+}
+
+static std::vector<std::string> mixin_names(const Object& obj) {
+    std::vector<cstr> mixins;
+    obj.get_mixin_names(mixins);
+    std::vector<std::string> out(mixins.size());
+    std::transform(mixins.begin(), mixins.end(), out.begin(), [](auto in) { return in; });
+    return out;
+}
 
 void editor::update_selection(const std::vector<oid>& to_select,
                               const std::vector<oid>& to_deselect) {

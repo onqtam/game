@@ -4,7 +4,7 @@
 
 #include "core/Application.h"
 #include "utils/utils.h"
-#include "serialization/serialization.h"
+#include "serialization/serialization_common.h"
 
 #ifdef _WIN32
 

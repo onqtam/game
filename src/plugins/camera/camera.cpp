@@ -1,5 +1,5 @@
-#include "core/serialization/serialization.h"
-#include "core/imgui/imgui_stuff.h"
+#include "core/serialization/serialization_common.h"
+#include "core/imgui/imgui_bindings_common.h"
 
 #include "core/InputEvent.h"
 #include "core/Application.h"
