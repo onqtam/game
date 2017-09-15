@@ -115,6 +115,7 @@ public:
 
 struct renderPart;
 
+DYNAMIX_DECLARE_MIXIN(selected);
 class selected
 {
     HA_MESSAGES_IN_MIXIN(selected);
@@ -127,5 +128,3 @@ public:
 
     void get_rendering_parts(std::vector<renderPart>& out) const { submit_aabb_rec(ha_this, out); }
 };
-
-DYNAMIX_DECLARE_MIXIN(selected);

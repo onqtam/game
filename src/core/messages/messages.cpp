@@ -5,7 +5,7 @@
 // common
 HA_DEFINE_MSG(common, serialize_mixins)
 HA_DEFINE_MSG(common, deserialize_mixins)
-HA_DEFINE_MSG(common, imgui_bind_attributes_mixins)
+HA_DEFINE_MSG(common, get_imgui_binding_callbacks_from_mixins)
 
 // transform
 HA_DEFINE_MSG(tr, set_pos)

@@ -147,14 +147,26 @@ void editor::update_gui() {
         for(auto& id : m_selected) {
             auto& obj = id.obj();
             HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
-            if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
-                                 obj.name().c_str())) {
+            bool node_open = ImGui::TreeNodeEx((const void*)obj.name().c_str(),
+                                               ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str());
+
+            if(ImGui::IsItemClicked())
+                ((void)0); //node_clicked = i;
+            if(node_open) {
                 HA_CLANG_SUPPRESS_WARNING_END
                 // attributes of the object itself
                 imgui_bind_attributes(obj, "", obj);
                 // attributes of the mixins
-                if(obj.implements(common::imgui_bind_attributes_mixins_msg))
-                    common::imgui_bind_attributes_mixins(obj);
+                hassert(obj.implements(common::get_imgui_binding_callbacks_from_mixins_msg));
+                imgui_binding_callbacks cbs;
+                common::get_imgui_binding_callbacks_from_mixins(obj, cbs);
+
+                for(auto& curr : cbs) {
+                    if(ImGui::TreeNode(curr.first)) {
+                        curr.second(obj);
+                        ImGui::TreePop();
+                    }
+                }
 
                 ImGui::TreePop();
             }

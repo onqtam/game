@@ -120,14 +120,11 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    void n::imgui_bind_attributes_mixins() {                                                       \
-        if(ImGui::TreeNode(#n)) {                                                                  \
-            imgui_bind_attributes(ha_this, #n, *this);                                             \
-            ImGui::TreePop();                                                                      \
-        }                                                                                          \
+    void n::get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs) {                \
+        cbs.push_back({#n, [&](Object& obj) { imgui_bind_attributes(obj, #n, *obj.get<n>()); }});  \
     }                                                                                              \
     HA_MIXIN_DEFINE_COMMON(n, common::serialize_mixins_msg& common::deserialize_mixins_msg&        \
-                                      common::imgui_bind_attributes_mixins_msg& f)
+                                      common::get_imgui_binding_callbacks_from_mixins_msg& f)
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

@@ -96,7 +96,7 @@ struct print_ct;
     /* clang-format fix */ public:                                                                 \
     void serialize_mixins(cstr concrete_mixin, JsonData& out) const;                               \
     void deserialize_mixins(const sajson::value& in);                                              \
-    void imgui_bind_attributes_mixins();                                                           \
+    void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);                    \
     /* clang-format fix */ private:                                                                \
     HA_FRIENDS_OF_TYPE(name)
 
