@@ -3,7 +3,6 @@
 #include "PluginManager.h"
 
 #include "core/Application.h"
-#include "core/registry/registry.h"
 #include "utils/utils.h"
 #include "serialization/serialization.h"
 

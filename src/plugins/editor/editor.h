@@ -4,7 +4,6 @@ HA_SUPPRESS_WARNINGS
 #include <tinygizmo/tiny-gizmo.hpp>
 HA_SUPPRESS_WARNINGS_END
 
-#include "core/registry/registry.h"
 #include "core/GraphicsHelpers.h"
 #include "core/InputEvent.h"
 

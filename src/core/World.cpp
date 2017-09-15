@@ -6,8 +6,6 @@
 #include "core/messages/messages_camera.h"
 #include "core/messages/messages_rendering.h"
 
-#include "core/registry/registry.h"
-
 HA_SINGLETON_INSTANCE(World);
 
 World::World()

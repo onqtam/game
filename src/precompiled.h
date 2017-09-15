@@ -75,3 +75,4 @@ HA_SUPPRESS_WARNINGS_END
 #include "core/serialization/JsonData.h"
 #include "core/tags.h"
 #include "core/Object.h"
+#include "core/registry/registry.h"

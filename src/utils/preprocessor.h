@@ -66,9 +66,43 @@ struct print_ct;
 #define HA_NOINLINE __attribute__((noinline))
 #endif // _MSC_VER
 
+// =================================================================================================
+// ==  CODEGEN =====================================================================================
+// =================================================================================================
+
+#define HA_SERIALIZE_VARIABLE(key, var)                                                            \
+    out.append("\"" key "\":");                                                                    \
+    serialize(var, out);                                                                           \
+    out.addComma()
+
+#define HA_DESERIALIZE_VARIABLE(key, var, callback)                                                \
+    if(strcmp(val.get_object_key(i).data(), key) == 0) {                                           \
+        deserialize(var, val.get_object_value(i));                                                 \
+        ++num_deserialized;                                                                        \
+        callback;                                                                                  \
+    }
+
+#define HA_FRIENDS_OF_TYPE(name)                                                                   \
+    friend void   serialize(const name& src, JsonData& out);                                       \
+    friend size_t deserialize(name& dest, const sajson::value& val);                               \
+    friend cstr   imgui_bind_attributes(Object& e, cstr mixin, name& obj)
+
+#define HA_EXPORTED_FRIENDS_OF_TYPE(name)                                                          \
+    friend HAPI void serialize(const name& src, JsonData& out);                                    \
+    friend HAPI size_t deserialize(name& dest, const sajson::value& val);                          \
+    friend HAPI cstr imgui_bind_attributes(Object& e, cstr mixin, name& obj)
+
+#define HA_MESSAGES_IN_MIXIN(name)                                                                 \
+    /* clang-format fix */ public:                                                                 \
+    void serialize_mixins(cstr concrete_mixin, JsonData& out) const;                               \
+    void deserialize_mixins(const sajson::value& in);                                              \
+    void imgui_bind_attributes_mixins();                                                           \
+    /* clang-format fix */ private:                                                                \
+    HA_FRIENDS_OF_TYPE(name)
+
 // helpers that don't expand to anything - used by the type parser
 #define FIELD          // indicates the start of a field definition inside of a type
 #define REFL_NO_SKIP   // class attribute - emit reflection for the class even if without any fields
 #define REFL_NO_INLINE // class attribute - emitted reflection methods should not be marked as inline
-#define REFL_CALLBACK  // field attribute - the given callback will be called after the field changes
+#define REFL_CALLBACK // field attribute - the given callback will be called after the field changes
 #define REFL_ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this

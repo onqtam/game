@@ -6,7 +6,6 @@
 // common
 HA_DEFINE_MSG(common, serialize_mixins)
 HA_DEFINE_MSG(common, deserialize_mixins)
-HA_DEFINE_MSG(common, set_attribute_mixins)
 HA_DEFINE_MSG(common, imgui_bind_attributes_mixins)
 
 // transform

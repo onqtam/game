@@ -45,9 +45,7 @@ class Object : public dynamix::object
 {
     friend class ObjectManager;
 
-    friend HAPI void serialize(const Object& src, JsonData& out);
-    friend HAPI size_t deserialize(Object& dest, const sajson::value& val);
-    friend HAPI cstr imgui_bind_attributes(Object& e, cstr mixin, Object& obj);
+    HA_EXPORTED_FRIENDS_OF_TYPE(Object);
 
     oid   m_id;
     FIELD std::string m_name;

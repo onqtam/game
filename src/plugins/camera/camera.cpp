@@ -1,4 +1,3 @@
-#include "core/registry/registry.h"
 #include "core/serialization/serialization.h"
 #include "core/imgui/imgui_stuff.h"
 
@@ -10,9 +9,6 @@
 #include "core/messages/messages_camera.h"
 
 const float k_speed = 25.f;
-
-//const yama::vector3 k_up                  = {0, 1, 0};
-//const yama::vector3 k_right               = {1, 0, 0};
 
 class camera : public InputEventListener, public UpdatableMixin<camera>
 {

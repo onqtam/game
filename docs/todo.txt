@@ -1,6 +1,4 @@
 
-fix header dependencies - mainly registry.h
-
 remove more code duplication (especially for grouping)
 
 remove the concept of invalid() and just use default-constructed oids?

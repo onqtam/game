@@ -88,38 +88,6 @@ load_unload_proc getUnloadProc() {
     };
 }
 
-#define HA_MESSAGES_IN_MIXIN(name)                                                                 \
-    /* clang-format fix */ public:                                                                 \
-    void serialize_mixins(cstr concrete_mixin, JsonData& out) const {                              \
-        if(concrete_mixin && strcmp(#name, concrete_mixin) != 0)                                   \
-            return;                                                                                \
-        out.append("\"" #name "\":");                                                              \
-        serialize(*this, out);                                                                     \
-        out.addComma();                                                                            \
-    }                                                                                              \
-    void deserialize_mixins(const sajson::value& in) {                                             \
-        auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
-        if(in.find_object_key(str) != in.get_length())                                             \
-            deserialize(*this, in.get_value_of_key(str));                                          \
-    }                                                                                              \
-    void set_attribute_mixins(cstr /*mixin*/, cstr /*attr*/, const sajson::value& in) {            \
-        auto str = sajson::string(#name, HA_COUNT_OF(#name) - 1);                                  \
-        if(in.find_object_key(str) != in.get_length()) {                                           \
-            auto value = in.get_value_of_key(str);                                                 \
-            hassert(value.get_length() == 1);                                                      \
-            auto num_deserialized = deserialize(*this, value);                                     \
-            hassert(num_deserialized == 1);                                                        \
-        }                                                                                          \
-    }                                                                                              \
-    void imgui_bind_attributes_mixins() {                                                          \
-        if(ImGui::TreeNode(#name)) {                                                               \
-            imgui_bind_attributes(ha_this, #name, *this);                                          \
-            ImGui::TreePop();                                                                      \
-        }                                                                                          \
-    }                                                                                              \
-    /* clang-format fix */ private:                                                                \
-    HA_FRIENDS_OF_TYPE(name)
-
 #ifdef HA_PLUGIN
 #define HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n) getLoadProc<n>()
 #define HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n) getUnloadProc<n>()
@@ -140,10 +108,26 @@ load_unload_proc getUnloadProc() {
              HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
 
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
-    HA_MIXIN_DEFINE_COMMON(                                                                        \
-            n,                                                                                     \
-            common::serialize_mixins_msg& common::deserialize_mixins_msg&                          \
-                    common::set_attribute_mixins_msg& common::imgui_bind_attributes_mixins_msg& f)
+    void n::serialize_mixins(cstr concrete_mixin, JsonData& out) const {                           \
+        if(concrete_mixin && strcmp(#n, concrete_mixin) != 0)                                      \
+            return;                                                                                \
+        out.append("\"" #n "\":");                                                                 \
+        serialize(*this, out);                                                                     \
+        out.addComma();                                                                            \
+    }                                                                                              \
+    void n::deserialize_mixins(const sajson::value& in) {                                          \
+        auto str = sajson::string(#n, HA_COUNT_OF(#n) - 1);                                        \
+        if(in.find_object_key(str) != in.get_length())                                             \
+            deserialize(*this, in.get_value_of_key(str));                                          \
+    }                                                                                              \
+    void n::imgui_bind_attributes_mixins() {                                                       \
+        if(ImGui::TreeNode(#n)) {                                                                  \
+            imgui_bind_attributes(ha_this, #n, *this);                                             \
+            ImGui::TreePop();                                                                      \
+        }                                                                                          \
+    }                                                                                              \
+    HA_MIXIN_DEFINE_COMMON(n, common::serialize_mixins_msg& common::deserialize_mixins_msg&        \
+                                      common::imgui_bind_attributes_mixins_msg& f)
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 
@@ -169,8 +153,6 @@ HA_SUPPRESS_WARNINGS_END
 
 int registerGlobal(cstr name, GlobalInfo info);
 
-// TODO: figure out how to escape the file - so it can be used as a json key
-// perhaps using cmake? http://stackoverflow.com/questions/1706346/file-macro-manipulation-handling-at-compile-time
 #define HA_GLOBAL_GEN_NAME(type, name) #type "_" HA_TOSTR(name) // "_" __FILE__
 
 #define HA_GLOBAL_COMMON(type, name)                                                               \
@@ -195,28 +177,3 @@ int registerGlobal(cstr name, GlobalInfo info);
 #define HA_GLOBAL_MEMBER(type, class_type, name)                                                   \
     HA_GLOBAL_COMMON(type, HA_CAT_2(HA_CAT_2(class_type, ::), name));                              \
     type class_type::name
-
-// == from here: http://stackoverflow.com/questions/11761703/overloading-macro-on-number-of-arguments
-//#define HA_GET_MACRO(_1, _2, _3, NAME, ...) NAME
-//#define HA_WTF(...) HA_EXPAND(HA_GET_MACRO(__VA_ARGS__, macro_3, macro_2)(__VA_ARGS__))
-
-// =================================================================================================
-// ==  CODEGEN =====================================================================================
-// =================================================================================================
-
-#define HA_SERIALIZE_VARIABLE(key, var)                                                            \
-    out.append("\"" key "\":");                                                                    \
-    serialize(var, out);                                                                           \
-    out.addComma()
-
-#define HA_DESERIALIZE_VARIABLE(key, var, callback)                                                \
-    if(strcmp(val.get_object_key(i).data(), key) == 0) {                                           \
-        deserialize(var, val.get_object_value(i));                                                 \
-        ++num_deserialized;                                                                        \
-        callback;                                                                                  \
-    }
-
-#define HA_FRIENDS_OF_TYPE(name)                                                                   \
-    friend void   serialize(const name& src, JsonData& out);                                       \
-    friend size_t deserialize(name& dest, const sajson::value& val);                               \
-    friend cstr   imgui_bind_attributes(Object& e, cstr mixin, name& obj)
