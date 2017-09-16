@@ -27,6 +27,7 @@ build_script:
   - ha -b msvc
   # workaround for CMake not wanting sh.exe on PATH for MinGW
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - set PATH=C:\mingw\mingw64\bin;%PATH%
   - ha -b gcc
   # temporarily disabling this - it again complains that sh.exe is in the PATH when cmake is invoked even if I 
   # inspect %PATH% right before it - see this build: https://ci.appveyor.com/project/onqtam/game/build/1.0.149
