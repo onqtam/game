@@ -26,10 +26,10 @@ before_build:
 build_script:
   #- ha -b msvc
   # workaround for CMake not wanting sh.exe on PATH for MinGW
-  #- set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  #- set PATH=%PATH:C:\Program Files\Git\usr\bin=%
   #- set PATH=C:\mingw\mingw64\bin;%PATH%
   #- ha -b gcc
   - ha --setup-emscripten
   # workaround for CMake not wanting sh.exe on PATH for MinGW
-  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-  - ha -b js --cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND"
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin=%
+  - ha -b js
