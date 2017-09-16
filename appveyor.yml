@@ -21,7 +21,7 @@ install:
   - pip install colorama
 
 before_build:
-  - ha -s
+  #- ha -s
 
 build_script:
   #- ha -b msvc
@@ -31,5 +31,5 @@ build_script:
   #- ha -b gcc
   - ha --setup-emscripten
   # workaround for CMake not wanting sh.exe on PATH for MinGW
-  - set PATH=%PATH:C:\Program Files\Git\usr\bin=%
+  - set PATH=%C:/Program Files/Git/usr/bin=%
   - ha -b js
