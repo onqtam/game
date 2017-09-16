@@ -37,4 +37,5 @@ build_script:
   - echo %PATH%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - echo %PATH%
+  - rename "C:/Program Files/Git/usr/bin/sh.exe" "C:/Program Files/Git/usr/bin/sh2.exe"
   - ha -b js
