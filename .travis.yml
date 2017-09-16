@@ -25,6 +25,7 @@ addons:
     sources: &apt_sources
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty
+      - llvm-toolchain-trusty-4.0
       - llvm-toolchain-trusty-5.0
 
 compiler: clang
