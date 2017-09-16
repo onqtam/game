@@ -5,7 +5,9 @@ HA_SUPPRESS_WARNINGS
 // common
 HA_CONST_MULTI_MSG_2(common, void, serialize_mixins, cstr, concrete_mixin, JsonData&, out)
 HA_MULTI_MSG_1(common, void, deserialize_mixins, const sajson::value&, in)
-typedef std::vector<std::pair<cstr, std::function<void(Object&)>>> imgui_binding_callbacks;
+typedef std::vector<
+        std::pair<const dynamix::internal::mixin_type_info*, std::function<void(Object&)>>>
+        imgui_binding_callbacks;
 HA_MULTI_MSG_1(common, void, get_imgui_binding_callbacks_from_mixins, imgui_binding_callbacks&, cbs)
 
 // transform

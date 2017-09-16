@@ -14,7 +14,7 @@ void editor::update_gui() {
     static bool no_move      = false;
     static bool no_scrollbar = false;
     static bool no_collapse  = false;
-    static bool no_menu      = true;
+    static bool no_menu      = false;
 
     // Demonstrate the various window flags. Typically you would just use the default.
     ImGuiWindowFlags window_flags = 0;
@@ -144,25 +144,53 @@ void editor::update_gui() {
                             ImGuiSetCond_FirstUseEver);
 
     if(ImGui::Begin("object attributes", nullptr, window_flags)) {
+        if(ImGui::BeginMenuBar()) {
+            static bool delete_selected = false;
+            static bool add_to_selected = false;
+            if(ImGui::BeginMenu("Mixins")) {
+                ImGui::MenuItem("Delete selected", nullptr, &delete_selected);
+                ImGui::MenuItem("Add to selected", nullptr, &add_to_selected);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+
+            if(delete_selected) {
+                delete_selected_mixins();
+                delete_selected = false;
+            }
+            if(add_to_selected) {
+                add_to_selected = false;
+            }
+        }
+
         for(auto& id : m_selected) {
             auto& obj = id.obj();
             HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
-            bool node_open = ImGui::TreeNodeEx((const void*)obj.name().c_str(),
-                                               ImGuiTreeNodeFlags_DefaultOpen, obj.name().c_str());
-
-            if(ImGui::IsItemClicked())
-                ((void)0); //node_clicked = i;
-            if(node_open) {
-                HA_CLANG_SUPPRESS_WARNING_END
+            if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
+                                 obj.name().c_str())) {
                 // attributes of the object itself
                 imgui_bind_attributes(obj, "", obj);
-                // attributes of the mixins
-                hassert(obj.implements(common::get_imgui_binding_callbacks_from_mixins_msg));
+
+                // attributes of the mixins - can select them
                 imgui_binding_callbacks cbs;
                 common::get_imgui_binding_callbacks_from_mixins(obj, cbs);
-
+                auto& selected_mixin = *obj.get<selected>();
                 for(auto& curr : cbs) {
-                    if(ImGui::TreeNode(curr.first)) {
+                    auto curr_id           = curr.first->id;
+                    bool is_mixin_selected = selected_mixin.selected_mixins.count(curr_id) != 0;
+
+                    ImGuiTreeNodeFlags flags =
+                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
+                            (is_mixin_selected ? ImGuiTreeNodeFlags_Selected : 0);
+
+                    bool node_open = ImGui::TreeNodeEx(curr.first->name, flags, curr.first->name);
+                    if(ImGui::IsItemClicked()) {
+                        if(!is_mixin_selected)
+                            selected_mixin.selected_mixins.insert({curr_id, curr.first->name});
+                        else if(ImGui::GetIO().KeyCtrl) // can deselect by holding Ctrl
+                            selected_mixin.selected_mixins.erase(curr_id);
+                    }
+                    if(node_open) {
                         curr.second(obj);
                         ImGui::TreePop();
                     }
@@ -170,10 +198,12 @@ void editor::update_gui() {
 
                 ImGui::TreePop();
             }
+            HA_CLANG_SUPPRESS_WARNING_END
         }
     }
     ImGui::End();
 
+    ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiSetCond_FirstUseEver);
     ImGui::ShowTestWindow();
 }
 

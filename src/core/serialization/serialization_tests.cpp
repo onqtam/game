@@ -44,6 +44,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
 }
 
 // helpers for the counting of serialization routine tests
+HA_CLANG_SUPPRESS_WARNING("-Wunused-const-variable")
 const int serialize_tests_counter_start = __COUNTER__;
 
 #define HA_SERIALIZE_TEST(type, ...)                                                               \
@@ -55,6 +56,7 @@ const int serialize_tests_counter_start = __COUNTER__;
 
 HA_SERIALIZE_TEST(char, 'g');
 HA_SERIALIZE_TEST(int, 42);
+HA_SERIALIZE_TEST(size_t, 42);
 HA_SERIALIZE_TEST(float, 42.f);
 HA_SERIALIZE_TEST(double, 42.);
 HA_SERIALIZE_TEST(bool, false);
@@ -66,6 +68,11 @@ HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
 HA_SERIALIZE_TEST(JsonData, JsonData());
 HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
+HA_SERIALIZE_TEST(std::set<int>, {1, 2, 3});
+typedef std::pair<int, float> test_pair;
+HA_SERIALIZE_TEST(test_pair, {1, 2.f});
+typedef std::map<int, float> test_map;
+HA_SERIALIZE_TEST(test_map, {{1, 2.f}, {2, 3.f}, {3, 4.f}});
 
 HA_SUPPRESS_WARNINGS
 typedef boost::variant<int, char, double, float> variant_no_commas_for_test;
@@ -80,6 +87,7 @@ HA_SERIALIZE_TEST(tinygizmo::gizmo_application_state, tinygizmo::gizmo_applicati
 
 // helpers for the counting of serialization routine tests
 const int num_serialize_tests = (__COUNTER__ - serialize_tests_counter_start - 1) / 2;
+HA_CLANG_SUPPRESS_WARNING_END
 #ifdef _MSC_VER
 // currently counts properly only on msvc... num_serialize_definitions is 0 on gcc
 static_assert(num_serialize_tests == num_serialize_definitions + num_serialize_definitions_2,

@@ -51,7 +51,7 @@ public:
     void move(const yama::vector3& in) { pos += in; }
 };
 
-HA_MIXIN_DEFINE(tform, Interface_transform);
+HA_MIXIN_DEFINE(tform, Interface_transform)
 
 class mesh
 {
@@ -88,7 +88,7 @@ public:
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
 };
 
-HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg);
+HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg)
 
 class parental
 {
@@ -148,6 +148,6 @@ public:
     }
 };
 
-HA_MIXIN_DEFINE(parental, Interface_parental);
+HA_MIXIN_DEFINE(parental, Interface_parental)
 
 #include <gen/common.cpp.inl>

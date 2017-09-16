@@ -92,13 +92,13 @@ struct print_ct;
     friend HAPI size_t deserialize(name& dest, const sajson::value& val);                          \
     friend HAPI cstr imgui_bind_attributes(Object& e, cstr mixin, name& obj)
 
-#define HA_MESSAGES_IN_MIXIN(name)                                                                 \
-    /* clang-format fix */ public:                                                                 \
-    void serialize_mixins(cstr concrete_mixin, JsonData& out) const;                               \
-    void deserialize_mixins(const sajson::value& in);                                              \
-    void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);                    \
-    /* clang-format fix */ private:                                                                \
-    HA_FRIENDS_OF_TYPE(name)
+#define HA_MESSAGES_IN_MIXIN(n)                                                                     \
+    /* clang-format fix */ public:                                                                  \
+    void                     serialize_mixins(cstr concrete_mixin, JsonData& out) const;            \
+    void                     deserialize_mixins(const sajson::value& in);                           \
+    void                     get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs); \
+    /* clang-format fix */ private:                                                                 \
+    HA_FRIENDS_OF_TYPE(n)
 
 // helpers that don't expand to anything - used by the type parser
 #define FIELD          // indicates the start of a field definition inside of a type

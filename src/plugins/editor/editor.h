@@ -92,6 +92,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
 
     void handle_gizmo_changes();
 
+    void delete_selected_mixins();
     void update_selection(const std::vector<oid>& to_select, const std::vector<oid>& to_deselect);
     void reparent(oid new_parent_for_selected);
     void group_selected();
@@ -125,6 +126,8 @@ class selected
 public:
     FIELD transform old_t;
     FIELD transform old_local_t;
+
+    FIELD std::map<dynamix::mixin_id, std::string> selected_mixins;
 
     void get_rendering_parts(std::vector<renderPart>& out) const { submit_aabb_rec(ha_this, out); }
 };

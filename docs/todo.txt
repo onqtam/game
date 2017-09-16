@@ -1,11 +1,19 @@
 
+add mixins to objects
+
+a fictional root node called scene? "ungroup" related
+
 remove more code duplication (especially for grouping)
 
 remove the concept of invalid() and just use default-constructed oids?
 
-ask tuti about undo/redo
-
 move the transform to the object
+
+play around with the new clang-format options (from 5, also 6)
+    https://blog.benoitblanchon.fr/clang-format-5/
+
+mixin attributes
+    not delete-able ???
 
 editor:
     parental
@@ -25,9 +33,6 @@ editor:
         maya-like - with the same move/pan controls
     force uniqueness of object names
     IDs
-    GUI
-        dragging objects in the scene explorer - also editing parental information
-        add/remove mixins to/from objects
     picking
         raycast
         rectangle selection
@@ -45,6 +50,14 @@ editor:
         - resource viewer - all resources with preview when appropriate and refcounts
 
 ditch bgfx
+start using c++17
+    remove msvc15 option from python scripts
+    <variant>
+    <optional>
+    structured bindings
+    initializers in if statements
+    template deduction of constructors, allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
+    
 ditch glfw in favor of sdl
 
 == questions:
@@ -58,6 +71,7 @@ is the extensive use of lambdas ok? is such locality better than extracting the 
 rename oid to object_handle?
 
 == bugs:
+emscripten build crashes???
 CI - appveyor emscripten build fails for some reason
 linux
     when built with the address sanitizer on linux - build crashes on startup in the plugin manager
@@ -75,6 +89,7 @@ to think about:
     - link to third parties dynamically when possible
     - shared precompiled headers for plugins...?
     - make a stripped config - no plugins, disabled doctest, no asserts, no *_tests.cpp files
+        - and even a more stripped config - no editor, no imgui binding routines (remove from codegen and from messages), etc.
     - emscripten and release configs - LTO + the stripped config
     - be able to build everything in release except for gameplay code (debug iterators?)
     - faster vcvarsall.bat - just setup the paths on my own - http://www.randygaul.net/2016/06/03/faster-vcvars32-bat/
@@ -264,6 +279,7 @@ wanted:
     - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
     - add has/get methods to object class that work with C strings (and mixin_id) and not just template parameters
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
+    - expose part (name and mixin id) of the structure returned by _dynamix_get_mixin_type_info() outside of internal (also func)
 optimization:
     - currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message impls are dropped it can become 2 pointers
     - object::get_mixin_names() - do a .reserve() before the push_back-s

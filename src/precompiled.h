@@ -53,8 +53,6 @@ HA_SUPPRESS_WARNINGS
 
 #include <yama/yama.hpp>
 
-#include <boost/any.hpp>
-
 #include <boost/variant.hpp>
 
 #include <boost/mpl/for_each.hpp>

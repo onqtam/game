@@ -35,6 +35,30 @@ static std::vector<std::string> mixin_names(const Object& obj) {
     return out;
 }
 
+void editor::delete_selected_mixins() {
+    compound_cmd comp_cmd;
+
+    for(auto& id : m_selected) {
+        auto& selected_mixin = *id.obj().get<selected>();
+        for(auto& mixin : selected_mixin.selected_mixins) {
+            // TODO: remove this check once these are moved to the Object class
+            // also selected is problematic because we are looping over a container in it...
+            if(strcmp(mixin.second.c_str(), "tform") == 0 ||
+               strcmp(mixin.second.c_str(), "parental") == 0 ||
+               strcmp(mixin.second.c_str(), "selected") == 0)
+                continue;
+
+            // remove the mixin
+            comp_cmd.commands.push_back(object_mutation_cmd(
+                    {id, {mixin.second}, mixin_state(id.obj(), mixin.second.c_str()), false}));
+            id.obj().remMixin(mixin.second.c_str());
+        }
+    }
+
+    if(!comp_cmd.commands.empty())
+        add_command(comp_cmd);
+}
+
 void editor::update_selection(const std::vector<oid>& to_select,
                               const std::vector<oid>& to_deselect) {
     if(to_select.size() + to_deselect.size() > 0) {

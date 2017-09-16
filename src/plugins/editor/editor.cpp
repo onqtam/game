@@ -149,7 +149,7 @@ HA_GCC_SUPPRESS_WARNING_END
 
 HA_SINGLETON_INSTANCE(editor);
 
-HA_MIXIN_DEFINE(editor, Interface_editor);
+HA_MIXIN_DEFINE(editor, Interface_editor)
 
 void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out) {
     // if object has a bbox - submit it
@@ -172,6 +172,6 @@ void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out)
     }
 }
 
-HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg);
+HA_MIXIN_DEFINE(selected, rend::get_rendering_parts_msg)
 
 #include <gen/editor.h.inl>

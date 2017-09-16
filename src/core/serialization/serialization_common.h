@@ -13,6 +13,9 @@ HAPI void deserialize(char& data, const sajson::value& val);
 HAPI void serialize_c(int data, JsonData& out);
 HAPI void deserialize(int& data, const sajson::value& val);
 
+HAPI void serialize_c(size_t data, JsonData& out);
+HAPI void deserialize(size_t& data, const sajson::value& val);
+
 HAPI void serialize_c(float data, JsonData& out);
 HAPI void deserialize(float& data, const sajson::value& val);
 
@@ -71,10 +74,72 @@ void serialize_c(const std::vector<T>& data, JsonData& out) {
 template <typename T>
 void deserialize(std::vector<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(data.empty());
     auto len = val.get_length();
     data.resize(len);
     for(size_t i = 0; i < len; ++i)
         deserialize(data[i], val.get_array_element(i));
+}
+
+template <typename T>
+void serialize_c(const std::set<T>& data, JsonData& out) {
+    out.startArray();
+    for(const auto& elem : data) {
+        serialize(elem, out);
+        out.addComma();
+    }
+    out.endArray();
+}
+
+template <typename T>
+void deserialize(std::set<T>& data, const sajson::value& val) {
+    hassert(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(data.empty());
+    auto len = val.get_length();
+    for(size_t i = 0; i < len; ++i) {
+        T temp;
+        deserialize(temp, val.get_array_element(i));
+        data.insert(temp);
+    }
+}
+
+template <typename T1, typename T2>
+void serialize_c(const std::pair<T1, T2>& data, JsonData& out) {
+    out.startArray();
+    serialize(data.first, out);
+    out.addComma();
+    serialize(data.second, out);
+    out.endArray();
+}
+
+template <typename T1, typename T2>
+void deserialize(std::pair<T1, T2>& data, const sajson::value& val) {
+    hassert(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(val.get_length() == 2);
+    deserialize(data.first, val.get_array_element(0));
+    deserialize(data.second, val.get_array_element(1));
+}
+
+template <typename K, typename V>
+void serialize_c(const std::map<K, V>& data, JsonData& out) {
+    out.startArray();
+    for(const auto& elem : data) {
+        serialize(elem, out);
+        out.addComma();
+    }
+    out.endArray();
+}
+
+template <typename K, typename V>
+void deserialize(std::map<K, V>& data, const sajson::value& val) {
+    hassert(val.get_type() == sajson::TYPE_ARRAY);
+    hassert(data.empty());
+    auto len = val.get_length();
+    for(size_t i = 0; i < len; ++i) {
+        std::pair<K, V> temp;
+        deserialize(temp, val.get_array_element(i));
+        data.insert(temp);
+    }
 }
 
 struct variant_serializer : boost::static_visitor<void>

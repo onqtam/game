@@ -40,6 +40,12 @@ void serialize(int data, JsonData& out) {
 }
 void deserialize(int& data, const sajson::value& val) { data = val.get_integer_value(); }
 
+void serialize(size_t data, JsonData& out) {
+    auto res = std::to_string(data);
+    out.append(res.c_str(), res.length());
+}
+void deserialize(size_t& data, const sajson::value& val) { data = val.get_integer_value(); }
+
 void serialize(float data, JsonData& out) {
     auto res = std::to_string(data);
     out.append(res.c_str(), res.length());
