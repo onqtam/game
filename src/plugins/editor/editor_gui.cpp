@@ -37,10 +37,10 @@ void editor::update_gui() {
         std::vector<oid> to_deselect;
         oid new_parent_for_selected; // will become the parent of middle-mouse-button-dragged selected objects
 
-        if(ImGui::TreeNodeEx((const void*)"obs", ImGuiTreeNodeFlags_DefaultOpen, "objects")) {
-            static ImGuiTextFilter filter;
-            filter.Draw("Filter (inc,-exc)", 150.f);
+        static ImGuiTextFilter filter;
+        filter.Draw("Filter (inc,-exc)", 150.f);
 
+        if(ImGui::TreeNodeEx((const void*)"obs", ImGuiTreeNodeFlags_DefaultOpen, "objects")) {
             // recursive select/deselect
             std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
                 auto& root_obj = root.obj();

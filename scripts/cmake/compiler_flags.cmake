@@ -77,6 +77,23 @@ if(MSVC)
     list(APPEND ha_compiler_flags
         #/WX
         /W4
+        # some warnings are disabled by default even if on levels 1/2/3 (also 4) - so I set them explicitly as level 3
+        # https://msdn.microsoft.com/en-us/library/23k5d385.aspx
+        # https://www.reddit.com/r/cpp/comments/70hf7f/useful_gcc_warning_options_not_enabled_by_wall/dn37eh7/
+        
+        # "expression without effect" related
+        /w34296
+        /w34545
+        /w34546
+        /w34547
+        /w34548
+        /w34549
+        
+        # override related
+        /w34263
+        /w34264
+        /w34266
+        
         #/wd4661 # identifier' : no suitable definition provided for explicit template instantiation request
     )
     list(APPEND ha_third_party_compiler_flags /W0)
@@ -143,6 +160,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wshift-overflow=2
         -Wnull-dereference # requires -fdelete-null-pointer-checks which is enabled by optimizations in most targets
         -Wduplicated-cond
+        -Wduplicated-branches
+        -Wrestrict
         -Wold-style-cast
         -Wswitch-default
         -Wswitch-enum
