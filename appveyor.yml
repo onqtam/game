@@ -30,4 +30,4 @@ build_script:
   - set PATH=C:\mingw\mingw64\bin;%PATH%
   - ha -b gcc
   - ha --setup-emscripten
-  - ha -b js
+  - ha -b js --cmake -DCMAKE_SH="CMAKE_SH-NOTFOUND"
