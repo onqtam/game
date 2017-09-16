@@ -60,13 +60,14 @@ if args.g == 'gcc':
     subprocess.check_call(command)
 
 if args.g == 'js':
+    emsdk_version = os.listdir(os.getcwd() + '/../../emscripten/emscripten/')[0]
     command = ['.\\..\\..\\scripts\\batch\\emscripten_driver_' + gen_dir + '.bat', 'cmake', '../../', '-G', makefile]
     command.extend(cmake_options)
     command.append('-DCMAKE_EXPORT_COMPILE_COMMANDS=ON')
     command.append('-DCMAKE_BUILD_TYPE=' + args.c)
     command.append('-DTOOLCHAIN=js')
-    command.append('-DEMSCRIPTEN_ROOT=' + os.getcwd() + '/../../emscripten/emscripten/1.37.16')
-    command.append('-DCMAKE_TOOLCHAIN_FILE=' + os.getcwd() + '/../../emscripten/emscripten/1.37.16\cmake\Modules\Platform\Emscripten.cmake')
+    command.append('-DEMSCRIPTEN_ROOT=' + os.getcwd() + '/../../emscripten/emscripten/' + emsdk_version)
+    command.append('-DCMAKE_TOOLCHAIN_FILE=' + os.getcwd() + '/../../emscripten/emscripten/' + emsdk_version + '\cmake\Modules\Platform\Emscripten.cmake')
     command.append('-Wno-dev')
 
     subprocess.check_call(command)

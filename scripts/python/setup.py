@@ -24,7 +24,7 @@ if args.setup_emscripten:
         os.chdir('emscripten')
         try:
             msg("downloading emscripten")
-            urllib.FancyURLopener().retrieve('https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-1.35.0-portable-64bit.zip', 'emscripten.zip')
+            urllib.FancyURLopener().retrieve('https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable-64bit.zip', 'emscripten.zip')
         except:
             msg("could not download emscripten archive!", "RED")
             sys.exit(1)

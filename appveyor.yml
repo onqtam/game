@@ -29,7 +29,5 @@ build_script:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=C:\mingw\mingw64\bin;%PATH%
   - ha -b gcc
-  # temporarily disabling this - it again complains that sh.exe is in the PATH - not sure why
-  # see this build for more info: https://ci.appveyor.com/project/onqtam/game/build/1.0.73
-  #- ha --setup-emscripten
-  #- ha -b js
+  - ha --setup-emscripten
+  - ha -b js
