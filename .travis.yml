@@ -40,11 +40,11 @@ matrix:
           packages: [             "g++-7", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
           sources: *apt_sources
 
-    # Clang 5.0
-    - env: COMPILER=clang++-5.0
-      addons: &clang5
+    # Clang 4.0
+    - env: COMPILER=clang++-4.0
+      addons: &clang4
         apt:
-          packages: ["clang-5.0", "g++-6", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
+          packages: ["clang-4.0", "g++-6", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
           sources: *apt_sources
 
   allow_failures:
