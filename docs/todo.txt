@@ -1,8 +1,6 @@
 
 add mixins to objects
 
-
-
 a fictional root node called scene? "ungroup" related
 
 remove more code duplication (especially for grouping)
@@ -10,12 +8,6 @@ remove more code duplication (especially for grouping)
 remove the concept of invalid() and just use default-constructed oids?
 
 move the transform to the object
-
-play around with the new clang-format options (from 5, also 6)
-    https://blog.benoitblanchon.fr/clang-format-5/
-
-mixin attributes
-    not delete-able ???
 
 object transform snapping (also with gizmos)
 

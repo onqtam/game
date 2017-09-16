@@ -9,10 +9,11 @@ UseTab: Never
 ColumnLimit: 100
 ReflowComments: false
 SortIncludes: false
+SortUsingDeclarations: true
 
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AlignEscapedNewlinesLeft: false
+AlignEscapedNewlines: Right
 AlignOperands: true
 AlignTrailingComments: true
 AlignAfterOpenBracket: true
@@ -35,6 +36,7 @@ SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Cpp11BracedListStyle: true
+IndentPPDirectives: None #AfterHash
 
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
@@ -43,7 +45,9 @@ BinPackParameters: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: true
-BreakConstructorInitializersBeforeComma: true
+BreakConstructorInitializers: BeforeComma
+CompactNamespaces: true
+FixNamespaceComments: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 8
 
