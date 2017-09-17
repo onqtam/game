@@ -1,9 +1,7 @@
 
-create new object
-
 remove more code duplication (especially for grouping)
 
-history viewer + history merging
+history viewer + history merging + remove printfs
 
 camera
     editor vs gameplay

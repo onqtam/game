@@ -12,7 +12,21 @@ void editor::update_gui() {
 
     ImGui::SetNextWindowSize(ImVec2(300, 600), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
-    if(ImGui::Begin("scene explorer", nullptr)) {
+    if(ImGui::Begin("scene explorer", nullptr, ImGuiWindowFlags_MenuBar)) {
+        if(ImGui::BeginMenuBar()) {
+            static bool new_object = false;
+            if(ImGui::BeginMenu("Objects")) {
+                ImGui::MenuItem("New", nullptr, &new_object);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+
+            if(new_object) {
+                create_object();
+                new_object = false;
+            }
+        }
+
         std::vector<oid> to_select;
         std::vector<oid> to_deselect;
         oid new_parent_for_selected; // will become the parent of middle-mouse-button-dragged selected objects
@@ -173,19 +187,18 @@ void editor::update_gui() {
             };
 
             if(add_to_selected) {
-                std::vector<const mixin_type_info*> filtered_mixins;
-                if(mixin_selector_modal("Add mixins to selected", add_to_selected, filtered_mixins))
-                    add_mixins_to_selected(filtered_mixins);
+                std::vector<const mixin_type_info*> filtered;
+                if(mixin_selector_modal("Add mixins to selected", add_to_selected, filtered))
+                    add_mixins_to_selected(filtered);
             }
             if(remove_selected) {
                 remove_selected_mixins();
                 remove_selected = false;
             }
             if(remove_by_name) {
-                std::vector<const mixin_type_info*> filtered_mixins;
-                if(mixin_selector_modal("Remove mixins from selected", remove_by_name,
-                                        filtered_mixins))
-                    remove_mixins_by_name_from_selected(filtered_mixins);
+                std::vector<const mixin_type_info*> filtered;
+                if(mixin_selector_modal("Remove mixins from selected", remove_by_name, filtered))
+                    remove_mixins_by_name_from_selected(filtered);
             }
         }
 

@@ -47,6 +47,23 @@ static bool cant_remove_mixin(cstr in) {
 // == EDITOR IMPLEMENTATION ========================================================================
 // =================================================================================================
 
+void editor::create_object() {
+    printf("[CREATE OBJECT]\n");
+    compound_cmd comp_cmd;
+
+    auto& obj = ObjectManager::get().create();
+    comp_cmd.commands.push_back(object_creation_cmd({obj.id(), object_state(obj), true}));
+    comp_cmd.commands.push_back(
+            object_mutation_cmd({obj.id(), mixin_names(obj), mixin_state(obj, nullptr), true}));
+
+    comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, m_selected));
+
+    add_command(comp_cmd);
+
+    //re-update the list for later usage
+    update_selected();
+}
+
 void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) {
     compound_cmd comp_cmd;
 
@@ -126,12 +143,11 @@ void editor::remove_selected_mixins() {
     }
 }
 
-void editor::update_selection(const std::vector<oid>& to_select,
-                              const std::vector<oid>& to_deselect) {
-    if(to_select.size() + to_deselect.size() > 0) {
-        printf("[SELECT]\n");
+compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
+                                          const std::vector<oid>& to_deselect) {
+    compound_cmd comp_cmd;
 
-        compound_cmd comp_cmd;
+    if(to_select.size() + to_deselect.size() > 0) {
         comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
         auto add_mutate_command = [&](oid id, bool select) {
@@ -147,8 +163,17 @@ void editor::update_selection(const std::vector<oid>& to_select,
             add_mutate_command(curr, false);
             curr.obj().remMixin("selected");
         }
+    }
+    return comp_cmd;
+}
 
-        add_command(comp_cmd);
+void editor::update_selection(const std::vector<oid>& to_select,
+                              const std::vector<oid>& to_deselect) {
+    auto command = update_selection_cmd(to_select, to_deselect);
+    if(!command.commands.empty()) {
+        printf("[SELECTION]\n");
+
+        add_command(command);
 
         //re-update the list for later usage
         update_selected();
