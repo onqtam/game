@@ -269,7 +269,7 @@ void editor::reparent(oid new_parent_for_selected) {
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
 
-        objects_set_parent(m_selected, new_parent_for_selected);
+        comp_cmd.commands.push_back(objects_set_parent(m_selected, new_parent_for_selected));
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(
@@ -339,7 +339,7 @@ void editor::group_selected() {
     // set position of newly created group to be the average position of all selected objects
     tr::set_transform(group, {average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
-    objects_set_parent(m_selected, group.id());
+    comp_cmd.commands.push_back(objects_set_parent(m_selected, group.id()));
 
     // add the created group object
     comp_cmd.commands.push_back(object_creation_cmd({group.id(), object_state(group), true}));

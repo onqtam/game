@@ -1,6 +1,4 @@
 
-test grouping/ungrouping/reparenting! I think there's a bug that I just introduced!!!
-
 history viewer
     add names + descriptions to commands (all - not just compound)
     history merging
