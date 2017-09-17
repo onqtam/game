@@ -39,8 +39,10 @@ void editor::delete_selected_mixins() {
     compound_cmd comp_cmd;
 
     for(auto& id : m_selected) {
-        auto& selected_mixin = *id.obj().get<selected>();
-        for(auto& mixin : selected_mixin.selected_mixins) {
+        auto&                       selected_mixins = (*id.obj().get<selected>()).selected_mixins;
+        std::set<dynamix::mixin_id> mixins_to_delete;
+
+        for(auto& mixin : selected_mixins) {
             // TODO: remove this check once these are moved to the Object class
             // also selected is problematic because we are looping over a container in it...
             if(strcmp(mixin.second.c_str(), "tform") == 0 ||
@@ -52,16 +54,31 @@ void editor::delete_selected_mixins() {
             comp_cmd.commands.push_back(object_mutation_cmd(
                     {id, {mixin.second}, mixin_state(id.obj(), mixin.second.c_str()), false}));
             id.obj().remMixin(mixin.second.c_str());
+
+            mixins_to_delete.insert(mixin.first);
+        }
+
+        // update the selected mixins list in "selected"
+        if(!mixins_to_delete.empty()) {
+            JsonData ov = mixin_attr_state("selected", "selected_mixins", selected_mixins);
+            for(auto& curr : mixins_to_delete)
+                selected_mixins.erase(curr);
+            JsonData nv = mixin_attr_state("selected", "selected_mixins", selected_mixins);
+            comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
         }
     }
 
-    if(!comp_cmd.commands.empty())
+    if(!comp_cmd.commands.empty()) {
+        printf("[DELETE MIXINS]\n");
         add_command(comp_cmd);
+    }
 }
 
 void editor::update_selection(const std::vector<oid>& to_select,
                               const std::vector<oid>& to_deselect) {
     if(to_select.size() + to_deselect.size() > 0) {
+        printf("[SELECT]\n");
+
         compound_cmd comp_cmd;
         comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
@@ -213,7 +230,7 @@ void editor::group_selected() {
             // if atleast 2 nodes have the same visited count - means that one of the selected nodes
             // is also a common ancestor (also to itself) - we need to find it and get its parent
             for(auto& curr : visited_counts)
-                if(curr.first.obj().has(selected_mixin_id))
+                if(curr.first.obj().has<selected>())
                     return get_parent(curr.first.obj());
         }
         // all other cases
@@ -460,7 +477,7 @@ void editor::delete_selected() {
             for(const auto& c : children)
                 delete_unselected_children(c);
             // delete only if not selected because we are iterating through the selected objects anyway
-            if(!root_obj.has(selected_mixin_id))
+            if(!root_obj.has<selected>())
                 detele_object(root_obj);
         };
 

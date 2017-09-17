@@ -80,9 +80,6 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
     bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
-    dynamix::mixin_id selected_mixin_id =
-            dynamix::internal::domain::instance().get_mixin_id_by_name("selected");
-
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 

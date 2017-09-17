@@ -24,9 +24,9 @@ void editor::update_gui() {
             // recursive select/deselect
             std::function<void(oid, bool)> recursiveSelecter = [&](oid root, bool select) {
                 auto& root_obj = root.obj();
-                if(select && !root_obj.has(selected_mixin_id))
+                if(select && !root_obj.has<selected>())
                     to_select.push_back(root);
-                else if(root_obj.has(selected_mixin_id))
+                else if(root_obj.has<selected>())
                     to_deselect.push_back(root);
 
                 // recurse through children
@@ -41,7 +41,7 @@ void editor::update_gui() {
                 ImGuiTreeNodeFlags node_flags =
                         ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
                         ImGuiTreeNodeFlags_DefaultOpen |
-                        (obj.has(selected_mixin_id) ? ImGuiTreeNodeFlags_Selected : 0);
+                        (obj.has<selected>() ? ImGuiTreeNodeFlags_Selected : 0);
 
                 const auto& children = ::get_children(obj);
                 if(children.empty()) // make the node a leaf node if no children
@@ -63,7 +63,7 @@ void editor::update_gui() {
                     // logic for dragging selected objects with the middle mouse button onto unselected objects for reparenting
                     static bool middle_click_started_on_selected = false;
                     // if the current item is selected and just got middle clicked
-                    if(ImGui::IsItemClicked(2) && obj.has(selected_mixin_id))
+                    if(ImGui::IsItemClicked(2) && obj.has<selected>())
                         middle_click_started_on_selected = true;
                     // if the current item is hovered, the middle mouse button just got released
                     // and we have recorded a middle click start onto a selected item
@@ -71,13 +71,13 @@ void editor::update_gui() {
                        middle_click_started_on_selected) {
                         middle_click_started_on_selected = false;
                         // if the current item is not selected
-                        if(!obj.has(selected_mixin_id))
+                        if(!obj.has<selected>())
                             new_parent_for_selected = root;
                     }
 
                     // logic for normal selection through the first mouse button
                     if(ImGui::IsItemClicked()) {
-                        bool shouldSelect = !obj.has(selected_mixin_id);
+                        bool shouldSelect = !obj.has<selected>();
 
                         if(ImGui::GetIO().KeyShift) {
                             recursiveSelecter(root, shouldSelect);

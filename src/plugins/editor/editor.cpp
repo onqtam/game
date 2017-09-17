@@ -19,7 +19,7 @@ void editor::update_selected() {
     m_selected.clear();
     selected_with_gizmo.clear();
     for(auto& curr : ObjectManager::get().getObjects()) {
-        if(curr.second.has(selected_mixin_id)) {
+        if(curr.second.has<selected>()) {
             m_selected.push_back(curr.second.id());
             if(curr.second.implements(no_gizmo_msg))
                 continue;
