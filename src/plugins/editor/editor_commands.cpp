@@ -454,12 +454,8 @@ void editor::duplicate_selected() {
             top_most_selected.push_back(curr);
     }
 
-    // deselect the selected objects
-    for(auto& curr : m_selected) {
-        comp_cmd.commands.push_back(object_mutation_cmd(
-                {curr, {"selected"}, mixin_state(curr.obj(), "selected"), false}));
-        curr.obj().remMixin("selected");
-    }
+    // deselect the previously selected objects
+    comp_cmd.commands.push_back(update_selection_cmd({}, m_selected));
 
     std::function<oid(Object&)> copy_recursive = [&](Object& to_copy) {
         // create a new object and copy
@@ -497,14 +493,10 @@ void editor::duplicate_selected() {
     };
 
     // copy the filtered top-most objects + all their children (and select the new top-most object copies)
+    std::vector<oid> new_top_most_selected;
     for(auto& curr : top_most_selected) {
         auto new_top = copy_recursive(curr.obj());
-
-        // select the new top-most copy
-        new_top.obj().addMixin("selected");
-        // add a command for that
-        comp_cmd.commands.push_back(object_mutation_cmd(
-                {new_top, {"selected"}, mixin_state(new_top.obj(), "selected"), true}));
+        new_top_most_selected.push_back(new_top);
 
         // if the current top-most object has a parent - make the copy a child of that parent as well
         auto curr_parent = get_parent(curr.obj());
@@ -520,6 +512,9 @@ void editor::duplicate_selected() {
                     {curr_parent, curr_parent_old, mixin_state(curr_parent.obj(), "parental")}));
         }
     }
+
+    // select the new top-most objects
+    comp_cmd.commands.push_back(update_selection_cmd(new_top_most_selected, {}));
 
     // add the compound command
     add_command(comp_cmd);
