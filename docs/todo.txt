@@ -1,5 +1,5 @@
 
-remove more code duplication (especially for grouping)
+test grouping/ungrouping/reparenting! I think there's a bug that I just introduced!!!
 
 history viewer
     add names + descriptions to commands (all - not just compound)
@@ -74,6 +74,7 @@ linux
 editor
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
     DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
+        once I just selected an object and 2 commands got inserted instead of 1 - after that undo broke that same way!!!
     >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
 
 == questions:

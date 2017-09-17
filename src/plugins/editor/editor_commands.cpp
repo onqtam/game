@@ -35,6 +35,50 @@ static std::vector<std::string> mixin_names(const Object& obj) {
     return out;
 }
 
+static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_parent) {
+    compound_cmd comp_cmd;
+
+    // save the transforms of the selected objects before changing parental information
+    std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
+
+    for(auto& curr : objects) {
+        // record the old transform
+        old_transforms.push_back(
+                {curr, {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
+
+        // old parent old state
+        auto     parent = get_parent(curr.obj());
+        JsonData parent_old;
+        if(parent)
+            parent_old = mixin_state(parent.obj(), "parental");
+
+        // record parental state of current object before change
+        JsonData curr_old = mixin_state(curr.obj(), "parental");
+
+        // set new parental relationship
+        set_parent(curr.obj(), new_parent);
+
+        // old parent new state & command submit
+        if(parent)
+            comp_cmd.commands.push_back(attributes_changed_cmd(
+                    {parent, parent_old, mixin_state(parent.obj(), "parental")}));
+
+        // current new state & command submit
+        comp_cmd.commands.push_back(
+                attributes_changed_cmd({curr, curr_old, mixin_state(curr.obj(), "parental")}));
+    }
+
+    for(auto& curr : old_transforms) {
+        // set the old world transform (will recalculate the local transform of the object)
+        tr::set_transform(curr.first.obj(), curr.second.first);
+        // add the changed transform to the undo/redo command list
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {curr.first, curr.second.second, mixin_state(curr.first.obj(), "tform")}));
+    }
+
+    return comp_cmd;
+}
+
 // TODO: remove this check once these are moved to the Object class
 // also selected is problematic because we are looping over a container in it...
 // also camera is problematic because it is registered as an input event listener and I got a crash when I undid it's removal...
@@ -225,44 +269,7 @@ void editor::reparent(oid new_parent_for_selected) {
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
 
-        // save the transforms of the selected objects before changing parental information
-        std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
-
-        for(auto& curr : m_selected) {
-            // record the old transform
-            old_transforms.push_back(
-                    {curr, {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
-
-            // old parent old state
-            auto     parent = get_parent(curr.obj());
-            JsonData parent_old;
-            if(parent)
-                parent_old = mixin_state(parent.obj(), "parental");
-
-            // record parental state of current object before change
-            JsonData curr_old = mixin_state(curr.obj(), "parental");
-
-            // set new parental relationship
-            set_parent(curr.obj(), new_parent_for_selected);
-
-            // old parent new state & command submit
-            if(parent)
-                comp_cmd.commands.push_back(attributes_changed_cmd(
-                        {parent, parent_old, mixin_state(parent.obj(), "parental")}));
-
-            // current new state & command submit
-            comp_cmd.commands.push_back(
-                    attributes_changed_cmd({curr, curr_old, mixin_state(curr.obj(), "parental")}));
-        }
-
-        // fix the transforms after the position of the group has been set
-        for(auto& curr : old_transforms) {
-            // set the old world transform (will recalculate the local transform of the object)
-            tr::set_transform(curr.first.obj(), curr.second.first);
-            // add the changed transform to the undo/redo command list
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {curr.first, curr.second.second, mixin_state(curr.first.obj(), "tform")}));
-        }
+        objects_set_parent(m_selected, new_parent_for_selected);
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(
@@ -326,67 +333,21 @@ void editor::group_selected() {
 
     // average position for the new group object
     auto average_pos = yama::vector3::zero();
-
-    // save the transforms of the selected objects before changing parental information
-    std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
-
-    // mutate all the currently selected objects and deselect them
-    for(auto& curr : m_selected) {
-        // accumulate the position
+    for(auto& curr : m_selected)
         average_pos += tr::get_pos(curr.obj());
-        // record the old transform
-        old_transforms.push_back(
-                {curr, {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
-
-        // old parent old state
-        auto     parent = get_parent(curr.obj());
-        JsonData parent_old;
-        if(parent)
-            parent_old = mixin_state(parent.obj(), "parental");
-
-        // record parental state of current object before change
-        JsonData curr_old = mixin_state(curr.obj(), "parental");
-
-        // set new parental relationship
-        set_parent(curr.obj(), group.id());
-
-        // old parent new state & command submit
-        if(parent)
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {parent, parent_old, mixin_state(parent.obj(), "parental")}));
-
-        // current new state & command submit
-        comp_cmd.commands.push_back(
-                attributes_changed_cmd({curr, curr_old, mixin_state(curr.obj(), "parental")}));
-
-        // serialize the state of the mixins
-        comp_cmd.commands.push_back(object_mutation_cmd(
-                {curr, {"selected"}, mixin_state(curr.obj(), "selected"), false}));
-
-        // remove the selection
-        curr.obj().remMixin("selected");
-    }
-
-    // set position of newly created group to be the average position of all selected objects
     average_pos /= float(m_selected.size());
+    // set position of newly created group to be the average position of all selected objects
     tr::set_transform(group, {average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
-    // fix the transforms after the position of the group has been set
-    for(auto& curr : old_transforms) {
-        // set the old world transform (will recalculate the local transform of the object)
-        tr::set_transform(curr.first.obj(), curr.second.first);
-        // add the changed transform to the undo/redo command list
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr.first, curr.second.second, mixin_state(curr.first.obj(), "tform")}));
-    }
-
-    // select the new group object
-    group.addMixin("selected");
+    objects_set_parent(m_selected, group.id());
 
     // add the created group object
     comp_cmd.commands.push_back(object_creation_cmd({group.id(), object_state(group), true}));
     comp_cmd.commands.push_back(object_mutation_cmd(
             {group.id(), mixin_names(group), mixin_state(group, nullptr), true}));
+
+    // select the group and deselect the previously selected
+    comp_cmd.commands.push_back(update_selection_cmd({group.id()}, m_selected));
 
     // add the compound command
     add_command(comp_cmd);
@@ -396,7 +357,6 @@ void editor::ungroup_selected() {
     if(m_selected.empty())
         return;
 
-    printf("[UNGROUP]\n");
     compound_cmd comp_cmd;
 
     for(auto& curr : m_selected) {
@@ -426,8 +386,10 @@ void editor::ungroup_selected() {
     }
 
     // add the compound command
-    if(comp_cmd.commands.size())
+    if(comp_cmd.commands.size()) {
+        printf("[UNGROUP]\n");
         add_command(comp_cmd);
+    }
 }
 
 void editor::duplicate_selected() {
