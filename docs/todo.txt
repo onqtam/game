@@ -3,8 +3,6 @@ create new object
 
 remove mixins from objects (by name - not by clicks)
 
-mixin filtering in attribute editor
-
 remove more code duplication (especially for grouping)
 
 history viewer + history merging

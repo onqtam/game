@@ -144,37 +144,49 @@ void editor::update_gui() {
                 ImGui::OpenPopup("Add mixin to selected");
                 if(ImGui::BeginPopupModal("Add mixin to selected", nullptr,
                                           ImGuiWindowFlags_AlwaysAutoResize)) {
-                    static ImGuiTextFilter filter;
-                    filter.Draw("Filter (inc,-exc)");
+                    static ImGuiTextFilter mixins_to_add_filter;
+                    mixins_to_add_filter.Draw("Filter (inc,-exc)");
                     auto& all_mixins = getAllMixins();
                     for(auto& mixin : all_mixins)
-                        if(filter.PassFilter(mixin.first.c_str()))
+                        if(mixins_to_add_filter.PassFilter(mixin.first.c_str()))
                             ImGui::BulletText("%s", mixin.first.c_str());
 
                     if(ImGui::Button("OK", ImVec2(120, 0))) {
                         std::vector<const mixin_type_info*> mixins_to_add;
                         for(auto& mixin : all_mixins)
-                            if(filter.PassFilter(mixin.first.c_str()))
+                            if(mixins_to_add_filter.PassFilter(mixin.first.c_str()))
                                 mixins_to_add.push_back(mixin.second.get_mixin_type_info());
                         add_mixins_to_selected(mixins_to_add);
 
                         ImGui::CloseCurrentPopup();
                         add_to_selected = false;
-                        filter.Clear();
+                        mixins_to_add_filter.Clear();
                     }
                     ImGui::SameLine();
                     if(ImGui::Button("Cancel", ImVec2(120, 0))) {
                         ImGui::CloseCurrentPopup();
                         add_to_selected = false;
-                        filter.Clear();
+                        mixins_to_add_filter.Clear();
                     }
                     ImGui::EndPopup();
                 }
             }
         }
 
+        static ImGuiTextFilter mixins_to_show_filter;
+        mixins_to_show_filter.Draw("Filter by mixin");
+
         for(auto& id : m_selected) {
             auto& obj = id.obj();
+
+            std::vector<cstr> mixin_names;
+            obj.get_mixin_names(mixin_names);
+            auto found = std::find_if(mixin_names.begin(), mixin_names.end(), [&](cstr in) {
+                return mixins_to_show_filter.PassFilter(in);
+            });
+            if(found == mixin_names.end())
+                continue;
+
             HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
             if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
                                  obj.name().c_str())) {
@@ -186,6 +198,9 @@ void editor::update_gui() {
                 common::get_imgui_binding_callbacks_from_mixins(obj, cbs);
                 auto& selected_mixin = *obj.get<selected>();
                 for(auto& curr : cbs) {
+                    if(!mixins_to_show_filter.PassFilter(curr.first->name))
+                        continue;
+
                     auto curr_id           = curr.first->id;
                     bool is_mixin_selected = selected_mixin.selected_mixins.count(curr_id) != 0;
 
