@@ -4,7 +4,6 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_bindings_common.h"
 
-#include "core/messages/messages_editor.h"
 #include "core/messages/messages_rendering.h"
 #include "core/World.h"
 
@@ -106,22 +105,12 @@ void editor::process_event(const InputEvent& ev) {
             m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
 
         // undo - with repeat
-        if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
-            if(curr_undo_redo >= 0) {
-                printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-                       curr_undo_redo - 1, int(undo_redo_commands.size()));
-                handle_command(undo_redo_commands[curr_undo_redo--], true);
-            }
-        }
+        if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE))
+            undo();
 
         // redo - with repeat
-        if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE)) {
-            if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
-                printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-                       curr_undo_redo + 1, int(undo_redo_commands.size()));
-                handle_command(undo_redo_commands[++curr_undo_redo], false);
-            }
-        }
+        if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE))
+            redo();
 
         // group
         if(key == GLFW_KEY_G && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS))

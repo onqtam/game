@@ -1,13 +1,18 @@
 
 remove more code duplication (especially for grouping)
 
-history viewer + history merging + remove printfs
+history viewer
+    add names + descriptions to commands (all - not just compound)
+    history merging
+    remove printfs
 
 camera
     editor vs gameplay
         model for camera! perhaps .obj?
     maya-like - with the same move/pan controls
     focus on selected or center of world
+
+switching states between editing and gameplay
 
 GUI
     main menu bar
@@ -17,6 +22,10 @@ GUI
 remove the concept of invalid() and just use default-constructed oids?
 
 move the transform to the object
+
+think about operation validity globally
+    - editor mixin (and object) shouldn't be addable/removable/duplicatable
+    - same for editor camera
 
 editor:
     prefabs
@@ -29,7 +38,6 @@ editor:
     picking
         raycast
         rectangle selection
-    switching states between editing and gameplay
     IDs
     curve editing
     open questions    
@@ -57,18 +65,6 @@ start using c++17
     structured bindings
     initializers in if statements
     template deduction of constructors, allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
-    
-ditch glfw in favor of sdl
-
-== questions:
-not having the entire simulation state in clients - to prevent cheating?
-can the state between clients be really the same? indexes in resource managers and allocators and the like...?
-move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
-figure out a coding standard
-    underscores for in variables instead of camel case (+ camel case for types and functions)?
-is the extensive use of lambdas ok? is such locality better than extracting the logic in a separate method/function further away?
-    callstacks are bad - especially when using std::function (needed for recursion) and not just assigning the lambdas to auto
-rename oid to object_handle?
 
 == bugs:
 emscripten build crashes???
@@ -79,6 +75,18 @@ editor
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
     DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
     >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
+
+== questions:
+ditch glfw in favor of sdl?
+not having the entire simulation state in clients - to prevent cheating?
+can the state between clients be really the same? indexes in resource managers and allocators and the like...?
+move to RH coordinate system with Z+ up? Tuti put some good arguments forward - also the GLTF 2.0 format assumes right handed
+figure out a coding standard
+    underscores for in variables instead of camel case (+ camel case for types and functions)?
+is the extensive use of lambdas ok? is such locality better than extracting the logic in a separate method/function further away?
+    callstacks are bad - especially when using std::function (needed for recursion) and not just assigning the lambdas to auto
+rename oid to object_handle?
+
 == to test:
 - aabb class
 - transform stuffs

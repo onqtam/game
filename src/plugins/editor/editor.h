@@ -102,6 +102,8 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     void duplicate_selected();
     void delete_selected();
 
+    void undo();
+    void redo();
     void handle_command(command_variant& command, bool undo);
     void add_command(const command_variant& command);
 
