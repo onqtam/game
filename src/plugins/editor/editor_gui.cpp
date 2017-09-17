@@ -130,6 +130,8 @@ void editor::update_gui() {
             if(ImGui::BeginMenu("Mixins")) {
                 ImGui::MenuItem("Delete selected", nullptr, &delete_selected);
                 ImGui::MenuItem("Add to selected", nullptr, &add_to_selected);
+                if(m_selected.empty())
+                    add_to_selected = false;
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
@@ -139,7 +141,35 @@ void editor::update_gui() {
                 delete_selected = false;
             }
             if(add_to_selected) {
-                add_to_selected = false;
+                ImGui::OpenPopup("Add mixin to selected");
+                if(ImGui::BeginPopupModal("Add mixin to selected", nullptr,
+                                          ImGuiWindowFlags_AlwaysAutoResize)) {
+                    static ImGuiTextFilter filter;
+                    filter.Draw("Filter (inc,-exc)");
+                    auto& all_mixins = getAllMixins();
+                    for(auto& mixin : all_mixins)
+                        if(filter.PassFilter(mixin.first.c_str()))
+                            ImGui::BulletText("%s", mixin.first.c_str());
+
+                    if(ImGui::Button("OK", ImVec2(120, 0))) {
+                        std::vector<std::string> mixins_to_add;
+                        for(auto& mixin : all_mixins)
+                            if(filter.PassFilter(mixin.first.c_str()))
+                                mixins_to_add.push_back(mixin.first.c_str());
+                        add_mixins_to_selected(mixins_to_add);
+
+                        ImGui::CloseCurrentPopup();
+                        add_to_selected = false;
+                        filter.Clear();
+                    }
+                    ImGui::SameLine();
+                    if(ImGui::Button("Cancel", ImVec2(120, 0))) {
+                        ImGui::CloseCurrentPopup();
+                        add_to_selected = false;
+                        filter.Clear();
+                    }
+                    ImGui::EndPopup();
+                }
             }
         }
 

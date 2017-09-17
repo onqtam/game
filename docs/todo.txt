@@ -1,13 +1,23 @@
 
-add mixins to objects
+create new object
+
+remove mixins from objects (by name - not by clicks)
+
+mixin filtering in attribute editor
 
 remove more code duplication (especially for grouping)
+
+history viewer + history merging
+
+camera
+    editor vs gameplay
+        model for camera! perhaps .obj?
+    maya-like - with the same move/pan controls
+    focus on selected or center of world
 
 remove the concept of invalid() and just use default-constructed oids?
 
 move the transform to the object
-
-object transform snapping (also with gizmos)
 
 editor:
     prefabs
@@ -17,16 +27,15 @@ editor:
     save/load
     flags
         no_gizmo
-    focus on selected or center of world
     picking
         raycast
         rectangle selection
     switching states between editing and gameplay
-    camera
-        maya-like - with the same move/pan controls
-    IDs
     GUI
+        main menu bar
+            show test window
         sort objects by id in scene explorer?
+    IDs
     curve editing
     open questions    
         parental
@@ -37,6 +46,7 @@ editor:
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
         when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya
     postponed
+        - object transform snapping (also with gizmos)
         - copy/paste of objects
         - gizmos - rotation around pivot different from the object center
         - gizmos - local space (also supported by tiny-gizmo) - test it/think about it

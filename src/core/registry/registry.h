@@ -23,6 +23,15 @@ struct MixinInfo
 typedef std::map<std::string, MixinInfo> MixinInfoMap;
 typedef MixinInfoMap& (*get_mixins_proc)();
 
+// defined in the executable - use this from plugins to get to the list of all registered mixins and not "getMixins()"
+// because that would lead to linker errors since both the plugin and the executable export that symbol - and even if
+// there was no linker error - calling it from a plugin would still result in getting only the list of mixins in that plugin
+#ifdef HA_PLUGIN
+HA_SYMBOL_IMPORT MixinInfoMap& getAllMixins();
+#else // HA_PLUGIN
+HA_SYMBOL_EXPORT MixinInfoMap& getAllMixins();
+#endif // HA_PLUGIN
+
 HA_SUPPRESS_WARNINGS
 extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins();
 HA_SUPPRESS_WARNINGS_END

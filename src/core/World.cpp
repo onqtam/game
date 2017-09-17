@@ -76,7 +76,7 @@ World::World()
 
 void World::update() {
     Application& app    = Application::get();
-    auto&        mixins = getMixins();
+    auto&        mixins = getAllMixins();
     float        dt     = app.dt();
 
     bgfx_dbg_text_clear(0, false);

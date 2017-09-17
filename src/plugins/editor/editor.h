@@ -89,6 +89,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
 
     void handle_gizmo_changes();
 
+    void add_mixins_to_selected(std::vector<std::string> mixins_to_add);
     void delete_selected_mixins();
     void update_selection(const std::vector<oid>& to_select, const std::vector<oid>& to_deselect);
     void reparent(oid new_parent_for_selected);

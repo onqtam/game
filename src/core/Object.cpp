@@ -4,13 +4,13 @@
 HA_SINGLETON_INSTANCE(ObjectManager);
 
 void Object::addMixin(cstr mixin) {
-    auto& mixins = getMixins();
+    auto& mixins = getAllMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].add(this);
 }
 
 void Object::remMixin(cstr mixin) {
-    auto& mixins = getMixins();
+    auto& mixins = getAllMixins();
     hassert(mixins.find(mixin) != mixins.end());
     mixins[mixin].remove(this);
 }

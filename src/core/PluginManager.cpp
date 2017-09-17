@@ -206,3 +206,6 @@ vector<string> getOriginalPlugins() {
 }
 
 #endif // HA_WITH_PLUGINS
+
+// definition of this in the executable - for use by the plugins
+MixinInfoMap& getAllMixins() { return getMixins(); }
