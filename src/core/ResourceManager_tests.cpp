@@ -1,3 +1,5 @@
+HA_CLANG_SUPPRESS_WARNING("-Wunused-function")
+
 struct managed_int
 {
     int data = 0;
@@ -128,3 +130,5 @@ test_case("[core] testing ResourceManager") {
     check_eq(ManagedIntCreator::num_create, ManagedIntCreator::num_destroy);
     check_eq(managed_int::ctor + managed_int::copy + managed_int::move, managed_int::dtor);
 }
+
+HA_CLANG_SUPPRESS_WARNING_END

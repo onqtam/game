@@ -1,8 +1,6 @@
 
 add mixins to objects
 
-a fictional root node called scene? "ungroup" related
-
 remove more code duplication (especially for grouping)
 
 remove the concept of invalid() and just use default-constructed oids?

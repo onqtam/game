@@ -75,6 +75,7 @@ template <typename T>
 void deserialize(std::vector<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
     auto len = val.get_length();
+    data.clear();
     data.resize(len);
     for(size_t i = 0; i < len; ++i)
         deserialize(data[i], val.get_array_element(i));
@@ -94,6 +95,7 @@ template <typename T>
 void deserialize(std::set<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
     auto len = val.get_length();
+    data.clear();
     for(size_t i = 0; i < len; ++i) {
         T temp;
         deserialize(temp, val.get_array_element(i));
@@ -132,6 +134,7 @@ template <typename K, typename V>
 void deserialize(std::map<K, V>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
     auto len = val.get_length();
+    data.clear();
     for(size_t i = 0; i < len; ++i) {
         std::pair<K, V> temp;
         deserialize(temp, val.get_array_element(i));
