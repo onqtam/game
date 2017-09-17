@@ -74,7 +74,6 @@ void serialize_c(const std::vector<T>& data, JsonData& out) {
 template <typename T>
 void deserialize(std::vector<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
-    hassert(data.empty());
     auto len = val.get_length();
     data.resize(len);
     for(size_t i = 0; i < len; ++i)
@@ -94,7 +93,6 @@ void serialize_c(const std::set<T>& data, JsonData& out) {
 template <typename T>
 void deserialize(std::set<T>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
-    hassert(data.empty());
     auto len = val.get_length();
     for(size_t i = 0; i < len; ++i) {
         T temp;
@@ -133,7 +131,6 @@ void serialize_c(const std::map<K, V>& data, JsonData& out) {
 template <typename K, typename V>
 void deserialize(std::map<K, V>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
-    hassert(data.empty());
     auto len = val.get_length();
     for(size_t i = 0; i < len; ++i) {
         std::pair<K, V> temp;
