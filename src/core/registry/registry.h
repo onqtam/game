@@ -110,7 +110,6 @@ load_unload_proc getUnloadProc() {
 #define HA_MIXIN_DEFINE_COMMON(n, features)                                                        \
     template <>                                                                                    \
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
-    DYNAMIX_DECLARE_MIXIN(n);                                                                      \
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
     static int HA_CAT_1(_mixin_register_, n) =                                                     \
             registerMixin(#n, /* force new line for format */                                      \
