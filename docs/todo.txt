@@ -1,8 +1,6 @@
 
 create new object
 
-remove mixins from objects (by name - not by clicks)
-
 remove more code duplication (especially for grouping)
 
 history viewer + history merging
@@ -12,6 +10,11 @@ camera
         model for camera! perhaps .obj?
     maya-like - with the same move/pan controls
     focus on selected or center of world
+
+GUI
+    main menu bar
+        show test window
+    sort objects by id in scene explorer?
 
 remove the concept of invalid() and just use default-constructed oids?
 
@@ -29,10 +32,6 @@ editor:
         raycast
         rectangle selection
     switching states between editing and gameplay
-    GUI
-        main menu bar
-            show test window
-        sort objects by id in scene explorer?
     IDs
     curve editing
     open questions    

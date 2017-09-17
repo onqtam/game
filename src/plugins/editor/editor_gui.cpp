@@ -125,51 +125,67 @@ void editor::update_gui() {
 
     if(ImGui::Begin("object attributes", nullptr, ImGuiWindowFlags_MenuBar)) {
         if(ImGui::BeginMenuBar()) {
-            static bool delete_selected = false;
             static bool add_to_selected = false;
+            static bool remove_selected = false;
+            static bool remove_by_name  = false;
             if(ImGui::BeginMenu("Mixins")) {
-                ImGui::MenuItem("Delete selected", nullptr, &delete_selected);
                 ImGui::MenuItem("Add to selected", nullptr, &add_to_selected);
+                ImGui::MenuItem("Remove selected", nullptr, &remove_selected);
+                ImGui::MenuItem("Remove by name", nullptr, &remove_by_name);
                 if(m_selected.empty())
                     add_to_selected = false;
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
 
-            if(delete_selected) {
-                delete_selected_mixins();
-                delete_selected = false;
-            }
-            if(add_to_selected) {
-                ImGui::OpenPopup("Add mixin to selected");
-                if(ImGui::BeginPopupModal("Add mixin to selected", nullptr,
-                                          ImGuiWindowFlags_AlwaysAutoResize)) {
-                    static ImGuiTextFilter mixins_to_add_filter;
-                    mixins_to_add_filter.Draw("Filter (inc,-exc)");
+            auto mixin_selector_modal = [&](cstr modal_name, bool& to_clear_on_close,
+                                            std::vector<const mixin_type_info*>& filtered_mixins) {
+                bool res = false;
+
+                ImGui::OpenPopup(modal_name);
+                if(ImGui::BeginPopupModal(modal_name, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+                    static ImGuiTextFilter filter;
+                    filter.Draw("Filter (inc,-exc)");
                     auto& all_mixins = getAllMixins();
                     for(auto& mixin : all_mixins)
-                        if(mixins_to_add_filter.PassFilter(mixin.first.c_str()))
+                        if(filter.PassFilter(mixin.first.c_str()))
                             ImGui::BulletText("%s", mixin.first.c_str());
 
                     if(ImGui::Button("OK", ImVec2(120, 0))) {
-                        std::vector<const mixin_type_info*> mixins_to_add;
                         for(auto& mixin : all_mixins)
-                            if(mixins_to_add_filter.PassFilter(mixin.first.c_str()))
-                                mixins_to_add.push_back(mixin.second.get_mixin_type_info());
-                        add_mixins_to_selected(mixins_to_add);
+                            if(filter.PassFilter(mixin.first.c_str()))
+                                filtered_mixins.push_back(mixin.second.get_mixin_type_info());
 
+                        res = true;
                         ImGui::CloseCurrentPopup();
-                        add_to_selected = false;
-                        mixins_to_add_filter.Clear();
+                        to_clear_on_close = false;
+                        filter.Clear();
                     }
                     ImGui::SameLine();
                     if(ImGui::Button("Cancel", ImVec2(120, 0))) {
                         ImGui::CloseCurrentPopup();
-                        add_to_selected = false;
-                        mixins_to_add_filter.Clear();
+                        to_clear_on_close = false;
+                        filter.Clear();
                     }
                     ImGui::EndPopup();
                 }
+                return res;
+            };
+
+            if(add_to_selected) {
+                std::vector<const mixin_type_info*> filtered_mixins;
+                if(mixin_selector_modal("Add mixins to selected", add_to_selected, filtered_mixins))
+                    add_mixins_to_selected(filtered_mixins);
+            }
+            if(remove_selected) {
+                remove_selected_mixins();
+                remove_selected = false;
+            }
+            if(remove_by_name) {
+                std::vector<const mixin_type_info*> filtered_mixins;
+                if(mixin_selector_modal("Remove mixins from selected", remove_by_name,
+                                        filtered_mixins))
+                    remove_mixins_by_name_from_selected(filtered_mixins);
             }
         }
 

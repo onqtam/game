@@ -35,13 +35,25 @@ static std::vector<std::string> mixin_names(const Object& obj) {
     return out;
 }
 
-void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins_to_add) {
+// TODO: remove this check once these are moved to the Object class
+// also selected is problematic because we are looping over a container in it...
+// also camera is problematic because it is registered as an input event listener and I got a crash when I undid it's removal...
+static bool cant_remove_mixin(cstr in) {
+    return strcmp(in, "tform") == 0 || strcmp(in, "parental") == 0 || strcmp(in, "selected") == 0 ||
+           strcmp(in, "camera") == 0;
+}
+
+// =================================================================================================
+// == EDITOR IMPLEMENTATION ========================================================================
+// =================================================================================================
+
+void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) {
     compound_cmd comp_cmd;
 
     for(auto& id : m_selected) {
         auto& obj = id.obj();
 
-        for(auto& mixin : mixins_to_add) {
+        for(auto& mixin : mixins) {
             if(obj.has(mixin->id))
                 continue;
 
@@ -57,7 +69,29 @@ void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins_t
     }
 }
 
-void editor::delete_selected_mixins() {
+void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_info*> mixins) {
+    compound_cmd comp_cmd;
+
+    for(auto& id : m_selected) {
+        auto& obj = id.obj();
+
+        for(auto& mixin : mixins) {
+            if(!obj.has(mixin->id) || cant_remove_mixin(mixin->name))
+                continue;
+
+            obj.remMixin(mixin->name);
+            comp_cmd.commands.push_back(
+                    object_mutation_cmd({id, {mixin->name}, mixin_state(obj, mixin->name), false}));
+        }
+    }
+
+    if(!comp_cmd.commands.empty()) {
+        printf("[REMOVE MIXINS BY NAME]\n");
+        add_command(comp_cmd);
+    }
+}
+
+void editor::remove_selected_mixins() {
     compound_cmd comp_cmd;
 
     for(auto& id : m_selected) {
@@ -65,11 +99,7 @@ void editor::delete_selected_mixins() {
         std::set<dynamix::mixin_id> mixins_to_delete;
 
         for(auto& mixin : selected_mixins) {
-            // TODO: remove this check once these are moved to the Object class
-            // also selected is problematic because we are looping over a container in it...
-            if(strcmp(mixin.second.c_str(), "tform") == 0 ||
-               strcmp(mixin.second.c_str(), "parental") == 0 ||
-               strcmp(mixin.second.c_str(), "selected") == 0)
+            if(cant_remove_mixin(mixin.second.c_str()))
                 continue;
 
             // remove the mixin
@@ -91,7 +121,7 @@ void editor::delete_selected_mixins() {
     }
 
     if(!comp_cmd.commands.empty()) {
-        printf("[DELETE MIXINS]\n");
+        printf("[REMOVE SELECTED MIXINS]\n");
         add_command(comp_cmd);
     }
 }
