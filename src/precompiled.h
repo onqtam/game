@@ -38,6 +38,7 @@ HA_SUPPRESS_WARNINGS
 
 #define DYNAMIX_NO_DM_THIS
 #include <dynamix/dynamix.hpp>
+typedef dynamix::internal::mixin_type_info mixin_type_info;
 
 #include <ppk_assert.h>
 #define hassert PPK_ASSERT

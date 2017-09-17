@@ -35,22 +35,19 @@ static std::vector<std::string> mixin_names(const Object& obj) {
     return out;
 }
 
-void editor::add_mixins_to_selected(std::vector<std::string> mixins_to_add) {
+void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins_to_add) {
     compound_cmd comp_cmd;
 
     for(auto& id : m_selected) {
         auto& obj = id.obj();
 
         for(auto& mixin : mixins_to_add) {
-            dynamix::mixin_id curr_mixin_id =
-                    dynamix::internal::domain::instance().get_mixin_id_by_name(mixin.c_str());
-
-            if(obj.has(curr_mixin_id))
+            if(obj.has(mixin->id))
                 continue;
 
-            obj.addMixin(mixin.c_str());
-            comp_cmd.commands.push_back(object_mutation_cmd(
-                    {id, {mixin.c_str()}, mixin_state(obj, mixin.c_str()), true}));
+            obj.addMixin(mixin->name);
+            comp_cmd.commands.push_back(
+                    object_mutation_cmd({id, {mixin->name}, mixin_state(obj, mixin->name), true}));
         }
     }
 

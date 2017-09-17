@@ -152,10 +152,10 @@ void editor::update_gui() {
                             ImGui::BulletText("%s", mixin.first.c_str());
 
                     if(ImGui::Button("OK", ImVec2(120, 0))) {
-                        std::vector<std::string> mixins_to_add;
+                        std::vector<const mixin_type_info*> mixins_to_add;
                         for(auto& mixin : all_mixins)
                             if(filter.PassFilter(mixin.first.c_str()))
-                                mixins_to_add.push_back(mixin.first.c_str());
+                                mixins_to_add.push_back(mixin.second.get_mixin_type_info());
                         add_mixins_to_selected(mixins_to_add);
 
                         ImGui::CloseCurrentPopup();

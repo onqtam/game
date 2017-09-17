@@ -10,14 +10,16 @@ typedef std::map<Object*, JsonData> ObjectJsonMap;
 typedef void (*load_unload_proc)(ObjectJsonMap&);
 typedef void (*mutate_proc)(Object*);
 typedef void (*update_proc)(float dt);
+typedef const dynamix::internal::mixin_type_info* (*get_mixin_type_info_proc)();
 
 struct MixinInfo
 {
-    mutate_proc      add;
-    mutate_proc      remove;
-    load_unload_proc load;
-    load_unload_proc unload;
-    update_proc      update;
+    mutate_proc              add;
+    mutate_proc              remove;
+    load_unload_proc         load;
+    load_unload_proc         unload;
+    update_proc              update;
+    get_mixin_type_info_proc get_mixin_type_info;
 };
 
 typedef std::map<std::string, MixinInfo> MixinInfoMap;
@@ -28,7 +30,7 @@ typedef MixinInfoMap& (*get_mixins_proc)();
 // there was no linker error - calling it from a plugin would still result in getting only the list of mixins in that plugin
 #ifdef HA_PLUGIN
 HA_SYMBOL_IMPORT MixinInfoMap& getAllMixins();
-#else // HA_PLUGIN
+#else  // HA_PLUGIN
 HA_SYMBOL_EXPORT MixinInfoMap& getAllMixins();
 #endif // HA_PLUGIN
 
@@ -110,11 +112,17 @@ load_unload_proc getUnloadProc() {
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
     DYNAMIX_DECLARE_MIXIN(n);                                                                      \
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
-    static int HA_CAT_1(_mixin_register_, n) = registerMixin(                                      \
-            #n, /* force new line for format */                                                    \
-            {[](Object* o) { dynamix::mutate(o).add<n>(); },                                       \
-             [](Object* o) { dynamix::mutate(o).remove<n>(); }, HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n), \
-             HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n), getUpdateProc<n>()})
+    static int HA_CAT_1(_mixin_register_, n) =                                                     \
+            registerMixin(#n, /* force new line for format */                                      \
+                          {[](Object* o) { dynamix::mutate(o).add<n>(); },    /**/                 \
+                           [](Object* o) { dynamix::mutate(o).remove<n>(); }, /**/                 \
+                           HA_MIXIN_DEFINE_IN_PLUGIN_LOAD(n),                 /**/                 \
+                           HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n),               /**/                 \
+                           getUpdateProc<n>(),                                /**/                 \
+                           []() {                                                                  \
+                               return static_cast<const dynamix::internal::mixin_type_info*>(      \
+                                       &_dynamix_get_mixin_type_info((n*)nullptr));                \
+                           }})
 
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     void n::serialize_mixins(cstr concrete_mixin, JsonData& out) const {                           \
@@ -133,7 +141,7 @@ load_unload_proc getUnloadProc() {
                                       common::get_imgui_binding_callbacks_from_mixins_msg& f);     \
     void n::get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs) {                \
         cbs.push_back({&_dynamix_get_mixin_type_info((n*)nullptr),                                 \
-                       [&](Object& obj) { imgui_bind_attributes(obj, #n, *obj.get<n>()); }});      \
+                       [](Object& obj) { imgui_bind_attributes(obj, #n, *obj.get<n>()); }});       \
     }
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
