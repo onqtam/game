@@ -8,31 +8,11 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 void editor::update_gui() {
-    static bool no_titlebar  = false;
-    static bool no_border    = true;
-    static bool no_resize    = false;
-    static bool no_move      = false;
-    static bool no_scrollbar = false;
-    static bool no_collapse  = false;
-    static bool no_menu      = false;
-
-    // Demonstrate the various window flags. Typically you would just use the default.
-    ImGuiWindowFlags window_flags = 0;
-    // clang-format off
-    if (no_titlebar)  window_flags |= ImGuiWindowFlags_NoTitleBar;
-    if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
-    if (no_resize)    window_flags |= ImGuiWindowFlags_NoResize;
-    if (no_move)      window_flags |= ImGuiWindowFlags_NoMove;
-    if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
-    if (no_collapse)  window_flags |= ImGuiWindowFlags_NoCollapse;
-    if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowSize(ImVec2(300,600), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
-    // clang-format on
-
     update_selected();
 
-    if(ImGui::Begin("scene explorer", nullptr, window_flags)) {
+    ImGui::SetNextWindowSize(ImVec2(300, 600), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
+    if(ImGui::Begin("scene explorer", nullptr)) {
         std::vector<oid> to_select;
         std::vector<oid> to_deselect;
         oid new_parent_for_selected; // will become the parent of middle-mouse-button-dragged selected objects
@@ -143,7 +123,7 @@ void editor::update_gui() {
     ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 410), 10),
                             ImGuiSetCond_FirstUseEver);
 
-    if(ImGui::Begin("object attributes", nullptr, window_flags)) {
+    if(ImGui::Begin("object attributes", nullptr, ImGuiWindowFlags_MenuBar)) {
         if(ImGui::BeginMenuBar()) {
             static bool delete_selected = false;
             static bool add_to_selected = false;
