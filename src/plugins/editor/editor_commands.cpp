@@ -48,7 +48,7 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
                 {curr, {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
 
         // old parent old state
-        auto     parent = get_parent(curr.obj());
+        auto     parent = ::get_parent(curr.obj());
         JsonData parent_old;
         if(parent)
             parent_old = mixin_state(parent.obj(), "parental");
@@ -57,7 +57,7 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
         JsonData curr_old = mixin_state(curr.obj(), "parental");
 
         // set new parental relationship
-        set_parent(curr.obj(), new_parent);
+        ::set_parent(curr.obj(), new_parent);
 
         // old parent new state & command submit
         if(parent)
@@ -78,6 +78,26 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
     }
 
     return comp_cmd;
+}
+
+// filters out objects which are children (immediate or not) of the passed list of objects
+std::vector<oid> get_top_most(const std::vector<oid>& from) {
+    const std::set<oid> from_set{from.begin(), from.end()};
+    std::vector<oid>    top_most;
+    for(auto& curr : from) {
+        // search for the current object (and its parents) in the full set of objects
+        oid  parent = curr;
+        bool found  = false;
+        do {
+            parent = ::get_parent(parent.obj());
+            if(from_set.count(parent))
+                found = true;
+        } while(parent && !found);
+        // if no parent of the current object is also in the set of objects
+        if(!found)
+            top_most.push_back(curr);
+    }
+    return top_most;
 }
 
 // TODO: remove this check once these are moved to the Object class
@@ -230,13 +250,13 @@ void editor::update_selection(const std::vector<oid>& to_select,
 
 void editor::handle_gizmo_changes() {
     // do not continue if nothing has changed
-    auto pos      = yama::vector3::from_ptr(&gizmo_transform.position[0]);
-    auto pos_last = yama::vector3::from_ptr(&gizmo_transform_last.position[0]);
-    auto scl      = yama::vector3::from_ptr(&gizmo_transform.scale[0]);
-    auto scl_last = yama::vector3::from_ptr(&gizmo_transform_last.scale[0]);
-    auto rot      = yama::quaternion::from_ptr(&gizmo_transform.orientation[0]);
-    auto rot_last = yama::quaternion::from_ptr(&gizmo_transform_last.orientation[0]);
-    if(yama::close(pos, pos_last) && yama::close(scl, scl_last) && yama::close(rot, rot_last))
+    auto pos   = yama::vector3::from_ptr(&gizmo_transform.position[0]);
+    auto pos_l = yama::vector3::from_ptr(&gizmo_transform_last.position[0]);
+    auto scl   = yama::vector3::from_ptr(&gizmo_transform.scale[0]);
+    auto scl_l = yama::vector3::from_ptr(&gizmo_transform_last.scale[0]);
+    auto rot   = yama::quaternion::from_ptr(&gizmo_transform.orientation[0]);
+    auto rot_l = yama::quaternion::from_ptr(&gizmo_transform_last.orientation[0]);
+    if(yama::close(pos, pos_l) && yama::close(scl, scl_l) && yama::close(rot, rot_l))
         return;
 
     compound_cmd comp_cmd;
@@ -250,7 +270,7 @@ void editor::handle_gizmo_changes() {
             JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
             comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
         }
-        if(!yama::close(old_t.scl , new_t.scl)) {
+        if(!yama::close(old_t.scl, new_t.scl)) {
             JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
             JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
             comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
@@ -273,7 +293,7 @@ void editor::handle_gizmo_changes() {
 void editor::reparent(oid new_parent_for_selected) {
     // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
     if(new_parent_for_selected) {
-        for(auto curr = new_parent_for_selected; curr; curr = get_parent(curr.obj())) {
+        for(auto curr = new_parent_for_selected; curr; curr = ::get_parent(curr.obj())) {
             if(std::find(m_selected.begin(), m_selected.end(), curr) != m_selected.end()) {
                 printf("[REPARENT] CYCLE DETECTED! cannot reparent\n");
                 new_parent_for_selected = oid::invalid(); // set it to an invalid state
@@ -315,7 +335,7 @@ void editor::group_selected() {
         for(auto curr : m_selected) {
             while(curr != oid::invalid()) {
                 visited_counts[curr]++;
-                curr = get_parent(curr.obj());
+                curr = ::get_parent(curr.obj());
             }
         }
 
@@ -334,7 +354,7 @@ void editor::group_selected() {
             // is also a common ancestor (also to itself) - we need to find it and get its parent
             for(auto& curr : visited_counts)
                 if(curr.first.obj().has<selected>())
-                    return get_parent(curr.first.obj());
+                    return ::get_parent(curr.first.obj());
         }
         // all other cases
         return oid::invalid();
@@ -347,7 +367,7 @@ void editor::group_selected() {
     auto common_ancestor = find_lowest_common_ancestor();
     if(common_ancestor) {
         JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
-        set_parent(group, common_ancestor);
+        ::set_parent(group, common_ancestor);
         comp_cmd.commands.push_back(attributes_changed_cmd(
                 {common_ancestor, ancestor_old, mixin_state(common_ancestor.obj(), "parental")}));
     }
@@ -382,7 +402,7 @@ void editor::ungroup_selected() {
     comp_cmd.description = "ungrouping selected objects";
 
     for(auto& curr : m_selected) {
-        auto parent = get_parent(curr.obj());
+        auto parent = ::get_parent(curr.obj());
         // skip selected objects that have no parents - they are already ungrouped
         if(!parent)
             continue;
@@ -394,7 +414,7 @@ void editor::ungroup_selected() {
         auto parent_p_old = mixin_state(parent.obj(), "parental");
 
         // unaprent
-        set_parent(curr.obj(), oid::invalid());
+        ::set_parent(curr.obj(), oid::invalid());
         // set the old world transform - will update the local transform
         tr::set_transform(curr.obj(), t);
 
@@ -422,22 +442,7 @@ void editor::duplicate_selected() {
     compound_cmd comp_cmd;
     comp_cmd.description = "duplicating selected objects";
 
-    // filter out selected objects which are children (immediate or not) of other selected objects
-    const std::set<oid> selected_set{m_selected.begin(), m_selected.end()};
-    std::vector<oid>    top_most_selected;
-    for(auto& curr : m_selected) {
-        // search for the current object (and its parents) in the full set of selected objects
-        oid  parent = curr;
-        bool found  = false;
-        do {
-            parent = get_parent(parent.obj());
-            if(selected_set.count(parent))
-                found = true;
-        } while(parent && !found);
-        // if no parent of the current selected object is also in the set of selected objects
-        if(!found)
-            top_most_selected.push_back(curr);
-    }
+    std::vector<oid> top_most_selected = get_top_most(m_selected);
 
     // deselect the previously selected objects
     comp_cmd.commands.push_back(update_selection_cmd({}, m_selected));
@@ -464,7 +469,7 @@ void editor::duplicate_selected() {
             auto     child_copy     = copy_recursive(child_to_copy.obj());
             JsonData child_copy_old = mixin_state(child_copy.obj(), "parental");
             // link parentally
-            set_parent(child_copy.obj(), copy.id());
+            ::set_parent(child_copy.obj(), copy.id());
             // submit a command for that linking
             comp_cmd.commands.push_back(attributes_changed_cmd(
                     {child_copy, child_copy_old, mixin_state(child_copy.obj(), "parental")}));
@@ -484,12 +489,12 @@ void editor::duplicate_selected() {
         new_top_most_selected.push_back(new_top);
 
         // if the current top-most object has a parent - make the copy a child of that parent as well
-        auto curr_parent = get_parent(curr.obj());
+        auto curr_parent = ::get_parent(curr.obj());
         if(curr_parent) {
             JsonData new_top_old     = mixin_state(new_top.obj(), "parental");
             JsonData curr_parent_old = mixin_state(curr_parent.obj(), "parental");
             // link parentally
-            set_parent(new_top.obj(), curr_parent);
+            ::set_parent(new_top.obj(), curr_parent);
             // submit a command for that linking
             comp_cmd.commands.push_back(attributes_changed_cmd(
                     {new_top, new_top_old, mixin_state(new_top.obj(), "parental")}));
@@ -515,31 +520,39 @@ void editor::delete_selected() {
     compound_cmd comp_cmd;
     comp_cmd.description = "deleting selected objects";
 
-    for(auto& curr : m_selected) {
-        auto detele_object = [&](Object& obj) {
-            // serialize the state of the mixins
-            comp_cmd.commands.push_back(object_mutation_cmd(
-                    {obj.id(), mixin_names(obj), mixin_state(obj, nullptr), false}));
+    std::function<void(oid)> delete_recursive = [&](oid root) {
+        auto& root_obj = root.obj();
+        // recurse through children
+        for(const auto& c : ::get_children(root_obj))
+            delete_recursive(c);
 
-            // serialize the state of the object itself
-            comp_cmd.commands.push_back(object_creation_cmd({obj.id(), object_state(obj), false}));
+        // serialize the state of the mixins
+        comp_cmd.commands.push_back(object_mutation_cmd(
+                {root_obj.id(), mixin_names(root_obj), mixin_state(root_obj, nullptr), false}));
 
-            ObjectManager::get().destroy(obj.id());
-        };
+        // serialize the state of the object itself
+        comp_cmd.commands.push_back(object_creation_cmd({root, object_state(root_obj), false}));
 
-        std::function<void(oid)> delete_unselected_children = [&](oid root) {
-            auto& root_obj = root.obj();
-            // recurse through children
-            const auto& children = ::get_children(root_obj);
-            for(const auto& c : children)
-                delete_unselected_children(c);
-            // delete only if not selected because we are iterating through the selected objects anyway
-            if(!root_obj.has<selected>())
-                detele_object(root_obj);
-        };
+        ObjectManager::get().destroy(root);
+    };
 
-        delete_unselected_children(curr);
-        detele_object(curr.obj());
+    std::vector<oid> top_most_selected = get_top_most(m_selected);
+    for(auto& curr : top_most_selected) {
+        // first fix any parental link of the currently selected object
+        auto parent = ::get_parent(curr.obj());
+        if(parent) {
+            auto parent_old = mixin_state(parent.obj(), "parental");
+            auto curr_old   = mixin_state(curr.obj(), "parental");
+            ::set_parent(curr.obj(), oid());
+
+            comp_cmd.commands.push_back(attributes_changed_cmd(
+                    {parent, parent_old, mixin_state(parent.obj(), "parental")}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({curr, curr_old, mixin_state(curr.obj(), "parental")}));
+        }
+
+        // delete recursively
+        delete_recursive(curr);
     }
     add_command(comp_cmd);
 

@@ -1,6 +1,4 @@
 
-deleting a leaf with no mesh component - crash
-
 fix serialization...
 
 history viewer
