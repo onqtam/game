@@ -4,13 +4,16 @@
 #include "core/World.h"
 
 HA_SUPPRESS_WARNINGS
+#include <boost/range/adaptor/reversed.hpp>
 #include <imgui/imgui_internal.h>
 HA_SUPPRESS_WARNINGS_END
+
+HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
 
 void editor::update_gui() {
     update_selected();
 
-    ImGui::SetNextWindowSize(ImVec2(300, 600), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 550), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
     if(ImGui::Begin("scene explorer", nullptr, ImGuiWindowFlags_MenuBar)) {
         if(ImGui::BeginMenuBar()) {
@@ -68,10 +71,8 @@ void editor::update_gui() {
 
                 // display the current node only if its parent is displayed (and there are no filters) or it has passed filtering
                 if((filter_passing && display) || (filter_passing && filter.IsActive())) {
-                    HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
                     is_open = ImGui::TreeNodeEx((void*)(intptr_t)int16(root), node_flags,
                                                 name.c_str());
-                    HA_CLANG_SUPPRESS_WARNING_END
                     display &= is_open; // update the display flag for the children
 
                     // logic for dragging selected objects with the middle mouse button onto unselected objects for reparenting
@@ -216,7 +217,6 @@ void editor::update_gui() {
             if(found == mixin_names.end())
                 continue;
 
-            HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
             if(ImGui::TreeNodeEx((const void*)obj.name().c_str(), ImGuiTreeNodeFlags_DefaultOpen,
                                  obj.name().c_str())) {
                 // attributes of the object itself
@@ -252,13 +252,41 @@ void editor::update_gui() {
 
                 ImGui::TreePop();
             }
-            HA_CLANG_SUPPRESS_WARNING_END
+        }
+    }
+    ImGui::End();
+
+    ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(10, float(Application::get().height() - 510)),
+                            ImGuiSetCond_FirstUseEver);
+
+    if(ImGui::Begin("command history", nullptr, ImGuiWindowFlags_MenuBar)) {
+        if(ImGui::BeginMenuBar()) {
+            static bool merge_selected = false;
+            if(ImGui::BeginMenu("Edit")) {
+                ImGui::MenuItem("Merge selected", nullptr, &merge_selected);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+
+            if(merge_selected) {
+                merge_selected = false;
+            }
+        }
+
+        auto curr_idx = 0;
+        for(auto& curr : boost::adaptors::reverse(undo_redo_commands)) {
+            auto curr_name = std::to_string(++curr_idx) + " oppa";
+            if(ImGui::TreeNodeEx(curr_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen,
+                                 curr_name.c_str())) {
+                ImGui::TreePop();
+            }
         }
     }
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiSetCond_FirstUseEver);
-    ImGui::ShowTestWindow();
+    //ImGui::ShowTestWindow();
 }
 
 void editor::update_gizmo() {
@@ -314,17 +342,17 @@ void editor::update_gizmo() {
 
     // if (probably) using gizmo - need this to really determine it: https://github.com/ddiakopoulos/tinygizmo/issues/6
     if(m_gizmo_state.mouse_left) {
-        auto diff_pos = gizmo_transform.position - gizmo_transform_last.position;
-        auto diff_scl = gizmo_transform.scale - gizmo_transform_last.scale;
-        auto rot      = (yama::quaternion&)gizmo_transform.orientation;
-
-        // always update transforms - cannot figure out how to check for the rotation - I suck at math :(
-        //if(minalg::length2(diff_pos) > 0 || minalg::length2(diff_scl) > 0 || glm::length(rot) != 1)
-        {
+        auto pos   = yama::vector3::from_ptr(&gizmo_transform.position[0]);
+        auto pos_l = yama::vector3::from_ptr(&gizmo_transform_last.position[0]);
+        auto scl   = yama::vector3::from_ptr(&gizmo_transform.scale[0]);
+        auto scl_l = yama::vector3::from_ptr(&gizmo_transform_last.scale[0]);
+        auto rot   = yama::quaternion::from_ptr(&gizmo_transform.orientation[0]);
+        auto rot_l = yama::quaternion::from_ptr(&gizmo_transform_last.orientation[0]);
+        if(!yama::close(pos, pos_l) || !yama::close(scl, scl_l) || !yama::close(rot, rot_l)) {
             for(auto& id : selected_with_gizmo) {
                 auto t = id.obj().get<selected>()->old_t;
-                t.pos += yama::v(diff_pos.x, diff_pos.y, diff_pos.z);
-                t.scl += yama::v(diff_scl.x, diff_scl.y, diff_scl.z);
+                t.pos += pos - pos_l;
+                t.scl += scl - scl_l;
                 if(selected_with_gizmo.size() == 1) {
                     t.rot = rot; // the gizmo is attached to the object's orientation so this is a straight copy
                 } else {
@@ -347,3 +375,5 @@ void editor::update_gizmo() {
 
     m_gizmo_ctx.draw();
 }
+
+HA_CLANG_SUPPRESS_WARNING_END

@@ -117,7 +117,8 @@ public:
 
     void process_event(const InputEvent& ev) override;
 
-    void add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val);
+    void add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val,
+                               const std::string& desc);
 };
 
 struct renderPart;
