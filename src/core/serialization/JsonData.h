@@ -7,9 +7,13 @@ class JsonData
 public:
     JsonData(size_t reserve_size = 0) { m_data.reserve(reserve_size); }
     JsonData(const std::vector<char>& data)
-            : m_data(data) {}
+            : m_data(data) {
+        addNull();
+    }
     JsonData(std::vector<char>&& data)
-            : m_data(std::move(data)) {}
+            : m_data(std::move(data)) {
+        addNull();
+    }
 
     size_t                   size() const { return m_data.size(); }
     std::vector<char>&       data() { return m_data; }
@@ -23,7 +27,11 @@ public:
     }
 
     void addComma() { m_data.push_back(','); }
-    void addNull() { m_data.push_back('\0'); }
+    void addNull() {
+        // add a null terminator and then pop it - it will still remain in memory so the data is a proper null-terminated C string
+        m_data.push_back('\0');
+        m_data.pop_back();
+    }
 
     void startObject() { m_data.push_back('{'); }
     void startArray() { m_data.push_back('['); }
@@ -33,6 +41,8 @@ public:
             m_data.back() = '}';
         else
             m_data.push_back('}');
+
+        addNull();
     }
 
     void endArray() {

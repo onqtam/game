@@ -66,7 +66,12 @@ HA_SERIALIZE_TEST(transform, {{0, 1, 2}, {3, 4, 5}, {6, 7, 8, 9}});
 HA_SERIALIZE_TEST(oid, oid(1));
 HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
-HA_SERIALIZE_TEST(JsonData, JsonData());
+static std::string json_example =
+        "{\"menu\": {\"id\": \"file\", \"value\": \"File\", \"popup\": "
+        "{\"menuitem\": [{\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"}, "
+        "{\"value\": \"Open\", \"onclick\": \"OpenDoc()\"}, {\"value\": "
+        "\"Close\", \"onclick\": \"CloseDoc()\"}]}}}";
+HA_SERIALIZE_TEST(JsonData, JsonData({json_example.begin(), json_example.end()}));
 HA_SERIALIZE_TEST(std::vector<int>, {1, 2, 3});
 HA_SERIALIZE_TEST(std::set<int>, {1, 2, 3});
 typedef std::pair<int, float> test_pair;

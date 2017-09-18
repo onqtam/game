@@ -1,6 +1,4 @@
 
-fix serialization...
-
 history viewer
     add names + descriptions to commands (all - not just compound)
     history merging

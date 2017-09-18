@@ -6,10 +6,10 @@
 #include <iomanip>
 
 // taken from here: https://stackoverflow.com/a/33799784/3162383
-static std::string escape_json(const std::string& s) {
+static std::string escape_json(cstr s, size_t size) {
     std::ostringstream o;
-    for(auto c = s.cbegin(); c != s.cend(); c++) {
-        switch(*c) {
+    for(size_t i = 0; i < size; ++i) {
+        switch(s[i]) {
             case '"': o << "\\\""; break;
             case '\\': o << "\\\\"; break;
             case '\b': o << "\\b"; break;
@@ -18,10 +18,10 @@ static std::string escape_json(const std::string& s) {
             case '\r': o << "\\r"; break;
             case '\t': o << "\\t"; break;
             default:
-                if('\x00' <= *c && *c <= '\x1f') {
-                    o << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+                if('\x00' <= s[i] && s[i] <= '\x1f') {
+                    o << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)s[i];
                 } else {
-                    o << *c;
+                    o << s[i];
                 }
         }
     }
@@ -66,25 +66,25 @@ void deserialize(bool& data, const sajson::value& val) {
 
 void serialize(const std::string& data, JsonData& out) {
     out.append("\"", 1);
-    auto escaped_data = escape_json(data);
+    auto escaped_data = escape_json(data.c_str(), data.size());
     out.append(escaped_data.c_str(), escaped_data.length());
     out.append("\"", 1);
 }
 void deserialize(std::string& data, const sajson::value& val) { data = val.as_cstring(); }
 
 void serialize(const transform& data, JsonData& out) {
-	out.startArray();
-	serialize(data.pos, out);
-	out.addComma();
-	serialize(data.scl, out);
-	out.addComma();
-	serialize(data.rot, out);
-	out.endArray();
+    out.startArray();
+    serialize(data.pos, out);
+    out.addComma();
+    serialize(data.scl, out);
+    out.addComma();
+    serialize(data.rot, out);
+    out.endArray();
 }
 void deserialize(transform& data, const sajson::value& val) {
-	deserialize(data.pos, val.get_array_element(0));
-	deserialize(data.scl, val.get_array_element(1));
-	deserialize(data.rot, val.get_array_element(2));
+    deserialize(data.pos, val.get_array_element(0));
+    deserialize(data.scl, val.get_array_element(1));
+    deserialize(data.rot, val.get_array_element(2));
 }
 
 void serialize(oid data, JsonData& out) { serialize(int16(data), out); }
@@ -104,8 +104,20 @@ void deserialize(ShaderHandle& data, const sajson::value& val) {
     data = ShaderMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
 }
 
-void serialize(const JsonData& data, JsonData& out) { serialize(data.data(), out); }
-void deserialize(JsonData& data, const sajson::value& val) { deserialize(data.data(), val); }
+void serialize(const JsonData& data, JsonData& out) {
+    out.append("\"", 1);
+    auto escaped_data = escape_json(data.data().data(), data.size());
+    out.append(escaped_data.c_str(), escaped_data.length());
+    out.append("\"", 1);
+}
+void deserialize(JsonData& data, const sajson::value& val) {
+    hassert(val.get_type() == sajson::TYPE_STRING);
+    cstr str = val.as_cstring();
+    auto len = val.get_string_length();
+    data.data().resize(len);
+    std::copy(str, str + len, data.data().begin());
+    data.addNull();
+}
 
 // serialization_2.h
 
