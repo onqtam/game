@@ -37,6 +37,7 @@ static std::vector<std::string> mixin_names(const Object& obj) {
 
 static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_parent) {
     compound_cmd comp_cmd;
+    comp_cmd.description = "setting a parent to the objects";
 
     // save the transforms of the selected objects before changing parental information
     std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
@@ -94,6 +95,7 @@ static bool cant_remove_mixin(cstr in) {
 void editor::create_object() {
     printf("[CREATE OBJECT]\n");
     compound_cmd comp_cmd;
+    comp_cmd.description = "creating an object";
 
     auto& obj = ObjectManager::get().create();
     comp_cmd.commands.push_back(object_creation_cmd({obj.id(), object_state(obj), true}));
@@ -107,6 +109,7 @@ void editor::create_object() {
 
 void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) {
     compound_cmd comp_cmd;
+    comp_cmd.description = "selecting mixins";
 
     for(auto& id : m_selected) {
         auto& obj = id.obj();
@@ -129,6 +132,7 @@ void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) 
 
 void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_info*> mixins) {
     compound_cmd comp_cmd;
+    comp_cmd.description = "removing mixins by name from selected";
 
     for(auto& id : m_selected) {
         auto& obj = id.obj();
@@ -151,6 +155,7 @@ void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_in
 
 void editor::remove_selected_mixins() {
     compound_cmd comp_cmd;
+    comp_cmd.description = "removing selected mixins from selected objects";
 
     for(auto& id : m_selected) {
         auto&                       selected_mixins = (*id.obj().get<selected>()).selected_mixins;
@@ -187,6 +192,7 @@ void editor::remove_selected_mixins() {
 compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
                                           const std::vector<oid>& to_deselect) {
     compound_cmd comp_cmd;
+    comp_cmd.description = "updating selection";
 
     if(to_select.size() + to_deselect.size() > 0) {
         comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
@@ -197,8 +203,8 @@ compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
         };
 
         for(auto curr : to_select) {
-            add_mutate_command(curr, true);
             curr.obj().addMixin("selected");
+            add_mutate_command(curr, true);
         }
         for(auto curr : to_deselect) {
             add_mutate_command(curr, false);
@@ -223,22 +229,33 @@ void editor::update_selection(const std::vector<oid>& to_select,
 }
 
 void editor::handle_gizmo_changes() {
+    // do not continue if nothing has changed
+    auto pos      = yama::vector3::from_ptr(&gizmo_transform.position[0]);
+    auto pos_last = yama::vector3::from_ptr(&gizmo_transform_last.position[0]);
+    auto scl      = yama::vector3::from_ptr(&gizmo_transform.scale[0]);
+    auto scl_last = yama::vector3::from_ptr(&gizmo_transform_last.scale[0]);
+    auto rot      = yama::quaternion::from_ptr(&gizmo_transform.orientation[0]);
+    auto rot_last = yama::quaternion::from_ptr(&gizmo_transform_last.orientation[0]);
+    if(yama::close(pos, pos_last) && yama::close(scl, scl_last) && yama::close(rot, rot_last))
+        return;
+
     compound_cmd comp_cmd;
+    comp_cmd.description = "gizmo changes to transform";
 
     for(auto& id : selected_with_gizmo) {
         auto old_t = id.obj().get<selected>()->old_local_t;
         auto new_t = tr::get_transform_local(id.obj());
-        if(old_t.pos != new_t.pos) {
+        if(!yama::close(old_t.pos, new_t.pos)) {
             JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
             JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
             comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
         }
-        if(old_t.scl != new_t.scl) {
+        if(!yama::close(old_t.scl , new_t.scl)) {
             JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
             JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
             comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
         }
-        if(old_t.rot != new_t.rot) {
+        if(!yama::close(old_t.rot, new_t.rot)) {
             JsonData ov = mixin_attr_state("tform", "rot", old_t.rot);
             JsonData nv = mixin_attr_state("tform", "rot", new_t.rot);
             comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv}));
@@ -247,8 +264,10 @@ void editor::handle_gizmo_changes() {
         id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
         id.obj().get<selected>()->old_local_t = tr::get_transform_local(id.obj());
     }
-    if(!comp_cmd.commands.empty())
+    if(!comp_cmd.commands.empty()) {
+        printf("[TRANSFORM CHANGED THROUGH GIZMO]\n");
         add_command(comp_cmd);
+    }
 }
 
 void editor::reparent(oid new_parent_for_selected) {
@@ -266,6 +285,7 @@ void editor::reparent(oid new_parent_for_selected) {
     if(new_parent_for_selected) {
         printf("[REPARENT]\n");
         compound_cmd comp_cmd;
+        comp_cmd.description = "reparenting selected objects";
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
 
@@ -287,6 +307,7 @@ void editor::group_selected() {
 
     printf("[GROUP]\n");
     compound_cmd comp_cmd;
+    comp_cmd.description = "grouping selected objects";
 
     auto find_lowest_common_ancestor = [&]() {
         // go upwards from each selected node and update the visited count for each node
@@ -358,6 +379,7 @@ void editor::ungroup_selected() {
         return;
 
     compound_cmd comp_cmd;
+    comp_cmd.description = "ungrouping selected objects";
 
     for(auto& curr : m_selected) {
         auto parent = get_parent(curr.obj());
@@ -398,6 +420,7 @@ void editor::duplicate_selected() {
 
     printf("[DUPLICATE]\n");
     compound_cmd comp_cmd;
+    comp_cmd.description = "duplicating selected objects";
 
     // filter out selected objects which are children (immediate or not) of other selected objects
     const std::set<oid> selected_set{m_selected.begin(), m_selected.end()};
@@ -490,6 +513,8 @@ void editor::delete_selected() {
     handle_gizmo_changes();
 
     compound_cmd comp_cmd;
+    comp_cmd.description = "deleting selected objects";
+
     for(auto& curr : m_selected) {
         auto detele_object = [&](Object& obj) {
             // serialize the state of the mixins

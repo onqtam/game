@@ -294,6 +294,8 @@ void editor::update_gizmo() {
         gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
         gizmo_transform.orientation = {avg_rot.x, avg_rot.y, avg_rot.z, avg_rot.w};
         gizmo_transform.scale       = {1, 1, 1}; // no need for anything different
+
+        gizmo_transform_last = gizmo_transform;
     }
 
     // record gizmo transform on start of usage (+transforms of selected objects)

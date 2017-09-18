@@ -1,7 +1,13 @@
 
+deleting a leaf with no mesh component - crash
+
+fix serialization...
+
 history viewer
     add names + descriptions to commands (all - not just compound)
     history merging
+    history branching - when you undo and select things to not lose your entire history
+    history go-to
     remove printfs
 
 camera
@@ -71,8 +77,6 @@ linux
     when built with the address sanitizer on linux - build crashes on startup in the plugin manager
 editor
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
-    DAMN IT! sometimes undo/redo-ing the engine stumbles upon a broken quaternion and yama asserts - no idea how
-        once I just selected an object and 2 commands got inserted instead of 1 - after that undo broke that same way!!!
     >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
 
 == questions:

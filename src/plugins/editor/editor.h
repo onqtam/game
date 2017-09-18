@@ -17,6 +17,7 @@ public:
     FIELD oid e;
     FIELD JsonData old_val;
     FIELD JsonData new_val;
+    FIELD std::string description;
 };
 
 struct object_creation_cmd
@@ -51,6 +52,7 @@ public:
     typedef std::vector<command_variant> commands_vector;
 
     FIELD commands_vector commands;
+    FIELD std::string description;
 };
 
 typedef compound_cmd::command_variant command_variant;
