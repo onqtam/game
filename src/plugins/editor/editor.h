@@ -73,6 +73,8 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     FIELD int             curr_undo_redo                       = -1;
     FIELD bool            mouse_button_left_changed            = false;
     FIELD bool            m_should_rescroll_in_command_history = false;
+    FIELD int             m_selected_command_idx_1             = -1;
+    FIELD int             m_selected_command_idx_2             = -1;
     FIELD tinygizmo::rigid_transform gizmo_transform;
     FIELD tinygizmo::rigid_transform gizmo_transform_last;
 
@@ -110,6 +112,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
 
     void undo();
     void redo();
+    void merge_commands();
     void fast_forward_to_command(int idx);
     void handle_command(command_variant& command, bool undo);
     void add_command(const command_variant& command);

@@ -11,8 +11,6 @@ HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 HA_SUPPRESS_WARNINGS_END
 
-HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
-
 // until the allocator model of dynamix is extended we shall update this list manually like this
 void editor::update_selected() {
     m_selected.clear();
@@ -133,8 +131,6 @@ void editor::process_event(const InputEvent& ev) {
         mouse_button_left_changed = true;
     }
 }
-
-HA_GCC_SUPPRESS_WARNING_END
 
 HA_SINGLETON_INSTANCE(editor);
 

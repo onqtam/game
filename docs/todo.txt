@@ -1,7 +1,6 @@
 
 history viewer
-    history merging
-    history branching - when you undo and select things to not lose your entire history
+    history branching with soft commands - when you undo and select things to not lose your entire history
 
 install unity and play with it...
 
@@ -73,7 +72,6 @@ start using c++17
 
 == bugs:
 emscripten build crashes with latest emscripten???
-cannot even build anymore with old/latest emscripten?!?!?!
 CI - appveyor emscripten build fails for some reason
 linux
     when built with the address sanitizer on linux - build crashes on startup in the plugin manager

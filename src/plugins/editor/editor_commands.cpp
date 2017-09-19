@@ -574,6 +574,29 @@ void editor::redo() {
         handle_command(undo_redo_commands[++curr_undo_redo], false);
 }
 
+void editor::merge_commands() {
+    int start = Utils::Min(m_selected_command_idx_1, m_selected_command_idx_2);
+    int end   = Utils::Max(m_selected_command_idx_1, m_selected_command_idx_2);
+    hassert(start <= end);
+    hassert(start > -1);
+    hassert(end < undo_redo_commands.size());
+    // merge only if the current position is not in the range
+    if(curr_undo_redo <= start || curr_undo_redo >= end) {
+        compound_cmd comp_cmd;
+        comp_cmd.description = "merged commands";
+        for(int i = start; i <= end; ++i)
+            comp_cmd.commands.push_back(undo_redo_commands[i]);
+        // add the compacted command at the place of the first from the compacted range and remove the rest of the range
+        undo_redo_commands[start] = comp_cmd;
+        undo_redo_commands.erase(undo_redo_commands.begin() + start,
+                                 undo_redo_commands.begin() + end);
+        curr_undo_redo -= end - start;
+        // reset the command selection
+        m_selected_command_idx_1 = -1;
+        m_selected_command_idx_2 = -1;
+    }
+}
+
 void editor::fast_forward_to_command(int idx) {
     hassert(idx < int(undo_redo_commands.size()));
     while(idx != curr_undo_redo) {
@@ -642,9 +665,16 @@ void editor::handle_command(command_variant& command_var, bool undo) {
 void editor::add_command(const command_variant& command) {
     m_should_rescroll_in_command_history = true;
 
-    if(!undo_redo_commands.empty())
+    if(!undo_redo_commands.empty()) {
         undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                  undo_redo_commands.end());
+        // reset the command selection if it extends beyond the newly shrunken command history
+        if(m_selected_command_idx_1 >= int(undo_redo_commands.size()) ||
+           m_selected_command_idx_2 >= int(undo_redo_commands.size())) {
+            m_selected_command_idx_1 = -1;
+            m_selected_command_idx_2 = -1;
+        }
+    }
     ++curr_undo_redo;
     if(command.type() == boost::typeindex::type_id<compound_cmd>()) {
         const auto& cmd = boost::get<compound_cmd>(command);

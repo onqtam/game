@@ -10,6 +10,14 @@ HA_SUPPRESS_WARNINGS_END
 
 HA_CLANG_SUPPRESS_WARNING("-Wformat-security")
 
+// determines if the value is in the range - where it isn't clear which of the 2 bounds is bigger
+static bool is_in_range(int val, int bound_1, int bound_2) {
+    int smaller = Utils::Min(bound_1, bound_2);
+    int bigger  = Utils::Max(bound_1, bound_2);
+
+    return val >= smaller && val <= bigger;
+}
+
 void editor::update_gui() {
     update_selected();
 
@@ -270,116 +278,144 @@ void editor::update_gui() {
             ImGui::EndMenuBar();
 
             if(merge_selected) {
+                if(m_selected_command_idx_1 != -1) {
+                    hassert(m_selected_command_idx_2 != -1);
+                    merge_commands();
+                }
                 merge_selected = false;
             }
         }
 
         auto current_command_color = ImColor(1.0f, 0.2f, 0.2f);
 
-        // recursive command show
-        std::function<void(const command_variant&, int)> showCommands =
-                [&](const command_variant& c, int curr_top_most) {
-                    using namespace std::string_literals; // for "s" suffix returning a std::string
+        // recursive display of the command history
+        std::function<void(const command_variant&, int)> showCommands = [&](const command_variant&
+                                                                                    c,
+                                                                            int     curr_top_most) {
+            using namespace std::string_literals; // for "s" suffix returning a std::string
 
-                    bool is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
-                    bool is_top_most = curr_top_most != -1;
-                    bool is_curr     = is_top_most && curr_top_most == curr_undo_redo;
+            bool is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
+            bool is_top_most = curr_top_most != -1;
+            bool is_curr     = is_top_most && curr_top_most == curr_undo_redo;
 
-                    if(is_curr && m_should_rescroll_in_command_history) {
-                        ImGui::SetScrollHere();
-                        m_should_rescroll_in_command_history = false;
+            if(is_curr && m_should_rescroll_in_command_history) {
+                ImGui::SetScrollHere();
+                m_should_rescroll_in_command_history = false;
+            }
+
+            char buff[256];
+            snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
+            std::string        name       = is_top_most ? buff : "   ";
+            std::string        desc       = "Description: ";
+            ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow;
+            if(!is_compound) // make the node a leaf node if not compound
+                node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+            // determine if the current top-most command is selected (or in a selected range)
+            if(is_top_most && m_selected_command_idx_1 != -1) {
+                if(is_in_range(curr_top_most, m_selected_command_idx_1, m_selected_command_idx_2))
+                    node_flags |= ImGuiTreeNodeFlags_Selected;
+            }
+
+            const JsonData* to_display   = nullptr;
+            const JsonData* to_display_2 = nullptr;
+            if(is_compound) {
+                const auto& cmd = boost::get<compound_cmd>(c);
+                name += "[composite] "s + cmd.description;
+            } else if(c.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
+                const auto& cmd = boost::get<attributes_changed_cmd>(c);
+                name += "[attribute] <"s + cmd.name + ">";
+                to_display   = &cmd.old_val;
+                to_display_2 = &cmd.new_val;
+                desc += cmd.description;
+            } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
+                const auto& cmd = boost::get<object_creation_cmd>(c);
+                name += "[obj : "s + (cmd.created ? "new" : "del") + "] <"s + cmd.name + ">";
+                to_display = &cmd.state;
+            } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
+                const auto& cmd = boost::get<object_mutation_cmd>(c);
+                name += "[mut : "s + (cmd.added ? "add" : "rem") + "] <" + cmd.name + ">";
+                to_display = &cmd.state;
+                // append to the description the list of mixins
+                for(auto& curr : cmd.mixins)
+                    desc += "'"s + curr + "', ";
+                desc.pop_back();
+                desc.pop_back();
+            }
+
+            if(is_curr)
+                ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
+            bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, name.c_str());
+            if(is_curr)
+                ImGui::PopStyleColor(1);
+
+            // update selection range
+            if(is_top_most && ImGui::IsMouseClicked(0) && ImGui::IsItemHovered()) {
+                if(ImGui::GetIO().KeyShift) {
+                    if(m_selected_command_idx_1 == -1) {
+                        m_selected_command_idx_1 = curr_top_most;
+                        m_selected_command_idx_2 = curr_top_most;
+                    } else {
+                        m_selected_command_idx_2 = curr_top_most;
                     }
-
-                    char buff[256];
-                    snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
-                    std::string        name = is_top_most ? buff : "   ";
-                    std::string        desc = "Description: ";
-                    ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow;
-                    if(!is_compound) // make the node a leaf node if not compound
-                        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-                    const JsonData* to_display   = nullptr;
-                    const JsonData* to_display_2 = nullptr;
-                    if(is_compound) {
-                        const auto& cmd = boost::get<compound_cmd>(c);
-                        name += "[composite] "s + cmd.description;
-                    } else if(c.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
-                        const auto& cmd = boost::get<attributes_changed_cmd>(c);
-                        name += "[attribute] <"s + cmd.name + ">";
-                        to_display   = &cmd.old_val;
-                        to_display_2 = &cmd.new_val;
-                        desc += cmd.description;
-                    } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
-                        const auto& cmd = boost::get<object_creation_cmd>(c);
-                        name += "[obj : "s + (cmd.created ? "new" : "del") + "] <"s + cmd.name +
-                                ">";
-                        to_display = &cmd.state;
-                    } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
-                        const auto& cmd = boost::get<object_mutation_cmd>(c);
-                        name += "[mut : "s + (cmd.added ? "add" : "rem") + "] <" + cmd.name + ">";
-                        to_display = &cmd.state;
-                        // append to the description the list of mixins
-                        for(auto& curr : cmd.mixins)
-                            desc += "'"s + curr + "', ";
-                        desc.pop_back();
-                        desc.pop_back();
+                } else {
+                    if(m_selected_command_idx_1 == curr_top_most) {
+                        m_selected_command_idx_1 = -1;
+                        m_selected_command_idx_2 = -1;
+                    } else {
+                        m_selected_command_idx_1 = curr_top_most;
+                        m_selected_command_idx_2 = curr_top_most;
                     }
+                }
+            }
 
-                    if(is_curr)
-                        ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
-                    bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, name.c_str());
-                    if(is_curr)
-                        ImGui::PopStyleColor(1);
+            if(is_top_most && !is_curr && ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+                fast_forward_to_command(curr_top_most);
 
-                    if(is_top_most && !is_curr && ImGui::IsMouseDoubleClicked(0) &&
-                       ImGui::IsItemHovered())
-                        fast_forward_to_command(curr_top_most);
-
-                    if(to_display &&
-                       ImGui::BeginPopupContextItem(std::to_string((uintptr_t)&c).c_str())) {
-                        if(to_display && ImGui::Button("Inspect"))
-                            ImGui::OpenPopup("json contents");
-                        if(ImGui::BeginPopupModal("json contents", nullptr,
-                                                  ImGuiWindowFlags_AlwaysAutoResize)) {
-                            ImGui::TextWrapped(desc.c_str());
-                            ImGui::Spacing();
-                            ImGui::Spacing();
-                            ImGui::Separator();
-                            if(to_display_2) {
-                                ImGui::Text("old:");
-                                ImGui::Separator();
-                                ImGui::TextWrapped(to_display->data().data());
-                                ImGui::Separator();
-                                ImGui::Text("new:");
-                                ImGui::Separator();
-                                ImGui::TextWrapped(to_display_2->data().data());
-                                if(ImGui::Button("Copy to clipboard")) {
-                                    std::string appended(to_display->data().data());
-                                    appended += "\n\n";
-                                    appended += to_display_2->data().data();
-                                    ImGui::SetClipboardText(appended.c_str());
-                                }
-                            } else {
-                                ImGui::TextWrapped(to_display->data().data());
-                                if(ImGui::Button("Copy to clipboard"))
-                                    ImGui::SetClipboardText(to_display->data().data());
-                            }
-                            ImGui::SameLine();
-                            if(ImGui::Button("Close"))
-                                ImGui::CloseCurrentPopup();
-                            ImGui::EndPopup();
+            if(to_display && ImGui::BeginPopupContextItem(std::to_string((uintptr_t)&c).c_str())) {
+                if(to_display && ImGui::Button("Inspect"))
+                    ImGui::OpenPopup("json contents");
+                if(ImGui::BeginPopupModal("json contents", nullptr,
+                                          ImGuiWindowFlags_AlwaysAutoResize)) {
+                    ImGui::TextWrapped(desc.c_str());
+                    ImGui::Spacing();
+                    ImGui::Spacing();
+                    ImGui::Separator();
+                    if(to_display_2) {
+                        ImGui::Text("old:");
+                        ImGui::Separator();
+                        ImGui::TextWrapped(to_display->data().data());
+                        ImGui::Separator();
+                        ImGui::Text("new:");
+                        ImGui::Separator();
+                        ImGui::TextWrapped(to_display_2->data().data());
+                        if(ImGui::Button("Copy to clipboard")) {
+                            std::string appended(to_display->data().data());
+                            appended += "\n\n";
+                            appended += to_display_2->data().data();
+                            ImGui::SetClipboardText(appended.c_str());
                         }
-                        ImGui::EndPopup();
+                    } else {
+                        ImGui::TextWrapped(to_display->data().data());
+                        if(ImGui::Button("Copy to clipboard"))
+                            ImGui::SetClipboardText(to_display->data().data());
                     }
+                    ImGui::SameLine();
+                    if(ImGui::Button("Close"))
+                        ImGui::CloseCurrentPopup();
+                    ImGui::EndPopup();
+                }
+                ImGui::EndPopup();
+            }
 
-                    if(is_open && is_compound) {
-                        auto& comp_cmd = boost::get<compound_cmd>(c);
-                        for(auto& part : comp_cmd.commands)
-                            showCommands(part, -1);
-                        ImGui::TreePop();
-                    }
+            if(is_open && is_compound) {
+                auto& comp_cmd = boost::get<compound_cmd>(c);
+                for(auto& part : comp_cmd.commands)
+                    showCommands(part, -1);
+                ImGui::TreePop();
+            }
 
-                };
+        };
 
         int curr_idx = int(undo_redo_commands.size()) - 1;
         for(auto& curr : boost::adaptors::reverse(undo_redo_commands))
