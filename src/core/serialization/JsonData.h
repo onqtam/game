@@ -5,14 +5,19 @@ class JsonData
     std::vector<char> m_data;
 
 public:
-    JsonData(size_t reserve_size = 0) { m_data.reserve(reserve_size); }
+    JsonData(size_t reserve_size = 0) {
+        if(reserve_size)
+            m_data.reserve(reserve_size);
+    }
     JsonData(const std::vector<char>& data)
             : m_data(data) {
-        addNull();
+        if(!m_data.empty())
+            addNull();
     }
     JsonData(std::vector<char>&& data)
             : m_data(std::move(data)) {
-        addNull();
+        if(!m_data.empty())
+            addNull();
     }
 
     size_t                   size() const { return m_data.size(); }
