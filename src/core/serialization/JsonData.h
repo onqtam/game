@@ -20,6 +20,36 @@ public:
             addNull();
     }
 
+    JsonData(const JsonData& other)
+            : m_data(other.m_data) {
+        if(!m_data.empty())
+            addNull();
+    }
+
+    JsonData(JsonData&& other)
+            : m_data(std::move(other.m_data)) {
+        if(!m_data.empty())
+            addNull();
+    }
+
+    JsonData& operator=(const JsonData& other) {
+        if(this != &other) {
+            m_data = other.m_data;
+            if(!m_data.empty())
+                addNull();
+        }
+        return *this;
+    }
+
+    JsonData& operator=(JsonData&& other) {
+        if(this != &other) {
+            m_data = std::move(other.m_data);
+            if(!m_data.empty())
+                addNull();
+        }
+        return *this;
+    }
+
     size_t                   size() const { return m_data.size(); }
     std::vector<char>&       data() { return m_data; }
     const std::vector<char>& data() const { return m_data; }
