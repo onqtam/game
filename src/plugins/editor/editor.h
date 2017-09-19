@@ -15,6 +15,7 @@ struct attributes_changed_cmd
 
 public:
     FIELD oid e;
+    FIELD std::string name;
     FIELD JsonData old_val;
     FIELD JsonData new_val;
     FIELD std::string description;
@@ -26,6 +27,7 @@ struct object_creation_cmd
 
 public:
     FIELD oid id;
+    FIELD std::string name;
     FIELD JsonData state;
     FIELD bool     created;
 };
@@ -36,6 +38,7 @@ struct object_mutation_cmd
 
 public:
     FIELD oid id;
+    FIELD std::string name;
     FIELD std::vector<std::string> mixins;
     FIELD JsonData state;
     FIELD bool     added;

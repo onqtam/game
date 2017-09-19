@@ -281,38 +281,51 @@ void editor::update_gui() {
                 [&](const command_variant& c, int curr_top_most) {
                     using namespace std::string_literals; // for "s" suffix returning a std::string
 
-                    bool        is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
+                    bool is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
+                    bool is_curr     = curr_top_most != -1 && curr_top_most == curr_undo_redo;
 
-                    if(curr_top_most == curr_undo_redo)
+                    if(is_curr)
                         ImGui::SetScrollHere();
-
-                    bool is_curr = curr_top_most != -1 && curr_top_most == curr_undo_redo;
 
                     char buff[256];
                     snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
-                    std::string        description = curr_top_most != -1 ? buff : "   ";
+                    std::string        name = curr_top_most != -1 ? buff : "   ";
+                    std::string        desc = "Description: ";
                     ImGuiTreeNodeFlags node_flags =
                             ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
                     if(!is_compound) // make the node a leaf node if not compound
                         node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
+                    const JsonData* to_display   = nullptr;
+                    const JsonData* to_display_2 = nullptr;
                     if(is_compound) {
                         const auto& cmd = boost::get<compound_cmd>(c);
-                        description += "[compound] "s + cmd.description;
+                        name += "[composite] "s + cmd.description;
                     } else if(c.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
                         const auto& cmd = boost::get<attributes_changed_cmd>(c);
-                        description += "[attributes] "s + cmd.description;
+                        name += "[attribute] <"s + cmd.name + ">";
+                        to_display   = &cmd.old_val;
+                        to_display_2 = &cmd.new_val;
+                        desc += cmd.description;
                     } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
                         const auto& cmd = boost::get<object_creation_cmd>(c);
-                        description += "[object: "s + (cmd.created ? "create" : "delete") + "]";
+                        name += "[obj : "s + (cmd.created ? "new" : "del") + "] <"s + cmd.name +
+                                ">";
+                        to_display = &cmd.state;
                     } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
                         const auto& cmd = boost::get<object_mutation_cmd>(c);
-                        description += "[mutate: "s + (cmd.added ? "add" : "remove") + "]";
+                        name += "[mut : "s + (cmd.added ? "add" : "rem") + "] <" + cmd.name + ">";
+                        to_display = &cmd.state;
+                        // append to the description the list of mixins
+                        for(auto& curr : cmd.mixins)
+                            desc += "'"s + curr + "', ";
+                        desc.pop_back();
+                        desc.pop_back();
                     }
-                    
+
                     if(is_curr)
                         ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
-                    bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, description.c_str());
+                    bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, name.c_str());
                     if(is_curr)
                         ImGui::PopStyleColor(1);
 
@@ -322,31 +335,33 @@ void editor::update_gui() {
                                 // go-to logic
                             }
                         }
-
-                        const JsonData* to_display = nullptr;
-                        if(is_compound) {
-                        } else if(c.type() ==
-                                  boost::typeindex::type_id<attributes_changed_cmd>()) {
-                            const auto& cmd = boost::get<attributes_changed_cmd>(c);
-                            to_display      = &cmd.new_val;
-                        } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
-                            const auto& cmd = boost::get<object_creation_cmd>(c);
-                            to_display      = &cmd.state;
-                        } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
-                            const auto& cmd = boost::get<object_mutation_cmd>(c);
-                            to_display      = &cmd.state;
-                        }
-
                         if(to_display && ImGui::Button("Inspect"))
                             ImGui::OpenPopup("json contents");
                         if(ImGui::BeginPopupModal("json contents", nullptr,
                                                   ImGuiWindowFlags_AlwaysAutoResize)) {
-                            //const_cast<JsonData*>(to_display)->addNull();
-
-
-                            ImGui::TextWrapped(to_display->data().data());
-                            if(ImGui::Button("Copy to clipboard"))
-                                ImGui::SetClipboardText(to_display->data().data());
+                            ImGui::TextWrapped(desc.c_str());
+                            ImGui::Spacing();
+                            ImGui::Spacing();
+                            ImGui::Separator();
+                            if(to_display_2) {
+                                ImGui::Text("old:");
+                                ImGui::Separator();
+                                ImGui::TextWrapped(to_display->data().data());
+                                ImGui::Separator();
+                                ImGui::Text("new:");
+                                ImGui::Separator();
+                                ImGui::TextWrapped(to_display_2->data().data());
+                                if(ImGui::Button("Copy to clipboard")) {
+                                    std::string appended(to_display->data().data());
+                                    appended += "\n\n";
+                                    appended += to_display_2->data().data();
+                                    ImGui::SetClipboardText(appended.c_str());
+                                }
+                            } else {
+                                ImGui::TextWrapped(to_display->data().data());
+                                if(ImGui::Button("Copy to clipboard"))
+                                    ImGui::SetClipboardText(to_display->data().data());
+                            }
                             ImGui::SameLine();
                             if(ImGui::Button("Close"))
                                 ImGui::CloseCurrentPopup();
@@ -355,20 +370,16 @@ void editor::update_gui() {
                         ImGui::EndPopup();
                     }
 
-                    if(is_open) {
-                        if(is_compound) {
-                            auto& comp_cmd = boost::get<compound_cmd>(c);
-                            for(auto& part : comp_cmd.commands)
-                                showCommands(part, -1);
-                        }
-
-                        if(is_compound)
-                            ImGui::TreePop();
+                    if(is_open && is_compound) {
+                        auto& comp_cmd = boost::get<compound_cmd>(c);
+                        for(auto& part : comp_cmd.commands)
+                            showCommands(part, -1);
+                        ImGui::TreePop();
                     }
 
                 };
 
-        int curr_idx = undo_redo_commands.size() - 1;
+        int curr_idx = int(undo_redo_commands.size()) - 1;
         for(auto& curr : boost::adaptors::reverse(undo_redo_commands))
             showCommands(curr, curr_idx--);
 

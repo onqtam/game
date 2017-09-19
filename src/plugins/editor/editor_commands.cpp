@@ -61,20 +61,23 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
 
         // old parent new state & command submit
         if(parent)
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {parent, parent_old, mixin_state(parent.obj(), "parental"), ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({parent, parent.obj().name(), parent_old,
+                                            mixin_state(parent.obj(), "parental"), "parental"}));
 
         // current new state & command submit
         comp_cmd.commands.push_back(
-                attributes_changed_cmd({curr, curr_old, mixin_state(curr.obj(), "parental"), ""}));
+                attributes_changed_cmd({curr, curr.obj().name(), curr_old,
+                                        mixin_state(curr.obj(), "parental"), "parental"}));
     }
 
     for(auto& curr : old_transforms) {
         // set the old world transform (will recalculate the local transform of the object)
         tr::set_transform(curr.first.obj(), curr.second.first);
         // add the changed transform to the undo/redo command list
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr.first, curr.second.second, mixin_state(curr.first.obj(), "tform"), ""}));
+        comp_cmd.commands.push_back(
+                attributes_changed_cmd({curr.first, curr.first.obj().name(), curr.second.second,
+                                        mixin_state(curr.first.obj(), "tform"), "tform"}));
     }
 
     return comp_cmd;
@@ -117,9 +120,10 @@ void editor::create_object() {
     comp_cmd.description = "creating an object";
 
     auto& obj = ObjectManager::get().create();
-    comp_cmd.commands.push_back(object_creation_cmd({obj.id(), object_state(obj), true}));
     comp_cmd.commands.push_back(
-            object_mutation_cmd({obj.id(), mixin_names(obj), mixin_state(obj, nullptr), true}));
+            object_creation_cmd({obj.id(), obj.name(), object_state(obj), true}));
+    comp_cmd.commands.push_back(object_mutation_cmd(
+            {obj.id(), obj.name(), mixin_names(obj), mixin_state(obj, nullptr), true}));
 
     comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, m_selected));
 
@@ -138,8 +142,8 @@ void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) 
                 continue;
 
             obj.addMixin(mixin->name);
-            comp_cmd.commands.push_back(
-                    object_mutation_cmd({id, {mixin->name}, mixin_state(obj, mixin->name), true}));
+            comp_cmd.commands.push_back(object_mutation_cmd(
+                    {id, id.obj().name(), {mixin->name}, mixin_state(obj, mixin->name), true}));
         }
     }
 
@@ -159,8 +163,8 @@ void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_in
                 continue;
 
             obj.remMixin(mixin->name);
-            comp_cmd.commands.push_back(
-                    object_mutation_cmd({id, {mixin->name}, mixin_state(obj, mixin->name), false}));
+            comp_cmd.commands.push_back(object_mutation_cmd(
+                    {id, id.obj().name(), {mixin->name}, mixin_state(obj, mixin->name), false}));
         }
     }
 
@@ -181,8 +185,12 @@ void editor::remove_selected_mixins() {
                 continue;
 
             // remove the mixin
-            comp_cmd.commands.push_back(object_mutation_cmd(
-                    {id, {mixin.second}, mixin_state(id.obj(), mixin.second.c_str()), false}));
+            comp_cmd.commands.push_back(
+                    object_mutation_cmd({id,
+                                         id.obj().name(),
+                                         {mixin.second},
+                                         mixin_state(id.obj(), mixin.second.c_str()),
+                                         false}));
             id.obj().remMixin(mixin.second.c_str());
 
             mixins_to_delete.insert(mixin.first);
@@ -194,7 +202,8 @@ void editor::remove_selected_mixins() {
             for(auto& curr : mixins_to_delete)
                 selected_mixins.erase(curr);
             JsonData nv = mixin_attr_state("selected", "selected_mixins", selected_mixins);
-            comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv, ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "selected"}));
         }
     }
 
@@ -211,8 +220,11 @@ compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
         comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
 
         auto add_mutate_command = [&](oid id, bool select) {
-            comp_cmd.commands.push_back(object_mutation_cmd(
-                    {id, {"selected"}, mixin_state(id.obj(), "selected"), select}));
+            comp_cmd.commands.push_back(object_mutation_cmd({id,
+                                                             id.obj().name(),
+                                                             {"selected"},
+                                                             mixin_state(id.obj(), "selected"),
+                                                             select}));
         };
 
         for(auto curr : to_select) {
@@ -258,17 +270,20 @@ void editor::handle_gizmo_changes() {
         if(!yama::close(old_t.pos, new_t.pos)) {
             JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
             JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
-            comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv, ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "pos"}));
         }
         if(!yama::close(old_t.scl, new_t.scl)) {
             JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
             JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
-            comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv, ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "scl"}));
         }
         if(!yama::close(old_t.rot, new_t.rot)) {
             JsonData ov = mixin_attr_state("tform", "rot", old_t.rot);
             JsonData nv = mixin_attr_state("tform", "rot", new_t.rot);
-            comp_cmd.commands.push_back(attributes_changed_cmd({id, ov, nv, ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "rot"}));
         }
         // update this - even though we havent started using the gizmo - or else this might break when deleting the object
         id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
@@ -296,8 +311,8 @@ void editor::reparent(oid new_parent_for_selected) {
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(attributes_changed_cmd(
-                {new_parent_for_selected, new_parent_old,
-                 mixin_state(new_parent_for_selected.obj(), "parental"), ""}));
+                {new_parent_for_selected, new_parent_for_selected.obj().name(), new_parent_old,
+                 mixin_state(new_parent_for_selected.obj(), "parental"), "parental"}));
 
         // add the compound command
         add_command(comp_cmd);
@@ -350,9 +365,9 @@ void editor::group_selected() {
     if(common_ancestor) {
         JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
         ::set_parent(group, common_ancestor);
-        comp_cmd.commands.push_back(
-                attributes_changed_cmd({common_ancestor, ancestor_old,
-                                        mixin_state(common_ancestor.obj(), "parental"), ""}));
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {common_ancestor, common_ancestor.obj().name(), ancestor_old,
+                 mixin_state(common_ancestor.obj(), "parental"), "parental"}));
     }
 
     // average position for the new group object
@@ -366,9 +381,10 @@ void editor::group_selected() {
     comp_cmd.commands.push_back(objects_set_parent(m_selected, group.id()));
 
     // add the created group object
-    comp_cmd.commands.push_back(object_creation_cmd({group.id(), object_state(group), true}));
+    comp_cmd.commands.push_back(
+            object_creation_cmd({group.id(), group.name(), object_state(group), true}));
     comp_cmd.commands.push_back(object_mutation_cmd(
-            {group.id(), mixin_names(group), mixin_state(group, nullptr), true}));
+            {group.id(), group.name(), mixin_names(group), mixin_state(group, nullptr), true}));
 
     // select the group and deselect the previously selected
     comp_cmd.commands.push_back(update_selection_cmd({group.id()}, m_selected));
@@ -402,12 +418,14 @@ void editor::ungroup_selected() {
         tr::set_transform(curr.obj(), t);
 
         // submit commands with data after unparenting
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), "tform"), "tform"}));
         comp_cmd.commands.push_back(
-                attributes_changed_cmd({curr, curr_t_old, mixin_state(curr.obj(), "tform"), ""}));
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr_p_old, mixin_state(curr.obj(), "parental"), ""}));
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {parent, parent_p_old, mixin_state(parent.obj(), "parental"), ""}));
+                attributes_changed_cmd({curr, curr.obj().name(), curr_p_old,
+                                        mixin_state(curr.obj(), "parental"), "parental"}));
+        comp_cmd.commands.push_back(
+                attributes_changed_cmd({parent, parent.obj().name(), parent_p_old,
+                                        mixin_state(parent.obj(), "parental"), "parental"}));
     }
 
     // add the compound command
@@ -440,9 +458,10 @@ void editor::duplicate_selected() {
         JsonData copy_old = mixin_state(copy, "parental");
 
         // add commands for the creation of the new copy
-        comp_cmd.commands.push_back(object_creation_cmd({copy.id(), object_state(copy), true}));
+        comp_cmd.commands.push_back(
+                object_creation_cmd({copy.id(), copy.name(), object_state(copy), true}));
         comp_cmd.commands.push_back(object_mutation_cmd(
-                {copy.id(), mixin_names(copy), mixin_state(copy, nullptr), true}));
+                {copy.id(), copy.name(), mixin_names(copy), mixin_state(copy, nullptr), true}));
 
         // copy children recursively
         for(auto& child_to_copy : get_children(to_copy)) {
@@ -452,12 +471,13 @@ void editor::duplicate_selected() {
             ::set_parent(child_copy.obj(), copy.id());
             // submit a command for that linking
             comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {child_copy, child_copy_old, mixin_state(child_copy.obj(), "parental"), ""}));
+                    {child_copy, child_copy.obj().name(), child_copy_old,
+                     mixin_state(child_copy.obj(), "parental"), "parental"}));
         }
 
         // update parental information for the current copy
-        comp_cmd.commands.push_back(
-                attributes_changed_cmd({copy.id(), copy_old, mixin_state(copy, "parental"), ""}));
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {copy.id(), copy.name(), copy_old, mixin_state(copy, "parental"), "parental"}));
 
         return copy.id();
     };
@@ -476,11 +496,12 @@ void editor::duplicate_selected() {
             // link parentally
             ::set_parent(new_top.obj(), curr_parent);
             // submit a command for that linking
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {new_top, new_top_old, mixin_state(new_top.obj(), "parental"), ""}));
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({curr_parent, curr_parent_old,
-                                            mixin_state(curr_parent.obj(), "parental"), ""}));
+                    attributes_changed_cmd({new_top, new_top.obj().name(), new_top_old,
+                                            mixin_state(new_top.obj(), "parental"), "parental"}));
+            comp_cmd.commands.push_back(attributes_changed_cmd(
+                    {curr_parent, curr_parent.obj().name(), curr_parent_old,
+                     mixin_state(curr_parent.obj(), "parental"), "parental"}));
         }
     }
 
@@ -507,11 +528,13 @@ void editor::delete_selected() {
             delete_recursive(c);
 
         // serialize the state of the mixins
-        comp_cmd.commands.push_back(object_mutation_cmd(
-                {root_obj.id(), mixin_names(root_obj), mixin_state(root_obj, nullptr), false}));
+        comp_cmd.commands.push_back(
+                object_mutation_cmd({root_obj.id(), root_obj.name(), mixin_names(root_obj),
+                                     mixin_state(root_obj, nullptr), false}));
 
         // serialize the state of the object itself
-        comp_cmd.commands.push_back(object_creation_cmd({root, object_state(root_obj), false}));
+        comp_cmd.commands.push_back(
+                object_creation_cmd({root, root_obj.name(), object_state(root_obj), false}));
 
         ObjectManager::get().destroy(root);
     };
@@ -525,10 +548,12 @@ void editor::delete_selected() {
             auto curr_old   = mixin_state(curr.obj(), "parental");
             ::set_parent(curr.obj(), oid());
 
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {parent, parent_old, mixin_state(parent.obj(), "parental"), ""}));
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {curr, curr_old, mixin_state(curr.obj(), "parental"), ""}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({parent, parent.obj().name(), parent_old,
+                                            mixin_state(parent.obj(), "parental"), "parental"}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({curr, curr.obj().name(), curr_old,
+                                            mixin_state(curr.obj(), "parental"), "parental"}));
         }
 
         // delete recursively
@@ -601,15 +626,20 @@ void editor::add_command(const command_variant& command) {
     if(!undo_redo_commands.empty())
         undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                  undo_redo_commands.end());
-
-    undo_redo_commands.push_back(command);
-
     ++curr_undo_redo;
+    if(command.type() == boost::typeindex::type_id<compound_cmd>()) {
+        const auto& cmd = boost::get<compound_cmd>(command);
+        if(cmd.commands.size() == 1) {
+            undo_redo_commands.push_back(cmd.commands.back());
+            return;
+        }
+    }
+    undo_redo_commands.push_back(command);
 }
 
 void editor::add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val,
                                    const std::string& desc) {
-    add_command(attributes_changed_cmd({e, old_val, new_val, desc}));
+    add_command(attributes_changed_cmd({e, e.obj().name(), old_val, new_val, desc}));
 }
 
 HA_GCC_SUPPRESS_WARNING_END
