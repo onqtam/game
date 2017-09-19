@@ -282,17 +282,17 @@ void editor::update_gui() {
                     using namespace std::string_literals; // for "s" suffix returning a std::string
 
                     bool is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
-                    bool is_curr     = curr_top_most != -1 && curr_top_most == curr_undo_redo;
+                    bool is_top_most = curr_top_most != -1;
+                    bool is_curr     = is_top_most && curr_top_most == curr_undo_redo;
 
                     if(is_curr)
                         ImGui::SetScrollHere();
 
                     char buff[256];
                     snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
-                    std::string        name = curr_top_most != -1 ? buff : "   ";
+                    std::string        name = is_top_most ? buff : "   ";
                     std::string        desc = "Description: ";
-                    ImGuiTreeNodeFlags node_flags =
-                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+                    ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow;
                     if(!is_compound) // make the node a leaf node if not compound
                         node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -329,12 +329,12 @@ void editor::update_gui() {
                     if(is_curr)
                         ImGui::PopStyleColor(1);
 
-                    if(ImGui::BeginPopupContextItem(std::to_string((uintptr_t)&c).c_str())) {
-                        if(curr_top_most != -1) {
-                            if(ImGui::Button("Go to")) {
-                                // go-to logic
-                            }
-                        }
+                    if(is_top_most && !is_curr && ImGui::IsMouseDoubleClicked(0) &&
+                       ImGui::IsItemHovered())
+                        fast_forward_to_command(curr_top_most);
+
+                    if(to_display &&
+                       ImGui::BeginPopupContextItem(std::to_string((uintptr_t)&c).c_str())) {
                         if(to_display && ImGui::Button("Inspect"))
                             ImGui::OpenPopup("json contents");
                         if(ImGui::BeginPopupModal("json contents", nullptr,
@@ -390,6 +390,9 @@ void editor::update_gui() {
                           " 0 [start of history]");
         if(curr_undo_redo == -1)
             ImGui::PopStyleColor(1);
+
+        if(curr_undo_redo != -1 && ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+            fast_forward_to_command(-1);
     }
     ImGui::End();
 

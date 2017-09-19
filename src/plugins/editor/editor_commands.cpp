@@ -574,6 +574,21 @@ void editor::redo() {
         handle_command(undo_redo_commands[++curr_undo_redo], false);
 }
 
+void editor::fast_forward_to_command(int idx) {
+    hassert(idx < int(undo_redo_commands.size()));
+    while(idx != curr_undo_redo) {
+        if(idx > curr_undo_redo) {
+            redo();
+        } else {
+            if(curr_undo_redo == -1)
+                break;
+            undo();
+        }
+    }
+
+    update_selected();
+}
+
 void editor::handle_command(command_variant& command_var, bool undo) {
     if(command_var.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
         auto&       cmd = boost::get<attributes_changed_cmd>(command_var);

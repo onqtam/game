@@ -2,7 +2,6 @@
 history viewer
     history merging
     history branching - when you undo and select things to not lose your entire history
-    history go-to
 
 install unity and play with it...
 

@@ -109,6 +109,7 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
 
     void undo();
     void redo();
+    void fast_forward_to_command(int idx);
     void handle_command(command_variant& command, bool undo);
     void add_command(const command_variant& command);
 
