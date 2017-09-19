@@ -37,7 +37,7 @@ static std::vector<std::string> mixin_names(const Object& obj) {
 
 static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_parent) {
     compound_cmd comp_cmd;
-    comp_cmd.description = "setting a parent to the objects";
+    comp_cmd.description = "setting a parent";
 
     // save the transforms of the selected objects before changing parental information
     std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
@@ -113,7 +113,6 @@ static bool cant_remove_mixin(cstr in) {
 // =================================================================================================
 
 void editor::create_object() {
-    printf("[CREATE OBJECT]\n");
     compound_cmd comp_cmd;
     comp_cmd.description = "creating an object";
 
@@ -144,15 +143,13 @@ void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) 
         }
     }
 
-    if(!comp_cmd.commands.empty()) {
-        printf("[ADD MIXINS]\n");
+    if(!comp_cmd.commands.empty())
         add_command(comp_cmd);
-    }
 }
 
 void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_info*> mixins) {
     compound_cmd comp_cmd;
-    comp_cmd.description = "removing mixins by name from selected";
+    comp_cmd.description = "by name from selected";
 
     for(auto& id : m_selected) {
         auto& obj = id.obj();
@@ -167,15 +164,13 @@ void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_in
         }
     }
 
-    if(!comp_cmd.commands.empty()) {
-        printf("[REMOVE MIXINS BY NAME]\n");
+    if(!comp_cmd.commands.empty())
         add_command(comp_cmd);
-    }
 }
 
 void editor::remove_selected_mixins() {
     compound_cmd comp_cmd;
-    comp_cmd.description = "removing selected mixins from selected objects";
+    comp_cmd.description = "selected mixins from selected objects";
 
     for(auto& id : m_selected) {
         auto&                       selected_mixins = (*id.obj().get<selected>()).selected_mixins;
@@ -203,16 +198,14 @@ void editor::remove_selected_mixins() {
         }
     }
 
-    if(!comp_cmd.commands.empty()) {
-        printf("[REMOVE SELECTED MIXINS]\n");
+    if(!comp_cmd.commands.empty())
         add_command(comp_cmd);
-    }
 }
 
 compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
                                           const std::vector<oid>& to_deselect) {
     compound_cmd comp_cmd;
-    comp_cmd.description = "updating selection";
+    comp_cmd.description = "selection";
 
     if(to_select.size() + to_deselect.size() > 0) {
         comp_cmd.commands.reserve(to_select.size() + to_deselect.size());
@@ -241,11 +234,8 @@ compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
 void editor::update_selection(const std::vector<oid>& to_select,
                               const std::vector<oid>& to_deselect) {
     auto command = update_selection_cmd(to_select, to_deselect);
-    if(!command.commands.empty()) {
-        printf("[SELECTION]\n");
-
+    if(!command.commands.empty())
         add_command(command);
-    }
 }
 
 void editor::handle_gizmo_changes() {
@@ -260,7 +250,7 @@ void editor::handle_gizmo_changes() {
         return;
 
     compound_cmd comp_cmd;
-    comp_cmd.description = "gizmo changes to transform";
+    comp_cmd.description = "gizmo transform";
 
     for(auto& id : selected_with_gizmo) {
         auto old_t = id.obj().get<selected>()->old_local_t;
@@ -284,28 +274,21 @@ void editor::handle_gizmo_changes() {
         id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
         id.obj().get<selected>()->old_local_t = tr::get_transform_local(id.obj());
     }
-    if(!comp_cmd.commands.empty()) {
-        printf("[TRANSFORM CHANGED THROUGH GIZMO]\n");
+    if(!comp_cmd.commands.empty())
         add_command(comp_cmd);
-    }
 }
 
 void editor::reparent(oid new_parent_for_selected) {
     // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
-    if(new_parent_for_selected) {
-        for(auto curr = new_parent_for_selected; curr; curr = ::get_parent(curr.obj())) {
-            if(std::find(m_selected.begin(), m_selected.end(), curr) != m_selected.end()) {
-                printf("[REPARENT] CYCLE DETECTED! cannot reparent\n");
+    if(new_parent_for_selected)
+        for(auto curr = new_parent_for_selected; curr; curr = ::get_parent(curr.obj()))
+            if(std::find(m_selected.begin(), m_selected.end(), curr) != m_selected.end())
                 new_parent_for_selected = oid::invalid(); // set it to an invalid state
-            }
-        }
-    }
 
     // if selected objects have been dragged with the middle mouse button onto an unselected object - make them its children
     if(new_parent_for_selected) {
-        printf("[REPARENT]\n");
         compound_cmd comp_cmd;
-        comp_cmd.description = "reparenting selected objects";
+        comp_cmd.description = "reparenting selected";
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
 
@@ -325,9 +308,8 @@ void editor::group_selected() {
     if(m_selected.empty())
         return;
 
-    printf("[GROUP]\n");
     compound_cmd comp_cmd;
-    comp_cmd.description = "grouping selected objects";
+    comp_cmd.description = "grouping selected";
 
     auto find_lowest_common_ancestor = [&]() {
         // go upwards from each selected node and update the visited count for each node
@@ -400,7 +382,7 @@ void editor::ungroup_selected() {
         return;
 
     compound_cmd comp_cmd;
-    comp_cmd.description = "ungrouping selected objects";
+    comp_cmd.description = "ungrouping selected";
 
     for(auto& curr : m_selected) {
         auto parent = ::get_parent(curr.obj());
@@ -429,19 +411,16 @@ void editor::ungroup_selected() {
     }
 
     // add the compound command
-    if(comp_cmd.commands.size()) {
-        printf("[UNGROUP]\n");
+    if(comp_cmd.commands.size())
         add_command(comp_cmd);
-    }
 }
 
 void editor::duplicate_selected() {
     if(m_selected.empty())
         return;
 
-    printf("[DUPLICATE]\n");
     compound_cmd comp_cmd;
-    comp_cmd.description = "duplicating selected objects";
+    comp_cmd.description = "duplicating selected";
 
     std::vector<oid> top_most_selected = get_top_most(m_selected);
 
@@ -516,11 +495,10 @@ void editor::delete_selected() {
     if(m_selected.empty())
         return;
 
-    printf("[DELETE]\n");
     handle_gizmo_changes();
 
     compound_cmd comp_cmd;
-    comp_cmd.description = "deleting selected objects";
+    comp_cmd.description = "deleting selected";
 
     std::function<void(oid)> delete_recursive = [&](oid root) {
         auto& root_obj = root.obj();
@@ -562,19 +540,13 @@ void editor::delete_selected() {
 }
 
 void editor::undo() {
-    if(curr_undo_redo >= 0) {
-        printf("[UNDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-               curr_undo_redo - 1, int(undo_redo_commands.size()));
+    if(curr_undo_redo >= 0)
         handle_command(undo_redo_commands[curr_undo_redo--], true);
-    }
 }
 
 void editor::redo() {
-    if(curr_undo_redo + 1 < int(undo_redo_commands.size())) {
-        printf("[REDO] current action in undo/redo stack: %d (a total of %d actions)\n",
-               curr_undo_redo + 1, int(undo_redo_commands.size()));
+    if(curr_undo_redo + 1 < int(undo_redo_commands.size()))
         handle_command(undo_redo_commands[++curr_undo_redo], false);
-    }
 }
 
 void editor::handle_command(command_variant& command_var, bool undo) {
@@ -633,7 +605,6 @@ void editor::add_command(const command_variant& command) {
     undo_redo_commands.push_back(command);
 
     ++curr_undo_redo;
-    printf("num actions in undo/redo stack: %d\n", curr_undo_redo);
 }
 
 void editor::add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val,

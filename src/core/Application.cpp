@@ -94,6 +94,9 @@ static void imguiInit() {
     io.KeyMap[ImGuiKey_Z]          = GLFW_KEY_Z;
     io.SetClipboardTextFn          = imguiSetClipboardText;
     io.GetClipboardTextFn          = imguiGetClipboardText;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.IndentSpacing = 10.f;
 }
 
 static void imguiRender(ImDrawData* drawData) {

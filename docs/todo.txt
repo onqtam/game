@@ -1,10 +1,10 @@
 
 history viewer
-    add names + descriptions to commands (all - not just compound)
     history merging
     history branching - when you undo and select things to not lose your entire history
     history go-to
-    remove printfs
+
+install unity and play with it...
 
 camera
     editor vs gameplay
@@ -26,6 +26,7 @@ move the transform to the object
 think about operation validity globally
     - editor mixin (and object) shouldn't be addable/removable/duplicatable
     - same for editor camera
+    - also the editor object itself shouldn't be removable (also the editor camera)
 
 editor:
     prefabs
@@ -49,8 +50,13 @@ editor:
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
         when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya
     postponed
+        - option to skip selection commands in the undo/redo stack (and also not show them - but they should be used!)
+        - docking panels
+        - multiple viewports with different perspectives
         - object transform snapping (also with gizmos)
-        - copy/paste of objects
+        - optimization of GUI - don't submit primitives to imgui that will be clipped (f.e. need to scroll to them to see them)
+        - copy/paste of objects/mixins
+            useful if the user has played a bit through the level, then edited some values and wants to set them to the unplayed level
         - gizmos - rotation around pivot different from the object center
         - gizmos - local space (also supported by tiny-gizmo) - test it/think about it
         - editing an attribute of multiple objects at once
@@ -67,13 +73,15 @@ start using c++17
     template deduction of constructors, allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
 
 == bugs:
-emscripten build crashes???
+emscripten build crashes with latest emscripten???
+cannot even build anymore with old/latest emscripten?!?!?!
 CI - appveyor emscripten build fails for some reason
 linux
     when built with the address sanitizer on linux - build crashes on startup in the plugin manager
 editor
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
     >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
+        OMG HAPPENED UNDER EMSCRIPTEN TOO!
 
 == questions:
 ditch glfw in favor of sdl?

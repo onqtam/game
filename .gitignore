@@ -6,7 +6,7 @@ third_party/glew*
 tools/ninja.exe
 tools/vswhere.exe
 
-emscripten/
+emscripten*
 
 *.pyc
 *.bak

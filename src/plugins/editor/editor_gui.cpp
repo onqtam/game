@@ -274,19 +274,116 @@ void editor::update_gui() {
             }
         }
 
-        auto curr_idx = 0;
-        for(auto& curr : boost::adaptors::reverse(undo_redo_commands)) {
-            auto curr_name = std::to_string(++curr_idx) + " oppa";
-            if(ImGui::TreeNodeEx(curr_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen,
-                                 curr_name.c_str())) {
-                ImGui::TreePop();
-            }
-        }
+        auto current_command_color = ImColor(1.0f, 0.2f, 0.2f);
+
+        // recursive command show
+        std::function<void(const command_variant&, int)> showCommands =
+                [&](const command_variant& c, int curr_top_most) {
+                    using namespace std::string_literals; // for "s" suffix returning a std::string
+
+                    bool        is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
+
+                    if(curr_top_most == curr_undo_redo)
+                        ImGui::SetScrollHere();
+
+                    bool is_curr = curr_top_most != -1 && curr_top_most == curr_undo_redo;
+
+                    char buff[256];
+                    snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
+                    std::string        description = curr_top_most != -1 ? buff : "   ";
+                    ImGuiTreeNodeFlags node_flags =
+                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+                    if(!is_compound) // make the node a leaf node if not compound
+                        node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+                    if(is_compound) {
+                        const auto& cmd = boost::get<compound_cmd>(c);
+                        description += "[compound] "s + cmd.description;
+                    } else if(c.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
+                        const auto& cmd = boost::get<attributes_changed_cmd>(c);
+                        description += "[attributes] "s + cmd.description;
+                    } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
+                        const auto& cmd = boost::get<object_creation_cmd>(c);
+                        description += "[object: "s + (cmd.created ? "create" : "delete") + "]";
+                    } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
+                        const auto& cmd = boost::get<object_mutation_cmd>(c);
+                        description += "[mutate: "s + (cmd.added ? "add" : "remove") + "]";
+                    }
+                    
+                    if(is_curr)
+                        ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
+                    bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, description.c_str());
+                    if(is_curr)
+                        ImGui::PopStyleColor(1);
+
+                    if(ImGui::BeginPopupContextItem(std::to_string((uintptr_t)&c).c_str())) {
+                        if(curr_top_most != -1) {
+                            if(ImGui::Button("Go to")) {
+                                // go-to logic
+                            }
+                        }
+
+                        const JsonData* to_display = nullptr;
+                        if(is_compound) {
+                        } else if(c.type() ==
+                                  boost::typeindex::type_id<attributes_changed_cmd>()) {
+                            const auto& cmd = boost::get<attributes_changed_cmd>(c);
+                            to_display      = &cmd.new_val;
+                        } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
+                            const auto& cmd = boost::get<object_creation_cmd>(c);
+                            to_display      = &cmd.state;
+                        } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
+                            const auto& cmd = boost::get<object_mutation_cmd>(c);
+                            to_display      = &cmd.state;
+                        }
+
+                        if(to_display && ImGui::Button("Inspect"))
+                            ImGui::OpenPopup("json contents");
+                        if(ImGui::BeginPopupModal("json contents", nullptr,
+                                                  ImGuiWindowFlags_AlwaysAutoResize)) {
+                            //const_cast<JsonData*>(to_display)->addNull();
+
+
+                            ImGui::TextWrapped(to_display->data().data());
+                            if(ImGui::Button("Copy to clipboard"))
+                                ImGui::SetClipboardText(to_display->data().data());
+                            ImGui::SameLine();
+                            if(ImGui::Button("Close"))
+                                ImGui::CloseCurrentPopup();
+                            ImGui::EndPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if(is_open) {
+                        if(is_compound) {
+                            auto& comp_cmd = boost::get<compound_cmd>(c);
+                            for(auto& part : comp_cmd.commands)
+                                showCommands(part, -1);
+                        }
+
+                        if(is_compound)
+                            ImGui::TreePop();
+                    }
+
+                };
+
+        int curr_idx = undo_redo_commands.size() - 1;
+        for(auto& curr : boost::adaptors::reverse(undo_redo_commands))
+            showCommands(curr, curr_idx--);
+
+        // add a leaf node for the start of the history
+        if(curr_undo_redo == -1)
+            ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
+        ImGui::TreeNodeEx("", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen,
+                          " 0 [start of history]");
+        if(curr_undo_redo == -1)
+            ImGui::PopStyleColor(1);
     }
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiSetCond_FirstUseEver);
-    //ImGui::ShowTestWindow();
+    ImGui::ShowTestWindow();
 }
 
 void editor::update_gizmo() {

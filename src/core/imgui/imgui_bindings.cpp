@@ -121,9 +121,7 @@ static cstr no_prefix(cstr attr) {
     return attr;
 }
 
-static std::string attr_changed_text(cstr attr) {
-    return std::string("attribute \"") + attr + " \"changed";
-}
+static std::string attr_changed_text(cstr attr) { return attr; }
 
 template <typename T>
 cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
