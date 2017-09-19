@@ -285,8 +285,10 @@ void editor::update_gui() {
                     bool is_top_most = curr_top_most != -1;
                     bool is_curr     = is_top_most && curr_top_most == curr_undo_redo;
 
-                    if(is_curr)
+                    if(is_curr && m_should_rescroll_in_command_history) {
                         ImGui::SetScrollHere();
+                        m_should_rescroll_in_command_history = false;
+                    }
 
                     char buff[256];
                     snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);

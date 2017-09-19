@@ -271,19 +271,19 @@ void editor::handle_gizmo_changes() {
             JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
             JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "pos"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.pos"}));
         }
         if(!yama::close(old_t.scl, new_t.scl)) {
             JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
             JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "scl"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.scl"}));
         }
         if(!yama::close(old_t.rot, new_t.rot)) {
             JsonData ov = mixin_attr_state("tform", "rot", old_t.rot);
             JsonData nv = mixin_attr_state("tform", "rot", new_t.rot);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "rot"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.rot"}));
         }
         // update this - even though we havent started using the gizmo - or else this might break when deleting the object
         id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
@@ -590,6 +590,8 @@ void editor::fast_forward_to_command(int idx) {
 }
 
 void editor::handle_command(command_variant& command_var, bool undo) {
+    m_should_rescroll_in_command_history = true;
+
     if(command_var.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
         auto&       cmd = boost::get<attributes_changed_cmd>(command_var);
         auto&       val = undo ? cmd.old_val : cmd.new_val;
@@ -638,6 +640,8 @@ void editor::handle_command(command_variant& command_var, bool undo) {
 }
 
 void editor::add_command(const command_variant& command) {
+    m_should_rescroll_in_command_history = true;
+
     if(!undo_redo_commands.empty())
         undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
                                  undo_redo_commands.end());

@@ -70,8 +70,9 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     FIELD std::vector<oid> m_selected;
     FIELD std::vector<oid> selected_with_gizmo;
     FIELD commands_vector undo_redo_commands;
-    FIELD int             curr_undo_redo            = -1;
-    FIELD bool            mouse_button_left_changed = false;
+    FIELD int             curr_undo_redo                       = -1;
+    FIELD bool            mouse_button_left_changed            = false;
+    FIELD bool            m_should_rescroll_in_command_history = false;
     FIELD tinygizmo::rigid_transform gizmo_transform;
     FIELD tinygizmo::rigid_transform gizmo_transform_last;
 
