@@ -579,7 +579,7 @@ void editor::merge_commands() {
     int end   = Utils::Max(m_selected_command_idx_1, m_selected_command_idx_2);
     hassert(start <= end);
     hassert(start > -1);
-    hassert(end < undo_redo_commands.size());
+    hassert(end < int(undo_redo_commands.size()));
     // merge only if the current position is not in the range
     if(curr_undo_redo <= start || curr_undo_redo >= end) {
         compound_cmd comp_cmd;
@@ -588,9 +588,10 @@ void editor::merge_commands() {
             comp_cmd.commands.push_back(undo_redo_commands[i]);
         // add the compacted command at the place of the first from the compacted range and remove the rest of the range
         undo_redo_commands[start] = comp_cmd;
-        undo_redo_commands.erase(undo_redo_commands.begin() + start,
-                                 undo_redo_commands.begin() + end);
-        curr_undo_redo -= end - start;
+        undo_redo_commands.erase(undo_redo_commands.begin() + start + 1,
+                                 undo_redo_commands.begin() + end + 1);
+        if(curr_undo_redo >= end)
+            curr_undo_redo -= end - start;
         // reset the command selection
         m_selected_command_idx_1 = -1;
         m_selected_command_idx_2 = -1;
