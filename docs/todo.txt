@@ -1,7 +1,4 @@
 
-history viewer
-    history branching with soft commands - when you undo and select things to not lose your entire history
-
 install unity and play with it...
 
 camera

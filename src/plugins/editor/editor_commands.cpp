@@ -247,7 +247,7 @@ void editor::update_selection(const std::vector<oid>& to_select,
                               const std::vector<oid>& to_deselect) {
     auto command = update_selection_cmd(to_select, to_deselect);
     if(!command.commands.empty())
-        add_command(command);
+        add_command(command, true);
 }
 
 void editor::handle_gizmo_changes() {
@@ -564,12 +564,24 @@ void editor::delete_selected() {
     m_selected.clear();
 }
 
+void editor::undo_soft_commands() {
+    if(soft_undo_redo_commands.size()) {
+        for(auto& curr_soft : boost::adaptors::reverse(soft_undo_redo_commands))
+            handle_command(curr_soft, true);
+        soft_undo_redo_commands.clear();
+    }
+}
+
 void editor::undo() {
+    undo_soft_commands();
+
     if(curr_undo_redo >= 0)
         handle_command(undo_redo_commands[curr_undo_redo--], true);
 }
 
 void editor::redo() {
+    undo_soft_commands();
+
     if(curr_undo_redo + 1 < int(undo_redo_commands.size()))
         handle_command(undo_redo_commands[++curr_undo_redo], false);
 }
@@ -600,6 +612,9 @@ void editor::merge_commands() {
 
 void editor::fast_forward_to_command(int idx) {
     hassert(idx < int(undo_redo_commands.size()));
+
+    undo_soft_commands();
+
     while(idx != curr_undo_redo) {
         if(idx > curr_undo_redo) {
             redo();
@@ -663,28 +678,43 @@ void editor::handle_command(command_variant& command_var, bool undo) {
     }
 }
 
-void editor::add_command(const command_variant& command) {
+void editor::add_command(const command_variant& command, bool soft) {
     m_should_rescroll_in_command_history = true;
 
-    if(!undo_redo_commands.empty()) {
-        undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
-                                 undo_redo_commands.end());
-        // reset the command selection if it extends beyond the newly shrunken command history
-        if(m_selected_command_idx_1 >= int(undo_redo_commands.size()) ||
-           m_selected_command_idx_2 >= int(undo_redo_commands.size())) {
-            m_selected_command_idx_1 = -1;
-            m_selected_command_idx_2 = -1;
+    if(soft && curr_undo_redo != int(undo_redo_commands.size()) - 1) {
+        // if the command is soft and we are not currently at the end of the real command history - add to the soft list
+        soft_undo_redo_commands.push_back(command);
+    } else {
+        if(!undo_redo_commands.empty()) {
+            undo_redo_commands.erase(undo_redo_commands.begin() + 1 + curr_undo_redo,
+                                     undo_redo_commands.end());
+            // reset the command selection if it extends beyond the newly shrunken command history
+            if(m_selected_command_idx_1 >= int(undo_redo_commands.size()) ||
+               m_selected_command_idx_2 >= int(undo_redo_commands.size())) {
+                m_selected_command_idx_1 = -1;
+                m_selected_command_idx_2 = -1;
+            }
         }
-    }
-    ++curr_undo_redo;
-    if(command.type() == boost::typeindex::type_id<compound_cmd>()) {
-        const auto& cmd = boost::get<compound_cmd>(command);
-        if(cmd.commands.size() == 1) {
-            undo_redo_commands.push_back(cmd.commands.back());
-            return;
+
+        // if we are adding a new command and we have soft commands - make them real
+        if(soft_undo_redo_commands.size()) {
+            // make a copy of the soft commands and clear them to avoid infinite recursion
+            auto soft_copies = soft_undo_redo_commands;
+            soft_undo_redo_commands.clear();
+            for(auto& curr_soft : soft_copies)
+                add_command(curr_soft);
         }
+
+        ++curr_undo_redo;
+        if(command.type() == boost::typeindex::type_id<compound_cmd>()) {
+            const auto& cmd = boost::get<compound_cmd>(command);
+            if(cmd.commands.size() == 1) {
+                undo_redo_commands.push_back(cmd.commands.back());
+                return;
+            }
+        }
+        undo_redo_commands.push_back(command);
     }
-    undo_redo_commands.push_back(command);
 }
 
 void editor::add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val,
