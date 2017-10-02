@@ -225,6 +225,7 @@ graphics/assets:
     - https://github.com/guillaumeblanc/ozz-animation
     - https://github.com/libgdx/fbx-conv
     - https://github.com/friggog/tree-gen
+    - https://github.com/ux3d/2gltf2
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
     - texture stuff
         - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture

@@ -499,10 +499,8 @@ void editor::update_gizmo() {
     }
 
     // update gizmo
-    tinygizmo::transform_gizmo("gizmo", m_gizmo_ctx, gizmo_transform);
-
-    // if (probably) using gizmo - need this to really determine it: https://github.com/ddiakopoulos/tinygizmo/issues/6
-    if(m_gizmo_state.mouse_left) {
+    if(tinygizmo::transform_gizmo("gizmo", m_gizmo_ctx, gizmo_transform) &&
+       m_gizmo_state.mouse_left) {
         auto pos   = yama::vector3::from_ptr(&gizmo_transform.position[0]);
         auto pos_l = yama::vector3::from_ptr(&gizmo_transform_last.position[0]);
         auto scl   = yama::vector3::from_ptr(&gizmo_transform.scale[0]);
