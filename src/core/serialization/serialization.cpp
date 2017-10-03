@@ -65,10 +65,10 @@ void deserialize(bool& data, const sajson::value& val) {
 }
 
 void serialize(const std::string& data, JsonData& out) {
-    out.append("\"", 1);
+    out.append("\"");
     auto escaped_data = escape_json(data.c_str(), data.size());
     out.append(escaped_data.c_str(), escaped_data.length());
-    out.append("\"", 1);
+    out.append("\"");
 }
 void deserialize(std::string& data, const sajson::value& val) { data = val.as_cstring(); }
 
@@ -105,10 +105,10 @@ void deserialize(ShaderHandle& data, const sajson::value& val) {
 }
 
 void serialize(const JsonData& data, JsonData& out) {
-    out.append("\"", 1);
+    out.append("\"");
     auto escaped_data = escape_json(data.data().data(), data.size());
     out.append(escaped_data.c_str(), escaped_data.length());
-    out.append("\"", 1);
+    out.append("\"");
 }
 void deserialize(JsonData& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_STRING);
@@ -143,9 +143,9 @@ void serialize(const tinygizmo::gizmo_application_state& data, JsonData& out) {
     std::vector<uint8> buff(max_encode_size);
     base64::encode(reinterpret_cast<const uint8*>(&data),
                    sizeof(tinygizmo::gizmo_application_state), buff.data(), int(buff.size()));
-    out.append("\"", 1);
+    out.append("\"");
     out.append(reinterpret_cast<cstr>(buff.data()), buff.size());
-    out.append("\"", 1);
+    out.append("\"");
 }
 
 void deserialize(tinygizmo::gizmo_application_state& data, const sajson::value& val) {

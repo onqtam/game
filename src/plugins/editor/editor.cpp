@@ -143,7 +143,7 @@ void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out)
         auto color  = curr.has<selected>() ? colors::green : colors::light_green;
         auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
         auto shader = ShaderMan::get().get("cubes");
-        out.push_back({{}, geom, shader, tr::get_transform(curr).as_mat()});
+        out.push_back({{}, geom, shader, curr.get_transform().as_mat()});
     }
     // recurse through children
     if(curr.implements(get_const_children_msg)) {

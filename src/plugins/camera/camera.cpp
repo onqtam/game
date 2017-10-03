@@ -48,7 +48,7 @@ public:
         if(cursor_y > h - 10)
             move_vec += yama::vector3::coord(0, 0, k_speed * dt);
 
-        auto pos = tr::get_pos(ha_this);
+        auto pos = ha_this.get_pos();
         pos += move_vec;
         auto fix_vec = yama::vector3::zero();
         auto half_w  = World::get().width() / 2;
@@ -60,15 +60,15 @@ public:
 
         move_vec += fix_vec;
 
-        tr::move(ha_this, move_vec);
+        ha_this.move(move_vec);
 
-        tr::move(ha_this, yama::normalize(rotate(k_forward, tr::get_rot(ha_this))) * scroll * 2.f);
+        ha_this.move(yama::normalize(rotate(k_forward, ha_this.get_rot())) * scroll * 2.f);
         scroll = 0.f;
     }
 
     yama::matrix get_view_matrix() {
-        auto t = yama::matrix::translation(tr::get_pos(ha_this));
-        auto r = yama::matrix::rotation_quaternion(tr::get_rot(ha_this));
+        auto t = yama::matrix::translation(ha_this.get_pos());
+        auto r = yama::matrix::rotation_quaternion(ha_this.get_rot());
         return yama::inverse(t * r);
     }
 

@@ -47,14 +47,20 @@ class Object : public dynamix::object
 
     HA_EXPORTED_FRIENDS_OF_TYPE(Object);
 
-    oid   m_id;
+    oid       m_id;
+    FIELD int m_flags          = 0;
+    FIELD yama::vector3 pos    = {0, 0, 0};
+    FIELD yama::vector3 scl    = {1, 1, 1};
+    FIELD yama::quaternion rot = {0, 0, 0, 1};
     FIELD std::string m_name;
-    FIELD int         m_flags = 0;
 
     void copy_inherited_fields(const Object& other) {
         //m_id    = other.m_id; // don't copy the id!
-        m_name  = other.m_name;
         m_flags = other.m_flags;
+        pos     = other.pos;
+        scl     = other.scl;
+        rot     = other.rot;
+        m_name  = other.m_name;
     }
 
     explicit Object(oid id = oid::invalid(), const std::string& name = "")
@@ -94,6 +100,28 @@ public:
     HAPI void addMixin(cstr mixin);
     HAPI void remMixin(cstr mixin);
 
+    // transform
+    void set_pos(const yama::vector3& in) { set_transform({in, scl, rot}); }
+    void set_scl(const yama::vector3& in) { set_transform({pos, in, rot}); }
+    void set_rot(const yama::quaternion& in) { set_transform({pos, scl, in}); }
+
+    yama::vector3    get_pos() const { return get_transform().pos; }
+    yama::vector3    get_scl() const { return get_transform().scl; }
+    yama::quaternion get_rot() const { return get_transform().rot; }
+
+    void set_transform_local(const transform& in) {
+        pos = in.pos;
+        scl = in.scl;
+        rot = in.rot;
+    }
+    HAPI void set_transform(const transform& in);
+    transform get_transform_local() const { return {pos, scl, rot}; }
+    HAPI transform get_transform() const;
+
+    // TODO: rename - because it's currently in local only
+    void move(const yama::vector3& in) { pos += in; }
+
+    // ha_this helpers
     static Object& cast_to_object(void* in) {
         return static_cast<Object&>(*::dynamix::object_of(in));
     }
@@ -122,7 +150,6 @@ public:
         name += "_" + std::to_string(m_curr_id);
 
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
-        it.first->second.addMixin("tform");
         it.first->second.addMixin("parental");
 
         ++m_curr_id;

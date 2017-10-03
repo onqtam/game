@@ -7,52 +7,6 @@
 
 #include "core/messages/messages_rendering.h"
 
-class tform
-{
-    HA_MESSAGES_IN_MIXIN(tform);
-    FIELD yama::vector3 pos    = {0, 0, 0};
-    FIELD yama::vector3 scl    = {1, 1, 1};
-    FIELD yama::quaternion rot = {0, 0, 0, 1};
-
-public:
-    void set_pos(const yama::vector3& in) { set_transform({in, scl, rot}); }
-    void set_scl(const yama::vector3& in) { set_transform({pos, in, rot}); }
-    void set_rot(const yama::quaternion& in) { set_transform({pos, scl, in}); }
-
-    yama::vector3    get_pos() const { return get_transform().pos; }
-    yama::vector3    get_scl() const { return get_transform().scl; }
-    yama::quaternion get_rot() const { return get_transform().rot; }
-
-    void set_transform_local(const transform& in) {
-        pos = in.pos;
-        scl = in.scl;
-        rot = in.rot;
-    }
-    void set_transform(const transform& in) {
-        auto parent = get_parent(ha_this);
-        if(parent) {
-            auto child_local = in.multiply(tr::get_transform(parent.obj()).inverse());
-            set_transform_local(child_local);
-        } else {
-            set_transform_local(in);
-        }
-    }
-    transform get_transform_local() const { return {pos, scl, rot}; }
-    transform get_transform() const {
-        transform my     = get_transform_local();
-        auto      parent = get_parent(ha_this);
-        if(parent)
-            return my.multiply(tr::get_transform(parent.obj()));
-        else
-            return my;
-    }
-
-    // TODO: rename - because it's currently in local only
-    void move(const yama::vector3& in) { pos += in; }
-};
-
-HA_MIXIN_DEFINE(tform, Interface_transform)
-
 class mesh
 {
     HA_MESSAGES_IN_MIXIN(mesh);
@@ -82,7 +36,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, tr::get_transform(ha_this).as_mat()});
+        out.push_back({_mesh, {}, _shader, ha_this.get_transform().as_mat()});
     }
 
     AABB get_aabb() const { return getMeshBBox(_mesh.get()); }

@@ -87,6 +87,7 @@ figure out a coding standard
 is the extensive use of lambdas ok? is such locality better than extracting the logic in a separate method/function further away?
     callstacks are bad - especially when using std::function (needed for recursion) and not just assigning the lambdas to auto
 rename oid to object_handle?
+make the oid class hold a pointer to the object instead of the index - but when being serialized it should turn into an index
 
 == to test:
 - aabb class

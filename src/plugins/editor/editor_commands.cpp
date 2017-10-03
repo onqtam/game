@@ -13,18 +13,14 @@ HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::
 static JsonData mixin_state(const Object& obj, cstr mixin) {
     JsonData out(1000);
     out.startObject();
-    common::serialize_mixins(obj, mixin, out);
+    if(mixin && mixin[0] == '\0') {
+        out.append("\"\":");
+        serialize(obj, out);
+    } else {
+        common::serialize_mixins(obj, mixin, out);
+    }
     out.endObject();
     return out;
-}
-
-static JsonData object_state(const Object& obj) {
-    JsonData state(1000);
-    state.startObject();
-    state.append("\"\":");
-    serialize(obj, state);
-    state.endObject();
-    return state;
 }
 
 static std::vector<std::string> mixin_names(const Object& obj) {
@@ -44,8 +40,7 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
 
     for(auto& curr : objects) {
         // record the old transform
-        old_transforms.push_back(
-                {curr, {tr::get_transform(curr.obj()), mixin_state(curr.obj(), "tform")}});
+        old_transforms.push_back({curr, {curr.obj().get_transform(), mixin_state(curr.obj(), "")}});
 
         // old parent old state
         auto     parent = ::get_parent(curr.obj());
@@ -73,11 +68,11 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
 
     for(auto& curr : old_transforms) {
         // set the old world transform (will recalculate the local transform of the object)
-        tr::set_transform(curr.first.obj(), curr.second.first);
+        curr.first.obj().set_transform(curr.second.first);
         // add the changed transform to the undo/redo command list
         comp_cmd.commands.push_back(
                 attributes_changed_cmd({curr.first, curr.first.obj().name(), curr.second.second,
-                                        mixin_state(curr.first.obj(), "tform"), "tform"}));
+                                        mixin_state(curr.first.obj(), ""), ""}));
     }
 
     return comp_cmd;
@@ -107,8 +102,7 @@ std::vector<oid> get_top_most(const std::vector<oid>& from) {
 // also selected is problematic because we are looping over a container in it...
 // also camera is problematic because it is registered as an input event listener and I got a crash when I undid it's removal...
 static bool cant_remove_mixin(cstr in) {
-    return strcmp(in, "tform") == 0 || strcmp(in, "parental") == 0 || strcmp(in, "selected") == 0 ||
-           strcmp(in, "camera") == 0;
+    return strcmp(in, "parental") == 0 || strcmp(in, "selected") == 0 || strcmp(in, "camera") == 0;
 }
 
 // =================================================================================================
@@ -121,7 +115,7 @@ void editor::create_object() {
 
     auto& obj = ObjectManager::get().create();
     comp_cmd.commands.push_back(
-            object_creation_cmd({obj.id(), obj.name(), object_state(obj), true}));
+            object_creation_cmd({obj.id(), obj.name(), mixin_state(obj, ""), true}));
     comp_cmd.commands.push_back(object_mutation_cmd(
             {obj.id(), obj.name(), mixin_names(obj), mixin_state(obj, nullptr), true}));
 
@@ -266,28 +260,28 @@ void editor::handle_gizmo_changes() {
 
     for(auto& id : selected_with_gizmo) {
         auto old_t = id.obj().get<selected>()->old_local_t;
-        auto new_t = tr::get_transform_local(id.obj());
+        auto new_t = id.obj().get_transform_local();
         if(!yama::close(old_t.pos, new_t.pos)) {
-            JsonData ov = mixin_attr_state("tform", "pos", old_t.pos);
-            JsonData nv = mixin_attr_state("tform", "pos", new_t.pos);
+            JsonData ov = mixin_attr_state("", "pos", old_t.pos);
+            JsonData nv = mixin_attr_state("", "pos", new_t.pos);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.pos"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "obj.pos"}));
         }
         if(!yama::close(old_t.scl, new_t.scl)) {
-            JsonData ov = mixin_attr_state("tform", "scl", old_t.scl);
-            JsonData nv = mixin_attr_state("tform", "scl", new_t.scl);
+            JsonData ov = mixin_attr_state("", "scl", old_t.scl);
+            JsonData nv = mixin_attr_state("", "scl", new_t.scl);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.scl"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "obj.scl"}));
         }
         if(!yama::close(old_t.rot, new_t.rot)) {
-            JsonData ov = mixin_attr_state("tform", "rot", old_t.rot);
-            JsonData nv = mixin_attr_state("tform", "rot", new_t.rot);
+            JsonData ov = mixin_attr_state("", "rot", old_t.rot);
+            JsonData nv = mixin_attr_state("", "rot", new_t.rot);
             comp_cmd.commands.push_back(
-                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "tform.rot"}));
+                    attributes_changed_cmd({id, id.obj().name(), ov, nv, "obj.rot"}));
         }
         // update this - even though we havent started using the gizmo - or else this might break when deleting the object
-        id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
-        id.obj().get<selected>()->old_local_t = tr::get_transform_local(id.obj());
+        id.obj().get<selected>()->old_t       = id.obj().get_transform();
+        id.obj().get<selected>()->old_local_t = id.obj().get_transform_local();
     }
     if(!comp_cmd.commands.empty())
         add_command(comp_cmd);
@@ -373,16 +367,16 @@ void editor::group_selected() {
     // average position for the new group object
     auto average_pos = yama::vector3::zero();
     for(auto& curr : m_selected)
-        average_pos += tr::get_pos(curr.obj());
+        average_pos += curr.obj().get_pos();
     average_pos /= float(m_selected.size());
     // set position of newly created group to be the average position of all selected objects
-    tr::set_transform(group, {average_pos, {1, 1, 1}, {0, 0, 0, 1}});
+    group.set_transform({average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
     comp_cmd.commands.push_back(objects_set_parent(m_selected, group.id()));
 
     // add the created group object
     comp_cmd.commands.push_back(
-            object_creation_cmd({group.id(), group.name(), object_state(group), true}));
+            object_creation_cmd({group.id(), group.name(), mixin_state(group, ""), true}));
     comp_cmd.commands.push_back(object_mutation_cmd(
             {group.id(), group.name(), mixin_names(group), mixin_state(group, nullptr), true}));
 
@@ -407,19 +401,19 @@ void editor::ungroup_selected() {
             continue;
 
         // record data before unparenting
-        auto t            = tr::get_transform(curr.obj());
-        auto curr_t_old   = mixin_state(curr.obj(), "tform");
+        auto t            = curr.obj().get_transform();
+        auto curr_t_old   = mixin_state(curr.obj(), "");
         auto curr_p_old   = mixin_state(curr.obj(), "parental");
         auto parent_p_old = mixin_state(parent.obj(), "parental");
 
         // unaprent
         ::set_parent(curr.obj(), oid::invalid());
         // set the old world transform - will update the local transform
-        tr::set_transform(curr.obj(), t);
+        curr.obj().set_transform(t);
 
         // submit commands with data after unparenting
         comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), "tform"), "tform"}));
+                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), ""), ""}));
         comp_cmd.commands.push_back(
                 attributes_changed_cmd({curr, curr.obj().name(), curr_p_old,
                                         mixin_state(curr.obj(), "parental"), "parental"}));
@@ -459,7 +453,7 @@ void editor::duplicate_selected() {
 
         // add commands for the creation of the new copy
         comp_cmd.commands.push_back(
-                object_creation_cmd({copy.id(), copy.name(), object_state(copy), true}));
+                object_creation_cmd({copy.id(), copy.name(), mixin_state(copy, ""), true}));
         comp_cmd.commands.push_back(object_mutation_cmd(
                 {copy.id(), copy.name(), mixin_names(copy), mixin_state(copy, nullptr), true}));
 
@@ -534,7 +528,7 @@ void editor::delete_selected() {
 
         // serialize the state of the object itself
         comp_cmd.commands.push_back(
-                object_creation_cmd({root, root_obj.name(), object_state(root_obj), false}));
+                object_creation_cmd({root, root_obj.name(), mixin_state(root_obj, ""), false}));
 
         ObjectManager::get().destroy(root);
     };

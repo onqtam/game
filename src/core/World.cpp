@@ -13,9 +13,8 @@ World::World()
 
     m_camera = om.create("camera").id();
     m_camera.obj().addMixin("camera");
-    tr::set_pos(m_camera.obj(), yama::vector3::coord(0, 50, 2));
-    tr::set_rot(m_camera.obj(),
-                yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
+    m_camera.obj().set_pos(yama::vector3::coord(0, 50, 2));
+    m_camera.obj().set_rot(yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
 
     // EXAMPLE: serialize and deserialize an object
     //JsonData state;
@@ -40,22 +39,22 @@ World::World()
 
     auto& obj = om.create("with_mesh!");
     obj.addMixin("mesh");
-    tr::set_scl(obj, {4, 4, 4});
+    obj.set_scl({4, 4, 4});
 
     auto& obj2 = om.create("with_mesh_2!");
     obj2.addMixin("mesh");
-    tr::set_scl(obj2, {2, 2, 2});
-    tr::set_pos(obj2, {3, 0, 3});
+    obj2.set_scl({2, 2, 2});
+    obj2.set_pos({3, 0, 3});
 
     auto& obj3 = om.create("with_mesh_3!");
     obj3.addMixin("mesh");
-    tr::set_scl(obj3, {3, 3, 3});
-    tr::set_pos(obj3, {15, 0, -10});
+    obj3.set_scl({3, 3, 3});
+    obj3.set_pos({15, 0, -10});
 
     auto& copied = om.create();
     copied.copy_from(obj3);
     copied.setName("with_mesh_4   !!!");
-    tr::move(copied, {0, 0, 5});
+    copied.move({0, 0, 5});
 
     auto& dummy1 = om.create("with_no_brain");
     auto& dummy2 = om.create("with_no_brain 2");

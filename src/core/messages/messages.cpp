@@ -7,19 +7,6 @@ HA_DEFINE_MSG(common, serialize_mixins)
 HA_DEFINE_MSG(common, deserialize_mixins)
 HA_DEFINE_MSG(common, get_imgui_binding_callbacks_from_mixins)
 
-// transform
-HA_DEFINE_MSG(tr, set_pos)
-HA_DEFINE_MSG(tr, set_scl)
-HA_DEFINE_MSG(tr, set_rot)
-HA_DEFINE_MSG(tr, get_pos)
-HA_DEFINE_MSG(tr, get_scl)
-HA_DEFINE_MSG(tr, get_rot)
-HA_DEFINE_MSG(tr, set_transform_local)
-HA_DEFINE_MSG(tr, set_transform)
-HA_DEFINE_MSG(tr, get_transform_local)
-HA_DEFINE_MSG(tr, get_transform)
-HA_DEFINE_MSG(tr, move)
-
 // parental
 DYNAMIX_DEFINE_MESSAGE(get_const_parent);
 DYNAMIX_DEFINE_MESSAGE(get_non_const_parent);

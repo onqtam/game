@@ -463,8 +463,8 @@ void editor::update_gizmo() {
     m_gizmo_state.cam.far_clip      = 1000.f;
     m_gizmo_state.cam.yfov          = yama::deg_to_rad(45.f);
     m_gizmo_state.screenspace_scale = 80.f; // 80px screenspace - or something like that
-    auto cam_pos                    = tr::get_pos(World::get().camera().obj());
-    auto cam_rot                    = tr::get_rot(World::get().camera().obj());
+    auto cam_pos                    = World::get().camera().obj().get_pos();
+    auto cam_rot                    = World::get().camera().obj().get_rot();
     m_gizmo_state.cam.position      = {cam_pos.x, cam_pos.y, cam_pos.z};
     m_gizmo_state.cam.orientation   = {cam_rot.x, cam_rot.y, cam_rot.z, cam_rot.w};
     m_gizmo_ctx.update(m_gizmo_state);
@@ -473,11 +473,11 @@ void editor::update_gizmo() {
     if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
         yama::vector3    avg_pos = {0, 0, 0};
         yama::quaternion avg_rot =
-                (selected_with_gizmo.size() == 1) ?                 // based on number of objects
-                        tr::get_rot(selected_with_gizmo[0].obj()) : // orientation of object
-                        yama::quaternion::identity();               // generic default rotation
+                (selected_with_gizmo.size() == 1) ?              // based on number of objects
+                        selected_with_gizmo[0].obj().get_rot() : // orientation of object
+                        yama::quaternion::identity();            // generic default rotation
         for(auto& curr : selected_with_gizmo)
-            avg_pos += tr::get_pos(curr.obj());
+            avg_pos += curr.obj().get_pos();
         avg_pos /= float(selected_with_gizmo.size());
 
         gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
@@ -492,8 +492,8 @@ void editor::update_gizmo() {
         if(m_gizmo_state.mouse_left) {
             gizmo_transform_last = gizmo_transform;
             for(auto& id : selected_with_gizmo) {
-                id.obj().get<selected>()->old_t       = tr::get_transform(id.obj());
-                id.obj().get<selected>()->old_local_t = tr::get_transform_local(id.obj());
+                id.obj().get<selected>()->old_t       = id.obj().get_transform();
+                id.obj().get<selected>()->old_local_t = id.obj().get_transform_local();
             }
         }
     }
@@ -519,7 +519,7 @@ void editor::update_gizmo() {
                     //t.rot = t.rot * rot; // local space
                     t.rot = rot * t.rot; // world space
                 }
-                tr::set_transform(id.obj(), t);
+                id.obj().set_transform(t);
             }
         }
     }
