@@ -127,15 +127,15 @@ static std::string attr_changed_text(cstr mixin, cstr attr) {
 
 template <typename T>
 cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
-    static T data_when_dragging_started;
+    static T data_on_start;
     bool     justReleased  = false;
     bool     justActivated = false;
     DragFloats(no_prefix(attr), (float*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
-        data_when_dragging_started = data;
+        data_on_start = data;
     }
-    if(justReleased) {
-        JsonData old_val = mixin_attr_state(mixin, attr, data_when_dragging_started);
+    if(justReleased && !yama::close(data, data_on_start)) {
+        JsonData old_val = mixin_attr_state(mixin, attr, data_on_start);
         JsonData new_val = mixin_attr_state(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val,
                                     attr_changed_text(mixin, attr));
@@ -146,15 +146,15 @@ cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
 
 template <typename T>
 cstr bind_ints(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
-    static T data_when_dragging_started;
+    static T data_on_start;
     bool     justReleased  = false;
     bool     justActivated = false;
     DragInts(no_prefix(attr), (int*)&data, num_elements, &justReleased, &justActivated);
     if(justActivated) {
-        data_when_dragging_started = data;
+        data_on_start = data;
     }
-    if(justReleased) {
-        JsonData old_val = mixin_attr_state(mixin, attr, data_when_dragging_started);
+    if(justReleased && data != data_on_start) {
+        JsonData old_val = mixin_attr_state(mixin, attr, data_on_start);
         JsonData new_val = mixin_attr_state(mixin, attr, data);
         edit::add_changed_attribute(World::get().editor(), e.id(), old_val, new_val,
                                     attr_changed_text(mixin, attr));
