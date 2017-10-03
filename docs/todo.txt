@@ -1,4 +1,12 @@
 
+fix the imgui bindings - when tab-ing from float to float
+
+dont insert bogus command history entries when double-clicking float drags
+
+sometimes soft commands dont show up
+
+command history broke! after merging
+
 install unity and play with it...
 
 camera
@@ -9,14 +17,14 @@ camera
 
 switching states between editing and gameplay
 
+move the parental component to the object
+
 GUI
     main menu bar
         show test window
     sort objects by id in scene explorer?
 
 remove the concept of invalid() and just use default-constructed oids?
-
-move the transform to the object
 
 think about operation validity globally
     - editor mixin (and object) shouldn't be addable/removable/duplicatable

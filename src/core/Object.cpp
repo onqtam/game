@@ -18,7 +18,7 @@ void Object::remMixin(cstr mixin) {
 HAPI void Object::set_transform(const transform& in) {
     auto parent = get_parent(*this);
     if(parent) {
-        auto child_local = in.multiply(parent.obj().get_transform());
+        auto child_local = in.multiply(parent.obj().get_transform().inverse());
         set_transform_local(child_local);
     } else {
         set_transform_local(in);
