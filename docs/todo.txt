@@ -1,8 +1,4 @@
 
-???
-    sometimes soft commands dont show up
-    command history broke! after merging
-
 install unity and play with it...
 
 camera

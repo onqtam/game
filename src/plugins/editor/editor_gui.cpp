@@ -302,7 +302,7 @@ void editor::update_gui() {
                     // if there are soft commands - display them above the current one
                     if(is_curr && soft_undo_redo_commands.size())
                         for(auto& curr_soft : boost::adaptors::reverse(soft_undo_redo_commands))
-                            showCommands(curr_soft, -1, true);
+                            showCommands(curr_soft, -1, is_soft);
 
                     char buff[256];
                     snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
@@ -376,6 +376,7 @@ void editor::update_gui() {
                         }
                     }
 
+                    // handle the double-click go-to on top-level history entries
                     if(is_top_most && !is_curr && ImGui::IsMouseDoubleClicked(0) &&
                        ImGui::IsItemHovered())
                         fast_forward_to_command(curr_top_most);
@@ -420,24 +421,32 @@ void editor::update_gui() {
                     if(is_open && is_compound) {
                         auto& comp_cmd = boost::get<compound_cmd>(c);
                         for(auto& part : comp_cmd.commands)
-                            showCommands(part, -1, false);
+                            showCommands(part, -1, is_soft);
                         ImGui::TreePop();
                     }
-
                 };
 
         int curr_idx = int(undo_redo_commands.size()) - 1;
         for(auto& curr : boost::adaptors::reverse(undo_redo_commands))
             showCommands(curr, curr_idx--, false);
 
-        // add a leaf node for the start of the history
-        if(curr_undo_redo == -1)
+        // show the soft commands if there are any and we are at the start of the history
+        if(curr_undo_redo == -1) {
+            if(soft_undo_redo_commands.size())
+                for(auto& curr_soft : boost::adaptors::reverse(soft_undo_redo_commands))
+                    showCommands(curr_soft, -1, true);
+
+            // if we are at the start of the history
             ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
+        }
+        // add a leaf node for the start of the history
         ImGui::TreeNodeEx("", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen,
                           " 0 [start of history]");
+        // pop the style for the start entry (if we are at it)
         if(curr_undo_redo == -1)
             ImGui::PopStyleColor(1);
 
+        // handle the double-click go-to for the start of the history
         if(curr_undo_redo != -1 && ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
             fast_forward_to_command(-1);
     }
