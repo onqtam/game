@@ -15,7 +15,7 @@ void Object::remMixin(cstr mixin) {
     mixins[mixin].remove(this);
 }
 
-HAPI void Object::set_transform(const transform& in) {
+void Object::set_transform(const transform& in) {
     auto parent = get_parent(*this);
     if(parent) {
         auto child_local = in.multiply(parent.obj().get_transform().inverse());
@@ -24,7 +24,8 @@ HAPI void Object::set_transform(const transform& in) {
         set_transform_local(in);
     }
 }
-HAPI transform Object::get_transform() const {
+
+transform Object::get_transform() const {
     transform my = get_transform_local();
     auto      parent = get_parent(*this);
     if(parent)

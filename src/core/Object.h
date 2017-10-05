@@ -114,12 +114,12 @@ public:
         scl = in.scl;
         rot = in.rot;
     }
-    HAPI void set_transform(const transform& in);
     transform get_transform_local() const { return {pos, scl, rot}; }
+
+    HAPI void set_transform(const transform& in);
     HAPI transform get_transform() const;
 
-    // TODO: rename - because it's currently in local only
-    void move(const yama::vector3& in) { pos += in; }
+    void move_local(const yama::vector3& in) { pos += in; }
 
     // ha_this helpers
     static Object& cast_to_object(void* in) {

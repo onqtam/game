@@ -60,9 +60,9 @@ public:
 
         move_vec += fix_vec;
 
-        ha_this.move(move_vec);
+        ha_this.move_local(move_vec);
 
-        ha_this.move(yama::normalize(rotate(k_forward, ha_this.get_rot())) * scroll * 2.f);
+        ha_this.move_local(yama::normalize(rotate(k_forward, ha_this.get_rot())) * scroll * 2.f);
         scroll = 0.f;
     }
 
