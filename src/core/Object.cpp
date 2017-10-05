@@ -23,12 +23,12 @@ void Object::unparent() {
     }
 }
 
-//Object::~Object() {
-//    if(Application::get().state() == Application::State::PLAY) {
-//        orphan();
-//        unparent();
-//    }
-//}
+Object::~Object() {
+    if(Application::get().state() == Application::State::PLAY) {
+        orphan();
+        unparent();
+    }
+}
 
 void Object::addMixin(cstr mixin) {
     auto& mixins = getAllMixins();

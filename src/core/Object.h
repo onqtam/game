@@ -75,8 +75,9 @@ class Object : public dynamix::object
             , m_name(name) {}
 
 public:
-    //~Object();
-    //Object(const Object&) = default;
+    ~Object();
+    Object(Object&&) = default;
+    Object& operator=(Object&&) = default;
 
     // hides dynamix::object::copy()
     Object copy() const {
