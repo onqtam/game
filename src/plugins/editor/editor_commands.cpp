@@ -94,7 +94,8 @@ std::vector<oid> get_top_most(const std::vector<oid>& from) {
 // selected is problematic because we are looping over a container in it...
 // also camera is problematic because it is registered as an input event listener and I got a crash when I undid it's removal...
 static bool cant_remove_mixin(cstr in) {
-    return strcmp(in, "selected") == 0 || strcmp(in, "camera") == 0;
+    return strcmp(in, "selected") == 0 || strcmp(in, "maya_camera") == 0 ||
+           strcmp(in, "gameplay_camera") == 0;
 }
 
 // =================================================================================================

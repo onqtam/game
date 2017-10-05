@@ -417,6 +417,9 @@ int Application::run(int argc, char** argv) {
         while(!glfwWindowShouldClose(m_window))
             update();
 #endif // EMSCRIPTEN
+
+        // set the state to something other than EDITOR
+        Application::get().setState(Application::State::PLAY);
     }
 
     bgfx_destroy_uniform(u_time);

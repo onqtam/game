@@ -5,8 +5,8 @@ const yama::vector3 k_forward             = {0, 0, -1};
 
 HA_SUPPRESS_WARNINGS
 
-HA_MSG_0(cam, yama::matrix, get_view_matrix)
-HA_MSG_0(cam, yama::matrix, get_projection_matrix)
+HA_CONST_MSG_0(cam, yama::matrix, get_view_matrix)
+HA_CONST_MSG_0(cam, yama::matrix, get_projection_matrix)
 
 #define Interface_camera cam::get_view_matrix_msg& cam::get_projection_matrix_msg
 

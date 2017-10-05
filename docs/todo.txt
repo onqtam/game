@@ -1,4 +1,11 @@
 
+add a way to query the current input state without being a listener
+
+codegen cant handle C arrays
+
+remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
+    ===> might get clashes for the generated .h.inl files in <gen> !!!
+
 install unity and play with it...
 
 camera

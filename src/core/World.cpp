@@ -12,7 +12,7 @@ World::World()
     auto& om = ObjectManager::get();
 
     m_camera = om.create("camera").id();
-    m_camera.obj().addMixin("camera");
+    m_camera.obj().addMixin("maya_camera");
     m_camera.obj().set_pos(yama::vector3::coord(0, 50, 2));
     m_camera.obj().set_rot(yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
 
@@ -81,7 +81,7 @@ void World::update() {
     bgfx_dbg_text_clear(0, false);
     bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
 
-    mixins["camera"].update(dt);
+    mixins["maya_camera"].update(dt);
     yama::matrix view = cam::get_view_matrix(m_camera.obj());
     yama::matrix proj = cam::get_projection_matrix(m_camera.obj());
 
