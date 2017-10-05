@@ -286,7 +286,7 @@ void editor::update_gui() {
             }
         }
 
-        auto current_command_color = ImColor(1.0f, 0.2f, 0.2f);
+        auto current_command_color = ImVec4(1.f, 0.2f, 0.2f, 1.f);
 
         // recursive display of the command history
         std::function<void(const command_variant&, int, bool)> showCommands =
@@ -350,7 +350,7 @@ void editor::update_gui() {
                     }
 
                     if(is_soft)
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImColor(0.2f, 0.2f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 1.f, 1.f));
                     if(is_curr)
                         ImGui::PushStyleColor(ImGuiCol_Text, current_command_color);
                     bool is_open = ImGui::TreeNodeEx((const void*)&c, node_flags, name.c_str());

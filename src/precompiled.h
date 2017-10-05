@@ -49,6 +49,7 @@ typedef dynamix::internal::mixin_type_info mixin_type_info;
 #include <bgfx/c99/bgfx.h>
 #define BGFX_INVALID_HANDLE UINT16_MAX
 
+// TODO: remove me from pch since there are just a few users after bobi merges the imgui-refactoring
 #define IMGUI_API HA_SYMBOL_IMPORT
 #include <imgui.h>
 

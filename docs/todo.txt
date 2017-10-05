@@ -1,9 +1,7 @@
 
-fix the imgui bindings - when tab-ing from float to float
-
-sometimes soft commands dont show up
-
-command history broke! after merging
+???
+    sometimes soft commands dont show up
+    command history broke! after merging
 
 install unity and play with it...
 
@@ -51,6 +49,8 @@ editor:
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
         when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya
     postponed
+        - highlighting currently filtered objects
+        - disabling objects from scene
         - option to skip selection commands in the undo/redo stack (and also not show them - but they should be used!)
         - docking panels
         - multiple viewports with different perspectives
@@ -79,6 +79,8 @@ CI - appveyor emscripten build fails for some reason
 linux
     when built with the address sanitizer on linux - build crashes on startup in the plugin manager
 editor
+    imgui bindings - tab-ing from field to field doesn't submit commands in the undo/redo history
+        https://github.com/ocornut/imgui/issues/1351
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
     >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
         OMG HAPPENED UNDER EMSCRIPTEN TOO!
@@ -234,6 +236,8 @@ graphics/assets:
     - https://github.com/friggog/tree-gen
     - https://github.com/ux3d/2gltf2
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
+    - debugging
+        https://github.com/msqrt/shader-printf
     - texture stuff
         - https://github.com/paulvortex/RwgTex
         - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
@@ -241,6 +245,7 @@ graphics/assets:
         photoshop psd files - http://molecular-matters.com/products_psd_extract.html
         photoshop psd files - http://molecular-matters.com/products_psd_sdk.html
 strings/localization:
+    https://github.com/david-grs/inplace_string
     https://github.com/sheredom/utf8.h
     https://github.com/minimaxir/big-list-of-naughty-strings
 profiler:
@@ -267,6 +272,8 @@ miscellaneous:
 debugging:
     a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
     Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
+    just my code option in VS - https://msdn.microsoft.com/en-us/library/dn457346.aspx#C++
+    just my code option in VS - https://docs.microsoft.com/en-us/visualstudio/debugger/just-my-code#BKMK_C___Just_My_Code
 middleware:
     http://molecular-matters.com/
     coherent
