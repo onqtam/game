@@ -75,7 +75,7 @@ class Object : public dynamix::object
             , m_name(name) {}
 
 public:
-    ~Object();
+    HAPI ~Object();
     Object(Object&&) = default;
     Object& operator=(Object&&) = default;
 
