@@ -7,13 +7,6 @@ HA_DEFINE_MSG(common, serialize_mixins)
 HA_DEFINE_MSG(common, deserialize_mixins)
 HA_DEFINE_MSG(common, get_imgui_binding_callbacks_from_mixins)
 
-// parental
-DYNAMIX_DEFINE_MESSAGE(get_const_parent);
-DYNAMIX_DEFINE_MESSAGE(get_non_const_parent);
-DYNAMIX_DEFINE_MESSAGE(get_const_children);
-DYNAMIX_DEFINE_MESSAGE(get_non_const_children);
-DYNAMIX_DEFINE_MESSAGE(set_parent);
-
 // other
 DYNAMIX_DEFINE_MESSAGE(no_gizmo);
 

@@ -13,8 +13,6 @@ camera
 
 switching states between editing and gameplay
 
-move the parental component to the object
-
 GUI
     main menu bar
         show test window
@@ -40,11 +38,7 @@ editor:
         rectangle selection
     IDs
     curve editing
-    open questions    
-        parental
-            parental mixin copying leads to errors - should it have a copy ctor (and operator=) that don't actually copy anything?
-            should the destructor do anything? currently it does, but with inheriting transformations it doesn't make sense...
-            perhaps move out of a mixin and into the object class?
+    open questions
         force uniqueness of object names?
         if 2 objects (where one is the parent of the other) are modified with a gizmo at the same time - results differ from Maya
         when duplicating objects - only the top-most parents of the duplicated set remain selected - unlike maya

@@ -17,7 +17,8 @@ static JsonData mixin_state(const Object& obj, cstr mixin) {
         out.append("\"\":");
         serialize(obj, out);
     } else {
-        common::serialize_mixins(obj, mixin, out);
+        if(obj.implements(common::serialize_mixins_msg))
+            common::serialize_mixins(obj, mixin, out);
     }
     out.endObject();
     return out;
@@ -43,27 +44,26 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
         old_transforms.push_back({curr, {curr.obj().get_transform(), mixin_state(curr.obj(), "")}});
 
         // old parent old state
-        auto     parent = ::get_parent(curr.obj());
+        auto     parent = curr.obj().get_parent();
         JsonData parent_old;
         if(parent)
-            parent_old = mixin_state(parent.obj(), "parental");
+            parent_old = mixin_state(parent.obj(), "");
 
         // record parental state of current object before change
-        JsonData curr_old = mixin_state(curr.obj(), "parental");
+        JsonData curr_old = mixin_state(curr.obj(), "");
 
         // set new parental relationship
-        ::set_parent(curr.obj(), new_parent);
+        curr.obj().set_parent(new_parent);
 
         // old parent new state & command submit
         if(parent)
             comp_cmd.commands.push_back(
                     attributes_changed_cmd({parent, parent.obj().name(), parent_old,
-                                            mixin_state(parent.obj(), "parental"), "parental"}));
+                                            mixin_state(parent.obj(), ""), "parental"}));
 
         // current new state & command submit
-        comp_cmd.commands.push_back(
-                attributes_changed_cmd({curr, curr.obj().name(), curr_old,
-                                        mixin_state(curr.obj(), "parental"), "parental"}));
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {curr, curr.obj().name(), curr_old, mixin_state(curr.obj(), ""), "parental"}));
     }
 
     for(auto& curr : old_transforms) {
@@ -72,7 +72,7 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
         // add the changed transform to the undo/redo command list
         comp_cmd.commands.push_back(
                 attributes_changed_cmd({curr.first, curr.first.obj().name(), curr.second.second,
-                                        mixin_state(curr.first.obj(), ""), ""}));
+                                        mixin_state(curr.first.obj(), ""), "transform"}));
     }
 
     return comp_cmd;
@@ -87,7 +87,7 @@ std::vector<oid> get_top_most(const std::vector<oid>& from) {
         oid  parent = curr;
         bool found  = false;
         do {
-            parent = ::get_parent(parent.obj());
+            parent = parent.obj().get_parent();
             if(from_set.count(parent))
                 found = true;
         } while(parent && !found);
@@ -98,11 +98,10 @@ std::vector<oid> get_top_most(const std::vector<oid>& from) {
     return top_most;
 }
 
-// TODO: remove this check once these are moved to the Object class
-// also selected is problematic because we are looping over a container in it...
+// selected is problematic because we are looping over a container in it...
 // also camera is problematic because it is registered as an input event listener and I got a crash when I undid it's removal...
 static bool cant_remove_mixin(cstr in) {
-    return strcmp(in, "parental") == 0 || strcmp(in, "selected") == 0 || strcmp(in, "camera") == 0;
+    return strcmp(in, "selected") == 0 || strcmp(in, "camera") == 0;
 }
 
 // =================================================================================================
@@ -290,7 +289,7 @@ void editor::handle_gizmo_changes() {
 void editor::reparent(oid new_parent_for_selected) {
     // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
     if(new_parent_for_selected)
-        for(auto curr = new_parent_for_selected; curr; curr = ::get_parent(curr.obj()))
+        for(auto curr = new_parent_for_selected; curr; curr = curr.obj().get_parent())
             if(std::find(m_selected.begin(), m_selected.end(), curr) != m_selected.end())
                 new_parent_for_selected = oid::invalid(); // set it to an invalid state
 
@@ -299,14 +298,14 @@ void editor::reparent(oid new_parent_for_selected) {
         compound_cmd comp_cmd;
         comp_cmd.description = "reparenting selected";
 
-        auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "parental");
+        auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "");
 
         comp_cmd.commands.push_back(objects_set_parent(m_selected, new_parent_for_selected));
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(attributes_changed_cmd(
                 {new_parent_for_selected, new_parent_for_selected.obj().name(), new_parent_old,
-                 mixin_state(new_parent_for_selected.obj(), "parental"), "parental"}));
+                 mixin_state(new_parent_for_selected.obj(), ""), "parental"}));
 
         // add the compound command
         add_command(comp_cmd);
@@ -326,7 +325,7 @@ void editor::group_selected() {
         for(auto curr : m_selected) {
             while(curr != oid::invalid()) {
                 visited_counts[curr]++;
-                curr = ::get_parent(curr.obj());
+                curr = curr.obj().get_parent();
             }
         }
 
@@ -345,7 +344,7 @@ void editor::group_selected() {
             // is also a common ancestor (also to itself) - we need to find it and get its parent
             for(auto& curr : visited_counts)
                 if(curr.first.obj().has<selected>())
-                    return ::get_parent(curr.first.obj());
+                    return curr.first.obj().get_parent();
         }
         // all other cases
         return oid::invalid();
@@ -357,11 +356,11 @@ void editor::group_selected() {
     // if there is a common ancestor - add the new group object as its child
     auto common_ancestor = find_lowest_common_ancestor();
     if(common_ancestor) {
-        JsonData ancestor_old = mixin_state(common_ancestor.obj(), "parental");
-        ::set_parent(group, common_ancestor);
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {common_ancestor, common_ancestor.obj().name(), ancestor_old,
-                 mixin_state(common_ancestor.obj(), "parental"), "parental"}));
+        JsonData ancestor_old = mixin_state(common_ancestor.obj(), "");
+        group.set_parent(common_ancestor);
+        comp_cmd.commands.push_back(
+                attributes_changed_cmd({common_ancestor, common_ancestor.obj().name(), ancestor_old,
+                                        mixin_state(common_ancestor.obj(), ""), "parental"}));
     }
 
     // average position for the new group object
@@ -395,7 +394,7 @@ void editor::ungroup_selected() {
     comp_cmd.description = "ungrouping selected";
 
     for(auto& curr : m_selected) {
-        auto parent = ::get_parent(curr.obj());
+        auto parent = curr.obj().get_parent();
         // skip selected objects that have no parents - they are already ungrouped
         if(!parent)
             continue;
@@ -403,23 +402,22 @@ void editor::ungroup_selected() {
         // record data before unparenting
         auto t            = curr.obj().get_transform();
         auto curr_t_old   = mixin_state(curr.obj(), "");
-        auto curr_p_old   = mixin_state(curr.obj(), "parental");
-        auto parent_p_old = mixin_state(parent.obj(), "parental");
+        auto curr_p_old   = mixin_state(curr.obj(), "");
+        auto parent_p_old = mixin_state(parent.obj(), "");
 
         // unaprent
-        ::set_parent(curr.obj(), oid::invalid());
+        curr.obj().set_parent(oid::invalid());
         // set the old world transform - will update the local transform
         curr.obj().set_transform(t);
 
         // submit commands with data after unparenting
         comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), ""), ""}));
-        comp_cmd.commands.push_back(
-                attributes_changed_cmd({curr, curr.obj().name(), curr_p_old,
-                                        mixin_state(curr.obj(), "parental"), "parental"}));
+                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), ""), "transform"}));
+        comp_cmd.commands.push_back(attributes_changed_cmd(
+                {curr, curr.obj().name(), curr_p_old, mixin_state(curr.obj(), ""), "parental"}));
         comp_cmd.commands.push_back(
                 attributes_changed_cmd({parent, parent.obj().name(), parent_p_old,
-                                        mixin_state(parent.obj(), "parental"), "parental"}));
+                                        mixin_state(parent.obj(), ""), "parental"}));
     }
 
     // add the compound command
@@ -444,12 +442,8 @@ void editor::duplicate_selected() {
         auto& copy = ObjectManager::get().create();
         copy.copy_from(to_copy);
 
-        // TODO: UGLY HACK: re-add the parental mixin to clear the broken parental relationships after the copy
-        copy.remMixin("parental");
-        copy.addMixin("parental");
-
         // save clean aprental state
-        JsonData copy_old = mixin_state(copy, "parental");
+        JsonData copy_old = mixin_state(copy, "");
 
         // add commands for the creation of the new copy
         comp_cmd.commands.push_back(
@@ -458,20 +452,20 @@ void editor::duplicate_selected() {
                 {copy.id(), copy.name(), mixin_names(copy), mixin_state(copy, nullptr), true}));
 
         // copy children recursively
-        for(auto& child_to_copy : get_children(to_copy)) {
+        for(auto& child_to_copy : to_copy.get_children()) {
             auto     child_copy     = copy_recursive(child_to_copy.obj());
-            JsonData child_copy_old = mixin_state(child_copy.obj(), "parental");
+            JsonData child_copy_old = mixin_state(child_copy.obj(), "");
             // link parentally
-            ::set_parent(child_copy.obj(), copy.id());
+            child_copy.obj().set_parent(copy.id());
             // submit a command for that linking
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {child_copy, child_copy.obj().name(), child_copy_old,
-                     mixin_state(child_copy.obj(), "parental"), "parental"}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({child_copy, child_copy.obj().name(), child_copy_old,
+                                            mixin_state(child_copy.obj(), ""), "parental"}));
         }
 
         // update parental information for the current copy
         comp_cmd.commands.push_back(attributes_changed_cmd(
-                {copy.id(), copy.name(), copy_old, mixin_state(copy, "parental"), "parental"}));
+                {copy.id(), copy.name(), copy_old, mixin_state(copy, ""), "parental"}));
 
         return copy.id();
     };
@@ -483,19 +477,19 @@ void editor::duplicate_selected() {
         new_top_most_selected.push_back(new_top);
 
         // if the current top-most object has a parent - make the copy a child of that parent as well
-        auto curr_parent = ::get_parent(curr.obj());
+        auto curr_parent = curr.obj().get_parent();
         if(curr_parent) {
-            JsonData new_top_old     = mixin_state(new_top.obj(), "parental");
-            JsonData curr_parent_old = mixin_state(curr_parent.obj(), "parental");
+            JsonData new_top_old     = mixin_state(new_top.obj(), "");
+            JsonData curr_parent_old = mixin_state(curr_parent.obj(), "");
             // link parentally
-            ::set_parent(new_top.obj(), curr_parent);
+            new_top.obj().set_parent(curr_parent);
             // submit a command for that linking
             comp_cmd.commands.push_back(
                     attributes_changed_cmd({new_top, new_top.obj().name(), new_top_old,
-                                            mixin_state(new_top.obj(), "parental"), "parental"}));
-            comp_cmd.commands.push_back(attributes_changed_cmd(
-                    {curr_parent, curr_parent.obj().name(), curr_parent_old,
-                     mixin_state(curr_parent.obj(), "parental"), "parental"}));
+                                            mixin_state(new_top.obj(), ""), "parental"}));
+            comp_cmd.commands.push_back(
+                    attributes_changed_cmd({curr_parent, curr_parent.obj().name(), curr_parent_old,
+                                            mixin_state(curr_parent.obj(), ""), "parental"}));
         }
     }
 
@@ -518,7 +512,7 @@ void editor::delete_selected() {
     std::function<void(oid)> delete_recursive = [&](oid root) {
         auto& root_obj = root.obj();
         // recurse through children
-        for(const auto& c : ::get_children(root_obj))
+        for(const auto& c : root_obj.get_children())
             delete_recursive(c);
 
         // serialize the state of the mixins
@@ -536,18 +530,17 @@ void editor::delete_selected() {
     std::vector<oid> top_most_selected = get_top_most(m_selected);
     for(auto& curr : top_most_selected) {
         // first fix any parental link of the currently selected object
-        auto parent = ::get_parent(curr.obj());
+        auto parent = curr.obj().get_parent();
         if(parent) {
-            auto parent_old = mixin_state(parent.obj(), "parental");
-            auto curr_old   = mixin_state(curr.obj(), "parental");
-            ::set_parent(curr.obj(), oid());
+            auto parent_old = mixin_state(parent.obj(), "");
+            auto curr_old   = mixin_state(curr.obj(), "");
+            curr.obj().set_parent(oid());
 
             comp_cmd.commands.push_back(
                     attributes_changed_cmd({parent, parent.obj().name(), parent_old,
-                                            mixin_state(parent.obj(), "parental"), "parental"}));
-            comp_cmd.commands.push_back(
-                    attributes_changed_cmd({curr, curr.obj().name(), curr_old,
-                                            mixin_state(curr.obj(), "parental"), "parental"}));
+                                            mixin_state(parent.obj(), ""), "parental"}));
+            comp_cmd.commands.push_back(attributes_changed_cmd(
+                    {curr, curr.obj().name(), curr_old, mixin_state(curr.obj(), ""), "parental"}));
         }
 
         // delete recursively
@@ -645,7 +638,8 @@ void editor::handle_command(command_variant& command_var, bool undo) {
             // deserialize the mixins
             const auto& doc = cmd.state.parse();
             hassert(doc.is_valid());
-            common::deserialize_mixins(cmd.id.obj(), doc.get_root());
+            if(cmd.id.obj().implements(common::deserialize_mixins_msg))
+                common::deserialize_mixins(cmd.id.obj(), doc.get_root());
         } else {
             // remove the mixins
             for(auto& mixin : cmd.mixins)

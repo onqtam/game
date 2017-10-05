@@ -55,8 +55,7 @@ void editor::update_gui() {
                     to_deselect.push_back(root);
 
                 // recurse through children
-                const auto& children = ::get_children(root_obj);
-                for(const auto& c : children)
+                for(const auto& c : root_obj.get_children())
                     recursiveSelecter(c, select);
             };
 
@@ -68,7 +67,7 @@ void editor::update_gui() {
                         ImGuiTreeNodeFlags_DefaultOpen |
                         (obj.has<selected>() ? ImGuiTreeNodeFlags_Selected : 0);
 
-                const auto& children = ::get_children(obj);
+                const auto& children = obj.get_children();
                 if(children.empty()) // make the node a leaf node if no children
                     node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -128,10 +127,8 @@ void editor::update_gui() {
 
             for(auto& curr : ObjectManager::get().getObjects()) {
                 // recurse from those without a parent only
-                if(curr.second.implements(get_const_parent_msg)) {
-                    if(::get_parent(curr.second) == oid::invalid())
-                        buildTree(curr.second.id(), true);
-                }
+                if(curr.second.get_parent() == oid::invalid())
+                    buildTree(curr.second.id(), true);
             }
 
             ImGui::TreePop();

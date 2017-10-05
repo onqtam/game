@@ -2,7 +2,6 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_bindings_common.h"
 
-#include "core/Application.h"
 #include "core/GraphicsHelpers.h"
 
 #include "core/messages/messages_rendering.h"
@@ -43,65 +42,5 @@ public:
 };
 
 HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg)
-
-class parental
-{
-    HA_MESSAGES_IN_MIXIN(parental);
-    FIELD oid m_parent;
-    FIELD std::vector<oid> m_children;
-
-    void orphan() {
-        if(m_parent) {
-            hassert(m_parent.obj().has<parental>());
-            auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
-            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
-            hassert(me_in_parent_iter != parent_ch.end());
-            std::swap(*me_in_parent_iter, parent_ch.back());
-            parent_ch.pop_back();
-        }
-    }
-
-    void unparent() {
-        while(m_children.size()) {
-            auto& ch = m_children.back();
-            hassert(ch);
-            hassert(ch.obj().has<parental>());
-            ch.obj().get<parental>()->m_parent = oid::invalid();
-            m_children.pop_back();
-        }
-    }
-
-public:
-    HA_CLANG_SUPPRESS_WARNING("-Wdeprecated")
-    ~parental() {
-        if(Application::get().state() == Application::State::PLAY) {
-            orphan();
-            unparent();
-        }
-    }
-    HA_CLANG_SUPPRESS_WARNING_END
-
-    const_oid                     get_parent() const { return m_parent; }
-    oid                           get_parent() { return m_parent; }
-    std::vector<oid>&             get_children() { return m_children; }
-    const std::vector<const_oid>& get_children() const {
-        return reinterpret_cast<const std::vector<const_oid>&>(m_children);
-    }
-
-    void set_parent(oid parent) {
-        orphan();
-        m_parent = parent;
-        if(m_parent != oid::invalid()) {
-            hassert(m_parent);
-            hassert(m_parent.obj().has<parental>());
-            auto& parent_ch         = m_parent.obj().get<parental>()->m_children;
-            auto  me_in_parent_iter = std::find(parent_ch.begin(), parent_ch.end(), ha_this.id());
-            hassert(me_in_parent_iter == parent_ch.end());
-            parent_ch.push_back(ha_this.id());
-        }
-    }
-};
-
-HA_MIXIN_DEFINE(parental, Interface_parental)
 
 #include <gen/common.cpp.inl>

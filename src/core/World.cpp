@@ -54,7 +54,7 @@ World::World()
     auto& copied = om.create();
     copied.copy_from(obj3);
     copied.setName("with_mesh_4   !!!");
-    copied.move({0, 0, 5});
+    copied.move_local({0, 0, 5});
 
     auto& dummy1 = om.create("with_no_brain");
     auto& dummy2 = om.create("with_no_brain 2");
@@ -62,15 +62,15 @@ World::World()
     auto& dummy4 = om.create("dummy 4");
     auto& dummy5 = om.create("dummy with 5");
 
-    set_parent(obj2, obj.id());
+    obj2.set_parent(obj.id());
 
-    set_parent(dummy1, obj.id());
-    set_parent(dummy2, obj.id());
+    dummy1.set_parent(obj.id());
+    dummy2.set_parent(obj.id());
 
-    set_parent(dummy3, dummy1.id());
-    set_parent(dummy4, dummy1.id());
+    dummy3.set_parent(dummy1.id());
+    dummy4.set_parent(dummy1.id());
 
-    set_parent(dummy5, obj2.id());
+    dummy5.set_parent(obj2.id());
 }
 
 void World::update() {

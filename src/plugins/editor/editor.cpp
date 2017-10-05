@@ -146,14 +146,12 @@ void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out)
         out.push_back({{}, geom, shader, curr.get_transform().as_mat()});
     }
     // recurse through children
-    if(curr.implements(get_const_children_msg)) {
-        auto& children = get_children(curr);
-        for(auto& child_id : children) {
-            auto& child = child_id.obj();
-            // if child is not selected - to avoid rendering the same bbox multiple times
-            if(!child.has<selected>())
-                submit_aabb_rec(child, out);
-        }
+    auto& children = curr.get_children();
+    for(auto& child_id : children) {
+        auto& child = child_id.obj();
+        // if child is not selected - to avoid rendering the same bbox multiple times
+        if(!child.has<selected>())
+            submit_aabb_rec(child, out);
     }
 }
 

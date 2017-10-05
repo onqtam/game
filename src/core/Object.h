@@ -47,27 +47,37 @@ class Object : public dynamix::object
 
     HA_EXPORTED_FRIENDS_OF_TYPE(Object);
 
-    oid       m_id;
+    oid   m_id;
+    FIELD oid m_parent;
     FIELD int m_flags          = 0;
     FIELD yama::vector3 pos    = {0, 0, 0};
     FIELD yama::vector3 scl    = {1, 1, 1};
     FIELD yama::quaternion rot = {0, 0, 0, 1};
+    FIELD std::vector<oid> m_children;
     FIELD std::string m_name;
 
     void copy_inherited_fields(const Object& other) {
-        //m_id    = other.m_id; // don't copy the id!
+        //m_id = other.m_id; // don't copy the id!
+        //m_parent = other.m_parent; // TODO: figure this out
         m_flags = other.m_flags;
         pos     = other.pos;
         scl     = other.scl;
         rot     = other.rot;
-        m_name  = other.m_name;
+        //m_children = other.m_children; // TODO: figure this out
+        m_name = other.m_name;
     }
+
+    HAPI void orphan();
+    HAPI void unparent();
 
     explicit Object(oid id = oid::invalid(), const std::string& name = "")
             : m_id(id)
             , m_name(name) {}
 
 public:
+    //~Object();
+    //Object(const Object&) = default;
+
     // hides dynamix::object::copy()
     Object copy() const {
         Object o;
@@ -121,6 +131,16 @@ public:
 
     void move_local(const yama::vector3& in) { pos += in; }
 
+    // parental
+    const_oid                     get_parent() const { return m_parent; }
+    oid                           get_parent() { return m_parent; }
+    std::vector<oid>&             get_children() { return m_children; }
+    const std::vector<const_oid>& get_children() const {
+        return reinterpret_cast<const std::vector<const_oid>&>(m_children);
+    }
+
+    HAPI void set_parent(oid parent);
+
     // ha_this helpers
     static Object& cast_to_object(void* in) {
         return static_cast<Object&>(*::dynamix::object_of(in));
@@ -150,7 +170,6 @@ public:
         name += "_" + std::to_string(m_curr_id);
 
         auto it = m_objects.emplace(oid(m_curr_id), Object(oid(m_curr_id), name));
-        it.first->second.addMixin("parental");
 
         ++m_curr_id;
         return it.first->second;
