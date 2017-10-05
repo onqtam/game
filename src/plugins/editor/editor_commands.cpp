@@ -36,21 +36,18 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
     compound_cmd comp_cmd;
     comp_cmd.description = "setting a parent";
 
-    // save the transforms of the selected objects before changing parental information
-    std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_transforms;
+    // save the transforms (+parental) of the selected objects before changing parental information
+    std::vector<std::pair<oid, std::pair<transform, JsonData>>> old_state;
 
     for(auto& curr : objects) {
         // record the old transform
-        old_transforms.push_back({curr, {curr.obj().get_transform(), mixin_state(curr.obj(), "")}});
+        old_state.push_back({curr, {curr.obj().get_transform(), mixin_state(curr.obj(), "")}});
 
         // old parent old state
         auto     parent = curr.obj().get_parent();
         JsonData parent_old;
         if(parent)
             parent_old = mixin_state(parent.obj(), "");
-
-        // record parental state of current object before change
-        JsonData curr_old = mixin_state(curr.obj(), "");
 
         // set new parental relationship
         curr.obj().set_parent(new_parent);
@@ -60,19 +57,15 @@ static compound_cmd objects_set_parent(const std::vector<oid>& objects, oid new_
             comp_cmd.commands.push_back(
                     attributes_changed_cmd({parent, parent.obj().name(), parent_old,
                                             mixin_state(parent.obj(), ""), "parental"}));
-
-        // current new state & command submit
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr.obj().name(), curr_old, mixin_state(curr.obj(), ""), "parental"}));
     }
 
-    for(auto& curr : old_transforms) {
+    for(auto& curr : old_state) {
         // set the old world transform (will recalculate the local transform of the object)
         curr.first.obj().set_transform(curr.second.first);
-        // add the changed transform to the undo/redo command list
+        // add the changed transform/parental information to the undo/redo command list
         comp_cmd.commands.push_back(
                 attributes_changed_cmd({curr.first, curr.first.obj().name(), curr.second.second,
-                                        mixin_state(curr.first.obj(), ""), "transform"}));
+                                        mixin_state(curr.first.obj(), ""), "transform+parental"}));
     }
 
     return comp_cmd;
@@ -400,10 +393,9 @@ void editor::ungroup_selected() {
             continue;
 
         // record data before unparenting
-        auto t            = curr.obj().get_transform();
-        auto curr_t_old   = mixin_state(curr.obj(), "");
-        auto curr_p_old   = mixin_state(curr.obj(), "");
-        auto parent_p_old = mixin_state(parent.obj(), "");
+        auto t          = curr.obj().get_transform();
+        auto curr_old   = mixin_state(curr.obj(), "");
+        auto parent_old = mixin_state(parent.obj(), "");
 
         // unaprent
         curr.obj().set_parent(oid::invalid());
@@ -411,12 +403,11 @@ void editor::ungroup_selected() {
         curr.obj().set_transform(t);
 
         // submit commands with data after unparenting
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr.obj().name(), curr_t_old, mixin_state(curr.obj(), ""), "transform"}));
-        comp_cmd.commands.push_back(attributes_changed_cmd(
-                {curr, curr.obj().name(), curr_p_old, mixin_state(curr.obj(), ""), "parental"}));
         comp_cmd.commands.push_back(
-                attributes_changed_cmd({parent, parent.obj().name(), parent_p_old,
+                attributes_changed_cmd({curr, curr.obj().name(), curr_old,
+                                        mixin_state(curr.obj(), ""), "transform+parental"}));
+        comp_cmd.commands.push_back(
+                attributes_changed_cmd({parent, parent.obj().name(), parent_old,
                                         mixin_state(parent.obj(), ""), "parental"}));
     }
 

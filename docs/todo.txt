@@ -61,7 +61,9 @@ start using c++17
     <optional>
     structured bindings
     initializers in if statements
-    template deduction of constructors, allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
+    template deduction of constructors
+        allowing me to skip the types in <> for std::function for the recursive lambdas (which is bug-prone anyway!!!)
+        allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
 
 == bugs:
 emscripten build crashes with latest emscripten???
