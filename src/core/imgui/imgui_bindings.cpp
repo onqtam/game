@@ -127,19 +127,10 @@ static std::string attr_changed_text(cstr mixin, cstr attr) {
 
 template <typename T>
 cstr bind_floats(Object& e, cstr mixin, cstr attr, T& data, int num_elements) {
-    if(attr[0] != 'p' && attr[1] != 'o' && attr[2] != 's')
-        return nullptr;
-
-    num_elements = 1;
-
     static T data_on_start;
     bool     justReleased  = false;
     bool     justActivated = false;
     DragFloats(no_prefix(attr), (float*)&data, num_elements, &justReleased, &justActivated);
-
-    if(IsItemJustReleased())
-        printf("omg!\n");
-
     if(justActivated) {
         data_on_start = data;
     }
