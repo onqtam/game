@@ -59,10 +59,15 @@ def extractZip(zip, outdir = "./"):
 def downloadFile(url, dest):
     msg("downloading " + dest)
     try:
-        file = urllib.FancyURLopener()
-        file.retrieve(url, dest)
-    except:
-        msg("could not download " + dest, "RED")
+        if sys.version_info < (3,0):
+            file = urllib.FancyURLopener()
+            file.retrieve(url, dest)
+        else:
+            import urllib.request
+            file = urllib.request.FancyURLopener()
+            file.retrieve(url, dest)
+    except Exception as e:
+        msg('could not download "' + dest + '" because of this: ' + str(e), "RED")
         sys.exit(1)
 
 # using a .zip because python 2.7 cant extract from .7z
