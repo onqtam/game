@@ -1,8 +1,6 @@
 
 integrate the new camera properly
 
-soft commands are no longer blue - fix it!
-
 install unity and play with it...
 
 camera

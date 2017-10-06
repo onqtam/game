@@ -302,7 +302,7 @@ void editor::update_gui() {
                     // if there are soft commands - display them above the current one
                     if(is_curr && soft_undo_redo_commands.size())
                         for(auto& curr_soft : boost::adaptors::reverse(soft_undo_redo_commands))
-                            showCommands(curr_soft, -1, is_soft);
+                            showCommands(curr_soft, -1, true);
 
                     char buff[256];
                     snprintf(buff, HA_COUNT_OF(buff), "%2d ", curr_top_most + 1);
