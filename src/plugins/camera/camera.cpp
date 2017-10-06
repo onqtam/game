@@ -28,6 +28,9 @@ public:
     gameplay_camera() {
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
+
+        ha_this.set_pos(yama::vector3::coord(0, 50, 2));
+        ha_this.set_rot(yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
     }
 
     void process_event(const InputEvent& ev) override {
@@ -90,11 +93,16 @@ class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera
 {
     HA_MESSAGES_IN_MIXIN(maya_camera);
 
-public:
     FIELD float radius             = 50.f;
     FIELD float yaw                = yama::deg_to_rad(-90.f);
     FIELD float pitch              = yama::deg_to_rad(60.f);
     FIELD yama::vector3 pivotPoint = yama::vector3::uniform(0.f);
+
+public:
+    maya_camera() {
+        ha_this.set_pos(eyePosition());
+        ha_this.set_rot(yama::quaternion::rotation_x(pitch) * yama::quaternion::rotation_y(yaw));
+    }
 
     void orientation(yama::vector3& pivotToEye, yama::vector3& up, yama::vector3& right) const {
         pivotToEye =
@@ -119,9 +127,12 @@ public:
     }
 
     yama::matrix get_view_matrix() const {
+        //auto t = yama::matrix::translation(ha_this.get_pos());
+        //auto r = yama::matrix::rotation_quaternion(ha_this.get_rot());
+        //return yama::inverse(t * r);
+
         yama::vector3 pivotToEye, up, right;
         orientation(pivotToEye, up, right);
-
         auto cameraPosition = pivotPoint + pivotToEye;
         return yama::matrix::look_at_rh(cameraPosition, pivotPoint, up);
     }

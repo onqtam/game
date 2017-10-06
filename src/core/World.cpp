@@ -12,9 +12,8 @@ World::World()
     auto& om = ObjectManager::get();
 
     m_camera = om.create("camera").id();
+    //m_camera.obj().addMixin("maya_camera");
     m_camera.obj().addMixin("gameplay_camera");
-    m_camera.obj().set_pos(yama::vector3::coord(0, 50, 2));
-    m_camera.obj().set_rot(yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
 
     // EXAMPLE: serialize and deserialize an object
     //JsonData state;
