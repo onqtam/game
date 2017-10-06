@@ -63,8 +63,8 @@ def downloadFile(url, dest):
             file = urllib.FancyURLopener()
             file.retrieve(url, dest)
         else:
-            import urllib.request
-            file = urllib.request.FancyURLopener()
+            from urllib import request
+            file = request.FancyURLopener()
             file.retrieve(url, dest)
     except Exception as e:
         msg('could not download "' + dest + '" because of this: ' + str(e), "RED")
