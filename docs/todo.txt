@@ -320,3 +320,6 @@ optimization:
     - forward declaring messages - for better link times - or maybe not - might lead to slower messages
 hygiene:
     - prefix everything after _dynamix_internal: with "internal"
+
+== dynamix:
+deg_to_rad - breaks when an int is passed (passing "60" results in "0" instead of 1.xxx radians)

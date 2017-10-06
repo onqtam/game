@@ -91,16 +91,18 @@ class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera
     HA_MESSAGES_IN_MIXIN(maya_camera);
 
 public:
-    FIELD float radius               = 2.f;
-    FIELD float yaw                  = 0.f;
-    FIELD float pitch                = 0.f;
-    FIELD yama::vector3 pivotPoint   = yama::vector3::uniform(0.f);
-    FIELD yama::vector2 prevMousePos = yama::vector2::uniform(0.f);
+    FIELD float radius             = 50.f;
+    FIELD float yaw                = yama::deg_to_rad(-90.f);
+    FIELD float pitch              = yama::deg_to_rad(60.f);
+    FIELD yama::vector3 pivotPoint = yama::vector3::uniform(0.f);
 
     void orientation(yama::vector3& pivotToEye, yama::vector3& up, yama::vector3& right) const {
         pivotToEye =
                 yama::vector3::coord(cos(yaw) * cos(pitch), sin(pitch), -sin(yaw) * cos(pitch)) *
                 radius;
+
+        //pivotToEye = yama::vector3::coord(pivotToEye.z, pivotToEye.y, -pivotToEye.x);
+        //pivotToEye = yama::vector3::coord(-pivotToEye.z, pivotToEye.y, pivotToEye.x);
 
         up = yama::normalize(
                 yama::vector3::coord(cos(yaw) * cos(pitch + yama::constants::PI_HALF()),
@@ -150,6 +152,10 @@ public:
                 } else if(isButtonDown(MouseButton::Middle)) {
                     strafe(-dx * 0.007f * radius * 0.1f, dy * 0.007f * radius * 0.1f);
                 }
+
+                // always update the position and orientation of the camera object itself
+                ha_this.set_pos(eyePosition());
+                ha_this.set_rot(yama::quaternion::rotation_x(pitch) * yama::quaternion::rotation_y(yaw));
             }
         }
     }
