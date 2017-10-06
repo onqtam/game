@@ -7,10 +7,6 @@
 #include "core/messages/messages_rendering.h"
 #include "core/World.h"
 
-HA_SUPPRESS_WARNINGS
-#include <GLFW/glfw3.h>
-HA_SUPPRESS_WARNINGS_END
-
 // until the allocator model of dynamix is extended we shall update this list manually like this
 void editor::update_selected() {
     m_selected.clear();
@@ -85,49 +81,49 @@ void editor::update(float) {
 }
 
 void editor::process_event(const InputEvent& ev) {
-    if(ev.type == InputEvent::MOTION) {
-        m_gizmo_state.cursor = {float(ev.motion.x), float(ev.motion.y)};
+    if(ev.type == InputEvent::MOUSE) {
+        m_gizmo_state.cursor = {float(ev.mouse.x), float(ev.mouse.y)};
     } else if(ev.type == InputEvent::KEY) {
         auto key    = ev.key.key;
         auto action = ev.key.action;
         auto mods   = ev.key.mods;
-        if(key == GLFW_KEY_LEFT_CONTROL)
-            m_gizmo_state.hotkey_ctrl = (action != GLFW_RELEASE);
-        if(key == GLFW_KEY_L)
-            m_gizmo_state.hotkey_local = (action != GLFW_RELEASE);
-        if(key == GLFW_KEY_T)
-            m_gizmo_state.hotkey_translate = (action != GLFW_RELEASE);
-        if(key == GLFW_KEY_R)
-            m_gizmo_state.hotkey_rotate = (action != GLFW_RELEASE);
-        if(key == GLFW_KEY_S)
-            m_gizmo_state.hotkey_scale = (action != GLFW_RELEASE);
+        if(key == HA_KEY_LEFT_CONTROL)
+            m_gizmo_state.hotkey_ctrl = (action != KeyAction::Release);
+        if(key == HA_KEY_L)
+            m_gizmo_state.hotkey_local = (action != KeyAction::Release);
+        if(key == HA_KEY_T)
+            m_gizmo_state.hotkey_translate = (action != KeyAction::Release);
+        if(key == HA_KEY_R)
+            m_gizmo_state.hotkey_rotate = (action != KeyAction::Release);
+        if(key == HA_KEY_S)
+            m_gizmo_state.hotkey_scale = (action != KeyAction::Release);
 
         // undo - with repeat
-        if(key == GLFW_KEY_Z && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE))
+        if(key == HA_KEY_Z && (mods & HA_MOD_CONTROL) && (action != KeyAction::Release))
             undo();
 
         // redo - with repeat
-        if(key == GLFW_KEY_Y && (mods & GLFW_MOD_CONTROL) && (action != GLFW_RELEASE))
+        if(key == HA_KEY_Y && (mods & HA_MOD_CONTROL) && (action != KeyAction::Release))
             redo();
 
         // group
-        if(key == GLFW_KEY_G && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS))
+        if(key == HA_KEY_G && (mods & HA_MOD_CONTROL) && (action == KeyAction::Press))
             group_selected();
 
         // ungroup
-        if(key == GLFW_KEY_U && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS))
+        if(key == HA_KEY_U && (mods & HA_MOD_CONTROL) && (action == KeyAction::Press))
             ungroup_selected();
 
         // duplicate
-        if(key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL) && (action == GLFW_PRESS))
+        if(key == HA_KEY_D && (mods & HA_MOD_CONTROL) && (action == KeyAction::Press))
             duplicate_selected();
 
         // delete selected objects
-        if(key == GLFW_KEY_DELETE && (action != GLFW_RELEASE))
+        if(key == HA_KEY_DELETE && (action != KeyAction::Release))
             delete_selected();
     } else if(ev.type == InputEvent::BUTTON) {
-        if(ev.button.button == 0)
-            m_gizmo_state.mouse_left = (ev.button.action != GLFW_RELEASE);
+        if(ev.button.button == MouseButton::Left)
+            m_gizmo_state.mouse_left = (ev.button.action != ButtonAction::Release);
         mouse_button_left_changed = true;
     }
 }

@@ -95,7 +95,7 @@ static void imguiInit() {
     io.SetClipboardTextFn          = imguiSetClipboardText;
     io.GetClipboardTextFn          = imguiGetClipboardText;
 
-    ImGuiStyle& style = ImGui::GetStyle();
+    ImGuiStyle& style   = ImGui::GetStyle();
     style.IndentSpacing = 10.f;
 }
 
@@ -194,7 +194,7 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
         app->m_mousePressed[button] = true;
 
     InputEvent ev;
-    ev.button = {InputEvent::BUTTON, button, action};
+    ev.button = {InputEvent::BUTTON, MouseButton(button), ButtonAction(action)};
     Application::get().addInputEvent(ev);
 }
 
@@ -207,7 +207,7 @@ void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     app->m_mouseWheel += float(yoffset);
 
     InputEvent ev;
-    ev.scroll = {InputEvent::SCROLL, yoffset};
+    ev.scroll = {InputEvent::SCROLL, float(yoffset)};
     Application::get().addInputEvent(ev);
 }
 
@@ -225,7 +225,7 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
     InputEvent ev;
-    ev.key = {InputEvent::KEY, key, action, mods};
+    ev.key = {InputEvent::KEY, key, KeyAction(action), mods};
     Application::get().addInputEvent(ev);
 }
 
@@ -239,9 +239,9 @@ void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
     static double last_x = 0.0;
     static double last_y = 0.0;
     InputEvent    ev;
-    ev.motion = {InputEvent::MOTION, x, y, x - last_x, y - last_y};
-    last_x    = x;
-    last_y    = y;
+    ev.mouse = {InputEvent::MOUSE, float(x), float(y), float(x - last_x), float(y - last_y)};
+    last_x   = x;
+    last_y   = y;
 
     Application::get().addInputEvent(ev);
 }
@@ -436,7 +436,7 @@ void Application::processEvents() {
     for(size_t i = 0; i < m_inputs.size(); ++i)
         for(auto& curr : m_inputEventListeners)
             if((m_inputs[i].type == InputEvent::KEY && !io.WantCaptureKeyboard) ||
-               (m_inputs[i].type == InputEvent::MOTION && !io.WantCaptureMouse) ||
+               (m_inputs[i].type == InputEvent::MOUSE && !io.WantCaptureMouse) ||
                (m_inputs[i].type == InputEvent::BUTTON && !io.WantCaptureMouse) ||
                (m_inputs[i].type == InputEvent::SCROLL && !io.WantCaptureMouse))
                 curr->process_event(m_inputs[i]);

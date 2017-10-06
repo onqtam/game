@@ -5,7 +5,7 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 #include "core/GraphicsHelpers.h"
-#include "core/InputEvent.h"
+#include "core/Input.h"
 
 #include "core/messages/messages_editor.h"
 

@@ -1,15 +1,12 @@
 #include "core/serialization/serialization_common.h"
 #include "core/imgui/imgui_bindings_common.h"
 
-#include "core/InputEvent.h"
+#include "core/Input.h"
 #include "core/Application.h"
 #include "core/World.h"
 
 #include "core/messages/messages_camera.h"
 
-HA_SUPPRESS_WARNINGS
-#include <GLFW/glfw3.h>
-HA_SUPPRESS_WARNINGS_END
 const float k_speed = 25.f;
 
 static auto proj() {
@@ -34,9 +31,9 @@ public:
     }
 
     void process_event(const InputEvent& ev) override {
-        if(ev.type == InputEvent::MOTION) {
-            cursor_x = float(ev.motion.x);
-            cursor_y = float(ev.motion.y);
+        if(ev.type == InputEvent::MOUSE) {
+            cursor_x = float(ev.mouse.x);
+            cursor_y = float(ev.mouse.y);
         }
         if(ev.type == InputEvent::SCROLL) {
             scroll += float(ev.scroll.scroll);
@@ -93,26 +90,15 @@ class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera
 {
     HA_MESSAGES_IN_MIXIN(maya_camera);
 
-    FIELD bool  alt        = false;
-    FIELD int   buttons[3] = {0, 0, 0};
-    FIELD float cursor_x   = 0.f;
-    FIELD float cursor_y   = 0.f;
-    FIELD float scroll     = 0.f;
-
 public:
-    maya_camera() {
-        cursor_x = Application::get().width() / 2.f;
-        cursor_y = Application::get().height() / 2.f;
-    }
-
     FIELD float radius               = 2.f;
     FIELD float yaw                  = 0.f;
     FIELD float pitch                = 0.f;
-    FIELD yama::vector3 orbitPoint   = yama::vector3::uniform(0.f);
+    FIELD yama::vector3 pivotPoint   = yama::vector3::uniform(0.f);
     FIELD yama::vector2 prevMousePos = yama::vector2::uniform(0.f);
 
-    void orientation(yama::vector3& orbitToEye, yama::vector3& up, yama::vector3& right) const {
-        orbitToEye =
+    void orientation(yama::vector3& pivotToEye, yama::vector3& up, yama::vector3& right) const {
+        pivotToEye =
                 yama::vector3::coord(cos(yaw) * cos(pitch), sin(pitch), -sin(yaw) * cos(pitch)) *
                 radius;
 
@@ -121,55 +107,50 @@ public:
                                      sin(pitch + yama::constants::PI_HALF()),
                                      -sin(yaw) * cos(pitch + yama::constants::PI_HALF())));
 
-        right = yama::normalize(cross(up, orbitToEye));
+        right = yama::normalize(cross(up, pivotToEye));
     }
 
     yama::vector3 eyePosition() const {
-        return orbitPoint +
+        return pivotPoint +
                yama::vector3::coord(cos(yaw) * cos(pitch), sin(pitch), -sin(yaw) * cos(pitch)) *
                        radius;
     }
 
     yama::matrix get_view_matrix() const {
-        yama::vector3 orbitToEye, up, right;
-        orientation(orbitToEye, up, right);
+        yama::vector3 pivotToEye, up, right;
+        orientation(pivotToEye, up, right);
 
-        auto cameraPosition = orbitPoint + orbitToEye;
-        return yama::matrix::look_at_rh(cameraPosition, orbitPoint, up);
+        auto cameraPosition = pivotPoint + pivotToEye;
+        return yama::matrix::look_at_rh(cameraPosition, pivotPoint, up);
     }
 
     yama::matrix get_projection_matrix() const { return proj(); }
 
     void strafe(const float amountRight, const float amountUp) {
-        yama::vector3 orbitToEye, up, right;
-        orientation(orbitToEye, up, right);
+        yama::vector3 pivotToEye, up, right;
+        orientation(pivotToEye, up, right);
 
-        orbitPoint += amountRight * right;
-        orbitPoint += amountUp * up;
+        pivotPoint += amountRight * right;
+        pivotPoint += amountUp * up;
     }
 
     void process_event(const InputEvent& ev) override {
-        if(ev.type == InputEvent::MOTION) {
-            if(alt) {
-                float dx = float(ev.motion.dx);
-                float dy = float(ev.motion.dy);
-                if(buttons[0] && !(buttons[1] || buttons[2])) {
+        if(ev.type == InputEvent::MOUSE) {
+            if(isModOn(HA_MOD_ALT)) {
+                float dx = float(ev.mouse.dx);
+                float dy = float(ev.mouse.dy);
+                if(isButtonDown(MouseButton::Left) &&
+                   !(isButtonDown(MouseButton::Right) || isButtonDown(MouseButton::Middle))) {
                     yaw += -dx * 0.01f;
                     pitch += dy * 0.01f;
-                } else if(buttons[1]) {
+                } else if(isButtonDown(MouseButton::Right)) {
                     radius += dy * 0.08f * radius * 0.1f;
                     if(radius < 0.1f)
                         radius = 0.1f;
-                } else if(buttons[2]) {
+                } else if(isButtonDown(MouseButton::Middle)) {
                     strafe(-dx * 0.007f * radius * 0.1f, dy * 0.007f * radius * 0.1f);
                 }
             }
-        }
-        if(ev.type == InputEvent::BUTTON) {
-            buttons[ev.button.button] = ev.button.action;
-        }
-        if(ev.type == InputEvent::KEY) {
-            alt = ev.key.mods & GLFW_MOD_ALT;
         }
     }
 

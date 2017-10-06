@@ -1,10 +1,7 @@
 
-add a way to query the current input state without being a listener
+integrate the new camera properly
 
-codegen cant handle C arrays
-
-remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
-    ===> might get clashes for the generated .h.inl files in <gen> !!!
+soft commands are no longer blue - fix it!
 
 install unity and play with it...
 
@@ -99,6 +96,8 @@ is the extensive use of lambdas ok? is such locality better than extracting the 
     callstacks are bad - especially when using std::function (needed for recursion) and not just assigning the lambdas to auto
 rename oid to object_handle?
 make the oid class hold a pointer to the object instead of the index - but when being serialized it should turn into an index
+remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
+    ===> might get clashes for the generated .h.inl files in <gen> !!!
 
 == to test:
 - aabb class
@@ -133,6 +132,7 @@ questionable:
     - support for nested types
     - support for types in namespaces
     - inheritance
+    - fields as C arrays
     - templated types
     - error checking
 - sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
