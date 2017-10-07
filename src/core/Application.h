@@ -46,6 +46,8 @@ public:
     void removeInputEventListener(InputEventListener* in);
 
 private:
+    friend class ImGuiManager;
+
     std::vector<InputEvent>          m_inputs;
     std::vector<InputEventListener*> m_inputEventListeners;
 
