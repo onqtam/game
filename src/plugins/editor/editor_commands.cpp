@@ -14,7 +14,7 @@ static JsonData mixin_state(const Object& obj, cstr mixin) {
     JsonData out(1000);
     out.startObject();
     if(mixin && mixin[0] == '\0') {
-        out.append("\"\":");
+        out.addKey("");
         serialize(obj, out);
     } else {
         if(obj.implements(common::serialize_mixins_msg))

@@ -30,7 +30,7 @@ test_case_template_define("[serialization]", T, serialization_template) {
     JsonData state;
 
     state.startObject();
-    state.append("\"data\":");
+    state.addKey("data");
     serialize(data_in, state);
     state.endObject();
 

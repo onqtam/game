@@ -127,7 +127,7 @@ load_unload_proc getUnloadProc() {
     void n::serialize_mixins(cstr concrete_mixin, JsonData& out) const {                           \
         if(concrete_mixin && strcmp(#n, concrete_mixin) != 0)                                      \
             return;                                                                                \
-        out.append("\"" #n "\":");                                                                 \
+        out.addKey(#n);                                                                            \
         serialize(*this, out);                                                                     \
         out.addComma();                                                                            \
     }                                                                                              \

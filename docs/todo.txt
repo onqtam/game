@@ -237,6 +237,7 @@ graphics/assets:
     - https://github.com/friggog/tree-gen
     - https://github.com/ux3d/2gltf2
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
+    - tree generation - https://github.com/jarikomppa/proctree
     - debugging
         https://github.com/msqrt/shader-printf
     - texture stuff

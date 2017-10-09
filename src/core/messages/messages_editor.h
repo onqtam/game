@@ -4,13 +4,9 @@ template <typename T>
 JsonData mixin_attr_state(cstr mixin, cstr attr, const T& data) {
     JsonData out;
     out.startObject();
-    out.append("\"");
-    out.append(mixin, strlen(mixin));
-    out.append("\":");
+    out.addKey(mixin);
     out.startObject();
-    out.append("\"");
-    out.append(attr, strlen(attr));
-    out.append("\":");
+    out.addKey(attr);
     serialize(data, out);
     out.endObject();
     out.endObject();

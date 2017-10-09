@@ -87,8 +87,24 @@ public:
             m_data.push_back(']');
     }
 
+    void addKey(cstr key) {
+        append("\"");
+        append(key);
+        append("\":");
+    }
+
+    template <size_t N>
+    void addKey(const char(&key)[N]) {
+        hassert(key[N - 1] == '\0');
+        append("\"");
+        append(key, N - 1);
+        append("\":");
+    }
+
     // len should NOT include the null terminating character
     void append(cstr text, size_t len) { m_data.insert(m_data.end(), text, text + len); }
+
+    void append(cstr text) { append(text, strlen(text)); }
 
     template <size_t N>
     void append(const char (&text)[N]) {

@@ -71,7 +71,7 @@ struct print_ct;
 // =================================================================================================
 
 #define HA_SERIALIZE_VARIABLE(key, var)                                                            \
-    out.append("\"" key "\":");                                                                    \
+    out.addKey(key);                                                                               \
     serialize(var, out);                                                                           \
     out.addComma()
 
