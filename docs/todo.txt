@@ -236,6 +236,7 @@ graphics/assets:
     - https://github.com/libgdx/fbx-conv
     - https://github.com/friggog/tree-gen
     - https://github.com/ux3d/2gltf2
+    - maya/max collada plugins - https://github.com/KhronosGroup/OpenCOLLADA
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
     - tree generation - https://github.com/jarikomppa/proctree
     - debugging

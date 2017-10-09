@@ -121,6 +121,8 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     void handle_command(command_variant& command, bool undo);
     void add_command(const command_variant& command, bool soft = false);
 
+    void save();
+
 public:
     editor();
     ~editor();

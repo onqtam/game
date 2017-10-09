@@ -11,6 +11,9 @@ class const_oid
     int16 m_value;
 
 public:
+
+    typedef int16 internal_type;
+
     explicit const_oid(int16 value = -1)
             : m_value(value) {}
     explicit operator int16() const { return m_value; }

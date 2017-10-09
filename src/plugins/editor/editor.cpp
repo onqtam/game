@@ -118,6 +118,10 @@ void editor::process_event(const InputEvent& ev) {
         if(key == HA_KEY_D && (mods & HA_MOD_CONTROL) && (action == KeyAction::Press))
             duplicate_selected();
 
+        // save
+        if(key == HA_KEY_S && (mods & HA_MOD_CONTROL) && (action == KeyAction::Press))
+            save();
+
         // delete selected objects
         if(key == HA_KEY_DELETE && (action != KeyAction::Release))
             delete_selected();
@@ -129,6 +133,46 @@ void editor::process_event(const InputEvent& ev) {
 }
 
 HA_SINGLETON_INSTANCE(editor);
+
+void editor::save() {
+    auto& objects = ObjectManager::get().getObjects();
+
+    JsonData state;
+    state.startObject();
+
+    state.addKey("objects");
+    state.startArray();
+
+    for(auto& p : objects) {
+        auto& curr = p.second;
+
+        state.startObject();
+        state.addKey("id");
+        auto id_str = std::to_string(oid::internal_type(curr.id()));
+        state.append(id_str.c_str(), id_str.size());
+        state.addComma();
+        state.addKey("state");
+        serialize(curr, state);
+        state.addComma();
+        state.addKey("mixins");
+        state.startObject();
+        if(curr.implements(common::serialize_mixins_msg))
+            common::serialize_mixins(curr, nullptr, state);
+        state.endObject();
+        state.endObject();
+
+        state.addComma();
+    }
+
+    state.endArray();
+    state.endObject();
+
+    state.prettify();
+
+    auto f = fopen("level.json", "wb");
+    fwrite(state.data().data(), 1, state.size(), f);
+    fclose(f);
+}
 
 HA_MIXIN_DEFINE(editor, Interface_editor)
 

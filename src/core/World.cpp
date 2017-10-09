@@ -11,9 +11,56 @@ World::World()
         : Singleton<World>(this) {
     auto& om = ObjectManager::get();
 
+    // load level if it exists
+    auto f = fopen("level.json", "r");
+    if(f) {
+        fseek(f, 0, SEEK_END);
+        long fsize = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        JsonData state;
+        state.data().resize(fsize);
+        fread(state.data().data(), fsize, 1, f);
+        fclose(f);
+        state.addNull();
+
+        const auto& doc = state.parse();
+        hassert(doc.is_valid());
+        auto val = doc.get_root();
+
+        auto objects_val = val.get_object_value(0);
+        auto len = objects_val.get_length();
+        // for each object
+        for(size_t i = 0; i < len; ++i) {
+            auto json_obj = objects_val.get_array_element(i);
+
+            auto& obj = ObjectManager::get().createFromId(
+                    oid(json_obj.get_value_of_key({"id", 2}).get_integer_value()));
+
+            deserialize(obj, json_obj.get_value_of_key({"state", 5}));
+
+            auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
+            auto num_mixins  = mixins_json.get_length();
+            for(size_t k = 0; k < num_mixins; ++k) {
+                // hack to init the camera id
+                auto mixin_name = mixins_json.get_object_key(k).data();
+                if(strcmp(mixin_name, "gameplay_camera") == 0)
+                    m_camera = obj.id();
+
+                obj.addMixin(mixin_name);
+            }
+
+            if(obj.implements(common::deserialize_mixins_msg)) {
+                common::deserialize_mixins(obj, mixins_json);
+            }
+        }
+
+        return;
+    }
+
     m_camera = om.create("camera").id();
     //m_camera.obj().addMixin("maya_camera");
     m_camera.obj().addMixin("gameplay_camera");
+    m_camera.obj().addMixin("crap");
 
     // EXAMPLE: serialize and deserialize an object
     //JsonData state;
