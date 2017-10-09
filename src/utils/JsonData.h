@@ -94,7 +94,7 @@ public:
     }
 
     template <size_t N>
-    void addKey(const char(&key)[N]) {
+    void addKey(const char (&key)[N]) {
         hassert(key[N - 1] == '\0');
         append("\"");
         append(key, N - 1);
@@ -111,4 +111,6 @@ public:
         hassert(text[N - 1] == '\0');
         append(text, N - 1);
     }
+
+    HAPI void prettify();
 };

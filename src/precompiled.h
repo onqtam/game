@@ -67,7 +67,7 @@ HA_SUPPRESS_WARNINGS_END
 #include "utils/singleton.h"
 #include "utils/transform.h"
 #include "core/messages/message_macros.h"
-#include "core/serialization/JsonData.h"
+#include "utils/JsonData.h"
 #include "core/tags.h"
 #include "core/Object.h"
 #include "core/messages/messages_common.h"
