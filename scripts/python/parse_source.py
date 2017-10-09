@@ -65,7 +65,16 @@ for line in header:
                 attributes[attribute] = True
 
 header.close()
-code = ""
+
+# always generate the header - even if no functions are actually generated for the current source
+# otherwise the build system will always run the custom commands for each header that haven't generated the output
+code = '#pragma once\n'
+code += 'HA_MSVC_SUPPRESS_WARNING(4100)\n'
+code += 'HA_MSVC_SUPPRESS_WARNING(4189)\n'
+code += 'HA_GCC_SUPPRESS_WARNING("-Wunused-variable")\n'
+code += 'HA_GCC_SUPPRESS_WARNING("-Wunused-parameter")\n'
+code += 'HA_CLANG_SUPPRESS_WARNING("-Wunused-variable")\n'
+code += 'HA_CLANG_SUPPRESS_WARNING("-Wunused-parameter")\n\n'
 
 for type in types:
     # do not continue if empty
@@ -107,9 +116,13 @@ for type in types:
     code += strln('}')
     code += strln('')
 
-# always generate the header - even if "code" is an empty string
-# otherwise the build system will always run the custom commands for each header that haven't generated the output
-code = "#pragma once\n\n" + code
+code += 'HA_MSVC_SUPPRESS_WARNING_END\n'
+code += 'HA_MSVC_SUPPRESS_WARNING_END\n'
+code += 'HA_GCC_SUPPRESS_WARNING_END\n'
+code += 'HA_GCC_SUPPRESS_WARNING_END\n'
+code += 'HA_CLANG_SUPPRESS_WARNING_END\n'
+code += 'HA_CLANG_SUPPRESS_WARNING_END\n'
+
 gen = open(sys.argv[2], 'w+')
 gen.write(code)
 gen.close()

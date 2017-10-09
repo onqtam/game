@@ -89,7 +89,7 @@
 #define HA_CLANG_SUPPRESS_WARNING_END
 #define HA_GCC_SUPPRESS_WARNING(w)
 #define HA_GCC_SUPPRESS_WARNING_END
-#define HA_MSVC_SUPPRESS_WARNING(w) __pragma(warning(push)) __pragma(warning(disable, w))
+#define HA_MSVC_SUPPRESS_WARNING(w) __pragma(warning(push)) __pragma(warning(disable: w))
 #define HA_MSVC_SUPPRESS_WARNING_END __pragma(warning(pop))
 
 #endif // _MSC_VER

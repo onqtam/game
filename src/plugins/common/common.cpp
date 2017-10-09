@@ -43,4 +43,12 @@ public:
 
 HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg)
 
+REFL_ATTRIBUTES(REFL_NO_SKIP)
+class crap
+{
+    HA_MESSAGES_IN_MIXIN(crap);
+};
+
+HA_MIXIN_DEFINE(crap, dynamix::none)
+
 #include <gen/common.cpp.inl>
