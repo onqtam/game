@@ -25,7 +25,7 @@ class HAPI Application : public Singleton<Application>
     int  run(int argc, char** argv);
     void processEvents();
     void update();
-    void reset(uint32 flags = BGFX_RESET_NONE);
+    void reset(uint32 flags = 0);
 
 public:
     uint32 width() const { return m_width; }
@@ -63,6 +63,4 @@ private:
     float m_lastTime = 0.f;
     float m_dt       = 0.f;
     float m_time     = 0.f;
-
-    bgfx_uniform_handle u_time;
 };

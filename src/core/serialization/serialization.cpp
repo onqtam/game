@@ -92,11 +92,6 @@ void deserialize(oid& data, const sajson::value& val) {
     data = oid(int16(val.get_integer_value()));
 }
 
-void serialize(MeshHandle data, JsonData& out) { serialize(*reinterpret_cast<int16*>(&data), out); }
-void deserialize(MeshHandle& data, const sajson::value& val) {
-    data = MeshMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
-}
-
 void serialize(ShaderHandle data, JsonData& out) {
     serialize(*reinterpret_cast<int16*>(&data), out);
 }

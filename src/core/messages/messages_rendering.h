@@ -1,12 +1,10 @@
 #pragma once
 
-#include "core/GraphicsHelpers.h"
+#include "core/rendering/GraphicsHelpers.h"
 
 struct renderPart
 {
-    MeshHandle   mesh;
     GeomHandle   geom;
-    ShaderHandle shader;
     yama::matrix transform;
 };
 

@@ -1,12 +1,11 @@
 #include "Application.h"
 #include "PluginManager.h"
 #include "World.h"
-#include "GraphicsHelpers.h"
+#include "rendering/GraphicsHelpers.h"
+#include "rendering/Renderer.h"
 #include "imgui/ImGuiManager.h"
 
 HA_SUPPRESS_WARNINGS
-
-#include <bgfx/c99/platform.h>
 
 #include <GLFW/glfw3.h>
 
@@ -14,18 +13,18 @@ HA_SUPPRESS_WARNINGS
 #include <emscripten/emscripten.h>
 #else // EMSCRIPTEN
 
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-#define GLFW_EXPOSE_NATIVE_X11
-#define GLFW_EXPOSE_NATIVE_GLX
-#elif BX_PLATFORM_OSX
+#if defined(__APPLE__)
 #define GLFW_EXPOSE_NATIVE_COCOA
 #define GLFW_EXPOSE_NATIVE_NSGL
-#elif BX_PLATFORM_WINDOWS
+#elif defined(__linux__) || defined(__unix__)
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#elif defined(_WIN32)
 #define GLFW_EXPOSE_NATIVE_WIN32
 #define GLFW_EXPOSE_NATIVE_WGL
 #endif // platforms
 
-#if !BX_PLATFORM_WINDOWS
+#if !defined(_WIN32)
 #include <unistd.h> // for chdir()
 #endif              // not windows
 
@@ -176,6 +175,7 @@ int Application::run(int argc, char** argv) {
 
     // Setup input callbacks
     glfwSetWindowUserPointer(m_window, this);
+    glfwMakeContextCurrent(m_window);
     glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
     glfwSetScrollCallback(m_window, scrollCallback);
     glfwSetKeyCallback(m_window, keyCallback);
@@ -184,33 +184,27 @@ int Application::run(int argc, char** argv) {
 
     glfwSetCursorPos(m_window, width() / 2, height() / 2);
 
-    // Setup bgfx
-    bgfx_platform_data pd;
-    memset(&pd, 0, sizeof(pd));
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-    pd.ndt = glfwGetX11Display();
-    pd.nwh = (void*)glfwGetX11Window(m_window);
-#elif BX_PLATFORM_OSX
-    pd.nwh = glfwGetCocoaWindow(m_window);
-#elif BX_PLATFORM_WINDOWS
-    pd.nwh = glfwGetWin32Window(m_window);
-#endif // BX_PLATFORM_
-
-    bgfx_set_platform_data(&pd);
-    bgfx_init(BGFX_RENDERER_TYPE_OPENGL, BGFX_PCI_ID_NONE, 0, nullptr, nullptr);
-    reset();
-
-    u_time = bgfx_create_uniform("u_time", BGFX_UNIFORM_TYPE_VEC4, 1);
+    // Setup rendering
+#if defined(_WIN32)
+    auto glewInitResult = glewInit();
+    if (glewInitResult != GLEW_OK)
+    {
+        fprintf(stderr, "Couldn't initialize glew. Reason: %s\n", glewGetErrorString(glewInitResult));
+        glfwTerminate();
+        return -1;
+    }
+#endif
+    glEnable(GL_DEPTH_TEST); // z buffer
+    glEnable(GL_CULL_FACE); // cull back (CW) faces
+    glClearColor(0.75f, 0.05f, 0.65f, 1);
 
     // Initialize the application
     reset();
-    bgfx_set_debug(BGFX_DEBUG_TEXT);
 
     // introduce this scope in order to control the lifetimes of managers
     {
         // resource managers should be created first and destroyed last - all
         // objects should be destroyed so the refcounts to the resources are 0
-        MeshMan   meshMan;
         ShaderMan shaderMan;
         GeomMan   geomMan;
 
@@ -219,6 +213,7 @@ int Application::run(int argc, char** argv) {
         World world;
 
         ImGuiManager imguiManager;
+        Renderer renderer;
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -231,9 +226,6 @@ int Application::run(int argc, char** argv) {
         Application::get().setState(Application::State::PLAY);
     }
 
-    bgfx_destroy_uniform(u_time);
-
-    bgfx_shutdown();
     glfwTerminate();
     return tests_res;
 }
@@ -263,8 +255,6 @@ void Application::update() {
     m_dt       = m_time - m_lastTime;
     m_lastTime = m_time;
 
-    bgfx_set_uniform(u_time, &m_time, 1);
-
     // poll for events - also dispatches to imgui
     glfwPollEvents();
     
@@ -280,8 +270,11 @@ void Application::update() {
     World::get().update();
 
     // render
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, m_width, m_height);
+    Renderer::get().render();
     ImGui::Render();
-    bgfx_frame(false);
+    glfwSwapBuffers(m_window);
 
     // handle resizing
     int w, h;
@@ -295,9 +288,4 @@ void Application::update() {
 
 void Application::reset(uint32 flags) {
     m_reset = flags;
-    bgfx_reset(m_width, m_height, m_reset);
-    bgfx_set_view_clear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x880088ff, 1.0f, 0);
-    bgfx_set_view_rect(0, 0, 0, uint16(width()), uint16(height()));
-    bgfx_set_view_clear(1, BGFX_CLEAR_DEPTH, 0, 1.0f, 0);
-    bgfx_set_view_rect(1, 0, 0, uint16(width()), uint16(height()));
 }
