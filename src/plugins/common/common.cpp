@@ -6,6 +6,14 @@
 
 #include "core/messages/messages_rendering.h"
 
+REFL_ATTRIBUTES(REFL_NO_SKIP)
+class crap
+{
+    HA_MESSAGES_IN_MIXIN(crap);
+};
+
+HA_MIXIN_DEFINE(crap, dynamix::none)
+
 class mesh
 {
     HA_MESSAGES_IN_MIXIN(mesh);
@@ -25,6 +33,9 @@ class mesh
     FIELD int    dragy3      = 42;
     FIELD std::string texty  = "happy!!";
     FIELD std::string texty2 = ":(";
+    FIELD oid some_obj_id;
+    FIELD std::vector<oid> omg;
+    FIELD std::map<int, oid> omg2;
 
 public:
     mesh() {
@@ -32,6 +43,9 @@ public:
 
         _mesh   = MeshMan::get().get(_path);
         _shader = ShaderMan::get().get("mesh");
+
+        //omg.resize(5);
+        //omg2.insert({5, oid()});
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
@@ -42,13 +56,5 @@ public:
 };
 
 HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg)
-
-REFL_ATTRIBUTES(REFL_NO_SKIP)
-class crap
-{
-    HA_MESSAGES_IN_MIXIN(crap);
-};
-
-HA_MIXIN_DEFINE(crap, dynamix::none)
 
 #include <gen/common.cpp.inl>

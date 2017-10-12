@@ -8,6 +8,7 @@
 #include <cctype>
 #include <ciso646>
 
+#include <typeinfo>
 #include <functional>
 #include <exception>
 #include <stdexcept>

@@ -197,3 +197,25 @@ void deserialize(boost::variant<Ts...>& data, const sajson::value& val) {
 const int num_serialize_definitions = __COUNTER__ - serialize_definitions_counter_start - 1;
 #undef serialize_c
 #undef serialize_c_impl
+
+// =================================================================================================
+// ==  OID COLLECTION ==============================================================================
+// =================================================================================================
+
+template <typename T>
+void gather_oids(T&, std::vector<const_oid*>&) {}
+
+inline void gather_oids(const_oid& in, std::vector<const_oid*>& out) { out.push_back(&in); }
+inline void gather_oids(oid& in, std::vector<const_oid*>& out) { out.push_back(&in); }
+
+template <typename T>
+void gather_oids(std::vector<T>& data, std::vector<const_oid*>& v) {
+    for(auto& curr : data)
+        gather_oids(curr, v);
+}
+
+template <typename K, typename V>
+void gather_oids(std::map<K, V>& data, std::vector<const_oid*>& v) {
+    for(auto& curr : data)
+        gather_oids(curr.second, v);
+}

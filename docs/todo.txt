@@ -96,6 +96,7 @@ rename oid to object_handle?
 make the oid class hold a pointer to the object instead of the index - but when being serialized it should turn into an index
 remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
     ===> might get clashes for the generated .h.inl files in <gen> !!!
+engine name: RPGE - rapid prototyping game engine - the RPG engine
 
 == to test:
 - aabb class
@@ -135,6 +136,11 @@ questionable:
     - error checking
 - sub-field handling - "t.pos" instead of just "t" - this will allow for using imgui bindings for composite types
 - hashing - use hash_append from github (not ported to MSVC yet) - or roll my own...
+- problems with the oid collection
+    - possibly slow - should investigate some compile time programming with traits and constexpr if... perhaps...
+    - currently calling the changed callbacks is skipped
+    - also trouble with keys of maps - perhaps some callback that does this: https://stackoverflow.com/a/44883472/3162383
+    - make it more general?...
 
 == coding standard:
 - all custom types should begin with a capital letter!
@@ -151,6 +157,9 @@ questionable:
 - https://github.com/lefticus/cppbestpractices
 - cpp core guidelines
 - CppCon 2016: Jason Turner “Practical Performance Practices" - https://www.youtube.com/watch?v=uzF4u9KgUWI
+
+== future performance optimizations:
+the oid class can skip doing lookups with its integer by holding a pointer to the object directly
 
 == tools:
 - valgrind
@@ -209,8 +218,11 @@ video:
     - ogg theora
     - theora play - theora nice API (http://icculus.org/theoraplay/)
     - https://github.com/libav/libav
+artificial intelligence:
+    https://github.com/miccol/Behavior-Tree
 audio:
     - openal
+        https://github.com/kcat/openal-soft
     - fmod
     - ogg vorbis - patent-free audio codec (oggvorbisfile - library with nice API) - https://github.com/soundcloud/vorbis
     - speex - patent-free format for voip - https://github.com/stoiczek/speex
@@ -257,6 +269,10 @@ profiler:
     - https://github.com/catapult-project/catapult
     - https://github.com/seanmiddleditch/yardstick
 miscellaneous:
+    GUID/UUID
+        https://github.com/r-lyeh/sole
+        https://github.com/boostorg/uuid
+        https://github.com/graeme-hill/crossguid
     - preprocessor stuffs - https://github.com/kobalicek/ppmagic
     https://github.com/mattiasgustavsson/libs
     - google breakpad - to send crash report from a remote system

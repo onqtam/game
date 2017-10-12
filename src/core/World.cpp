@@ -18,7 +18,8 @@ World::World()
         long fsize = ftell(f);
         fseek(f, 0, SEEK_SET);
         JsonData state;
-        state.data().resize(fsize);
+        state.reserve(fsize + 1);
+        state.data().resize(fsize); // 1 less than the capacity - will add a null terminator later - which won't be included in the size
         fread(state.data().data(), fsize, 1, f);
         fclose(f);
         state.addNull();
@@ -160,4 +161,11 @@ void World::update() {
     }
 
     mixins["editor"].update(dt);
+
+    std::vector<const_oid*> oids;
+    for(auto& obj : ObjectManager::get().getObjects())
+        if(obj.second.implements(common::gather_oids_mixins_msg))
+            common::gather_oids_mixins(obj.second, oids);
+
+    printf("oids: %d\n", oids.size());
 }

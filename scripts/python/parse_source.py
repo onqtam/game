@@ -104,6 +104,12 @@ for type in types:
     code += strln('}')
     code += strln('')
     
+    code += strln('%svoid gather_oids(%s& src, std::vector<const_oid*>& out) {' % (inline, type))
+    for field in types[type]["fields"]:
+        code += strln('gather_oids(src.%s, out);' % (field["name"]), tabs = 1)
+    code += strln('}')
+    code += strln('')
+    
     code += strln('%scstr imgui_bind_attributes(Object& e, cstr mixin, %s& obj) {' % (inline, type))
     code += strln('const char *out = nullptr, *temp = nullptr;', tabs = 1)
     for field in types[type]["fields"]:
