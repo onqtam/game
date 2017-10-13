@@ -163,12 +163,15 @@ class HAPI ObjectManager : public Singleton<ObjectManager>
             : Singleton(this) {}
     friend class Application;
 
+    ~ObjectManager();
+
 private:
     int16 m_curr_id = 0;
 
     std::map<oid, Object> m_objects;
 
 public:
+
     Object& create(const std::string& in_name = "object") {
         std::string name = in_name;
         name += "_" + std::to_string(m_curr_id);

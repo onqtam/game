@@ -73,3 +73,8 @@ void Object::set_parent(oid parent) {
 
 // included here and not in Object.h to contain dependencies
 #include <gen/Object.h.inl>
+
+ObjectManager::~ObjectManager() {
+    while(m_objects.size())
+        m_objects.erase(m_objects.begin());
+}
