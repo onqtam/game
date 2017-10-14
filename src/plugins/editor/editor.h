@@ -5,6 +5,7 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 #include "core/rendering/GraphicsHelpers.h"
+#include "core/rendering/Vertex.h"
 #include "core/Input.h"
 
 #include "core/messages/messages_editor.h"
@@ -85,8 +86,8 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     // these members are OK to not be serialized because they are constantly updated
     tinygizmo::gizmo_application_state m_gizmo_state;
     tinygizmo::gizmo_context           m_gizmo_ctx;
-    std::vector<char>                  m_verts;
-    std::vector<char>                  m_inds;
+    std::vector<vertex::pnc>           m_gizmo_verts;
+    std::vector<uint32>                m_gizmo_inds;
     ShaderHandle                       m_program;
     //bgfx_vertex_decl                   vd;
     //bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};

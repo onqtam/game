@@ -538,6 +538,8 @@ void editor::update_gizmo() {
     }
     mouse_button_left_changed = false;
 
+    m_gizmo_verts.clear();
+    m_gizmo_inds.clear();
     m_gizmo_ctx.draw();
 }
 

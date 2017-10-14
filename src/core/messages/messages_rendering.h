@@ -5,6 +5,7 @@
 struct renderPart
 {
     GeomHandle   geom;
+    TempMesh     tmpMesh;
     yama::matrix transform;
 };
 

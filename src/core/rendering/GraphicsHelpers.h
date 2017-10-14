@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/aabb/aabb.hpp"
+#include "Vertex.h"
 
 // =============== GRAPHICAL RESOURCE MANAGERS =================
 
@@ -92,3 +93,9 @@ namespace colors
 const uint32 green       = 0xff00dd00;
 const uint32 light_green = 0xffffffff;
 } // namespace colors
+
+struct TempMesh
+{
+    const std::vector<vertex::pnc>* vertices = nullptr;
+    const std::vector<uint32>* indices = nullptr;
+};

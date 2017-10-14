@@ -34,7 +34,7 @@ public:
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, ha_this.get_transform().as_mat()});
+        out.push_back({_mesh, TempMesh(), ha_this.get_transform().as_mat()});
     }
 
     AABB get_aabb() const { return _mesh.get().bbox; }

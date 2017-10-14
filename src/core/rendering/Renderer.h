@@ -27,4 +27,7 @@ private:
     int m_worldParam = -1;
 
     yama::matrix m_projView;
+
+    GLuint m_tmpVb = 0;
+    GLuint m_tmpIb = 0;
 };
