@@ -8,10 +8,6 @@ SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/cmake_modules")
 
-set(BGFX_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bgfx"  CACHE STRING "Location of bgfx.")
-set(BX_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bx"    CACHE STRING "Location of bx.")
-set(BIMG_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bimg"  CACHE STRING "Location of bimg.")
-
 set(UCM_UNITY_BUILD         OFF CACHE BOOL "" FORCE)
 set(UCM_NO_COTIRE_FOLDER    OFF CACHE BOOL "" FORCE)
 
@@ -19,7 +15,6 @@ option(WITH_PLUGINS "Compile plugins as separate .dll files instead of merging t
 
 # FOR DEBUGGING BUILDS
 #set(WITH_PLUGINS OFF CACHE BOOL "" FORCE)
-#add_definitions(-DBGFX_CONFIG_MULTITHREADED=0)
 
 set(COTIRE_PCH_MEMORY_SCALING_FACTOR 500)
 include(third_party/ucm/cmake/ucm.cmake)
@@ -55,7 +50,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 #===================================================================================================
 
 set(BOOST_DIR "boost_1_65_0")
-set(GLEW_DIR "glew-2.1.0")
+set(GLEW_DIR "glew-1.13.0")
 
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
@@ -83,13 +78,6 @@ if(TOOLCHAIN STREQUAL "js")
     include_directories("${EMSCRIPTEN_ROOT}/system/lib/libcxxabi/include")
 else()
     include_directories("third_party/${GLEW_DIR}/include")
-
-    add_definitions(-DGLEW_BUILD)
-    if(UNIX)
-        set(GLEW_LINK_LIBRARIES GL)
-    else()
-        set(GLEW_LINK_LIBRARIES opengl32)
-    endif()
 endif()
 
 #===================================================================================================

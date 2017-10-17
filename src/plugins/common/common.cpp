@@ -2,7 +2,7 @@
 #include "core/serialization/serialization_2.h"
 #include "core/imgui/imgui_bindings_common.h"
 
-#include "core/GraphicsHelpers.h"
+#include "core/rendering/GraphicsHelpers.h"
 
 #include "core/messages/messages_rendering.h"
 
@@ -18,10 +18,10 @@ class mesh
 {
     HA_MESSAGES_IN_MIXIN(mesh);
 
-    static void mesh_changed_cb(mesh& in) { in._mesh = MeshMan::get().get(in._path); }
+    static void mesh_changed_cb(mesh&) {}
 
-    FIELD MeshHandle _mesh;
-    FIELD ShaderHandle _shader;
+    GeomMan::Handle _mesh;
+
     REFL_ATTRIBUTES(tag::mesh, REFL_CALLBACK(mesh::mesh_changed_cb))
     FIELD std::string _path;
     REFL_ATTRIBUTES(tag::image)
@@ -41,18 +41,14 @@ public:
     mesh() {
         _path = "meshes/bunny.bin";
 
-        _mesh   = MeshMan::get().get(_path);
-        _shader = ShaderMan::get().get("mesh");
-
-        //omg.resize(5);
-        //omg2.insert({5, oid()});
+        _mesh = GeomMan::get().get("", createSolidBox, 1.f, 1.f, 1.f, 0xFFFFFFFF);
     }
 
     void get_rendering_parts(std::vector<renderPart>& out) const {
-        out.push_back({_mesh, {}, _shader, ha_this.get_transform().as_mat()});
+        out.push_back({_mesh, TempMesh(), ha_this.get_transform().as_mat()});
     }
 
-    AABB get_aabb() const { return getMeshBBox(_mesh.get()); }
+    AABB get_aabb() const { return _mesh.get().bbox; }
 };
 
 HA_MIXIN_DEFINE(mesh, rend::get_rendering_parts_msg& rend::get_aabb_msg)

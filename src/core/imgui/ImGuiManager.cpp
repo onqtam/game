@@ -1,6 +1,10 @@
 #include "ImGuiManager.h"
 
-#include "core/GraphicsHelpers.h"
+#include "core/rendering/Shader.h"
+#include "core/rendering/Texture.h"
+#include "core/rendering/GPUProgram.h"
+#include "core/rendering/GraphicsHelpers.h"
+#include "core/rendering/GLSentries.h"
 #include "core/Application.h"
 
 #include <GLFW/glfw3.h>
@@ -14,25 +18,123 @@
 
 HA_SINGLETON_INSTANCE(ImGuiManager);
 
-static bgfx_vertex_decl    ivd;
-static bgfx_texture_handle imguiFontTexture;
-static bgfx_uniform_handle imguiFontUniform;
-static bgfx_program_handle imguiProgram;
-static void                imguiInit();
-static void                imguiRender(ImDrawData* drawData);
-static void                imguiShutdown();
-static cstr                imguiGetClipboardText(void* userData);
-static void                imguiSetClipboardText(void* userData, cstr text);
+using namespace yama;
+
+static cstr imguiGetClipboardText(void* userData);
+static void imguiSetClipboardText(void* userData, cstr text);
+
+static const char* vertexShaderSource =
+"\
+uniform mat4 proj; \
+attribute vec2 v_pos; \
+attribute vec2 v_texCoord; \
+attribute vec4 v_color; \
+varying vec2 texCoord; \
+varying vec4 color; \
+void main(void) \
+{ \
+    texCoord = v_texCoord; \
+    color = v_color; \
+    gl_Position = proj * vec4(v_pos.xy, 0.0, 1.0); \
+} \
+";
+
+static const char* fragmentShaderSource =
+"\
+#version 100 \n\
+precision mediump float; \
+uniform sampler2D tex; \
+varying vec2 texCoord; \
+varying vec4 color; \
+void main(void) \
+{ \
+    gl_FragColor = color * texture2D(tex, texCoord); \
+} \
+";
+
+static int Attrib_Position, Attrib_TexCoord, Attrib_Color;
 
 ImGuiManager::ImGuiManager()
     : Singleton(this)
 {
-    imguiInit();
+    ImGuiIO&       io = ImGui::GetIO();
+
+    // Shaders, program and uniforms
+    auto vs = std::make_shared<Shader>(ShaderType::Vertex, "imgui vertex shader");
+    vs->load(vertexShaderSource);
+    auto fs = std::make_shared<Shader>(ShaderType::Fragment, "imgui fragment shader");
+    fs->load(fragmentShaderSource);
+
+    m_gpuProgram = std::make_shared<GPUProgram>("imgui program");
+
+    m_gpuProgram->attachShader(vs);
+    m_gpuProgram->attachShader(fs);
+
+    Attrib_Position = m_gpuProgram->bindAttribute("v_pos");
+    Attrib_TexCoord = m_gpuProgram->bindAttribute("v_texCoord");
+    Attrib_Color = m_gpuProgram->bindAttribute("v_color");
+
+    m_gpuProgram->link();
+
+    m_projParam = m_gpuProgram->getParameterByName("proj");
+    m_textureParam = m_gpuProgram->getParameterByName("tex");
+
+    // Fonts texture
+    io.Fonts->AddFontDefault();
+    
+    m_fontsTexture = std::make_shared<Texture>("gui fonts texture");
+
+    unsigned char* pixels;
+    int width, height;
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+    m_fontsTexture->loadFromData(width, height, GL_RGBA, pixels);
+
+    io.Fonts->TexID = m_fontsTexture.get();
+
+    io.Fonts->ClearInputData();
+    io.Fonts->ClearTexData();
+
+    // Buffers
+    glGenBuffers(1, &m_vertexBuffer);
+    glGenBuffers(1, &m_indexBuffer);
+
+    // Setup render callback
+    io.RenderDrawListsFn = ImGuiManager::imguiRenderCallback;
+
+    // Key mapping
+    io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
+    io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
+    io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
+    io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
+    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+    io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
+    io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
+    io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
+    io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
+    io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
+    io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
+    io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+    io.SetClipboardTextFn = imguiSetClipboardText;
+    io.GetClipboardTextFn = imguiGetClipboardText;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.IndentSpacing = 10.f;
 }
 
 ImGuiManager::~ImGuiManager()
 {
-    imguiShutdown();
+    glDeleteBuffers(1, &m_vertexBuffer);
+    glDeleteBuffers(1, &m_indexBuffer);
+    ImGui::GetIO().Fonts->TexID = nullptr;
+    ImGui::Shutdown();
 }
 
 void ImGuiManager::update(float dt)
@@ -87,138 +189,68 @@ void ImGuiManager::onCharEvent(unsigned c)
         io.AddInputCharacter((unsigned short)c);
 }
 
-static void imguiInit() {
-    unsigned char* data;
-    int            width, height;
-    ImGuiIO&       io = ImGui::GetIO();
+void ImGuiManager::imguiRenderCallback(ImDrawData* data)
+{
+    if (data->CmdListsCount == 0)
+        return;
 
-    // Setup vertex declaration
-    bgfx_vertex_decl_begin(&ivd, BGFX_RENDERER_TYPE_COUNT);
-    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_POSITION, 2, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_TEXCOORD0, 2, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_add(&ivd, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_UINT8, true, false);
-    bgfx_vertex_decl_end(&ivd);
+    auto& gui = ImGuiManager::get();
 
-    // Create font
-    io.Fonts->AddFontDefault();
-    io.Fonts->GetTexDataAsRGBA32(&data, &width, &height);
-    imguiFontTexture = bgfx_create_texture_2d((uint16)width, (uint16)height, false, 1,
-        BGFX_TEXTURE_FORMAT_BGRA8, 0,
-        bgfx_copy(data, width * height * 4));
-    imguiFontUniform = bgfx_create_uniform("s_tex", BGFX_UNIFORM_TYPE_INT1, 1);
+    HA_GL_SENTRY(GLEnable, GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    HA_GL_SENTRY(GLDisable, GL_CULL_FACE);
+    HA_GL_SENTRY(GLDisable, GL_DEPTH_TEST);
+    HA_GL_SENTRY(GLEnable, GL_SCISSOR_TEST);
 
-    // Create shader program
-    imguiProgram = loadProgram("ocornut_imgui_vs", "ocornut_imgui_fs");
+    // ortho 2d matrix
+    const float w = ImGui::GetIO().DisplaySize.x;
+    const float h = ImGui::GetIO().DisplaySize.y;
+    auto projection = matrix::ortho_rh(0, w, h, 0, 0, 1); // note the inverted height. ImGui uses 0,0 as top left
 
-    // Setup render callback
-    io.RenderDrawListsFn = imguiRender;
+    gui.m_gpuProgram->use();
+    gui.m_gpuProgram->setParameter(gui.m_projParam, projection);
 
-    // Key mapping
-    io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-    io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-    io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-    io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-    io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-    io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-    io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-    io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-    io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-    io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-    io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-    io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-    io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-    io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-    io.SetClipboardTextFn = imguiSetClipboardText;
-    io.GetClipboardTextFn = imguiGetClipboardText;
+    HA_GL_SENTRY(GLEnableAttrib, Attrib_Position);
+    HA_GL_SENTRY(GLEnableAttrib, Attrib_TexCoord);
+    HA_GL_SENTRY(GLEnableAttrib, Attrib_Color);
 
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.IndentSpacing = 10.f;
-}
+    glBindBuffer(GL_ARRAY_BUFFER, gui.m_vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui.m_indexBuffer);
 
+    glVertexAttribPointer(Attrib_Position, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), HA_OFFSET_OF(ImDrawVert, pos));
+    glVertexAttribPointer(Attrib_TexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), HA_OFFSET_OF(ImDrawVert, uv));
+    glVertexAttribPointer(Attrib_Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), HA_OFFSET_OF(ImDrawVert, col));
 
+    for (int i = 0; i < data->CmdListsCount; ++i)
+    {
+        const auto list = data->CmdLists[i];
 
-static void imguiRender(ImDrawData* drawData) {
-    for (int ii = 0, num = drawData->CmdListsCount; ii < num; ++ii) {
-        bgfx_transient_vertex_buffer tvb;
-        bgfx_transient_index_buffer  tib;
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ImDrawVert) * list->VtxBuffer.size(), list->VtxBuffer.Data, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ImDrawIdx) * list->IdxBuffer.size(), list->IdxBuffer.Data, GL_DYNAMIC_DRAW);
 
-        const ImDrawList* drawList = drawData->CmdLists[ii];
-        uint32            numVertices = (uint32)drawList->VtxBuffer.size();
-        uint32            numIndices = (uint32)drawList->IdxBuffer.size();
-
-        if (!bgfx_get_avail_transient_vertex_buffer(numVertices, &ivd) ||
-            !bgfx_get_avail_transient_index_buffer(numIndices)) {
-            break;
-        }
-
-        bgfx_alloc_transient_vertex_buffer(&tvb, numVertices, &ivd);
-        bgfx_alloc_transient_index_buffer(&tib, numIndices);
-
-        HA_CLANG_SUPPRESS_WARNING("-Wcast-align")
-            ImDrawVert* verts = (ImDrawVert*)tvb.data;
-        memcpy(verts, drawList->VtxBuffer.begin(), numVertices * sizeof(ImDrawVert));
-
-        ImDrawIdx* indices = (ImDrawIdx*)tib.data;
-        memcpy(indices, drawList->IdxBuffer.begin(), numIndices * sizeof(ImDrawIdx));
-        HA_CLANG_SUPPRESS_WARNING_END
-
-            uint32 offset = 0;
-        for (const ImDrawCmd *cmd = drawList->CmdBuffer.begin(), *cmdEnd = drawList->CmdBuffer.end();
-            cmd != cmdEnd; ++cmd) {
-            if (cmd->UserCallback) {
-                cmd->UserCallback(drawList, cmd);
+        ImDrawIdx* offsetPtr = nullptr;
+        for (const auto& cmd : list->CmdBuffer)
+        {
+            if (cmd.UserCallback)
+            {
+                cmd.UserCallback(list, &cmd);
             }
-            else if (0 != cmd->ElemCount) {
-                uint64_t state = BGFX_STATE_RGB_WRITE | BGFX_STATE_ALPHA_WRITE | BGFX_STATE_MSAA;
-                bgfx_texture_handle th = imguiFontTexture;
-                if (cmd->TextureId != nullptr) {
-                    union
-                    {
-                        ImTextureID ptr;
-                        struct
-                        {
-                            uint16              flags;
-                            bgfx_texture_handle handle;
-                        } s;
-                    } texture = { cmd->TextureId };
-                    HA_SUPPRESS_WARNINGS
-                        state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
-                            BGFX_STATE_BLEND_INV_SRC_ALPHA);
-                    HA_SUPPRESS_WARNINGS_END
-                        th = texture.s.handle;
-                }
-                else {
-                    HA_SUPPRESS_WARNINGS
-                        state |= BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
-                            BGFX_STATE_BLEND_INV_SRC_ALPHA);
-                    HA_SUPPRESS_WARNINGS_END
-                }
-                const uint16 xx = uint16(Utils::Max(cmd->ClipRect.x, 0.0f));
-                const uint16 yy = uint16(Utils::Max(cmd->ClipRect.y, 0.0f));
-                bgfx_set_scissor(xx, yy, uint16(Utils::Min(cmd->ClipRect.z, 65535.0f) - xx),
-                    uint16(Utils::Min(cmd->ClipRect.w, 65535.0f) - yy));
-                bgfx_set_state(state, 0);
-                bgfx_set_texture(0, imguiFontUniform, th, UINT32_MAX);
-                bgfx_set_transient_vertex_buffer(0, &tvb, 0, numVertices);
-                bgfx_set_transient_index_buffer(&tib, offset, cmd->ElemCount);
-                bgfx_submit(1, imguiProgram, 0, false);
+            else
+            {
+                // draw
+                const Texture* t = reinterpret_cast<Texture*>(cmd.TextureId);
+                assert(t);
+                gui.m_gpuProgram->setParameter(gui.m_textureParam, *t);
+                glScissor(int(cmd.ClipRect.x), (int)(h - cmd.ClipRect.w), int(cmd.ClipRect.z - cmd.ClipRect.x), int(cmd.ClipRect.w - cmd.ClipRect.y));
+                glDrawElements(GL_TRIANGLES, cmd.ElemCount, GL_UNSIGNED_SHORT, offsetPtr);
+                gui.m_gpuProgram->resetUniforms();
             }
-
-            offset += cmd->ElemCount;
+            offsetPtr += cmd.ElemCount;
         }
     }
-}
 
-static void imguiShutdown() {
-    bgfx_destroy_uniform(imguiFontUniform);
-    bgfx_destroy_texture(imguiFontTexture);
-    bgfx_destroy_program(imguiProgram);
-    ImGui::Shutdown();
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 static cstr imguiGetClipboardText(void* userData) {

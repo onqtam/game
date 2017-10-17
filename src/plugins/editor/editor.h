@@ -4,10 +4,12 @@ HA_SUPPRESS_WARNINGS
 #include <tinygizmo/tiny-gizmo.hpp>
 HA_SUPPRESS_WARNINGS_END
 
-#include "core/GraphicsHelpers.h"
+#include "core/rendering/GraphicsHelpers.h"
+#include "core/rendering/Vertex.h"
 #include "core/Input.h"
 
 #include "core/messages/messages_editor.h"
+#include "core/messages/messages_rendering.h"
 
 struct attributes_changed_cmd
 {
@@ -84,12 +86,14 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     // these members are OK to not be serialized because they are constantly updated
     tinygizmo::gizmo_application_state m_gizmo_state;
     tinygizmo::gizmo_context           m_gizmo_ctx;
-    std::vector<char>                  m_verts;
-    std::vector<char>                  m_inds;
+    std::vector<vertex::pnc>           m_gizmo_verts;
+    std::vector<uint32>                m_gizmo_inds;
     ShaderHandle                       m_program;
-    bgfx_vertex_decl                   vd;
-    bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
-    bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
+    mutable bool                       m_render_gizmo = false;
+
+    //bgfx_vertex_decl                   vd;
+    //bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
+    //bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
 
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
@@ -133,6 +137,8 @@ public:
 
     void add_changed_attribute(oid e, const JsonData& old_val, const JsonData& new_val,
                                const std::string& desc);
+
+    void get_rendering_parts(std::vector<renderPart>& out) const;
 };
 
 struct renderPart;

@@ -4,6 +4,7 @@
 
 #include "core/messages/messages_camera.h"
 #include "core/messages/messages_rendering.h"
+#include "rendering/Renderer.h"
 
 HA_SINGLETON_INSTANCE(World);
 
@@ -35,7 +36,7 @@ World::World()
             auto json_obj = objects_val.get_array_element(i);
 
             auto& obj = ObjectManager::get().createFromId(
-                    oid(json_obj.get_value_of_key({"id", 2}).get_integer_value()));
+                    oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
 
             deserialize(obj, json_obj.get_value_of_key({"state", 5}));
 
@@ -125,40 +126,19 @@ void World::update() {
     auto&        mixins = getAllMixins();
     float        dt     = app.dt();
 
-    bgfx_dbg_text_clear(0, false);
-    bgfx_dbg_text_printf(0, 1, 0x0f, "Frame: % 7.3f[ms]", double(dt) * 1000);
-
     mixins["gameplay_camera"].update(dt);
     yama::matrix view = cam::get_view_matrix(m_camera.obj());
     yama::matrix proj = cam::get_projection_matrix(m_camera.obj());
 
-    // Set view and projection matrix for view 0.
-    bgfx_set_view_transform(0, (float*)&view, (float*)&proj);
-    bgfx_set_view_transform(1, (float*)&view, (float*)&proj);
-    // Set view 0 default viewport.
-    bgfx_set_view_rect(0, 0, 0, uint16(app.width()), uint16(app.height()));
-    bgfx_set_view_rect(1, 0, 0, uint16(app.width()), uint16(app.height()));
-    bgfx_touch(0);
-    bgfx_touch(1);
+    auto& r = Renderer::get();
 
-    std::vector<renderPart> renderData;
+    r.setProjView(proj * view);
 
-    for(const auto& e : ObjectManager::get().getObjects())
-        if(e.second.implements(rend::get_rendering_parts_msg))
-            rend::get_rendering_parts(e.second, renderData);
-    for(const auto& data : renderData) {
-        if(data.mesh.isValid()) {
-            meshSubmit(data.mesh.get(), 0, data.shader.get(), (const float*)&data.transform);
-        } else if(data.geom.isValid()) {
-            bgfx_set_transform((const float*)&data.transform, 1);
-            bgfx_set_state(BGFX_STATE_DEFAULT | data.geom.get().state, 0);
+    auto& rd0 = r.getRenderData(0);
 
-            bgfx_set_vertex_buffer(0, data.geom.get().vbh, 0, UINT32_MAX);
-            if(data.geom.get().ibh.idx != BGFX_INVALID_HANDLE)
-                bgfx_set_index_buffer(data.geom.get().ibh, 0, UINT32_MAX);
-            bgfx_submit(0, data.shader.get(), 0, false);
-        }
-    }
+    for (const auto& e : ObjectManager::get().getObjects())
+        if (e.second.implements(rend::get_rendering_parts_msg))
+            rend::get_rendering_parts(e.second, rd0);
 
     mixins["editor"].update(dt);
 

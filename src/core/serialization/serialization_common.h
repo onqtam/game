@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/GraphicsHelpers.h"
+#include "core/rendering/GraphicsHelpers.h"
 
 // helpers for the counting of serialization routines
 #define serialize_c_impl(in) serialize
@@ -51,9 +51,6 @@ HAPI void deserialize(transform& data, const sajson::value& val);
 
 HAPI void serialize_c(oid data, JsonData& out);
 HAPI void deserialize(oid& data, const sajson::value& val);
-
-HAPI void serialize_c(MeshHandle data, JsonData& out);
-HAPI void deserialize(MeshHandle& data, const sajson::value& val);
 
 HAPI void serialize_c(ShaderHandle data, JsonData& out);
 HAPI void deserialize(ShaderHandle& data, const sajson::value& val);

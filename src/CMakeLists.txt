@@ -6,33 +6,12 @@ if(${WITH_PLUGINS})
     add_definitions(-DHA_WITH_PLUGINS)
 endif()
 
-# == SHADERS =======================================================================================
-
-if(TOOLCHAIN STREQUAL "msvc")
-    FILE(GLOB_RECURSE shaders_vs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_vs.sc)
-    foreach(vs ${shaders_vs})
-        add_shader(${vs} VERTEX   OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
-    endforeach()
-    
-    FILE(GLOB_RECURSE shaders_fs ${CMAKE_SOURCE_DIR}/data/shaders/raw/*_fs.sc)
-    foreach(fs ${shaders_fs})
-        add_shader(${fs} FRAGMENT OUTPUT ${CMAKE_SOURCE_DIR}/data/shaders GLSL 130 PLATFORMS glsl gles)
-    endforeach()
-    
-    #shaderc.exe -f D:/game/data/shaders/raw/cubes/cubes_fs.sc -i D:/game/third_party/bgfx/src -o D:/game/data/shaders/gles/cubes_fs.bin --platform android --type fragment
-    
-    # add the shaders to the project so they are actually included in the build...
-    set(SOURCES ${shaders_vs} ${shaders_fs})
-endif()
-
 # == GAME ==========================================================================================
 
 # sadly I need to duplicate these - emscripten (and I think gcc) have trouble building the pch - it does not use the PUBLIC/INTERFACE properties of the targets
 include_directories("../third_party/dynamix/include")
 include_directories("../third_party/ppk_assert")
 include_directories("../third_party/")
-include_directories("../third_party/bgfx/include")
-include_directories("../third_party/bx/include")
 include_directories("../third_party/imgui")
 include_directories("../third_party/doctest/doctest")
 include_directories("../third_party/tinygizmo")
@@ -60,6 +39,7 @@ ucm_add_dirs(TO SOURCES "core/messages")
 ucm_add_dirs(TO SOURCES "utils")
 ucm_add_dirs(TO SOURCES "utils/base64")
 ucm_add_dirs(TO SOURCES "utils/aabb")
+ucm_add_dirs(TO SOURCES "core/rendering")
 
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)
@@ -87,8 +67,6 @@ if(${WITH_PLUGINS})
     set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
     target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")
 endif()
-
-target_link_libraries(game bgfx ib-compress)
 
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)

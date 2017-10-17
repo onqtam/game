@@ -64,7 +64,6 @@ HA_SERIALIZE_TEST(std::string, "hello !");
 HA_SERIALIZE_TEST(yama::vector3, {1, 2, 3});
 HA_SERIALIZE_TEST(transform, {{0, 1, 2}, {3, 4, 5}, {6, 7, 8, 9}});
 HA_SERIALIZE_TEST(oid, oid(1));
-HA_SERIALIZE_TEST(MeshHandle, MeshHandle());
 HA_SERIALIZE_TEST(ShaderHandle, ShaderHandle());
 static std::string json_example =
         "{\"menu\": {\"id\": \"file\", \"value\": \"File\", \"popup\": "

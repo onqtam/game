@@ -28,56 +28,36 @@ editor::editor()
     m_grid_shader = ShaderMan::get().get("cubes");
 
     m_program = ShaderMan::get().get("gizmo");
-    bgfx_vertex_decl_begin(&vd, BGFX_RENDERER_TYPE_COUNT);
-    bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_POSITION, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_NORMAL, 3, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_add(&vd, BGFX_ATTRIB_COLOR0, 4, BGFX_ATTRIB_TYPE_FLOAT, false, false);
-    bgfx_vertex_decl_end(&vd);
 
     m_gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
-        auto identity = yama::matrix::identity();
-        bgfx_set_transform((float*)&identity, 1);
-
-        m_verts.resize(r.vertices.size() * sizeof(tinygizmo::geometry_vertex));
-        memcpy(m_verts.data(), r.vertices.data(), m_verts.size());
-        m_inds.resize(r.triangles.size() * sizeof(r.triangles[0]));
-        memcpy(m_inds.data(), r.triangles.data(), m_inds.size());
-
-        // TODO: fix this! use dynamic or transient buffers (whatever that means)
-        // and just update them instead of constantly recreating them
-        if(m_vert_buf.idx != BGFX_INVALID_HANDLE) {
-            bgfx_destroy_vertex_buffer(m_vert_buf);
-            bgfx_destroy_index_buffer(m_ind_buf);
-        }
-        m_vert_buf = bgfx_create_vertex_buffer(
-                bgfx_make_ref(m_verts.data(), uint32(m_verts.size())), &vd, BGFX_BUFFER_NONE);
-        m_ind_buf = bgfx_create_index_buffer(bgfx_make_ref(m_inds.data(), uint32(m_inds.size())),
-                                             BGFX_BUFFER_INDEX32);
-
-        bgfx_set_vertex_buffer(0, m_vert_buf, 0, UINT32_MAX);
-        bgfx_set_index_buffer(m_ind_buf, 0, UINT32_MAX);
-        bgfx_set_state(BGFX_STATE_DEFAULT, 0);
-        bgfx_submit(1, m_program.get(), 0, false);
+        //if (!m_gizmo_verts.empty()) return;
+        m_gizmo_verts.resize(r.vertices.size());
+        memcpy(m_gizmo_verts.data(), r.vertices.data(), m_gizmo_verts.size() * sizeof(tinygizmo::geometry_vertex));
+        m_gizmo_inds.resize(r.triangles.size() * 3);
+        memcpy(m_gizmo_inds.data(), r.triangles.data(), m_gizmo_inds.size() * sizeof(uint32));
+        m_render_gizmo = true;
     };
 }
 
 editor::~editor() {
-    if(m_vert_buf.idx != BGFX_INVALID_HANDLE) {
-        bgfx_destroy_vertex_buffer(m_vert_buf);
-        bgfx_destroy_index_buffer(m_ind_buf);
-    }
 }
 
 void editor::update(float) {
-    // draw grid
-    auto identity = yama::matrix::identity();
-    bgfx_set_transform((float*)&identity, 1);
-    bgfx_set_vertex_buffer(0, m_grid.get().vbh, 0, UINT32_MAX);
-    bgfx_set_state(BGFX_STATE_DEFAULT | m_grid.get().state, 0);
-    bgfx_submit(0, m_grid_shader.get(), 0, false);
-
     update_gui();
     update_gizmo();
+}
+
+void editor::get_rendering_parts(std::vector<renderPart>& out) const
+{
+    out.push_back({ m_grid, TempMesh(), yama::matrix::identity() });
+    if(m_render_gizmo) {
+        renderPart part;
+        part.tmpMesh.vertices = &m_gizmo_verts;
+        part.tmpMesh.indices  = &m_gizmo_inds;
+        part.transform        = yama::matrix::identity();
+        out.push_back(part);
+        m_render_gizmo = false;
+    }
 }
 
 void editor::process_event(const InputEvent& ev) {
@@ -174,7 +154,7 @@ void editor::save() {
     fclose(f);
 }
 
-HA_MIXIN_DEFINE(editor, Interface_editor)
+HA_MIXIN_DEFINE(editor, Interface_editor & rend::get_rendering_parts_msg)
 
 void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out) {
     // if object has a bbox - submit it
@@ -182,8 +162,8 @@ void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out)
         auto diag   = rend::get_aabb(curr).getDiagonal();
         auto color  = curr.has<selected>() ? colors::green : colors::light_green;
         auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
-        auto shader = ShaderMan::get().get("cubes");
-        out.push_back({{}, geom, shader, curr.get_transform().as_mat()});
+        // auto shader = ShaderMan::get().get("cubes");
+        out.push_back({geom, TempMesh(), curr.get_transform().as_mat()});
     }
     // recurse through children
     auto& children = curr.get_children();
