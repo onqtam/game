@@ -35,6 +35,7 @@ editor::editor()
         memcpy(m_gizmo_verts.data(), r.vertices.data(), m_gizmo_verts.size() * sizeof(tinygizmo::geometry_vertex));
         m_gizmo_inds.resize(r.triangles.size() * 3);
         memcpy(m_gizmo_inds.data(), r.triangles.data(), m_gizmo_inds.size() * sizeof(uint32));
+        m_render_gizmo = true;
     };
 }
 
@@ -49,11 +50,14 @@ void editor::update(float) {
 void editor::get_rendering_parts(std::vector<renderPart>& out) const
 {
     out.push_back({ m_grid, TempMesh(), yama::matrix::identity() });
-    renderPart part;
-    part.tmpMesh.vertices = &m_gizmo_verts;
-    part.tmpMesh.indices = &m_gizmo_inds;
-    part.transform = yama::matrix::identity();
-    out.push_back(part);
+    if(m_render_gizmo) {
+        renderPart part;
+        part.tmpMesh.vertices = &m_gizmo_verts;
+        part.tmpMesh.indices  = &m_gizmo_inds;
+        part.transform        = yama::matrix::identity();
+        out.push_back(part);
+        m_render_gizmo = false;
+    }
 }
 
 void editor::process_event(const InputEvent& ev) {

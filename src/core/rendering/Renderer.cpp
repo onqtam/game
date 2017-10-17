@@ -84,14 +84,18 @@ void Renderer::render()
     HA_GL_SENTRY(GLEnableAttrib, Attrib_Color);
 
     TempMesh* tmp = nullptr;
+    yama::matrix tmp_transform = yama::matrix::identity();
 
     for (auto& layer : m_layers)
     {
         m_gpuProgram->setParameter(m_projViewParam, m_projView);
         for (auto& parts : layer)
         {
-            if (parts.tmpMesh.vertices) tmp = &parts.tmpMesh;
-            if (!parts.geom.isValid()) continue;
+            if (parts.tmpMesh.vertices) {
+                tmp = &parts.tmpMesh;
+                tmp_transform = parts.transform;
+            }
+            if(!parts.geom.isValid()) continue;
             m_gpuProgram->setParameter(m_worldParam, parts.transform);
 
             auto& mesh = parts.geom.get();
@@ -127,6 +131,8 @@ void Renderer::render()
 
     if (tmp)
     {
+        m_gpuProgram->setParameter(m_worldParam, tmp_transform);
+
         glBindBuffer(GL_ARRAY_BUFFER, m_tmpVb);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertex::pnc) * tmp->vertices->size(), tmp->vertices->data(), GL_DYNAMIC_DRAW);
 
