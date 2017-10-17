@@ -50,7 +50,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 #===================================================================================================
 
 set(BOOST_DIR "boost_1_65_0")
-set(GLEW_DIR "glew-2.1.0")
+set(GLEW_DIR "glew-1.13.0")
 
 # this is for find_package() calls
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/${BOOST_DIR}" CACHE PATH "Boost path")
@@ -78,13 +78,6 @@ if(TOOLCHAIN STREQUAL "js")
     include_directories("${EMSCRIPTEN_ROOT}/system/lib/libcxxabi/include")
 else()
     include_directories("third_party/${GLEW_DIR}/include")
-
-    add_definitions(-DGLEW_BUILD)
-    if(UNIX)
-        set(GLEW_LINK_LIBRARIES GL)
-    else()
-        set(GLEW_LINK_LIBRARIES opengl32)
-    endif()
 endif()
 
 #===================================================================================================

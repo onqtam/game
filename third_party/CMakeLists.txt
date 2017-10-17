@@ -67,10 +67,15 @@ add_subdirectory(doctest)
 
 if(NOT TOOLCHAIN STREQUAL "js")
     # LIBRARY glew
-    ucm_add_dirs("${GLEW_DIR}/include/" TO glew.sources REC TRIM_FILTER 3)
-    ucm_add_files("${GLEW_DIR}/src/glew.c" TO glew.sources)
-    add_library(glew STATIC ${glew.sources})
-    target_link_libraries(glew "${GLEW_LINK_LIBRARIES}")
+    ucm_add_dirs("${GLEW_DIR}/include/" TO glew.sources RECURSIVE FILTER_POP 3)
+    ucm_add_files("${GLEW_DIR}/src/glew.c" TO glew.sources FILTER_POP 2)
+    add_library(glew SHARED ${glew.sources})
+    target_compile_options(glew PRIVATE -DGLEW_BUILD)
+    if(UNIX)
+        target_link_libraries(glew GL)
+    else()
+        target_link_libraries(glew opengl32)
+    endif()
     set_target_properties(glew PROPERTIES FOLDER "3rdparty")
 
     # LIBRARY glfw
