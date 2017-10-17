@@ -16,25 +16,12 @@
 [submodule "third_party/sajson"]
 	path = third_party/sajson
 	url = https://github.com/iboB/sajson.git
-[submodule "third_party/bgfx"]
-	path = third_party/bgfx
-	url = https://github.com/bkaradzic/bgfx.git
-	ignore = dirty
-[submodule "third_party/bx"]
-	path = third_party/bx
-	url = https://github.com/bkaradzic/bx.git
-[submodule "third_party/bimg"]
-	path = third_party/bimg
-	url = https://github.com/bkaradzic/bimg.git
 [submodule "third_party/imgui"]
 	path = third_party/imgui
 	url = https://github.com/ocornut/imgui.git
 [submodule "third_party/tinygizmo"]
 	path = third_party/tinygizmo
 	url = https://github.com/ddiakopoulos/tinygizmo.git
-[submodule "third_party/bgfx.cmake"]
-	path = third_party/bgfx.cmake
-	url = https://github.com/onqtam/bgfx.cmake.git
 [submodule "third_party/yama"]
 	path = third_party/yama
 	url = https://github.com/iboB/yama.git

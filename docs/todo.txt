@@ -56,9 +56,8 @@ editor:
         - command script for editing the level - also exposing the editor hotkey functionality to the script - like "ungroup"
         - resource viewer - all resources with preview when appropriate and refcounts
 
-ditch bgfx
 start using c++17
-    remove msvc15 option from python scripts
+    remove msvc14 option from python scripts
     <variant>
     <optional>
     structured bindings
