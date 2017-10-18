@@ -52,9 +52,6 @@ HAPI void deserialize(transform& data, const sajson::value& val);
 HAPI void serialize_c(oid data, JsonData& out);
 HAPI void deserialize(oid& data, const sajson::value& val);
 
-HAPI void serialize_c(ShaderHandle data, JsonData& out);
-HAPI void deserialize(ShaderHandle& data, const sajson::value& val);
-
 HAPI void serialize_c(const JsonData& data, JsonData& out);
 HAPI void deserialize(JsonData& data, const sajson::value& val);
 
@@ -194,6 +191,13 @@ void deserialize(boost::variant<Ts...>& data, const sajson::value& val) {
 const int num_serialize_definitions = __COUNTER__ - serialize_definitions_counter_start - 1;
 #undef serialize_c
 #undef serialize_c_impl
+
+// =================================================================================================
+// ==  UNTESTED ====================================================================================
+// =================================================================================================
+
+HAPI void serialize(ShaderHandle data, JsonData& out);
+HAPI void deserialize(ShaderHandle& data, const sajson::value& val);
 
 // =================================================================================================
 // ==  OID COLLECTION ==============================================================================

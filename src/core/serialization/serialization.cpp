@@ -92,13 +92,6 @@ void deserialize(oid& data, const sajson::value& val) {
     data = oid(int16(val.get_integer_value()));
 }
 
-void serialize(ShaderHandle data, JsonData& out) {
-    serialize(*reinterpret_cast<int16*>(&data), out);
-}
-void deserialize(ShaderHandle& data, const sajson::value& val) {
-    data = ShaderMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
-}
-
 void serialize(const JsonData& data, JsonData& out) {
     out.append("\"");
     auto escaped_data = escape_json(data.data().data(), data.size());
@@ -150,4 +143,15 @@ void deserialize(tinygizmo::gizmo_application_state& data, const sajson::value& 
     base64::decode(reinterpret_cast<const uint8*>(str), int(val.get_string_length()), buff,
                    max_decode_size);
     data = *reinterpret_cast<tinygizmo::gizmo_application_state*>(buff);
+}
+
+// =================================================================================================
+// ==  UNTESTED ====================================================================================
+// =================================================================================================
+
+void serialize(ShaderHandle data, JsonData& out) {
+    serialize(*reinterpret_cast<int16*>(&data), out);
+}
+void deserialize(ShaderHandle& data, const sajson::value& val) {
+    data = ShaderMan::get().getHandleFromIndex_UNSAFE(int16(val.get_integer_value()));
 }
