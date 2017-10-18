@@ -35,6 +35,7 @@ target_add_fPIC(dynamix)
 ucm_add_dirs("ppk_assert" TO ppk_assert.sources)
 add_library(ppk_assert STATIC "${ppk_assert.sources}")
 target_include_directories(ppk_assert PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ppk_assert)
+target_compile_definitions(ppk_assert PUBLIC PPK_ASSERT_DISABLE_EXCEPTIONS)
 set_target_properties(ppk_assert PROPERTIES FOLDER "3rdparty")
 target_add_fPIC(ppk_assert)
 

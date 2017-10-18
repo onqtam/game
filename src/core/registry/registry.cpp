@@ -25,6 +25,13 @@ int registerGlobal(cstr name, GlobalInfo info) {
     return 0;
 }
 
+namespace ppk::assert::implementation
+{
+// not throwing the actual exception because we would get odr violations when the static library is linked
+// to multiple binaries even if the default visibility is hidden - types that are thrown get exported...
+void throwException(const ppk::assert::AssertionException&) { std::abort(); }
+} // namespace ppk::assert::implementation
+
 static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
         cstr file, int line, cstr function, cstr expression, int level, cstr message) {
     using namespace ppk::assert::implementation;
