@@ -8,30 +8,26 @@
 
 HA_SINGLETON_INSTANCE(Renderer);
 
-static const char* color_vs =
-"\
-uniform mat4 pv; \
-uniform mat4 world; \
-attribute vec3 v_pos; \
-attribute vec4 v_color; \
-varying vec4 color; \
-void main(void) \
-{ \
-    color = v_color; \
-    gl_Position = pv * world * vec4(v_pos, 1.0); \
-} \
-";
+static const char* color_vs = R"delim(
+uniform mat4 pv;
+uniform mat4 world;
+attribute vec3 v_pos;
+attribute vec4 v_color;
+varying vec4 color;
+void main(void)
+{
+    color = v_color;
+    gl_Position = pv * world * vec4(v_pos, 1.0);
+}
+)delim";
 
-static const char* color_ps =
-"\
-#version 100 \n\
-precision mediump float; \
-varying vec4 color; \
-void main(void) \
-{ \
-    gl_FragColor = color; \
-} \
-";
+static const char* color_ps = R"delim(
+varying vec4 color;
+void main(void)
+{
+    gl_FragColor = color;
+}
+)delim";
 
 static int Attrib_Position, Attrib_Color;
 

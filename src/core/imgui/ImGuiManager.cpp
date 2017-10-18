@@ -23,34 +23,30 @@ using namespace yama;
 static cstr imguiGetClipboardText(void* userData);
 static void imguiSetClipboardText(void* userData, cstr text);
 
-static const char* vertexShaderSource =
-"\
-uniform mat4 proj; \
-attribute vec2 v_pos; \
-attribute vec2 v_texCoord; \
-attribute vec4 v_color; \
-varying vec2 texCoord; \
-varying vec4 color; \
-void main(void) \
-{ \
-    texCoord = v_texCoord; \
-    color = v_color; \
-    gl_Position = proj * vec4(v_pos.xy, 0.0, 1.0); \
-} \
-";
+static const char* vertexShaderSource = R"delim(
+uniform mat4 proj;
+attribute vec2 v_pos;
+attribute vec2 v_texCoord;
+attribute vec4 v_color;
+varying vec2 texCoord;
+varying vec4 color;
+void main(void)
+{
+    texCoord = v_texCoord;
+    color = v_color;
+    gl_Position = proj * vec4(v_pos.xy, 0.0, 1.0);
+}
+)delim";
 
-static const char* fragmentShaderSource =
-"\
-#version 100 \n\
-precision mediump float; \
-uniform sampler2D tex; \
-varying vec2 texCoord; \
-varying vec4 color; \
-void main(void) \
-{ \
-    gl_FragColor = color * texture2D(tex, texCoord); \
-} \
-";
+static const char* fragmentShaderSource = R"delim(
+uniform sampler2D tex;
+varying vec2 texCoord;
+varying vec4 color;
+void main(void)
+{
+    gl_FragColor = color * texture2D(tex, texCoord);
+}
+)delim";
 
 static int Attrib_Position, Attrib_TexCoord, Attrib_Color;
 
