@@ -91,10 +91,6 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     ShaderHandle                       m_program;
     mutable bool                       m_render_gizmo = false;
 
-    //bgfx_vertex_decl                   vd;
-    //bgfx_vertex_buffer_handle          m_vert_buf = {BGFX_INVALID_HANDLE};
-    //bgfx_index_buffer_handle           m_ind_buf  = {BGFX_INVALID_HANDLE};
-
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 

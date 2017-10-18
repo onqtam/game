@@ -143,9 +143,11 @@ void World::update() {
     mixins["editor"].update(dt);
 
     std::vector<const_oid*> oids;
-    for(auto& obj : ObjectManager::get().getObjects())
+    for(auto& obj : ObjectManager::get().getObjects()) {
+        gather_oids(obj.second, oids);
         if(obj.second.implements(common::gather_oids_mixins_msg))
             common::gather_oids_mixins(obj.second, oids);
+    }
 
     printf("oids: %d\n", oids.size());
 }

@@ -194,6 +194,7 @@ UI:
         https://github.com/aoterodelaroza/imgui-goodies
         https://github.com/Flix01/imgui
         https://github.com/ScottMudge/imgui_tabs
+        https://github.com/thennequin/ImWindow
     - nuklear
 physics:
     - bullet
@@ -267,6 +268,7 @@ profiler:
     - http://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/
     - https://github.com/catapult-project/catapult
     - https://github.com/seanmiddleditch/yardstick
+    - https://github.com/zeux/microprofile
 miscellaneous:
     GUID/UUID
         https://github.com/r-lyeh/sole
@@ -324,7 +326,6 @@ middleware:
 == dynamix:
 wanted:
     - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
-    - add has/get methods to object class that work with C strings (and mixin_id) and not just template parameters
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
     - expose part (name and mixin id) of the structure returned by _dynamix_get_mixin_type_info() outside of internal (also func)
 optimization:
@@ -338,5 +339,5 @@ optimization:
 hygiene:
     - prefix everything after _dynamix_internal: with "internal"
 
-== dynamix:
+== yama:
 deg_to_rad - breaks when an int is passed (passing "60" results in "0" instead of 1.xxx radians)

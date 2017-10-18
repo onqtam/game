@@ -166,7 +166,7 @@ int Application::run(int argc, char** argv) {
     }
 
 #ifndef EMSCRIPTEN
-    // Simulating fullscreen the way bgfx does in its example entry - by placing the window in 0,0
+    // Simulating fullscreen - by placing the window in 0,0
     int monitor_pos_x, monitor_pos_y;
     glfwGetMonitorPos(monitor, &monitor_pos_x, &monitor_pos_y);
     glfwSetWindowPos(m_window, monitor_pos_x, monitor_pos_y);
