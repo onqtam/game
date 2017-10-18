@@ -149,5 +149,5 @@ void World::update() {
             common::gather_oids_mixins(obj.second, oids);
     }
 
-    printf("oids: %d\n", oids.size());
+    printf("oids: %d\n", int(oids.size()));
 }

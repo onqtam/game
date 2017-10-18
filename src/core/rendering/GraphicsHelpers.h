@@ -10,11 +10,11 @@ struct bs_handle {};
 struct ProgramHandleCreator
 {
     void create(void* storage, const std::string& name) {
-        storage;
-        name;
+        ((void)storage);
+        ((void)name);
     }
     void destroy(void* storage) {
-        storage;
+        ((void)storage);
     }
 };
 
@@ -27,11 +27,11 @@ typedef ShaderMan::Handle ShaderHandle;
 struct TextureCreator
 {
     void create(void* storage, const std::string& name) {
-        storage;
-        name;
+        ((void)storage);
+        ((void)name);
     }
     void destroy(void* storage) {
-        storage;
+        ((void)storage);
     }
 };
 
