@@ -1,0 +1,1 @@
+ASAN_OPTIONS=allow_addr2line=true:check_initialization_order=true:strict_init_order=true:strict_string_checks=true:detect_odr_violation=2:detect_stack_use_after_return=true:verbosity=2 ./bin/gcc/Debug/game

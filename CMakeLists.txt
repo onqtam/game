@@ -26,6 +26,11 @@ if(MSVC AND NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/ALL_BUILD.vcxproj.user")
     file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/ALL_BUILD.vcxproj.user" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
+# always build with sanitizers under UNIX (for now...)
+if(UNIX AND NOT TOOLCHAIN STREQUAL "js")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer -g")
+endif()
+
 #===================================================================================================
 #== OUTPUT DIRS ====================================================================================
 #===================================================================================================
