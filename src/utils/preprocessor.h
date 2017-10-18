@@ -56,6 +56,9 @@ char (&_ArraySizeHelper(T (&array)[N]))[N];
 #define HA_EMPTY_BASE
 #endif // _MSC_VER
 
+#define HA_OFFSET(i) ((char *)nullptr + (i))
+#define HA_OFFSET_OF(type, member) (void*)offsetof(type, member) //(&static_cast<type*>(nullptr)->member)
+
 template <int s>
 struct print_ct;
 #define HA_PRINT_CT(x) print_ct<x> HA_ANONYMOUS(ct_)

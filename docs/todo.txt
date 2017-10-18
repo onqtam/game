@@ -1,4 +1,16 @@
 
+make the sanitizers run cleanly under linux
+
+start using c++17
+    remove msvc14 option from python scripts
+    <variant>
+    <optional>
+    structured bindings
+    initializers in if statements
+    template deduction of constructors
+        allowing me to skip the types in <> for std::function for the recursive lambdas (which is bug-prone anyway!!!)
+        allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
+
 integrate the new camera properly
 
 install unity and play with it...
@@ -55,16 +67,6 @@ editor:
         - editing an attribute of multiple objects at once
         - command script for editing the level - also exposing the editor hotkey functionality to the script - like "ungroup"
         - resource viewer - all resources with preview when appropriate and refcounts
-
-start using c++17
-    remove msvc14 option from python scripts
-    <variant>
-    <optional>
-    structured bindings
-    initializers in if statements
-    template deduction of constructors
-        allowing me to skip the types in <> for std::function for the recursive lambdas (which is bug-prone anyway!!!)
-        allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
 
 == bugs:
 emscripten build crashes with latest emscripten???

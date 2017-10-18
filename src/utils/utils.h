@@ -123,6 +123,3 @@ char* itoa_fast(T value, char* dst) {
 }
 
 } // namespace Utils
-
-#define HA_OFFSET(i) ((char *)nullptr + (i))
-#define HA_OFFSET_OF(type, member) (&static_cast<type*>(nullptr)->member)

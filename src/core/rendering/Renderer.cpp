@@ -110,7 +110,7 @@ void Renderer::render()
                 glVertexAttribPointer(Attrib_Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, HA_OFFSET(sizeof(float) * 3));
             }
 
-            glVertexAttribPointer(Attrib_Position, 3, GL_FLOAT, GL_FALSE, stride, 0);
+            glVertexAttribPointer(Attrib_Position, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
 
             if (mesh.ibh)
             {
@@ -143,7 +143,7 @@ void Renderer::render()
         }
 
         GLsizei stride = sizeof(float) * 10;
-        glVertexAttribPointer(Attrib_Position, 3, GL_FLOAT, GL_FALSE, stride, 0);
+        glVertexAttribPointer(Attrib_Position, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
         glVertexAttribPointer(Attrib_Color, 4, GL_FLOAT, GL_FALSE, stride, HA_OFFSET(sizeof(float) * 6));
 
         if (tmp->indices)
