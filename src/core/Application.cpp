@@ -33,6 +33,59 @@ HA_SUPPRESS_WARNINGS
 
 HA_SUPPRESS_WARNINGS_END
 
+// TODO: use a smarter allocator - the important methods here are for the mixin data
+class global_mixin_allocator : public dynamix::global_allocator
+{
+    char* alloc_mixin_data(size_t count) override { return new char[count * mixin_data_size]; }
+    void  dealloc_mixin_data(char* ptr) override { delete[] ptr; }
+
+    void alloc_mixin(size_t mixin_size, size_t mixin_alignment, char*& out_buffer,
+                     size_t& out_mixin_offset) override {
+        const size_t size = calculate_mem_size_for_mixin(mixin_size, mixin_alignment);
+        out_buffer = new char[size];
+        out_mixin_offset = calculate_mixin_offset(out_buffer, mixin_alignment);
+    }
+    void dealloc_mixin(char* ptr) override { delete[] ptr; }
+};
+
+static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
+    cstr file, int line, cstr function, cstr expression, int level, cstr message) {
+    using namespace ppk::assert::implementation;
+
+    char buf[2048];
+
+    size_t num_written =
+        snprintf(buf, HA_COUNT_OF(buf),
+                 "Assert failed!\nFile: %s\nLine: %d\nFunction: %s\nExpression: %s", file, line,
+                 function, expression);
+
+    if(message)
+        snprintf(buf + num_written, HA_COUNT_OF(buf) - num_written, "Message: %s\n", message);
+
+    fprintf(stderr, "%s", buf);
+
+    if(level < AssertLevel::Debug) {
+        return static_cast<AssertAction::AssertAction>(0);
+    } else if(AssertLevel::Debug <= level && level < AssertLevel::Error) {
+#ifdef _WIN32
+
+        // this might cause issues if there are multiple windows or threads
+        int res = MessageBox(GetActiveWindow(), buf, "Assert failed! Break in the debugger?",
+                             MB_YESNO | MB_ICONEXCLAMATION);
+
+        if(res == 7)
+            return static_cast<AssertAction::AssertAction>(0);
+        return AssertAction::Break;
+#else
+        return AssertAction::Break;
+#endif
+    } else if(AssertLevel::Error <= level && level < AssertLevel::Fatal) {
+        return AssertAction::Throw;
+    }
+
+    return AssertAction::Abort;
+}
+
 // =================================================================================================
 // == APPLICATION INPUT ============================================================================
 // =================================================================================================
@@ -87,21 +140,6 @@ void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
 // == APPLICATION IMPLEMENTATION ===================================================================
 // =================================================================================================
 
-// TODO: use a smarter allocator - the important methods here are for the mixin data
-class global_mixin_allocator : public dynamix::global_allocator
-{
-    char* alloc_mixin_data(size_t count) override { return new char[count * mixin_data_size]; }
-    void  dealloc_mixin_data(char* ptr) override { delete[] ptr; }
-
-    void alloc_mixin(size_t mixin_size, size_t mixin_alignment, char*& out_buffer,
-                     size_t& out_mixin_offset) override {
-        const size_t size = calculate_mem_size_for_mixin(mixin_size, mixin_alignment);
-        out_buffer        = new char[size];
-        out_mixin_offset  = calculate_mixin_offset(out_buffer, mixin_alignment);
-    }
-    void dealloc_mixin(char* ptr) override { delete[] ptr; }
-};
-
 HA_SINGLETON_INSTANCE(Application);
 
 void Application::addInputEventListener(InputEventListener* in) {
@@ -125,6 +163,8 @@ int Application::run(int argc, char** argv) {
     // set cwd to data folder - this is done for emscripten with the --preload-file flag
     HA_SET_DATA_CWD((Utils::getPathToExe() + "../../../data").c_str());
 #endif // EMSCRIPTEN
+
+    ppk::assert::implementation::setAssertHandler(assertHandler);
 
 #ifdef HA_WITH_PLUGINS
     // load plugins first so tests in them get executed as well

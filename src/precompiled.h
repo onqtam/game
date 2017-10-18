@@ -41,6 +41,7 @@ HA_SUPPRESS_WARNINGS
 #include <dynamix/dynamix.hpp>
 typedef dynamix::internal::mixin_type_info mixin_type_info;
 
+#define PPK_ASSERT_FUNCSPEC HA_SYMBOL_IMPORT
 #include <ppk_assert.h>
 #define hassert PPK_ASSERT
 
