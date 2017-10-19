@@ -1,1 +1,0 @@
-LSAN_OPTIONS=suppressions=scripts/other/lsan.supp UBSAN_OPTIONS=suppressions=scripts/other/ubsan.supp ASAN_OPTIONS=suppressions=scripts/other/asan.supp:allow_addr2line=true:check_initialization_order=true:strict_init_order=true:strict_string_checks=true:detect_odr_violation=2:detect_stack_use_after_return=true:verbosity=0 ./bin/gcc/Debug/game

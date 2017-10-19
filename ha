@@ -44,7 +44,12 @@ if args.b:
     subprocess.check_call(['python', 'scripts/python/build.py', '-b', args.b, '-c', args.c])
 
 if args.r:
-    subprocess.Popen([os.getcwd() + '/bin/' + args.r + '/' + args.c.title() + '/game'])
+    my_env = os.environ.copy()
+    if not isWindows():
+        my_env['LSAN_OPTIONS'] = 'suppressions=scripts/other/lsan.supp'
+        my_env['UBSAN_OPTIONS'] = 'suppressions=scripts/other/ubsan.supp'
+        my_env['ASAN_OPTIONS'] = 'suppressions=scripts/other/asan.supp:allow_addr2line=true:check_initialization_order=true:strict_init_order=true:strict_string_checks=true:detect_odr_violation=2:detect_stack_use_after_return=true:verbosity=0'
+    subprocess.Popen([os.getcwd() + '/bin/' + args.r + '/' + args.c.title() + '/game'], env = my_env)
 
 if args.fm:
     subprocess.check_call(['python', 'scripts/python/format_modifications.py'])
