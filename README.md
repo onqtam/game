@@ -12,7 +12,7 @@ Sometime in the distant future (1-2 years) shall go private when progress starts
 
 You'll need:
 
-- **Python 2.7** (currently 3 cannot setup the repository - downloading .zip dependencies fails)
+- **Python 2.7/3.x**
     - you'll also need the ```colorama``` package - ```pip install colorama```
 - **CMake 3.0** or newer (I'm always using the latest (or **3.7.2** in the case of travis CI))
 - Compilers (one of them)

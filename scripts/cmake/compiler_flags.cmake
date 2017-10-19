@@ -188,6 +188,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         list(APPEND ha_compiler_flags
             -Wduplicated-branches
             -Wrestrict
+            -Walloc-zero
+            -Walloca
         )
     endif()
         
