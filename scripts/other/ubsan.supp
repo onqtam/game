@@ -1,0 +1,10 @@
+function:PluginManager::init
+function:GeomCreator::create2
+function:Object::addMixin
+function:messages_camera.h
+function:messages_rendering.h
+function:messages_common.h
+function:imgui.cpp
+vptr:Application::processEvents
+vptr:object_type_info.cpp
+
