@@ -21,7 +21,14 @@ void main(void)
 }
 )delim";
 
-static const char* color_ps = R"delim(
+static const char* color_ps =
+#ifdef EMSCRIPTEN
+        R"delim(
+#version 100
+precision mediump float;
+)delim"
+#endif // EMSCRIPTEN
+        R"delim(
 varying vec4 color;
 void main(void)
 {

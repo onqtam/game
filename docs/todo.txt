@@ -67,16 +67,11 @@ editor:
         - resource viewer - all resources with preview when appropriate and refcounts
 
 == bugs:
-emscripten build crashes with latest emscripten???
 CI - appveyor emscripten build fails for some reason
-linux
-    when built with the address sanitizer on linux - build crashes on startup in the plugin manager
 editor
     imgui bindings - tab-ing from field to field doesn't submit commands in the undo/redo history
         https://github.com/ocornut/imgui/issues/1351
     things break when scaling objects not uniformly with parental relationships - kosta warned me about the transforms...
-    >>SOMETIMES<< under >>LINUX<< an assert(doc.is_valid()) in editor::handle_command() for object_mutation_cmd gets triggered when undo-ing stuff...
-        OMG HAPPENED UNDER EMSCRIPTEN TOO!
 
 == questions:
 ditch glfw in favor of sdl?

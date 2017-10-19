@@ -42,7 +42,14 @@ void main(void)
 }
 )delim";
 
-static const char* fragmentShaderSource = R"delim(
+static const char* fragmentShaderSource =
+#ifdef EMSCRIPTEN
+R"delim(
+#version 100
+precision mediump float;
+)delim"
+#endif // EMSCRIPTEN
+R"delim(
 uniform sampler2D tex;
 varying vec2 texCoord;
 varying vec4 color;
