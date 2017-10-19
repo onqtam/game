@@ -160,8 +160,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wshift-overflow=2
         -Wnull-dereference # requires -fdelete-null-pointer-checks which is enabled by optimizations in most targets
         -Wduplicated-cond
-        -Wduplicated-branches
-        -Wrestrict
         -Wold-style-cast
         -Wswitch-default
         -Wswitch-enum
@@ -185,6 +183,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         #-Wvector-operation-performance
         #-Wdisabled-optimization
     )
+    
+    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+        list(APPEND ha_compiler_flags
+            -Wduplicated-branches
+            -Wrestrict
+        )
+    endif()
+        
 endif()
 
 
