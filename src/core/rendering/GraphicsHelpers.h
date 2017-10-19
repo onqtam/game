@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/aabb/aabb.hpp"
+#include "utils/aabb/aabb.h"
 #include "Vertex.h"
 
 // =============== GRAPHICAL RESOURCE MANAGERS =================

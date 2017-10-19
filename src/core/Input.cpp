@@ -29,12 +29,14 @@ bool isModOn(int mod) {
 
 bool isButtonDown(MouseButton button) {
     ImGuiIO& io = ImGui::GetIO();
+    HA_CLANG_SUPPRESS_WARNING("-Wcovered-switch-default")
     switch(button) {
         case MouseButton::Left: return io.MouseDown[0];
         case MouseButton::Right: return io.MouseDown[1];
         case MouseButton::Middle: return io.MouseDown[2];
         default: break;
     }
+    HA_CLANG_SUPPRESS_WARNING_END
     hassert(false);
     return false;
 }

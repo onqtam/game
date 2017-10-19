@@ -7,7 +7,11 @@
 #include "core/rendering/GLSentries.h"
 #include "core/Application.h"
 
+HA_SUPPRESS_WARNINGS
+
 #include <GLFW/glfw3.h>
+
+HA_SUPPRESS_WARNINGS_END
 
 #if !defined(__EMSCRIPTEN__)
 #   if defined(_WIN32)
@@ -235,7 +239,7 @@ void ImGuiManager::imguiRenderCallback(ImDrawData* data)
             {
                 // draw
                 const Texture* t = reinterpret_cast<Texture*>(cmd.TextureId);
-                assert(t);
+                hassert(t);
                 gui.m_gpuProgram->setParameter(gui.m_textureParam, *t);
                 glScissor(int(cmd.ClipRect.x), (int)(h - cmd.ClipRect.w), int(cmd.ClipRect.z - cmd.ClipRect.x), int(cmd.ClipRect.w - cmd.ClipRect.y));
                 glDrawElements(GL_TRIANGLES, cmd.ElemCount, GL_UNSIGNED_SHORT, offsetPtr);

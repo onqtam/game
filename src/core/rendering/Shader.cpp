@@ -24,14 +24,15 @@ Shader::Shader(ShaderType::Type t, const std::string& name)
     case ShaderType::Fragment:
         m_glType = GL_FRAGMENT_SHADER;
         break;
+    case ShaderType::Count:
     default:
         // unknown shader type
-        assert(false);
+        hassert(false);
     }
 
     m_glHandle = glCreateShader(m_glType);
 
-    assert(m_glHandle);
+    hassert(m_glHandle);
 }
 
 Shader::~Shader()

@@ -1,4 +1,4 @@
-#include "aabb.hpp"
+#include "aabb.h"
 
 using namespace yama;
 
@@ -19,8 +19,6 @@ AABB::AABB(const AABB& aabb) {
     setNull();
     extend(aabb);
 }
-
-AABB::~AABB() {}
 
 void AABB::extend(float val) {
     if(!isNull()) {

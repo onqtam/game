@@ -21,7 +21,7 @@ GPUProgram::GPUProgram(const std::string& name)
 {
     m_glHandle = glCreateProgram();
 
-    assert(m_glHandle);
+    hassert(m_glHandle);
 
     m_shaders.reserve(ShaderType::Count);
 }

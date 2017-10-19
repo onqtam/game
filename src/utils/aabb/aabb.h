@@ -18,7 +18,6 @@ public:
     AABB(const yama::vector3& p1, const yama::vector3& p2);
 
     AABB(const AABB& aabb);
-    ~AABB();
 
     /// Set the AABB as NULL (not set).
     void setNull() {

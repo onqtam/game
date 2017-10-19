@@ -8,21 +8,17 @@ Texture::Texture()
 }
 
 Texture::Texture(const std::string& name)
-    : m_name(name)
-    , m_width(0)
-    , m_height(0)
-{
+        : m_width(0)
+        , m_height(0)
+        , m_name(name) {
     glGenTextures(1, &m_glHandle);
 }
 
-Texture::~Texture()
-{
-    glDeleteTextures(1, &m_glHandle);
-}
+Texture::~Texture() { glDeleteTextures(1, &m_glHandle); }
 
 bool Texture::loadFromFile(const char* filename)
 {
-    assert(!filename);
+    hassert(!filename);
     return false;
 }
 
