@@ -1,6 +1,4 @@
 
-make the sanitizers run cleanly under linux
-
 start using c++17
     remove msvc14 option from python scripts
     <variant>

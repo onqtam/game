@@ -47,13 +47,13 @@ typedef dynamix::internal::mixin_type_info mixin_type_info;
 
 #include <sajson/include/sajson.h>
 
-#if defined(_WIN32)
+//#if defined(_WIN32)
 #    include <GL/glew.h>
-#else
-#    define GL_GLEXT_PROTOTYPES
-#    include <GL/gl.h>
-#    include <GL/glext.h>
-#endif
+//#else
+//#    define GL_GLEXT_PROTOTYPES
+//#    include <GL/gl.h>
+//#    include <GL/glext.h>
+//#endif
 
 // TODO: remove me from pch since there are just a few users after bobi merges the imgui-refactoring
 #define IMGUI_API HA_SYMBOL_IMPORT

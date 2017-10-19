@@ -225,7 +225,7 @@ int Application::run(int argc, char** argv) {
     glfwSetCursorPos(m_window, width() / 2, height() / 2);
 
     // Setup rendering
-#if defined(_WIN32)
+//#if defined(_WIN32)
     auto glewInitResult = glewInit();
     if (glewInitResult != GLEW_OK)
     {
@@ -233,7 +233,7 @@ int Application::run(int argc, char** argv) {
         glfwTerminate();
         return -1;
     }
-#endif
+//#endif
     glEnable(GL_DEPTH_TEST); // z buffer
     glEnable(GL_CULL_FACE); // cull back (CW) faces
     glClearColor(0.75f, 0.05f, 0.65f, 1);
