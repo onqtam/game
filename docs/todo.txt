@@ -3,11 +3,9 @@ start using c++17
     remove msvc14 option from python scripts
     <variant>
     <optional>
-    structured bindings
-    initializers in if statements
-    template deduction of constructors
-        allowing me to skip the types in <> for std::function for the recursive lambdas (which is bug-prone anyway!!!)
-        allowing std::pair(5.0, false) instead of std::pair<double,bool>(5.0, false)
+
+scope guard
+https://stackoverflow.com/a/28413370/3162383
 
 integrate the new camera properly
 
@@ -216,6 +214,7 @@ video:
 artificial intelligence:
     https://github.com/miccol/Behavior-Tree
 audio:
+    - https://www.youtube.com/watch?v=M8Bd7uHH4Yg
     - openal
         https://github.com/kcat/openal-soft
     - fmod
@@ -246,6 +245,9 @@ graphics/assets:
     - maya/max collada plugins - https://github.com/KhronosGroup/OpenCOLLADA
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
     - tree generation - https://github.com/jarikomppa/proctree
+    - shader optimization pipeline
+        - https://github.com/LunarG/LunarGLASS
+        - https://github.com/aras-p/glsl-optimizer
     - debugging
         https://github.com/msqrt/shader-printf
     - texture stuff
@@ -265,6 +267,8 @@ profiler:
     - https://github.com/seanmiddleditch/yardstick
     - https://github.com/zeux/microprofile
 miscellaneous:
+    spreadsheets (excel, etc.)
+        https://github.com/tfussell/xlnt
     GUID/UUID
         https://github.com/r-lyeh/sole
         https://github.com/boostorg/uuid
