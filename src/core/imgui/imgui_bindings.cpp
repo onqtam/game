@@ -202,6 +202,8 @@ cstr imgui_bind_attribute(Object& e, cstr mixin, cstr attr, std::string& data) {
 }
 
 #ifdef _WIN32
+// zenity backend for under linux merged in dev branch - soon in master
+// https://github.com/mlabbe/nativefiledialog/pull/34
 cstr imgui_bind_file_popup(Object& e, cstr mixin, cstr attr, std::string& data, cstr filters) {
     ImGui::PushItemWidth(200);
     ImGui::InputText("##input", data.data(), data.length(), ImGuiInputTextFlags_ReadOnly);

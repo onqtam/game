@@ -17,6 +17,7 @@
     _Pragma("clang diagnostic ignored \"-Wold-style-cast\"") \
     _Pragma("clang diagnostic ignored \"-Wexit-time-destructors\"") \
     _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") \
+    _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
     _Pragma("clang diagnostic ignored \"-Wnewline-eof\"") \
     _Pragma("clang diagnostic ignored \"-Wdocumentation\"") \
     _Pragma("clang diagnostic ignored \"-Wweak-vtables\"") \

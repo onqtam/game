@@ -129,6 +129,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-sign-conversion
         -Wno-old-style-cast
         -Wno-missing-prototypes
+        -Wno-unknown-pragmas
     )
 endif()
 

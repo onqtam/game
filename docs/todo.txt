@@ -1,6 +1,4 @@
 
-https://github.com/mlabbe/nativefiledialog/pull/29
-
 make the parser more modular and extendable
 
 think about diff-ing objects/mixins - and also diff-ing with prefabs - and also if the editor could be simplified with such diffing functionality
