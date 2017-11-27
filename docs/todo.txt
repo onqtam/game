@@ -1,8 +1,9 @@
 
-start using c++17
-    remove msvc14 option from python scripts
-    <variant>
-    <optional>
+https://github.com/mlabbe/nativefiledialog/pull/29
+
+make the parser more modular and extendable
+
+think about diff-ing objects/mixins - and also diff-ing with prefabs - and also if the editor could be simplified with such diffing functionality
 
 scope guard
 https://stackoverflow.com/a/28413370/3162383
@@ -37,6 +38,8 @@ editor:
         single object templates
         groups of object templates - group template
     save/load
+    gui
+        icons: https://github.com/juliettef/IconFontCppHeaders
     flags
         no_gizmo
     picking
@@ -117,6 +120,7 @@ questionable:
 - catching SEH exceptions and crashes - and temporarily stop calling the 'update' method of objects of that type
 - undo system - by keeping a copy of a last working .dll version of a plugin (one which hasn't crashed during it's update())
 - look at Live++ when it is released - http://molecular-matters.com/products_livepp.html
+- improve compile times with the /d2cgsummary MSVC flag - http://aras-p.info/blog/2017/10/23/Best-unknown-MSVC-flag-d2cgsummary/
 
 == codegen:
 - type parser
@@ -205,8 +209,11 @@ crypto:
     - https://github.com/jedisct1/libsodium
 threading:
     https://github.com/seanmiddleditch/jobxx
+serialization:
+    - binary - https://github.com/fraillt/bitsery
 logging:
     - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=log
+    - https://github.com/blapid/llcpp
 video:
     - ogg theora
     - theora play - theora nice API (http://icculus.org/theoraplay/)
@@ -254,6 +261,7 @@ graphics/assets:
         - https://github.com/paulvortex/RwgTex
         - https://github.com/onqtam?page=1&tab=stars&utf8=%E2%9C%93&q=texture
         - https://community.imgtec.com/developers/powervr/tools/pvrtextool/
+        https://github.com/paulvortex/RwgTex
         photoshop psd files - http://molecular-matters.com/products_psd_extract.html
         photoshop psd files - http://molecular-matters.com/products_psd_sdk.html
 strings/localization:
@@ -267,6 +275,13 @@ profiler:
     - https://github.com/seanmiddleditch/yardstick
     - https://github.com/zeux/microprofile
 miscellaneous:
+    command line argument parsing
+        https://github.com/muellan/clipp
+        https://github.com/adishavit/argh
+        https://github.com/vietjtnguyen/argagg
+        https://github.com/matt-42/iod/blob/master/tests/parse_command_line.cc
+        https://github.com/jarro2783/cxxopts
+        https://github.com/CLIUtils/CLI11
     spreadsheets (excel, etc.)
         https://github.com/tfussell/xlnt
     GUID/UUID
@@ -277,9 +292,11 @@ miscellaneous:
     https://github.com/mattiasgustavsson/libs
     - google breakpad - to send crash report from a remote system
     - sqlite - light sql using normal files
-    - small random number generator:
-        http://burtleburtle.net/bob/rand/smallprng.html
-        https://github.com/imneme/pcg-cpp
+    - random
+        - https://github.com/effolkronium/random
+        - small random number generator:
+            http://burtleburtle.net/bob/rand/smallprng.html
+            https://github.com/imneme/pcg-cpp
     - physicsFS - virtual fs (forget about the physics in the name) for accessing files from multiple zipz and easier asset management
     - bitfields
         - http://preshing.com/20150324/safe-bitfields-in-cpp/
@@ -300,6 +317,7 @@ middleware:
 == code review:
 - https://www.reviewboard.org/
 - phabricator
+https://github.com/boostorg/beast#contributing-we-need-your-help
 
 == automation:
 - https://www.ansible.com/

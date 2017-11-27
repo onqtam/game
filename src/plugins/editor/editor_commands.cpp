@@ -8,8 +8,6 @@ HA_SUPPRESS_WARNINGS
 #include <boost/range/adaptor/reversed.hpp>
 HA_SUPPRESS_WARNINGS_END
 
-HA_GCC_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant") // because of boost::variant's ctor
-
 static JsonData mixin_state(const Object& obj, cstr mixin) {
     JsonData out(1000);
     out.startObject();
@@ -610,8 +608,8 @@ void editor::fast_forward_to_command(int idx) {
 void editor::handle_command(command_variant& command_var, bool undo) {
     m_should_rescroll_in_command_history = true;
 
-    if(command_var.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
-        auto&       cmd = boost::get<attributes_changed_cmd>(command_var);
+    if(std::holds_alternative<attributes_changed_cmd>(command_var)) {
+        auto&       cmd = std::get<attributes_changed_cmd>(command_var);
         auto&       val = undo ? cmd.old_val : cmd.new_val;
         const auto& doc = val.parse();
         hassert(doc.is_valid());
@@ -621,8 +619,8 @@ void editor::handle_command(command_variant& command_var, bool undo) {
             deserialize(cmd.e.obj(), root.get_object_value(0)); // object attribute
         else
             common::deserialize_mixins(cmd.e.obj(), root); // mixin attribute
-    } else if(command_var.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
-        auto& cmd = boost::get<object_mutation_cmd>(command_var);
+    } else if(std::holds_alternative<object_mutation_cmd>(command_var)) {
+        auto& cmd = std::get<object_mutation_cmd>(command_var);
         if((!cmd.added && undo) || (cmd.added && !undo)) {
             // add the mixins
             for(auto& mixin : cmd.mixins)
@@ -637,8 +635,8 @@ void editor::handle_command(command_variant& command_var, bool undo) {
             for(auto& mixin : cmd.mixins)
                 cmd.id.obj().remMixin(mixin.c_str());
         }
-    } else if(command_var.type() == boost::typeindex::type_id<object_creation_cmd>()) {
-        auto& cmd = boost::get<object_creation_cmd>(command_var);
+    } else if(std::holds_alternative<object_creation_cmd>(command_var)) {
+        auto& cmd = std::get<object_creation_cmd>(command_var);
         if((cmd.created && undo) || (!cmd.created && !undo)) {
             ObjectManager::get().destroy(cmd.id);
         } else {
@@ -647,8 +645,8 @@ void editor::handle_command(command_variant& command_var, bool undo) {
             hassert(doc.is_valid());
             deserialize(cmd.id.obj(), doc.get_root().get_object_value(0)); // object attributes
         }
-    } else if(command_var.type() == boost::typeindex::type_id<compound_cmd>()) {
-        auto& cmd = boost::get<compound_cmd>(command_var);
+    } else if(std::holds_alternative<compound_cmd>(command_var)) {
+        auto& cmd = std::get<compound_cmd>(command_var);
         if(undo)
             for(auto& curr : boost::adaptors::reverse(cmd.commands))
                 handle_command(curr, undo);
@@ -686,8 +684,8 @@ void editor::add_command(const command_variant& command, bool soft) {
         }
 
         ++curr_undo_redo;
-        if(command.type() == boost::typeindex::type_id<compound_cmd>()) {
-            const auto& cmd = boost::get<compound_cmd>(command);
+        if(std::holds_alternative<compound_cmd>(command)) {
+            const auto& cmd = std::get<compound_cmd>(command);
             if(cmd.commands.size() == 1) {
                 undo_redo_commands.push_back(cmd.commands.back());
                 return;
@@ -701,5 +699,3 @@ void editor::add_changed_attribute(oid e, const JsonData& old_val, const JsonDat
                                    const std::string& desc) {
     add_command(attributes_changed_cmd({e, e.obj().name(), old_val, new_val, desc}));
 }
-
-HA_GCC_SUPPRESS_WARNING_END

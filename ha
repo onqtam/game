@@ -10,7 +10,7 @@ sys.path.append('./scripts')
 
 from python import *
 
-generators = ['msvc', 'msvc14', 'gcc', 'js', 'nj']
+generators = ['msvc', 'gcc', 'js', 'nj']
 if not isWindows():
     generators = ['gcc']
 

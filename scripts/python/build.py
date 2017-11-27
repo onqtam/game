@@ -9,7 +9,7 @@ import multiprocessing
 from utils import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-b", choices = ['msvc', 'msvc14', 'gcc', 'js', 'nj'], required = True, help = "builds the generated build files")
+parser.add_argument("-b", choices = ['msvc', 'gcc', 'js', 'nj'], required = True, help = "builds the generated build files")
 parser.add_argument("-c", choices = ['debug', 'release'], default = "release", help = "config to build/generate for")
 args = parser.parse_args()
 
@@ -38,12 +38,6 @@ args.c = args.c.title() # make the first letter capital
 
 if args.b == 'msvc':
     command = ['C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe', 'All.sln', '/nologo', '/clp:Summary', '/p:Configuration=' + args.c, '/maxcpucount']
-    if os.environ.get('CI') != None:
-        command.append('/v:quiet')
-    subprocess.check_call(command)
-
-if args.b == 'msvc14':
-    command = ['C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe', 'All.sln', '/nologo', '/clp:Summary', '/p:Configuration=' + args.c, '/maxcpucount']
     if os.environ.get('CI') != None:
         command.append('/v:quiet')
     subprocess.check_call(command)

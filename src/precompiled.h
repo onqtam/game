@@ -31,6 +31,8 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <optional>
+#include <variant>
 
 #include "utils/suppress_warnings.h"
 #include "utils/visibility.h"
@@ -60,10 +62,6 @@ typedef dynamix::internal::mixin_type_info mixin_type_info;
 #include <imgui.h>
 
 #include <yama/yama.hpp>
-
-#include <boost/variant.hpp>
-
-#include <boost/mpl/for_each.hpp>
 
 HA_SUPPRESS_WARNINGS_END
 

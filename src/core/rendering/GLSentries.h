@@ -66,4 +66,4 @@ struct GLDepthWrite
 };
 }
 
-#define HA_GL_SENTRY(sentry, op) ::gl_sentries::sentry BOOST_PP_CAT(sentry, __LINE__)(op)
+#define HA_GL_SENTRY(sentry, op) ::gl_sentries::sentry HA_ANONYMOUS(sentry)(op)

@@ -8,7 +8,7 @@ import subprocess
 from utils import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-g", choices = ['msvc', 'msvc14', 'gcc', 'js', 'nj'], required = True,       help = 'runs cmake for one of the generators')
+parser.add_argument("-g", choices = ['msvc', 'gcc', 'js', 'nj'], required = True,       help = 'runs cmake for one of the generators')
 parser.add_argument("-c", choices = ['debug', 'release'], default = "release", help = "config to build/generate for")
 parser.add_argument("--cmake", nargs = argparse.REMAINDER, metavar="f", default = [],   help = "flags to be passed to cmake - should be last")
 args = parser.parse_args()
@@ -39,13 +39,6 @@ args.c = args.c.title() # make the first letter capital
 
 if args.g == 'msvc':
     command = ['cmake', '../../', '-G', "Visual Studio 15 2017 Win64"]
-    command.extend(cmake_options)
-    command.append('-DTOOLCHAIN=msvc')
-
-    subprocess.check_call(command)
-
-if args.g == 'msvc14':
-    command = ['cmake', '../../', '-G', "Visual Studio 14 2015 Win64"]
     command.extend(cmake_options)
     command.append('-DTOOLCHAIN=msvc')
 

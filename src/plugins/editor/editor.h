@@ -51,7 +51,7 @@ struct compound_cmd
     HA_FRIENDS_OF_TYPE(compound_cmd);
 
 public:
-    typedef boost::variant<attributes_changed_cmd, object_mutation_cmd, object_creation_cmd,
+    typedef std::variant<attributes_changed_cmd, object_mutation_cmd, object_creation_cmd,
                            compound_cmd>
                                          command_variant;
     typedef std::vector<command_variant> commands_vector;

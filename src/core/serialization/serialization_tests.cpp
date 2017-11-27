@@ -79,7 +79,7 @@ typedef std::map<int, float> test_map;
 HA_SERIALIZE_TEST(test_map, {{1, 2.f}, {2, 3.f}, {3, 4.f}});
 
 HA_SUPPRESS_WARNINGS
-typedef boost::variant<int, char, double, float> variant_no_commas_for_test;
+typedef std::variant<int, char, double, float> variant_no_commas_for_test;
 HA_SERIALIZE_TEST(variant_no_commas_for_test, 42.5);
 HA_SUPPRESS_WARNINGS_END
 

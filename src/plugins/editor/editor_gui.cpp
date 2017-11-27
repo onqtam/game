@@ -290,7 +290,7 @@ void editor::update_gui() {
                 [&](const command_variant& c, int curr_top_most, bool is_soft) {
                     using namespace std::string_literals; // for "s" suffix returning a std::string
 
-                    bool is_compound = c.type() == boost::typeindex::type_id<compound_cmd>();
+                    bool is_compound = std::holds_alternative<compound_cmd>(c);
                     bool is_top_most = curr_top_most != -1;
                     bool is_curr     = is_top_most && curr_top_most == curr_undo_redo;
 
@@ -322,21 +322,21 @@ void editor::update_gui() {
                     const JsonData* to_display   = nullptr;
                     const JsonData* to_display_2 = nullptr;
                     if(is_compound) {
-                        const auto& cmd = boost::get<compound_cmd>(c);
+                        const auto& cmd = std::get<compound_cmd>(c);
                         name += "[composite] "s + cmd.description;
-                    } else if(c.type() == boost::typeindex::type_id<attributes_changed_cmd>()) {
-                        const auto& cmd = boost::get<attributes_changed_cmd>(c);
+                    } else if(std::holds_alternative<attributes_changed_cmd>(c)) {
+                        const auto& cmd = std::get<attributes_changed_cmd>(c);
                         name += "[attribute] <"s + cmd.name + ">";
                         to_display   = &cmd.old_val;
                         to_display_2 = &cmd.new_val;
                         desc += cmd.description;
-                    } else if(c.type() == boost::typeindex::type_id<object_creation_cmd>()) {
-                        const auto& cmd = boost::get<object_creation_cmd>(c);
+                    } else if(std::holds_alternative<object_creation_cmd>(c)) {
+                        const auto& cmd = std::get<object_creation_cmd>(c);
                         name += "[obj : "s + (cmd.created ? "new" : "del") + "] <"s + cmd.name +
                                 ">";
                         to_display = &cmd.state;
-                    } else if(c.type() == boost::typeindex::type_id<object_mutation_cmd>()) {
-                        const auto& cmd = boost::get<object_mutation_cmd>(c);
+                    } else if(std::holds_alternative<object_mutation_cmd>(c)) {
+                        const auto& cmd = std::get<object_mutation_cmd>(c);
                         name += "[mut : "s + (cmd.added ? "add" : "rem") + "] <" + cmd.name + ">";
                         to_display = &cmd.state;
                         // append to the description the list of mixins
@@ -419,7 +419,7 @@ void editor::update_gui() {
                     }
 
                     if(is_open && is_compound) {
-                        auto& comp_cmd = boost::get<compound_cmd>(c);
+                        auto& comp_cmd = std::get<compound_cmd>(c);
                         for(auto& part : comp_cmd.commands)
                             showCommands(part, -1, is_soft);
                         ImGui::TreePop();

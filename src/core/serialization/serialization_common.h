@@ -136,55 +136,44 @@ void deserialize(std::map<K, V>& data, const sajson::value& val) {
     }
 }
 
-struct variant_serializer : boost::static_visitor<void>
-{
-    JsonData& out;
-
-    variant_serializer(JsonData& out_data)
-            : out(out_data) {}
-
-    template <typename T>
-    void operator()(const T& t) const {
-        serialize(t, out);
-    }
-};
-
 template <typename... Ts>
-void serialize_c(const boost::variant<Ts...>& data, JsonData& out) {
+void serialize_c(const std::variant<Ts...>& data, JsonData& out) {
     out.startArray();
     // type index
-    serialize(data.which(), out);
+    serialize(data.index(), out);
     out.addComma();
     // value itself
-    variant_serializer s{out};
-    boost::apply_visitor(s, data);
+    std::visit([&](auto&& val) { serialize(val, out); }, data);
     out.endArray();
 }
 
-template <typename U, typename V>
-void deserialize_in(V& data, const sajson::value& val) {
-    data = U(); // default-construct the type so we can get it later
-    deserialize(boost::get<U>(data), val);
-}
-
 template <typename... Ts>
-void deserialize(boost::variant<Ts...>& data, const sajson::value& val) {
+void deserialize(std::variant<Ts...>& data, const sajson::value& val) {
     hassert(val.get_type() == sajson::TYPE_ARRAY);
     hassert(val.get_length() == 2);
     // get the type index
     int type_idx;
     deserialize(type_idx, val.get_array_element(0));
 
-    // adapted from the runtime part of this SO answer: https://stackoverflow.com/a/9313217/3162383
-    std::vector<std::function<void(boost::variant<Ts...>&, const sajson::value&)>> deserializers;
-    HA_SUPPRESS_WARNINGS
-    boost::mpl::for_each<typename boost::variant<Ts...>::types>([&deserializers](auto dummy) {
-        deserializers.push_back(&deserialize_in<decltype(dummy), boost::variant<Ts...>>);
-    });
-    HA_SUPPRESS_WARNINGS_END
+#ifdef _MSC_VER
+    // previous implementation adapted from the runtime part of this SO answer: https://stackoverflow.com/a/9313217/3162383
+    // current implementation adapted from this SO answer: https://stackoverflow.com/a/47500082/3162383
+    constexpr std::array<void (*)(std::variant<Ts...>&, const sajson::value&), sizeof...(Ts)>
+            funcs = {[](std::variant<Ts...>& var, const sajson::value& jsn) {
+                var = Ts(); // default construct it so we can get it later
+                deserialize(std::get<Ts>(var), jsn.get_array_element(1));
+            }...};
 
-    // call the appropriate deserialization routine
-    deserializers[type_idx](data, val.get_array_element(1));
+    funcs[type_idx](data, val);
+#else
+    // until we get to gcc 8 we cannot use the above code because of this: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47226
+    int  i = 0;
+    auto _ = {
+            (type_idx == i++ ?
+                     ((data = Ts(), deserialize(std::get<Ts>(data), val.get_array_element(1))), 0) :
+                     0)...};
+    ((void)_);
+#endif
 }
 
 // helper for the counting of serialization routines
