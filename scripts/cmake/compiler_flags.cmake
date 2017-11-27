@@ -111,6 +111,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()    
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    
+    ucm_add_flags(-stdlib=libc++)
+    
     list(APPEND ha_compiler_flags
         -Weverything
         -Wno-c++98-compat
