@@ -111,8 +111,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()    
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    
-    ucm_add_flags(-stdlib=libc++)
+    if(NOT TOOLCHAIN STREQUAL "js")
+        ucm_add_flags(-stdlib=libc++)
+        # this hack is for build problems - as seen here: https://stackoverflow.com/questions/46580808
+        include_directories(BEFORE "/usr/include/c++/5")
+        include_directories(AFTER "/usr/include/x86_64-linux-gnu/c++/5/")
+    endif()
     
     list(APPEND ha_compiler_flags
         -Weverything

@@ -18,7 +18,7 @@ You'll need:
 - Compilers (one of them)
     - **VS 2017**
     - **g++ 7**
-    - **clang 4** (call ```export CXX=clang++``` before calling ```ha -g gcc```
+    - **clang 5** (call ```export CXX=clang++``` before calling ```ha -g gcc```)
 - Required packages for ubuntu: ```xorg-dev```, ```libx11-dev```, ```libgl1-mesa-dev```
 
 Use the ```ha``` python script in the root of the repository to build the project (it has help). Emscripten requires **Python 2.7** and has been setup to work only on windows.
