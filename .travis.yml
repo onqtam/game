@@ -44,7 +44,7 @@ matrix:
     - env: COMPILER=clang++-5.0
       addons: &clang5
         apt:
-          packages: ["clang-5.0", "g++-7", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libc++-dev", "libc++abi-dev"]
+          packages: ["clang-5.0", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libc++-dev", "libc++abi-dev"]
           sources: *apt_sources
 
   allow_failures:
