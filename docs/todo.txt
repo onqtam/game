@@ -1,9 +1,20 @@
 
+
+rendering libraries to look at:
+    https://github.com/ConfettiFX/The-Forge
+    https://github.com/floooh/sokol
+
+
+update dynamix and use the new allocator stuff
+
+add rcrl
+
 make the parser more modular and extendable
 
 think about diff-ing objects/mixins - and also diff-ing with prefabs - and also if the editor could be simplified with such diffing functionality
 
 scope guard
+https://github.com/yuri-kilochek/boost.scope_guard
 https://stackoverflow.com/a/28413370/3162383
 
 integrate the new camera properly
@@ -89,7 +100,9 @@ rename oid to object_handle?
 make the oid class hold a pointer to the object instead of the index - but when being serialized it should turn into an index
 remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
     ===> might get clashes for the generated .h.inl files in <gen> !!!
-engine name: RPGE - rapid prototyping game engine - the RPG engine
+engine name:
+- RPGE - rapid prototyping game engine - the RPG engine
+- NS - no script
 
 == to test:
 - aabb class
@@ -173,30 +186,42 @@ the oid class can skip doing lookups with its integer by holding a pointer to th
     - also SortIncludes
 - rabbitvcs - TortoiseGit for linux - http://rabbitvcs.org/
 
+== security:
+https://engineering.riotgames.com/news/evolution-security-riot
+
 == libraries:
 general:
     https://github.com/Microsoft/GSL
     https://github.com/nholthaus/units
+    https://github.com/prideout/par
 math:
     https://github.com/herumi/fmath
 scripting:
     - checkout this before going anywhere: https://github.com/r-lyeh/scriptorium
     - https://github.com/pkulchenko/ZeroBraneStudio
+    - http://www.luna-lang.org/
 UI:
     - librocket
     - turbobadger
     - imgui
+        https://github.com/thedmd/imgui-node-editor
         https://github.com/aoterodelaroza/imgui-goodies
         https://github.com/Flix01/imgui
+        https://github.com/GameTechDev/MetricsGui
         https://github.com/ScottMudge/imgui_tabs
         https://github.com/thennequin/ImWindow
     - nuklear
+    - google flatui - https://github.com/google/flatui
+    - Immediate-mode, renderer agnostic, lightweight debug drawing API. - https://github.com/glampert/debug-draw
 physics:
     - bullet
     box2d
     https://github.com/kroitor/gjk.c
     https://github.com/slembcke/Chipmunk2D
     https://github.com/InteractiveComputerGraphics/PositionBasedDynamics
+algorithms:
+    Templated hierarchical spatial trees - https://github.com/tuxalin/THST
+    bounding volume hierarchies - https://github.com/aiwl/bvh
 compression:
     - zlib - the big beast
     - miniz - tiny zlib implementation
@@ -218,8 +243,10 @@ video:
     - https://github.com/libav/libav
 artificial intelligence:
     https://github.com/miccol/Behavior-Tree
+    https://github.com/arvidsson/BrainTree
 audio:
     - https://www.youtube.com/watch?v=M8Bd7uHH4Yg
+    - https://github.com/dr-soft/mini_al
     - openal
         https://github.com/kcat/openal-soft
     - fmod
@@ -237,8 +264,13 @@ networking:
     https://github.com/networkprotocol/yojimbo
     https://github.com/HumbleNet/HumbleNet
 graphics/assets:
+    - graphics API abstractions
+        https://github.com/DiligentGraphics/DiligentEngine
+    - single file wavefront obj loader - https://github.com/syoyo/tinyobjloader
+    - physically based shading model & image based lighting in various graphics APIs. - https://github.com/Nadrin/PBR
     - https://github.com/ands/lightmapper
     - https://github.com/tlorach/Bak3d
+    - Texture and 3D Model Compression, Optimization and Analysis - https://github.com/GPUOpen-Tools/Compressonator
     - Animation Compression Library - https://github.com/nfrechette/acl
     - inverse kinematics - https://github.com/TheComet93/ik
     - https://github.com/mp3butcher/Cal3D/
@@ -247,9 +279,13 @@ graphics/assets:
     - https://github.com/libgdx/fbx-conv
     - https://github.com/friggog/tree-gen
     - https://github.com/ux3d/2gltf2
+    - https://github.com/syoyo/tinygltf
+    - https://github.com/Microsoft/glTF-Toolkit
+    - https://github.com/gaschler/bounding-mesh
     - maya/max collada plugins - https://github.com/KhronosGroup/OpenCOLLADA
     - mesh manipulation utils - https://github.com/Forceflow/trimesh2
     - tree generation - https://github.com/jarikomppa/proctree
+    - 3d API wrapper - https://github.com/AfroDave/fx
     - shader optimization pipeline
         - https://github.com/LunarG/LunarGLASS
         - https://github.com/aras-p/glsl-optimizer
@@ -273,6 +309,9 @@ profiler:
     - https://github.com/seanmiddleditch/yardstick
     - https://github.com/zeux/microprofile
 miscellaneous:
+    https://github.com/eteran/cpp-utilities
+    analytics
+        simple cross-platform C++ analytics for games (using Google Analytics) - https://github.com/Pintea/tiniest-analytics
     command line argument parsing
         https://github.com/muellan/clipp
         https://github.com/adishavit/argh
@@ -304,6 +343,7 @@ miscellaneous:
         - https://aboutcpp.wordpress.com/2015/01/16/an-update-on-a-simple-signal-system/
         - http://ideone.com/x02YXi
 debugging:
+    Live memory allocation tracing header only library using ImGui - https://github.com/cesarl/LiveMemTracer
     a C/C++ memory profiler and memory leak finder for Windows, PS4, PS3 - https://github.com/milostosic/MTuner
     Small collection of debug-related drop-in c/c++-utils - https://github.com/wc-duck/dbgtools
     just my code option in VS - https://msdn.microsoft.com/en-us/library/dn457346.aspx#C++
@@ -341,6 +381,8 @@ https://github.com/boostorg/beast#contributing-we-need-your-help
 == dynamix:
 wanted:
     - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
+        todo: test this
+    - ability for base classes to define the methods which get bound to messages when the derived class is used as a mixin
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
     - expose part (name and mixin id) of the structure returned by _dynamix_get_mixin_type_info() outside of internal (also func)
 optimization:

@@ -162,6 +162,10 @@ https://visualstudiogallery.msdn.microsoft.com/a23de100-31a1-405c-b4b7-d6be40c3d
 Productivity Power Tools 2017
 https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.ProductivityPowerPack2017
 
+other plugins to checkout
+https://chromium.github.io/vs-chromium/
+https://www.voidtools.com/
+
 === Setuping Visual Studio
 Disable from build libraries in the solution for a particular configuration after they are built so you can clean/rebuild the "whole" project and skip them.
 
