@@ -4,9 +4,6 @@ rendering libraries to look at:
     https://github.com/ConfettiFX/The-Forge
     https://github.com/floooh/sokol
 
-
-update dynamix and use the new allocator stuff
-
 add rcrl
 
 make the parser more modular and extendable
@@ -18,6 +15,9 @@ https://github.com/yuri-kilochek/boost.scope_guard
 https://stackoverflow.com/a/28413370/3162383
 
 integrate the new camera properly
+	or checkout one of these
+		https://github.com/nlguillemot/arcball_camera
+		https://github.com/nlguillemot/flythrough_camera
 
 install unity and play with it...
 
@@ -380,8 +380,6 @@ https://github.com/boostorg/beast#contributing-we-need-your-help
 
 == dynamix:
 wanted:
-    - reworked allocators - mainly the ability to know for which object the mixin is being allocated for
-        todo: test this
     - ability for base classes to define the methods which get bound to messages when the derived class is used as a mixin
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
     - expose part (name and mixin id) of the structure returned by _dynamix_get_mixin_type_info() outside of internal (also func)

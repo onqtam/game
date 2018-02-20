@@ -1,7 +1,8 @@
 #include "PagedMixinAllocator.h"
 
-#define test_alloc(x) a.alloc_mixin(0, 0, x, offset_for_value)
-#define test_dealloc(x) a.dealloc_mixin(x)
+/*
+#define test_alloc(x) x = a.alloc_mixin(dynamix::basic_mixin_type_info(dynamix::INVALID_MIXIN_ID), nullptr).first
+#define test_dealloc(x) a.dealloc_mixin(x, 0, dynamix::basic_mixin_type_info(dynamix::INVALID_MIXIN_ID), nullptr)
 #define test_write(x, val) *(reinterpret_cast<int*>(x + offset_for_value)) = val
 
 test_case("[core] testing PagedMixinAllocator with int") {
@@ -15,7 +16,6 @@ test_case("[core] testing PagedMixinAllocator with int") {
     char*  res_7;
     char*  res_8;
     char*  res_9;
-    size_t offset_for_value;
 
     PagedMixinAllocator<int, 3> a;
 
@@ -79,3 +79,4 @@ test_case("[core] testing PagedMixinAllocator with int") {
 #undef test_alloc
 #undef test_dealloc
 #undef test_write
+*/

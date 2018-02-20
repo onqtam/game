@@ -50,23 +50,23 @@ public:
     }
 
     PagedMixinAllocator()
-            : mixin_buf_size(
-                      calculate_mem_size_for_mixin(sizeof(Mixin), std::alignment_of<Mixin>::value))
+            : mixin_buf_size(mem_size_for_mixin(sizeof(Mixin), std::alignment_of<Mixin>::value))
             , page_size(mixin_buf_size * NUM_IN_PAGE)
             , m_num_allocations(0)
             , m_free(nullptr) {}
 
     ~PagedMixinAllocator() { freePages(); }
 
-    void alloc_mixin(size_t, size_t, char*& out_buffer, size_t& out_mixin_offset) override {
+    std::pair<char*, size_t> alloc_mixin(const dynamix::basic_mixin_type_info&,
+                                         const dynamix::object* obj) override {
         // allocate new page if free list is empty
         if(m_free == nullptr)
             new_memory_page();
         // give the chunk
-        out_buffer = reinterpret_cast<char*>(m_free);
+        auto out_buffer = reinterpret_cast<char*>(m_free);
         ++m_num_allocations;
         // again calculate the offset using this static member function
-        out_mixin_offset = calculate_mixin_offset(out_buffer, std::alignment_of<Mixin>::value);
+        size_t offset = mixin_offset(out_buffer, std::alignment_of<Mixin>::value);
         // move forward in the free list
         m_free = m_free->next;
 
@@ -76,9 +76,12 @@ public:
                 size_t(out_buffer - m_pages[reinterpret_cast<Chunk*>(out_buffer)->pageIdx]) /
                         mixin_buf_size;
         m_allocated_flags[idx] = true;
+
+        return {out_buffer, offset};
     }
 
-    void dealloc_mixin(char* buf) override {
+    void dealloc_mixin(char* buf, size_t, const dynamix::basic_mixin_type_info&,
+                       const dynamix::object* obj) override {
         // prepend the newly freed chunk to the free list
         Chunk* temp  = m_free;
         m_free       = reinterpret_cast<Chunk*>(buf);
@@ -129,7 +132,7 @@ public:
         hassert(m_allocated_flags[idx]);
 
         char*        chunk_ptr = m_pages[idx / NUM_IN_PAGE] + (idx % NUM_IN_PAGE) * mixin_buf_size;
-        const size_t offset    = calculate_mixin_offset(chunk_ptr, std::alignment_of<Mixin>::value);
+        const size_t offset    = mixin_offset(chunk_ptr, std::alignment_of<Mixin>::value);
         return *(reinterpret_cast<Mixin*>(chunk_ptr + offset));
     }
 };

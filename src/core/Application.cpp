@@ -34,30 +34,40 @@ HA_SUPPRESS_WARNINGS
 HA_SUPPRESS_WARNINGS_END
 
 // TODO: use a smarter allocator - the important methods here are for the mixin data
-class global_mixin_allocator : public dynamix::global_allocator
+class global_mixin_allocator : public dynamix::domain_allocator
 {
-    char* alloc_mixin_data(size_t count) override { return new char[count * mixin_data_size]; }
-    void  dealloc_mixin_data(char* ptr) override { delete[] ptr; }
-
-    void alloc_mixin(size_t mixin_size, size_t mixin_alignment, char*& out_buffer,
-                     size_t& out_mixin_offset) override {
-        const size_t size = calculate_mem_size_for_mixin(mixin_size, mixin_alignment);
-        out_buffer = new char[size];
-        out_mixin_offset = calculate_mixin_offset(out_buffer, mixin_alignment);
+    char* alloc_mixin_data(size_t count, const dynamix::object*) override {
+        return new char[count * mixin_data_size];
     }
-    void dealloc_mixin(char* ptr) override { delete[] ptr; }
+
+    void dealloc_mixin_data(char* ptr, size_t, const dynamix::object*) override { delete[] ptr; }
+
+    std::pair<char*, size_t> alloc_mixin(const dynamix::basic_mixin_type_info& info,
+                                         const dynamix::object*) override {
+        size_t size   = mem_size_for_mixin(info.size, info.alignment);
+        char*  buffer = new char[size];
+
+        size_t offset = mixin_offset(buffer, info.alignment);
+
+        return std::make_pair(buffer, offset);
+    }
+
+    void dealloc_mixin(char* ptr, size_t, const dynamix::basic_mixin_type_info&,
+                       const dynamix::object*) override {
+        delete[] ptr;
+    }
 };
 
 static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
-    cstr file, int line, cstr function, cstr expression, int level, cstr message) {
+        cstr file, int line, cstr function, cstr expression, int level, cstr message) {
     using namespace ppk::assert::implementation;
 
     char buf[2048];
 
     size_t num_written =
-        snprintf(buf, HA_COUNT_OF(buf),
-                 "Assert failed!\nFile: %s\nLine: %d\nFunction: %s\nExpression: %s", file, line,
-                 function, expression);
+            snprintf(buf, HA_COUNT_OF(buf),
+                     "Assert failed!\nFile: %s\nLine: %d\nFunction: %s\nExpression: %s", file, line,
+                     function, expression);
 
     if(message)
         snprintf(buf + num_written, HA_COUNT_OF(buf) - num_written, "Message: %s\n", message);
@@ -121,9 +131,7 @@ void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
     Application::get().addInputEvent(ev);
 }
 
-void Application::charCallback(GLFWwindow*, unsigned int c) {
-    ImGuiManager::get().onCharEvent(c);
-}
+void Application::charCallback(GLFWwindow*, unsigned int c) { ImGuiManager::get().onCharEvent(c); }
 
 void Application::cursorPosCallback(GLFWwindow*, double x, double y) {
     static double last_x = 0.0;
@@ -227,15 +235,15 @@ int Application::run(int argc, char** argv) {
     // Setup rendering
 #if defined(_WIN32)
     auto glewInitResult = glewInit();
-    if (glewInitResult != GLEW_OK)
-    {
-        fprintf(stderr, "Couldn't initialize glew. Reason: %s\n", glewGetErrorString(glewInitResult));
+    if(glewInitResult != GLEW_OK) {
+        fprintf(stderr, "Couldn't initialize glew. Reason: %s\n",
+                glewGetErrorString(glewInitResult));
         glfwTerminate();
         return -1;
     }
 #endif
     glEnable(GL_DEPTH_TEST); // z buffer
-    glEnable(GL_CULL_FACE); // cull back (CW) faces
+    glEnable(GL_CULL_FACE);  // cull back (CW) faces
     glClearColor(0.75f, 0.05f, 0.65f, 1);
 
     // Initialize the application
@@ -253,7 +261,7 @@ int Application::run(int argc, char** argv) {
         World world;
 
         ImGuiManager imguiManager;
-        Renderer renderer;
+        Renderer     renderer;
 
 #ifdef EMSCRIPTEN
         emscripten_set_main_loop([]() { Application::get().update(); }, 0, 1);
@@ -297,7 +305,7 @@ void Application::update() {
 
     // poll for events - also dispatches to imgui
     glfwPollEvents();
-    
+
     ImGuiManager::get().update(m_dt);
 
     // imgui
@@ -326,6 +334,4 @@ void Application::update() {
     }
 }
 
-void Application::reset(uint32 flags) {
-    m_reset = flags;
-}
+void Application::reset(uint32 flags) { m_reset = flags; }
