@@ -1,21 +1,29 @@
 #include "PagedMixinAllocator.h"
 
-/*
-#define test_alloc(x) x = a.alloc_mixin(dynamix::basic_mixin_type_info(dynamix::INVALID_MIXIN_ID), nullptr).first
-#define test_dealloc(x) a.dealloc_mixin(x, 0, dynamix::basic_mixin_type_info(dynamix::INVALID_MIXIN_ID), nullptr)
-#define test_write(x, val) *(reinterpret_cast<int*>(x + offset_for_value)) = val
+struct test_struct
+{
+    int data;
+};
+
+HA_MIXIN_DEFINE_WITHOUT_CODEGEN(test_struct, dynamix::none);
+
+#define test_alloc(x) x = a.alloc_mixin(mixin_info, nullptr)
+#define test_dealloc(x) a.dealloc_mixin(x.first, 0, mixin_info, nullptr)
+#define test_write(x, val) (reinterpret_cast<test_struct*>(x.first + x.second))->data = val
 
 test_case("[core] testing PagedMixinAllocator with int") {
-    char*  res_0;
-    char*  res_1;
-    char*  res_2;
-    char*  res_3;
-    char*  res_4;
-    char*  res_5;
-    char*  res_6;
-    char*  res_7;
-    char*  res_8;
-    char*  res_9;
+    auto& mixin_info = _dynamix_get_mixin_type_info((test_struct*)nullptr);
+
+    std::pair<char*, size_t> res_0;
+    std::pair<char*, size_t> res_1;
+    std::pair<char*, size_t> res_2;
+    std::pair<char*, size_t> res_3;
+    std::pair<char*, size_t> res_4;
+    std::pair<char*, size_t> res_5;
+    std::pair<char*, size_t> res_6;
+    std::pair<char*, size_t> res_7;
+    std::pair<char*, size_t> res_8;
+    std::pair<char*, size_t> res_9;
 
     PagedMixinAllocator<int, 3> a;
 
@@ -79,4 +87,3 @@ test_case("[core] testing PagedMixinAllocator with int") {
 #undef test_alloc
 #undef test_dealloc
 #undef test_write
-*/

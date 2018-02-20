@@ -1,4 +1,5 @@
 
+actually use the new interface of the new dynamix allocators... (for getting a list of all objects with mixin X)
 
 rendering libraries to look at:
     https://github.com/ConfettiFX/The-Forge
@@ -382,7 +383,6 @@ https://github.com/boostorg/beast#contributing-we-need-your-help
 wanted:
     - ability for base classes to define the methods which get bound to messages when the derived class is used as a mixin
     - add ability to check if object implements a bunch of messages: #define interface team_msg & name_msg & hp_msg
-    - expose part (name and mixin id) of the structure returned by _dynamix_get_mixin_type_info() outside of internal (also func)
 optimization:
     - currently sizeof(dynamix::object) == 4 * sizeof(void*) - if default message impls are dropped it can become 2 pointers
     - object::get_mixin_names() - do a .reserve() before the push_back-s
