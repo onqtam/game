@@ -87,7 +87,7 @@ public:
     void no_gizmo() const {}
 };
 
-HA_MIXIN_DEFINE(gameplay_camera, Interface_camera /*& no_gizmo_msg*/)
+HA_MIXIN_DEFINE(gameplay_camera, Interface_camera)
 
 class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera>
 {
@@ -166,7 +166,8 @@ public:
 
                 // always update the position and orientation of the camera object itself
                 ha_this.set_pos(eyePosition());
-                ha_this.set_rot(yama::quaternion::rotation_x(pitch) * yama::quaternion::rotation_y(yaw));
+                ha_this.set_rot(yama::quaternion::rotation_x(pitch) *
+                                yama::quaternion::rotation_y(yaw));
             }
         }
     }
@@ -174,6 +175,6 @@ public:
     void update(float) {}
 };
 
-HA_MIXIN_DEFINE(maya_camera, Interface_camera /*& no_gizmo_msg*/)
+HA_MIXIN_DEFINE(maya_camera, Interface_camera)
 
 #include <gen/camera.cpp.inl>

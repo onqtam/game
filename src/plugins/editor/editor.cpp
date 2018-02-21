@@ -7,20 +7,6 @@
 #include "core/messages/messages_rendering.h"
 #include "core/World.h"
 
-// until the allocator model of dynamix is extended we shall update this list manually like this
-void editor::update_selected() {
-    m_selected.clear();
-    selected_with_gizmo.clear();
-    for(auto& curr : ObjectManager::get().getObjects()) {
-        if(curr.second.has<selected>()) {
-            m_selected.push_back(curr.second.id());
-            if(curr.second.implements(no_gizmo_msg))
-                continue;
-            selected_with_gizmo.push_back(curr.second.id());
-        }
-    }
-}
-
 editor::editor()
         : Singleton(this) {
     m_grid = GeomMan::get().get("", createGrid, 20, 20, World::get().width(), World::get().height(),
@@ -32,24 +18,23 @@ editor::editor()
     m_gizmo_ctx.render = [&](const tinygizmo::geometry_mesh& r) {
         //if (!m_gizmo_verts.empty()) return;
         m_gizmo_verts.resize(r.vertices.size());
-        memcpy(m_gizmo_verts.data(), r.vertices.data(), m_gizmo_verts.size() * sizeof(tinygizmo::geometry_vertex));
+        memcpy(m_gizmo_verts.data(), r.vertices.data(),
+               m_gizmo_verts.size() * sizeof(tinygizmo::geometry_vertex));
         m_gizmo_inds.resize(r.triangles.size() * 3);
         memcpy(m_gizmo_inds.data(), r.triangles.data(), m_gizmo_inds.size() * sizeof(uint32));
         m_render_gizmo = true;
     };
 }
 
-editor::~editor() {
-}
+editor::~editor() {}
 
 void editor::update(float) {
     update_gui();
     update_gizmo();
 }
 
-void editor::get_rendering_parts(std::vector<renderPart>& out) const
-{
-    out.push_back({ m_grid, TempMesh(), yama::matrix::identity() });
+void editor::get_rendering_parts(std::vector<renderPart>& out) const {
+    out.push_back({m_grid, TempMesh(), yama::matrix::identity()});
     if(m_render_gizmo) {
         renderPart part;
         part.tmpMesh.vertices = &m_gizmo_verts;
@@ -154,14 +139,14 @@ void editor::save() {
     fclose(f);
 }
 
-HA_MIXIN_DEFINE(editor, Interface_editor & rend::get_rendering_parts_msg)
+HA_MIXIN_DEFINE(editor, Interface_editor& rend::get_rendering_parts_msg)
 
 void selected::submit_aabb_rec(const Object& curr, std::vector<renderPart>& out) {
     // if object has a bbox - submit it
     if(curr.implements(rend::get_aabb_msg)) {
-        auto diag   = rend::get_aabb(curr).getDiagonal();
-        auto color  = curr.has<selected>() ? colors::green : colors::light_green;
-        auto geom   = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
+        auto diag  = rend::get_aabb(curr).getDiagonal();
+        auto color = curr.has<selected>() ? colors::green : colors::light_green;
+        auto geom  = GeomMan::get().get("", createBox, diag.x, diag.y, diag.z, color);
         // auto shader = ShaderMan::get().get("cubes");
         out.push_back({geom, TempMesh(), curr.get_transform().as_mat()});
     }

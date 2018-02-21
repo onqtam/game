@@ -11,6 +11,7 @@ typedef void (*load_unload_proc)(ObjectJsonMap&);
 typedef void (*mutate_proc)(Object*);
 typedef void (*update_proc)(float dt);
 typedef const dynamix::internal::mixin_type_info* (*get_mixin_type_info_proc)();
+typedef const std::vector<oid>& (*get_objects_proc)();
 
 struct MixinInfo
 {
@@ -20,6 +21,7 @@ struct MixinInfo
     load_unload_proc         unload;
     update_proc              update;
     get_mixin_type_info_proc get_mixin_type_info;
+    get_objects_proc         get_objects;
 };
 
 typedef std::map<std::string, MixinInfo> MixinInfoMap;
@@ -81,7 +83,6 @@ load_unload_proc getLoadProc() {
 template <typename T>
 load_unload_proc getUnloadProc() {
     return [](ObjectJsonMap& out) {
-
         const auto& allocator  = PagedMixinAllocator<T>::get();
         const auto& flags      = allocator.getAllocatedFlags();
         const auto  flags_size = flags.size();
@@ -111,7 +112,7 @@ load_unload_proc getUnloadProc() {
     template <>                                                                                    \
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
     DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
-    static int HA_CAT_1(_mixin_register_, n) =                                                     \
+    HA_UNUSED_GLOBAL_NO_WARNINGS(HA_CAT_1(_mixin_register_, n)) =                                  \
             registerMixin(#n, /* force new line for format */                                      \
                           {[](Object* o) { dynamix::mutate(o).add<n>(); },    /**/                 \
                            [](Object* o) { dynamix::mutate(o).remove<n>(); }, /**/                 \
@@ -121,7 +122,10 @@ load_unload_proc getUnloadProc() {
                            []() {                                                                  \
                                return static_cast<const dynamix::internal::mixin_type_info*>(      \
                                        &_dynamix_get_mixin_type_info((n*)nullptr));                \
-                           }})
+                           },                                                                      \
+                           []() -> decltype(PagedMixinAllocator<n>::get().getObjects()) {          \
+                               return PagedMixinAllocator<n>::get().getObjects();                  \
+                           }}) HA_UNUSED_GLOBAL_NO_WARNINGS_END
 
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     void n::serialize_mixins(cstr concrete_mixin, JsonData& out) const {                           \
@@ -173,14 +177,14 @@ int registerGlobal(cstr name, GlobalInfo info);
 #define HA_GLOBAL_GEN_NAME(type, name) #type "_" HA_TOSTR(name) // "_" __FILE__
 
 #define HA_GLOBAL_COMMON(type, name)                                                               \
-    static int HA_ANONYMOUS(_global_) = registerGlobal(                                            \
+    HA_UNUSED_GLOBAL_NO_WARNINGS(HA_ANONYMOUS(_global_)) = registerGlobal(                         \
             HA_GLOBAL_GEN_NAME(type, name),                                                        \
             {[](JsonData& out) { HA_SERIALIZE_VARIABLE(HA_GLOBAL_GEN_NAME(type, name), name); },   \
              [](const sajson::value& val) {                                                        \
                  deserialize(name, val.get_value_of_key(sajson::string(                            \
                                            HA_GLOBAL_GEN_NAME(type, name),                         \
                                            HA_COUNT_OF(HA_GLOBAL_GEN_NAME(type, name)) - 1)));     \
-             }})
+             }}) HA_UNUSED_GLOBAL_NO_WARNINGS_END
 
 #define HA_GLOBAL(type, name)                                                                      \
     extern type name;                                                                              \

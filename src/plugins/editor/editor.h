@@ -52,7 +52,7 @@ struct compound_cmd
 
 public:
     typedef std::variant<attributes_changed_cmd, object_mutation_cmd, object_creation_cmd,
-                           compound_cmd>
+                         compound_cmd>
                                          command_variant;
     typedef std::vector<command_variant> commands_vector;
 
@@ -69,8 +69,6 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     HA_SINGLETON(editor);
     HA_MESSAGES_IN_MIXIN(editor);
 
-    FIELD std::vector<oid> m_selected;
-    FIELD std::vector<oid> selected_with_gizmo;
     FIELD commands_vector undo_redo_commands;
     FIELD int             curr_undo_redo                       = -1;
     FIELD bool            m_should_rescroll_in_command_history = false;
@@ -94,7 +92,6 @@ class editor : public UpdatableMixin<editor>, public InputEventListener, public 
     GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 
-    void update_selected();
     void update_gui();
     void update_gizmo();
 

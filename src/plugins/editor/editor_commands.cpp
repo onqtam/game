@@ -110,7 +110,7 @@ void editor::create_object() {
     comp_cmd.commands.push_back(object_mutation_cmd(
             {obj.id(), obj.name(), mixin_names(obj), mixin_state(obj, nullptr), true}));
 
-    comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, m_selected));
+    comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, getAllMixins()["selected"].get_objects()));
 
     add_command(comp_cmd);
 }
@@ -119,7 +119,7 @@ void editor::add_mixins_to_selected(std::vector<const mixin_type_info*> mixins) 
     compound_cmd comp_cmd;
     comp_cmd.description = "selecting mixins";
 
-    for(auto& id : m_selected) {
+    for(auto& id : getAllMixins()["selected"].get_objects()) {
         auto& obj = id.obj();
 
         for(auto& mixin : mixins) {
@@ -140,7 +140,7 @@ void editor::remove_mixins_by_name_from_selected(std::vector<const mixin_type_in
     compound_cmd comp_cmd;
     comp_cmd.description = "by name from selected";
 
-    for(auto& id : m_selected) {
+    for(auto& id : getAllMixins()["selected"].get_objects()) {
         auto& obj = id.obj();
 
         for(auto& mixin : mixins) {
@@ -161,7 +161,7 @@ void editor::remove_selected_mixins() {
     compound_cmd comp_cmd;
     comp_cmd.description = "selected mixins from selected objects";
 
-    for(auto& id : m_selected) {
+    for(auto& id : getAllMixins()["selected"].get_objects()) {
         auto&                       selected_mixins = (*id.obj().get<selected>()).selected_mixins;
         std::set<dynamix::mixin_id> mixins_to_delete;
 
@@ -222,9 +222,6 @@ compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
         }
     }
 
-    //re-update the list for later usage
-    update_selected();
-
     return comp_cmd;
 }
 
@@ -249,7 +246,7 @@ void editor::handle_gizmo_changes() {
     compound_cmd comp_cmd;
     comp_cmd.description = "gizmo transform";
 
-    for(auto& id : selected_with_gizmo) {
+    for(auto& id : getAllMixins()["selected"].get_objects()) {
         auto old_t = id.obj().get<selected>()->old_local_t;
         auto new_t = id.obj().get_transform_local();
         if(!yama::close(old_t.pos, new_t.pos)) {
@@ -280,9 +277,10 @@ void editor::handle_gizmo_changes() {
 
 void editor::reparent(oid new_parent_for_selected) {
     // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
+    auto& selected = getAllMixins()["selected"].get_objects();
     if(new_parent_for_selected)
         for(auto curr = new_parent_for_selected; curr; curr = curr.obj().get_parent())
-            if(std::find(m_selected.begin(), m_selected.end(), curr) != m_selected.end())
+            if(std::find(selected.begin(), selected.end(), curr) != selected.end())
                 new_parent_for_selected = oid::invalid(); // set it to an invalid state
 
     // if selected objects have been dragged with the middle mouse button onto an unselected object - make them its children
@@ -292,7 +290,7 @@ void editor::reparent(oid new_parent_for_selected) {
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "");
 
-        comp_cmd.commands.push_back(objects_set_parent(m_selected, new_parent_for_selected));
+        comp_cmd.commands.push_back(objects_set_parent(selected, new_parent_for_selected));
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(attributes_changed_cmd(
@@ -305,7 +303,8 @@ void editor::reparent(oid new_parent_for_selected) {
 }
 
 void editor::group_selected() {
-    if(m_selected.empty())
+    auto& selected_objs = getAllMixins()["selected"].get_objects();
+    if(selected_objs.empty())
         return;
 
     compound_cmd comp_cmd;
@@ -314,7 +313,7 @@ void editor::group_selected() {
     auto find_lowest_common_ancestor = [&]() {
         // go upwards from each selected node and update the visited count for each node
         std::map<oid, int> visited_counts;
-        for(auto curr : m_selected) {
+        for(auto curr : selected_objs) {
             while(curr != oid::invalid()) {
                 visited_counts[curr]++;
                 curr = curr.obj().get_parent();
@@ -323,12 +322,12 @@ void editor::group_selected() {
 
         // remove any node that has been visited less times than the number of selected objects
         Utils::erase_if(visited_counts,
-                        [&](auto in) { return in.second < int(m_selected.size()); });
+                        [&](auto in) { return in.second < int(selected_objs.size()); });
 
         // if there is a common ancestor - it will have the same visited count as the number of selected objects
         if(visited_counts.size() == 1 &&
-           std::find(m_selected.begin(), m_selected.end(), visited_counts.begin()->first) ==
-                   m_selected.end()) {
+           std::find(selected_objs.begin(), selected_objs.end(), visited_counts.begin()->first) ==
+                   selected_objs.end()) {
             // if only one object is left after the filtering (common ancestor to all) and is not part of the selection
             return visited_counts.begin()->first;
         } else if(visited_counts.size() > 1) {
@@ -357,13 +356,13 @@ void editor::group_selected() {
 
     // average position for the new group object
     auto average_pos = yama::vector3::zero();
-    for(auto& curr : m_selected)
+    for(auto& curr : selected_objs)
         average_pos += curr.obj().get_pos();
-    average_pos /= float(m_selected.size());
+    average_pos /= float(selected_objs.size());
     // set position of newly created group to be the average position of all selected objects
     group.set_transform({average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
-    comp_cmd.commands.push_back(objects_set_parent(m_selected, group.id()));
+    comp_cmd.commands.push_back(objects_set_parent(selected_objs, group.id()));
 
     // add the created group object
     comp_cmd.commands.push_back(
@@ -372,20 +371,21 @@ void editor::group_selected() {
             {group.id(), group.name(), mixin_names(group), mixin_state(group, nullptr), true}));
 
     // select the group and deselect the previously selected
-    comp_cmd.commands.push_back(update_selection_cmd({group.id()}, m_selected));
+    comp_cmd.commands.push_back(update_selection_cmd({group.id()}, selected_objs));
 
     // add the compound command
     add_command(comp_cmd);
 }
 
 void editor::ungroup_selected() {
-    if(m_selected.empty())
+    auto& selected_objs = getAllMixins()["selected"].get_objects();
+    if(selected_objs.empty())
         return;
 
     compound_cmd comp_cmd;
     comp_cmd.description = "ungrouping selected";
 
-    for(auto& curr : m_selected) {
+    for(auto& curr : selected_objs) {
         auto parent = curr.obj().get_parent();
         // skip selected objects that have no parents - they are already ungrouped
         if(!parent)
@@ -416,16 +416,17 @@ void editor::ungroup_selected() {
 }
 
 void editor::duplicate_selected() {
-    if(m_selected.empty())
+auto& selected_objs = getAllMixins()["selected"].get_objects();
+    if(selected_objs.empty())
         return;
 
     compound_cmd comp_cmd;
     comp_cmd.description = "duplicating selected";
 
-    std::vector<oid> top_most_selected = get_top_most(m_selected);
+    std::vector<oid> top_most_selected = get_top_most(selected_objs);
 
     // deselect the previously selected objects
-    comp_cmd.commands.push_back(update_selection_cmd({}, m_selected));
+    comp_cmd.commands.push_back(update_selection_cmd({}, selected_objs));
 
     std::function<oid(Object&)> copy_recursive = [&](Object& to_copy) {
         // create a new object and copy
@@ -491,7 +492,8 @@ void editor::duplicate_selected() {
 }
 
 void editor::delete_selected() {
-    if(m_selected.empty())
+    auto& selected_objs = getAllMixins()["selected"].get_objects();
+    if(selected_objs.empty())
         return;
 
     handle_gizmo_changes();
@@ -517,7 +519,7 @@ void editor::delete_selected() {
         ObjectManager::get().destroy(root);
     };
 
-    std::vector<oid> top_most_selected = get_top_most(m_selected);
+    std::vector<oid> top_most_selected = get_top_most(selected_objs);
     for(auto& curr : top_most_selected) {
         // first fix any parental link of the currently selected object
         auto parent = curr.obj().get_parent();
@@ -537,8 +539,6 @@ void editor::delete_selected() {
         delete_recursive(curr);
     }
     add_command(comp_cmd);
-
-    m_selected.clear();
 }
 
 void editor::undo_soft_commands() {
@@ -601,8 +601,6 @@ void editor::fast_forward_to_command(int idx) {
             undo();
         }
     }
-
-    update_selected();
 }
 
 void editor::handle_command(command_variant& command_var, bool undo) {

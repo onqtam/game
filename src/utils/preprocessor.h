@@ -28,17 +28,16 @@
 
 #define TODO HA_TODO
 
-// == THIS IS UNNECESSARY SINCE THESE WARNINGS ARE DISABLED (atleast the one for clang)
-//#if defined(__clang__)
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") static int var
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS_END() _Pragma("clang diagnostic pop")
-//#elif defined(__GNUC__)
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) static int var __attribute__((unused))
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS_END()
-//#else // MSVC / other
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) static int var
-//#define HA_UNUSED_GLOBAL_NO_WARNINGS_END()
-//#endif // MSVC / other
+#if defined(__clang__)
+#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wglobal-constructors\"") static int var
+#define HA_UNUSED_GLOBAL_NO_WARNINGS_END _Pragma("clang diagnostic pop")
+#elif defined(__GNUC__)
+#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) static int var __attribute__((unused))
+#define HA_UNUSED_GLOBAL_NO_WARNINGS_END
+#else // MSVC / other
+#define HA_UNUSED_GLOBAL_NO_WARNINGS(var) static int var
+#define HA_UNUSED_GLOBAL_NO_WARNINGS_END
+#endif // MSVC / other
 
 #ifdef _MSC_VER
 #define HA_COUNT_OF(x) _countof(x)

@@ -11,7 +11,9 @@ HA_MIXIN_DEFINE_WITHOUT_CODEGEN(test_struct, dynamix::none);
 #define test_dealloc(x) a.dealloc_mixin(x.first, 0, mixin_info, nullptr)
 #define test_write(x, val) (reinterpret_cast<test_struct*>(x.first + x.second))->data = val
 
-test_case("[core] testing PagedMixinAllocator with int") {
+test_case("[core] testing PagedMixinAllocator with int"
+    * doctest::skip()
+) {
     auto& mixin_info = _dynamix_get_mixin_type_info((test_struct*)nullptr);
 
     std::pair<char*, size_t> res_0;

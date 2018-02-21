@@ -1,5 +1,5 @@
 
-actually use the new interface of the new dynamix allocators... (for getting a list of all objects with mixin X)
+test the move to getting lists of objects from the allocators (+fix tests)
 
 rendering libraries to look at:
     https://github.com/ConfettiFX/The-Forge
@@ -265,6 +265,8 @@ networking:
     https://github.com/networkprotocol/yojimbo
     https://github.com/HumbleNet/HumbleNet
 graphics/assets:
+	animation
+		The Animation Pipeline of Overwatch - https://www.youtube.com/watch?v=cr7oO8kDu8g
     - graphics API abstractions
         https://github.com/DiligentGraphics/DiligentEngine
     - single file wavefront obj loader - https://github.com/syoyo/tinyobjloader

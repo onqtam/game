@@ -19,8 +19,6 @@ static bool is_in_range(int val, int bound_1, int bound_2) {
 }
 
 void editor::update_gui() {
-    update_selected();
-
     ImGui::SetNextWindowSize(ImVec2(300, 550), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
     if(ImGui::Begin("scene explorer", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -109,7 +107,7 @@ void editor::update_gui() {
                             else
                                 to_deselect.push_back(root);
                         } else if(shouldSelect) {
-                            for(auto& it : m_selected)
+                            for(auto& it : getAllMixins()["selected"].get_objects())
                                 to_deselect.push_back(it);
                             to_select.push_back(root);
                         }
@@ -152,7 +150,7 @@ void editor::update_gui() {
                 ImGui::MenuItem("Add to selected", nullptr, &add_to_selected);
                 ImGui::MenuItem("Remove selected", nullptr, &remove_selected);
                 ImGui::MenuItem("Remove by name", nullptr, &remove_by_name);
-                if(m_selected.empty())
+                if(getAllMixins()["selected"].get_objects().empty())
                     add_to_selected = false;
                 ImGui::EndMenu();
             }
@@ -211,7 +209,7 @@ void editor::update_gui() {
         static ImGuiTextFilter mixins_to_show_filter;
         mixins_to_show_filter.Draw("Filter by mixin");
 
-        for(auto& id : m_selected) {
+        for(auto& id : getAllMixins()["selected"].get_objects()) {
             auto& obj = id.obj();
 
             std::vector<cstr> mixin_names;
@@ -457,8 +455,8 @@ void editor::update_gui() {
 }
 
 void editor::update_gizmo() {
-    // don't continue if no gizmo-able objects are selected
-    if(selected_with_gizmo.empty())
+    auto& selected_objs = getAllMixins()["selected"].get_objects();
+    if(selected_objs.empty())
         return;
 
     auto& app = Application::get();
@@ -479,12 +477,12 @@ void editor::update_gizmo() {
     if(!mouse_button_left_changed && !m_gizmo_state.mouse_left) {
         yama::vector3    avg_pos = {0, 0, 0};
         yama::quaternion avg_rot =
-                (selected_with_gizmo.size() == 1) ?              // based on number of objects
-                        selected_with_gizmo[0].obj().get_rot() : // orientation of object
-                        yama::quaternion::identity();            // generic default rotation
-        for(auto& curr : selected_with_gizmo)
+                (selected_objs.size() == 1) ?              // based on number of objects
+                        selected_objs[0].obj().get_rot() : // orientation of object
+                        yama::quaternion::identity();      // generic default rotation
+        for(auto& curr : selected_objs)
             avg_pos += curr.obj().get_pos();
-        avg_pos /= float(selected_with_gizmo.size());
+        avg_pos /= float(selected_objs.size());
 
         gizmo_transform.position    = {avg_pos.x, avg_pos.y, avg_pos.z};
         gizmo_transform.orientation = {avg_rot.x, avg_rot.y, avg_rot.z, avg_rot.w};
@@ -497,7 +495,7 @@ void editor::update_gizmo() {
     if(mouse_button_left_changed) {
         if(m_gizmo_state.mouse_left) {
             gizmo_transform_last = gizmo_transform;
-            for(auto& id : selected_with_gizmo) {
+            for(auto& id : selected_objs) {
                 id.obj().get<selected>()->old_t       = id.obj().get_transform();
                 id.obj().get<selected>()->old_local_t = id.obj().get_transform_local();
             }
@@ -514,11 +512,11 @@ void editor::update_gizmo() {
         auto rot   = yama::quaternion::from_ptr(&gizmo_transform.orientation[0]);
         auto rot_l = yama::quaternion::from_ptr(&gizmo_transform_last.orientation[0]);
         if(!yama::close(pos, pos_l) || !yama::close(scl, scl_l) || !yama::close(rot, rot_l)) {
-            for(auto& id : selected_with_gizmo) {
+            for(auto& id : selected_objs) {
                 auto t = id.obj().get<selected>()->old_t;
                 t.pos += pos - pos_l;
                 t.scl += scl - scl_l;
-                if(selected_with_gizmo.size() == 1) {
+                if(selected_objs.size() == 1) {
                     t.rot = rot; // the gizmo is attached to the object's orientation so this is a straight copy
                 } else {
                     // can change the order - does something else but is still ok and sort-of logical
