@@ -18,6 +18,10 @@
 //   - no extra overhead for maintaining an up-to-date list
 //   cons:
 //   - costly to construct the list
+// TODO:
+// - move from method 1 to method 3
+// - implement method 2
+// - move from returning a list of ids to a list of pointers - its more optimal (or provide both options)
 
 template <typename Mixin, int NUM_IN_PAGE = 1024>
 class PagedMixinAllocator : public dynamix::mixin_allocator

@@ -152,6 +152,8 @@ public:
     static const Object& cast_to_object(const void* in) {
         return static_cast<const Object&>(*::dynamix::object_of(in));
     }
+
+    HAPI static const Object& dummy();
 };
 
 #define ha_this Object::cast_to_object(this)

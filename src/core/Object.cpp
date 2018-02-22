@@ -24,7 +24,11 @@ void Object::unparent() {
 }
 
 Object::~Object() {
-    if(Application::get().state() == Application::State::PLAY) {
+    if(
+#ifndef DOCTEST_CONFIG_DISABLE
+            id().isValid() &&
+#endif
+            Application::get().state() == Application::State::PLAY) {
         orphan();
         unparent();
     }
@@ -69,6 +73,11 @@ void Object::set_parent(oid parent) {
         hassert(me_in_parent_iter == parent_ch.end());
         parent_ch.push_back(m_id);
     }
+}
+
+const Object& Object::dummy() {
+    static Object out;
+    return out;
 }
 
 // included here and not in Object.h to contain dependencies
