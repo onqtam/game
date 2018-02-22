@@ -1,5 +1,5 @@
 
-test the move to getting lists of objects from the allocators (+fix tests)
+TODO: fix allocator tests
 
 rendering libraries to look at:
     https://github.com/ConfettiFX/The-Forge

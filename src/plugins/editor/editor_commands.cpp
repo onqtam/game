@@ -110,7 +110,8 @@ void editor::create_object() {
     comp_cmd.commands.push_back(object_mutation_cmd(
             {obj.id(), obj.name(), mixin_names(obj), mixin_state(obj, nullptr), true}));
 
-    comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, getAllMixins()["selected"].get_objects()));
+    auto selected_objects_copy = getAllMixins()["selected"].get_objects();
+    comp_cmd.commands.push_back(update_selection_cmd({obj.id()}, selected_objects_copy));
 
     add_command(comp_cmd);
 }
@@ -181,7 +182,7 @@ void editor::remove_selected_mixins() {
             mixins_to_delete.insert(mixin.first);
         }
 
-        // update the selected mixins list in "selected"
+        // update the selected_mixins list in "selected"
         if(!mixins_to_delete.empty()) {
             JsonData ov = mixin_attr_state("selected", "selected_mixins", selected_mixins);
             for(auto& curr : mixins_to_delete)
@@ -212,13 +213,13 @@ compound_cmd editor::update_selection_cmd(const std::vector<oid>& to_select,
                                                              select}));
         };
 
-        for(auto curr : to_select) {
-            curr.obj().addMixin("selected");
-            add_mutate_command(curr, true);
-        }
         for(auto curr : to_deselect) {
             add_mutate_command(curr, false);
             curr.obj().remMixin("selected");
+        }
+        for(auto curr : to_select) {
+            curr.obj().addMixin("selected");
+            add_mutate_command(curr, true);
         }
     }
 
@@ -277,10 +278,10 @@ void editor::handle_gizmo_changes() {
 
 void editor::reparent(oid new_parent_for_selected) {
     // detect cycles - the new parent shouldn't be a child (close or distant) of any of the selected objects
-    auto& selected = getAllMixins()["selected"].get_objects();
+    auto& selected_objs = getAllMixins()["selected"].get_objects();
     if(new_parent_for_selected)
         for(auto curr = new_parent_for_selected; curr; curr = curr.obj().get_parent())
-            if(std::find(selected.begin(), selected.end(), curr) != selected.end())
+            if(std::find(selected_objs.begin(), selected_objs.end(), curr) != selected_objs.end())
                 new_parent_for_selected = oid::invalid(); // set it to an invalid state
 
     // if selected objects have been dragged with the middle mouse button onto an unselected object - make them its children
@@ -290,7 +291,7 @@ void editor::reparent(oid new_parent_for_selected) {
 
         auto new_parent_old = mixin_state(new_parent_for_selected.obj(), "");
 
-        comp_cmd.commands.push_back(objects_set_parent(selected, new_parent_for_selected));
+        comp_cmd.commands.push_back(objects_set_parent(selected_objs, new_parent_for_selected));
 
         // update the parental part of the new parent
         comp_cmd.commands.push_back(attributes_changed_cmd(
@@ -303,8 +304,8 @@ void editor::reparent(oid new_parent_for_selected) {
 }
 
 void editor::group_selected() {
-    auto& selected_objs = getAllMixins()["selected"].get_objects();
-    if(selected_objs.empty())
+    auto selected_objs_copy = getAllMixins()["selected"].get_objects();
+    if(selected_objs_copy.empty())
         return;
 
     compound_cmd comp_cmd;
@@ -313,7 +314,7 @@ void editor::group_selected() {
     auto find_lowest_common_ancestor = [&]() {
         // go upwards from each selected node and update the visited count for each node
         std::map<oid, int> visited_counts;
-        for(auto curr : selected_objs) {
+        for(auto curr : selected_objs_copy) {
             while(curr != oid::invalid()) {
                 visited_counts[curr]++;
                 curr = curr.obj().get_parent();
@@ -322,12 +323,12 @@ void editor::group_selected() {
 
         // remove any node that has been visited less times than the number of selected objects
         Utils::erase_if(visited_counts,
-                        [&](auto in) { return in.second < int(selected_objs.size()); });
+                        [&](auto in) { return in.second < int(selected_objs_copy.size()); });
 
         // if there is a common ancestor - it will have the same visited count as the number of selected objects
         if(visited_counts.size() == 1 &&
-           std::find(selected_objs.begin(), selected_objs.end(), visited_counts.begin()->first) ==
-                   selected_objs.end()) {
+           std::find(selected_objs_copy.begin(), selected_objs_copy.end(),
+                     visited_counts.begin()->first) == selected_objs_copy.end()) {
             // if only one object is left after the filtering (common ancestor to all) and is not part of the selection
             return visited_counts.begin()->first;
         } else if(visited_counts.size() > 1) {
@@ -356,13 +357,13 @@ void editor::group_selected() {
 
     // average position for the new group object
     auto average_pos = yama::vector3::zero();
-    for(auto& curr : selected_objs)
+    for(auto& curr : selected_objs_copy)
         average_pos += curr.obj().get_pos();
-    average_pos /= float(selected_objs.size());
+    average_pos /= float(selected_objs_copy.size());
     // set position of newly created group to be the average position of all selected objects
     group.set_transform({average_pos, {1, 1, 1}, {0, 0, 0, 1}});
 
-    comp_cmd.commands.push_back(objects_set_parent(selected_objs, group.id()));
+    comp_cmd.commands.push_back(objects_set_parent(selected_objs_copy, group.id()));
 
     // add the created group object
     comp_cmd.commands.push_back(
@@ -371,7 +372,7 @@ void editor::group_selected() {
             {group.id(), group.name(), mixin_names(group), mixin_state(group, nullptr), true}));
 
     // select the group and deselect the previously selected
-    comp_cmd.commands.push_back(update_selection_cmd({group.id()}, selected_objs));
+    comp_cmd.commands.push_back(update_selection_cmd({group.id()}, selected_objs_copy));
 
     // add the compound command
     add_command(comp_cmd);
@@ -416,17 +417,17 @@ void editor::ungroup_selected() {
 }
 
 void editor::duplicate_selected() {
-auto& selected_objs = getAllMixins()["selected"].get_objects();
-    if(selected_objs.empty())
+    auto selected_objs_copy = getAllMixins()["selected"].get_objects();
+    if(selected_objs_copy.empty())
         return;
 
     compound_cmd comp_cmd;
     comp_cmd.description = "duplicating selected";
 
-    std::vector<oid> top_most_selected = get_top_most(selected_objs);
+    std::vector<oid> top_most_selected = get_top_most(selected_objs_copy);
 
     // deselect the previously selected objects
-    comp_cmd.commands.push_back(update_selection_cmd({}, selected_objs));
+    comp_cmd.commands.push_back(update_selection_cmd({}, selected_objs_copy));
 
     std::function<oid(Object&)> copy_recursive = [&](Object& to_copy) {
         // create a new object and copy
