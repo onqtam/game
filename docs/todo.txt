@@ -102,6 +102,7 @@ rename oid to object_handle?
 move from oid to object pointers for performance-critical code like parental relationships - to avoid the lookups
 make the oid class hold a pointer to the object instead of the index - but when being serialized it should turn into an index
 	but how to check for the validity of oids? when an object is destroyed we cannot update all relevant oids to point to null
+        actually if oids stop being unique but become indexes I can encode a "revision" in part of the bits of each oid to check if the object is still the same (thanks to kosta for mentioning it)
 remove unnecessary parts of source file names - for example the "messages_" prefix of files in the "messages" folder...
     ===> might get clashes for the generated .h.inl files in <gen> !!!
 engine name:
