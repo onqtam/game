@@ -25,7 +25,7 @@ addons:
     sources: &apt_sources
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty
-      - llvm-toolchain-trusty-5.0
+      - llvm-toolchain-trusty-6.0
 
 compiler: clang
 os: linux
@@ -40,11 +40,11 @@ matrix:
           packages: [             "g++-7", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
           sources: *apt_sources
 
-    # Clang 5.0
-    - env: COMPILER=clang++-5.0
-      addons: &clang5
+    # Clang 6.0
+    - env: COMPILER=clang++-6.0
+      addons: &clang6
         apt:
-          packages: ["clang-5.0", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libc++-dev", "libc++abi-dev"]
+          packages: ["clang-6.0", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libc++-dev", "libc++abi-dev"]
           sources: *apt_sources
 
   allow_failures:
