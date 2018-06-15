@@ -53,7 +53,7 @@ if isWindows() and not os.path.exists("tools/ninja.exe"):
     downloadAndExtractZip(url, "tools/ninja.zip", "tools")
     os.remove("tools/ninja.zip")
 
-boost_minor = "66"
+boost_minor = "67"
 if not os.path.exists('third_party/boost_1_' + boost_minor + '_0'):
     url = 'http://sourceforge.net/projects/boost/files/boost/1.' + boost_minor + '.0/boost_1_' + boost_minor + '_0.zip/download'
     downloadAndExtractZip(url, "third_party/boost.zip", "third_party")
