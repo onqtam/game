@@ -1,5 +1,5 @@
 
-if(WIN32)
+if(WIN32 OR TOOLCHAIN STREQUAL "js")
     set(LLVM_CONFIG true)
     if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
         set(CLANG_INCLUDEDIR "C:/Program Files (x86)/LLVM/include")
