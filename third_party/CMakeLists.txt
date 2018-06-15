@@ -12,6 +12,9 @@ target_include_directories(yama INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/yama/inclu
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/stb)
 
+add_library(mustache INTERFACE)
+target_include_directories(mustache INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/mustache)
+
 # LIBRARY sajson
 add_library(sajson INTERFACE)
 target_include_directories(sajson INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

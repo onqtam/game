@@ -20,9 +20,9 @@ class gameplay_camera : public InputEventListener, public UpdatableMixin<gamepla
 {
     HA_MESSAGES_IN_MIXIN(gameplay_camera);
 
-    FIELD float cursor_x = 0.f;
-    FIELD float cursor_y = 0.f;
-    FIELD float scroll   = 0.f;
+    float cursor_x = 0.f;
+    float cursor_y = 0.f;
+    float scroll   = 0.f;
 
 public:
     gameplay_camera() {
@@ -93,10 +93,10 @@ class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera
 {
     HA_MESSAGES_IN_MIXIN(maya_camera);
 
-    FIELD float radius             = 50.f;
-    FIELD float yaw                = yama::deg_to_rad(-90.f);
-    FIELD float pitch              = yama::deg_to_rad(60.f);
-    FIELD yama::vector3 pivotPoint = yama::vector3::uniform(0.f);
+    float radius             = 50.f;
+    float yaw                = yama::deg_to_rad(-90.f);
+    float pitch              = yama::deg_to_rad(60.f);
+    yama::vector3 pivotPoint = yama::vector3::uniform(0.f);
 
 public:
     maya_camera() {

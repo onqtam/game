@@ -16,11 +16,11 @@ struct attributes_changed_cmd
     HA_FRIENDS_OF_TYPE(attributes_changed_cmd);
 
 public:
-    FIELD oid e;
-    FIELD std::string name;
-    FIELD JsonData old_val;
-    FIELD JsonData new_val;
-    FIELD std::string description;
+    oid e;
+    std::string name;
+    JsonData old_val;
+    JsonData new_val;
+    std::string description;
 };
 
 struct object_creation_cmd
@@ -28,10 +28,10 @@ struct object_creation_cmd
     HA_FRIENDS_OF_TYPE(object_creation_cmd);
 
 public:
-    FIELD oid id;
-    FIELD std::string name;
-    FIELD JsonData state;
-    FIELD bool     created;
+    oid id;
+    std::string name;
+    JsonData state;
+    bool     created;
 };
 
 struct object_mutation_cmd
@@ -39,11 +39,11 @@ struct object_mutation_cmd
     HA_FRIENDS_OF_TYPE(object_mutation_cmd);
 
 public:
-    FIELD oid id;
-    FIELD std::string name;
-    FIELD std::vector<std::string> mixins;
-    FIELD JsonData state;
-    FIELD bool     added;
+    oid id;
+    std::string name;
+    std::vector<std::string> mixins;
+    JsonData state;
+    bool     added;
 };
 
 struct compound_cmd
@@ -56,40 +56,39 @@ public:
                                          command_variant;
     typedef std::vector<command_variant> commands_vector;
 
-    FIELD commands_vector commands;
-    FIELD std::string description;
+    commands_vector commands;
+    std::string description;
 };
 
 typedef compound_cmd::command_variant command_variant;
 typedef compound_cmd::commands_vector commands_vector;
 
-REFL_ATTRIBUTES(REFL_NO_INLINE)
 class editor : public UpdatableMixin<editor>, public InputEventListener, public Singleton<editor>
 {
     HA_SINGLETON(editor);
     HA_MESSAGES_IN_MIXIN(editor);
 
-    FIELD commands_vector undo_redo_commands;
-    FIELD int             curr_undo_redo                       = -1;
-    FIELD bool            m_should_rescroll_in_command_history = false;
-    FIELD int             m_selected_command_idx_1             = -1;
-    FIELD int             m_selected_command_idx_2             = -1;
+    commands_vector undo_redo_commands;
+    int             curr_undo_redo                       = -1;
+    bool            m_should_rescroll_in_command_history = false;
+    int             m_selected_command_idx_1             = -1;
+    int             m_selected_command_idx_2             = -1;
 
-    FIELD commands_vector soft_undo_redo_commands;
+    commands_vector soft_undo_redo_commands;
 
-    FIELD bool mouse_button_left_changed = false;
-    FIELD tinygizmo::rigid_transform gizmo_transform;
-    FIELD tinygizmo::rigid_transform gizmo_transform_last;
+    bool mouse_button_left_changed = false;
+    tinygizmo::rigid_transform gizmo_transform;
+    tinygizmo::rigid_transform gizmo_transform_last;
 
     // these members are OK to not be serialized because they are constantly updated
     tinygizmo::gizmo_application_state m_gizmo_state;
-    tinygizmo::gizmo_context           m_gizmo_ctx;
-    std::vector<vertex::pnc>           m_gizmo_verts;
-    std::vector<uint32>                m_gizmo_inds;
+    ATTRS(skip) tinygizmo::gizmo_context           m_gizmo_ctx;
+    ATTRS(skip) std::vector<vertex::pnc>           m_gizmo_verts;
+    ATTRS(skip) std::vector<uint32>                m_gizmo_inds;
     ShaderHandle                       m_program;
     mutable bool                       m_render_gizmo = false;
 
-    GeomHandle   m_grid;
+    ATTRS(skip) GeomHandle   m_grid;
     ShaderHandle m_grid_shader;
 
     void update_gui();
@@ -144,10 +143,10 @@ class selected
     static void submit_aabb_rec(const Object& curr, std::vector<renderPart>& out);
 
 public:
-    FIELD transform old_t;
-    FIELD transform old_local_t;
+    transform old_t;
+    transform old_local_t;
 
-    FIELD std::map<dynamix::mixin_id, std::string> selected_mixins;
+    std::map<dynamix::mixin_id, std::string> selected_mixins;
 
     void get_rendering_parts(std::vector<renderPart>& out) const { submit_aabb_rec(ha_this, out); }
 };

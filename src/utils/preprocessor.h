@@ -87,8 +87,9 @@ struct print_ct;
 #define HA_FRIENDS_OF_TYPE_COMMON(export, type)                                                    \
     friend export void   serialize(const type& src, JsonData& out);                                \
     friend export size_t deserialize(type& dest, const sajson::value& val);                        \
-    friend export void   gather_oids(type& in, std::vector<const_oid*>& out);                      \
     friend export cstr   imgui_bind_attributes(Object& e, cstr mixin, type& obj)
+
+//friend export void   gather_oids(type& in, std::vector<const_oid*>& out);
 
 #define HA_FRIENDS_OF_TYPE(type) HA_FRIENDS_OF_TYPE_COMMON(HA_EMPTY(), type)
 #define HA_EXPORTED_FRIENDS_OF_TYPE(type) HA_FRIENDS_OF_TYPE_COMMON(HAPI, type)
@@ -97,14 +98,11 @@ struct print_ct;
     /* clang-format fix */ public:                                                                 \
     void serialize_mixins(cstr concrete_mixin, JsonData& out) const;                               \
     void deserialize_mixins(const sajson::value& in);                                              \
-    void gather_oids_mixins(std::vector<const_oid*>& out);                                         \
     void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);                    \
     /* clang-format fix */ private:                                                                \
     HA_FRIENDS_OF_TYPE(type)
 
+//void gather_oids_mixins(std::vector<const_oid*>& out);
+
 // helpers that don't expand to anything - used by the type parser
-#define FIELD          // indicates the start of a field definition inside of a type
-#define REFL_NO_SKIP   // class attribute - emit reflection for the class even if without any fields
-#define REFL_NO_INLINE // class attribute - emitted reflection methods should not be marked as inline
-#define REFL_CALLBACK // field attribute - the given callback will be called after the field changes
-#define REFL_ATTRIBUTES(...) // list attributes and tags in a comma-separated fashion using this
+#define ATTRS(...) // list attributes and tags in a comma-separated fashion using this

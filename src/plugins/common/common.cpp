@@ -6,13 +6,12 @@
 
 #include "core/messages/messages_rendering.h"
 
-REFL_ATTRIBUTES(REFL_NO_SKIP)
-class crap
-{
-    HA_MESSAGES_IN_MIXIN(crap);
-};
-
-HA_MIXIN_DEFINE(crap, dynamix::none)
+//class crap
+//{
+//    HA_MESSAGES_IN_MIXIN(crap);
+//};
+//
+//HA_MIXIN_DEFINE(crap, dynamix::none)
 
 class mesh
 {
@@ -20,22 +19,22 @@ class mesh
 
     static void mesh_changed_cb(mesh&) {}
 
-    GeomMan::Handle _mesh;
+    ATTRS(skip) GeomMan::Handle _mesh;
 
-    REFL_ATTRIBUTES(tag::mesh, REFL_CALLBACK(mesh::mesh_changed_cb))
-    FIELD std::string _path;
-    REFL_ATTRIBUTES(tag::image)
-    FIELD std::string _image_path;
+    //REFL_ATTRIBUTES(tag::mesh, REFL_CALLBACK(mesh::mesh_changed_cb))
+    std::string _path;
+    //REFL_ATTRIBUTES(tag::image)
+    std::string _image_path;
 
-    FIELD bool   clicky      = false;
-    FIELD float  dragy       = 42;
-    FIELD double dragy2      = 42;
-    FIELD int    dragy3      = 42;
-    FIELD std::string texty  = "happy!!";
-    FIELD std::string texty2 = ":(";
-    FIELD oid some_obj_id;
-    FIELD std::vector<oid> omg;
-    FIELD std::map<int, oid> omg2;
+    bool   clicky      = false;
+    float  dragy       = 42;
+    double dragy2      = 42;
+    int    dragy3      = 42;
+    std::string texty  = "happy!!";
+    std::string texty2 = ":(";
+    oid some_obj_id;
+    std::vector<oid> omg;
+    std::map<int, oid> omg2;
 
 public:
     mesh() {

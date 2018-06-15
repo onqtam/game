@@ -1,3 +1,5 @@
+add_subdirectory(tools)
+
 ucm_add_flags(${ha_compiler_flags})
 
 include_directories("./")

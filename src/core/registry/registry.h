@@ -140,15 +140,17 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    void n::gather_oids_mixins(std::vector<const_oid*>& in) { gather_oids(*this, in); }            \
     HA_MIXIN_DEFINE_COMMON(                                                                        \
             n, common::serialize_mixins_msg& common::deserialize_mixins_msg&                       \
-                               common::gather_oids_mixins_msg&                                     \
                                common::get_imgui_binding_callbacks_from_mixins_msg& f);            \
     void n::get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs) {                \
         cbs.push_back({&_dynamix_get_mixin_type_info((n*)nullptr),                                 \
                        [](Object& obj) { imgui_bind_attributes(obj, #n, *obj.get<n>()); }});       \
     }
+
+//common::gather_oids_mixins_msg&
+
+//void n::gather_oids_mixins(std::vector<const_oid*>& in) { gather_oids(*this, in); }
 
 #define HA_MIXIN_DEFINE_WITHOUT_CODEGEN(n, f) HA_MIXIN_DEFINE_COMMON(n, f)
 

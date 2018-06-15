@@ -6,7 +6,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${gen_folder}
     COMMAND ${CMAKE_COMMAND} -E make_directory   ${gen_folder}
     COMMAND ${CMAKE_COMMAND} -E touch            ${gen_folder}/touched.txt
-    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/python/parse_source.py # the parser script as a dependency
+    DEPENDS reflection # the reflection parser as a dependency
     COMMENT "[codegen] deleting all generated files because the parser has been modified")
 add_custom_target(parser_modified DEPENDS ${gen_folder}/touched.txt) # so parsed targets can depend on it
 set_target_properties(parser_modified PROPERTIES FOLDER "CMakePredefinedTargets") # hide it
@@ -26,7 +26,7 @@ function(target_parse_sources target)
             add_custom_command(
                 OUTPUT ${gen_h}
                 DEPENDS ${src} # cannot use MAIN_DEPENDENCY - see this: https://gitlab.kitware.com/cmake/cmake/issues/16580
-                COMMAND python ${CMAKE_SOURCE_DIR}/scripts/python/parse_source.py ${src} ${gen_h}
+                COMMAND $<TARGET_FILE:reflection> ${src} ${gen_h}
                 COMMENT "[codegen] parsing ${src}")
             
             target_sources(${target} PRIVATE ${gen_h}) # so the custom command is attached somewhere - no MAIN_DEPENDENCY :(
@@ -35,7 +35,7 @@ function(target_parse_sources target)
         endif()
     endforeach()
     target_include_directories(${target} PRIVATE ${CMAKE_BINARY_DIR}/gen)
-    add_dependencies(${target} parser_modified)
+    add_dependencies(${target} parser_modified reflection)
 endfunction()
 
 # add_precompiled_header

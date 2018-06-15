@@ -37,14 +37,14 @@ matrix:
       compiler: gcc
       addons: &gcc7
         apt:
-          packages: [             "g++-7", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev"]
+          packages: [    "g++-7", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libclang-dev"]
           sources: *apt_sources
 
     # Clang 6.0
     - env: COMPILER=clang++-6.0
       addons: &clang6
         apt:
-          packages: ["clang-6.0", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libc++-dev", "libc++abi-dev"]
+          packages: ["clang-6.0", "valgrind", "xorg-dev", "libx11-dev", "libgl1-mesa-dev", "libclang-dev", "libc++-dev", "libc++abi-dev"]
           sources: *apt_sources
 
   allow_failures:

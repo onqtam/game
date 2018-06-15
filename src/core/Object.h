@@ -3,7 +3,7 @@
 class Object;
 class oid;
 
-class const_oid
+class ATTRS(skip) const_oid
 {
     friend class ObjectManager;
     friend class oid;
@@ -32,7 +32,7 @@ public:
     static const_oid invalid() { return const_oid(); }
 };
 
-class oid : public const_oid
+class ATTRS(skip) oid : public const_oid
 {
 public:
     explicit oid(int16 value = -1)
@@ -43,7 +43,6 @@ public:
     static oid invalid() { return oid(); }
 };
 
-REFL_ATTRIBUTES(REFL_NO_INLINE)
 class Object : public dynamix::object
 {
     friend class ObjectManager;
@@ -51,13 +50,13 @@ class Object : public dynamix::object
     HA_EXPORTED_FRIENDS_OF_TYPE(Object);
 
     oid   m_id;
-    FIELD oid m_parent;
-    FIELD int m_flags          = 0;
-    FIELD yama::vector3 pos    = {0, 0, 0};
-    FIELD yama::vector3 scl    = {1, 1, 1};
-    FIELD yama::quaternion rot = {0, 0, 0, 1};
-    FIELD std::vector<oid> m_children;
-    FIELD std::string m_name;
+    oid m_parent;
+    int m_flags          = 0;
+    yama::vector3 pos    = {0, 0, 0};
+    yama::vector3 scl    = {1, 1, 1};
+    yama::quaternion rot = {0, 0, 0, 1};
+    std::vector<oid> m_children;
+    std::string m_name;
 
     void copy_inherited_fields(const Object& other) {
         //m_id = other.m_id; // don't copy the id!

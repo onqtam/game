@@ -62,7 +62,7 @@ World::World()
     m_camera = om.create("camera").id();
     //m_camera.obj().addMixin("maya_camera");
     m_camera.obj().addMixin("gameplay_camera");
-    m_camera.obj().addMixin("crap");
+    //m_camera.obj().addMixin("crap");
 
     // EXAMPLE: serialize and deserialize an object
     //JsonData state;
@@ -142,12 +142,12 @@ void World::update() {
 
     mixins["editor"].update(dt);
 
-    std::vector<const_oid*> oids;
-    for(auto& obj : ObjectManager::get().getObjects()) {
-        gather_oids(obj.second, oids);
-        if(obj.second.implements(common::gather_oids_mixins_msg))
-            common::gather_oids_mixins(obj.second, oids);
-    }
+    //std::vector<const_oid*> oids;
+    //for(auto& obj : ObjectManager::get().getObjects()) {
+    //    gather_oids(obj.second, oids);
+    //    if(obj.second.implements(common::gather_oids_mixins_msg))
+    //        common::gather_oids_mixins(obj.second, oids);
+    //}
 
     //printf("oids: %d\n", int(oids.size()));
 }
