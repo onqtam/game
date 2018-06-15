@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     auto types = GetTypes(argv[1], argc, argv);
 
     std::fstream fs(argv[2], std::fstream::out);
-    
+
     mustache::mustache template_serialization(R"raw(
 {{#serialization}}{{#inline}}inline {{/inline}}void serialize(const {{type}}& src, JsonData& out) {
     out.startObject();
@@ -54,13 +54,13 @@ int main(int argc, char** argv) {
 
     mustache::mustache template_in_type(R"raw(public:
 {{#serialization}}
-friend export void   serialize(const {{type}}& src, JsonData& out);
-friend export size_t deserialize({{type}}& dest, const sajson::value& val);
+friend {{#export}}HAPI {{/export}}void serialize(const {{type}}& src, JsonData& out);
+friend {{#export}}HAPI {{/export}}size_t deserialize({{type}}& dest, const sajson::value& val);
 void serialize_mixins(cstr concrete_mixin, JsonData& out) const;
 void deserialize_mixins(const sajson::value& in);
 {{/serialization}}
 {{#imgui}}
-friend export cstr   imgui_bind_attributes(Object& e, cstr mixin, {{type}}& obj);
+friend {{#export}}HAPI {{/export}}cstr imgui_bind_attributes(Object& e, cstr mixin, {{type}}& obj);
 void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
 {{/imgui}}
 )raw");
@@ -85,14 +85,17 @@ void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
         if(type->Attributes.count("inline"))
             data.set("inline", mustache::data::type::bool_true);
 
+        if(type->Attributes.count("export"))
+            data.set("export", mustache::data::type::bool_true);
+
         if(has_none_of(type->Attributes, {"imgui", "skip"}))
             data.set("serialization", mustache::data::type::bool_true);
 
         if(has_none_of(type->Attributes, {"serialization", "skip"}))
             data.set("imgui", mustache::data::type::bool_true);
 
-        fs << template_serialization.render(data);// << template_imgui.render(data);
-        
+        fs << template_serialization.render(data); // << template_imgui.render(data);
+
         // the file that should be included from within the type
         std::fstream ts(string(argv[2]) + "." + no_colons(type->GetName()), std::fstream::out);
 

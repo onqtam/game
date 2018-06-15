@@ -15,7 +15,7 @@
 
 class mesh
 {
-    HA_MESSAGES_IN_MIXIN(mesh);
+#include <gen/common.cpp.inl.mesh>
 
     static void mesh_changed_cb(mesh&) {}
 
