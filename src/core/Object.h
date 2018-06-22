@@ -11,7 +11,6 @@ class ATTRS(skip) const_oid
     int16 m_value;
 
 public:
-
     typedef int16 internal_type;
 
     explicit const_oid(int16 value = -1)
@@ -43,20 +42,22 @@ public:
     static oid invalid() { return oid(); }
 };
 
-class Object : public dynamix::object
+class ATTRS(export, nomsg) Object : public dynamix::object
 {
     friend class ObjectManager;
 
+//#include <gen/Object.h.inl.Object>
+
     HA_EXPORTED_FRIENDS_OF_TYPE(Object);
 
-    oid   m_id;
-    oid m_parent;
-    int m_flags          = 0;
-    yama::vector3 pos    = {0, 0, 0};
-    yama::vector3 scl    = {1, 1, 1};
-    yama::quaternion rot = {0, 0, 0, 1};
+    oid              m_id;
+    oid              m_parent;
+    int              m_flags = 0;
+    yama::vector3    pos     = {0, 0, 0};
+    yama::vector3    scl     = {1, 1, 1};
+    yama::quaternion rot     = {0, 0, 0, 1};
     std::vector<oid> m_children;
-    std::string m_name;
+    std::string      m_name;
 
     void copy_inherited_fields(const Object& other) {
         //m_id = other.m_id; // don't copy the id!
@@ -157,7 +158,7 @@ public:
 
 #define ha_this Object::cast_to_object(this)
 
-class HAPI ObjectManager : public Singleton<ObjectManager>
+class HAPI ATTRS(skip) ObjectManager : public Singleton<ObjectManager>
 {
     HA_SINGLETON(ObjectManager);
     ObjectManager()
@@ -172,7 +173,6 @@ private:
     std::map<oid, Object> m_objects;
 
 public:
-
     Object& create(const std::string& in_name = "object") {
         std::string name = in_name;
         name += "_" + std::to_string(m_curr_id);

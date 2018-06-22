@@ -56,12 +56,16 @@ int main(int argc, char** argv) {
 {{#serialization}}
 friend {{#export}}HAPI {{/export}}void serialize(const {{type}}& src, JsonData& out);
 friend {{#export}}HAPI {{/export}}size_t deserialize({{type}}& dest, const sajson::value& val);
+{{^nomsg}}
 void serialize_mixins(cstr concrete_mixin, JsonData& out) const;
 void deserialize_mixins(const sajson::value& in);
+{{/nomsg}}
 {{/serialization}}
 {{#imgui}}
 friend {{#export}}HAPI {{/export}}cstr imgui_bind_attributes(Object& e, cstr mixin, {{type}}& obj);
+{{^nomsg}}
 void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
+{{/nomsg}}
 {{/imgui}}
 )raw");
 
@@ -71,19 +75,29 @@ void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
 
         auto type = static_cast<Class*>(curr.get());
 
-        if(type->Fields.size() == 0)
+        if(type->Fields.size() == 0 || type->Attributes.count("skip"))
             continue;
 
         mustache::data fields = mustache::data::type::list;
-        for(auto& field : type->Fields)
-            if(field.Attributes.count("skip") == 0)
+        for(auto& field : type->Fields) {
+            if(field.Attributes.count("skip") == 0) {
                 fields.push_back(mustache::data("field", field.Name));
+                //auto tag = find_if(field.Attributes.begin(), field.Attributes.end(),
+                //                   [](auto in) { return in.compare(0, 5, "tag::") == 0; });
+                //if(tag != field.Attributes.end()) {
+                //    cout << "aa";
+                //}
+            }
+        }
 
         mustache::data data("fields", fields);
         data.set("type", type->GetName());
-
+        
         if(type->Attributes.count("inline"))
             data.set("inline", mustache::data::type::bool_true);
+
+        if(type->Attributes.count("nomsg"))
+            data.set("nomsg", mustache::data::type::bool_true);
 
         if(type->Attributes.count("export"))
             data.set("export", mustache::data::type::bool_true);
@@ -94,7 +108,7 @@ void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
         if(has_none_of(type->Attributes, {"serialization", "skip"}))
             data.set("imgui", mustache::data::type::bool_true);
 
-        fs << template_serialization.render(data); // << template_imgui.render(data);
+        fs << template_serialization.render(data);
 
         // the file that should be included from within the type
         std::fstream ts(string(argv[2]) + "." + no_colons(type->GetName()), std::fstream::out);

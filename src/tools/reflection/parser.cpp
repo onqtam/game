@@ -65,7 +65,7 @@ CXChildVisitResult GetTypesVisitor(CXCursor cursor, CXCursor parent, CXClientDat
        //&& regex_match(name, data->options->include)
        //&& !regex_match(name, data->options->exclude)
     ) {
-        cout << name << endl;
+        cout << "    " << name << endl;
         data->push_back(std::move(type));
     }
 
@@ -74,11 +74,13 @@ CXChildVisitResult GetTypesVisitor(CXCursor cursor, CXCursor parent, CXClientDat
 } // namespace
 
 vector<unique_ptr<TypeBase>> GetTypes(const char* file, int argc, char* argv[]) {
+    cout << "[codegen] parsing file " << endl << file << endl;
     vector<unique_ptr<TypeBase>> results;
     CXIndex                      index = clang_createIndex(0, 0);
 
     const char* const args[] = {"-x", "c++", "-std=c++17",
-                                "-DATTRS(...)=__attribute__((annotate(#__VA_ARGS__)))", "-DHAPI"};
+                                "-DATTRS(...)=__attribute__((annotate(#__VA_ARGS__)))",
+                                "-DHAPI=__attribute__((visibility(\"default\")))"};
 
     CXTranslationUnit unit = Parse(index, file, sizeof(args) / sizeof(args[0]), args);
 

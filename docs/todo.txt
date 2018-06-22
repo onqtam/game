@@ -1,24 +1,28 @@
 
+improve parser and attributes
+- tags
+- callbacks
+- the fact that inl files for types aren't into the dependency graph... and registry.cpp cannot compile when object.h is touched
+
+add rcrl
+
+integrate the new camera properly
+	or checkout one of these
+		https://github.com/nlguillemot/arcball_camera
+		https://github.com/nlguillemot/flythrough_camera
+
 update imgui and check if the tab-ing between fields issue is still there
 
 rendering libraries to look at:
     https://github.com/ConfettiFX/The-Forge
     https://github.com/floooh/sokol
-
-add rcrl
-
-make the parser more modular and extendable
+    https://github.com/GameFoundry/bsf
 
 think about diff-ing objects/mixins - and also diff-ing with prefabs - and also if the editor could be simplified with such diffing functionality
 
 scope guard
 https://github.com/yuri-kilochek/boost.scope_guard
 https://stackoverflow.com/a/28413370/3162383
-
-integrate the new camera properly
-	or checkout one of these
-		https://github.com/nlguillemot/arcball_camera
-		https://github.com/nlguillemot/flythrough_camera
 
 install unity and play with it...
 

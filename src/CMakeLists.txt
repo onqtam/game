@@ -29,8 +29,6 @@ target_link_libraries(registry sajson dynamix)
 target_add_fPIC(registry)
 target_parse_sources(registry)
 
-# cotire requires the appropriate cpp file for the precompiled header to be the first file in the list of sources
-#ucm_add_files(TO SOURCES "precompiled.cpp")
 ucm_add_files(TO SOURCES "precompiled.h")
 ucm_add_files(TO SOURCES "main.cpp")
 
@@ -69,6 +67,9 @@ if(${WITH_PLUGINS})
     set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
     target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")
 endif()
+
+#add_custom_target(gen_object_stuff DEPENDS ${gen_folder}/Object.h.inl)
+#add_dependencies(registry gen_object_stuff)
 
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)

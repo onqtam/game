@@ -27,7 +27,7 @@ function(target_parse_sources target)
                 OUTPUT ${gen_h}
                 DEPENDS ${src} # cannot use MAIN_DEPENDENCY - see this: https://gitlab.kitware.com/cmake/cmake/issues/16580
                 COMMAND $<TARGET_FILE:reflection> ${src} ${gen_h}
-                COMMENT "[codegen] parsing ${src}")
+                COMMENT "")
             
             target_sources(${target} PRIVATE ${gen_h}) # so the custom command is attached somewhere - no MAIN_DEPENDENCY :(
             set_source_files_properties(${gen_h} PROPERTIES GENERATED TRUE)

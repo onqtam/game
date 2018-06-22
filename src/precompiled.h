@@ -65,13 +65,13 @@ typedef dynamix::internal::mixin_type_info mixin_type_info;
 
 HA_SUPPRESS_WARNINGS_END
 
-#include "utils/types.h"
 #include "utils/preprocessor.h"
 #include "utils/doctest/doctest_proxy.h"
+#include "utils/types.h"
+#include "utils/JsonData.h"
 #include "utils/singleton.h"
 #include "utils/transform.h"
 #include "core/messages/message_macros.h"
-#include "utils/JsonData.h"
 #include "core/tags.h"
 #include "core/Object.h"
 #include "core/messages/messages_common.h"

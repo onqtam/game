@@ -1,4 +1,21 @@
 
+# YARS - yet another reflection solution
+# = reflection repos:
+# https://github.com/foonathan/cppast
+# https://github.com/Manu343726/tinyrefl
+# https://github.com/AustinBrunkhorst/CPP-Reflection/
+#     https://www.reddit.com/r/gamedev/comments/3lh0ba/using_clang_to_generate_c_reflection_data/
+#     https://blog.austinbrunkhorst.com/cpp-reflection-part-1/
+# https://github.com/chakaz/reflang
+#     https://shaharmike.com/cpp/libclang/
+# = and some wtf ones:
+# https://github.com/TReed0803/RefN/
+#     http://www.trentreed.net/blog/refn-crafting-a-scalable-reflection-library-part-1/
+# https://github.com/eliben/llvm-clang-samples
+# = others
+# https://www.youtube.com/watch?v=E6i8jmiy8MY
+# P. Goldsborough “clang-useful: Building useful tools with LLVM and clang for fun and profit"
+
 if(WIN32 OR TOOLCHAIN STREQUAL "js")
     set(LLVM_CONFIG true)
     if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
