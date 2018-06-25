@@ -52,8 +52,9 @@ matrix:
 before_install:
   # substitute ssh submodules with https for later fetch
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - export LD_LIBRARY_PATH=/usr/lib/llvm-${LLVM_VERSION}/lib/
-  - export PATH=/usr/lib/llvm-${LLVM_VERSION}/bin:$PATH
+#  - export LLVM_CONFIG_BINARY=/usr/bin/llvm-config-6.0
+  - export LD_LIBRARY_PATH=/usr/lib/llvm-6.0/lib/
+  - export PATH=/usr/lib/llvm-6.0/bin:$PATH
 
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"

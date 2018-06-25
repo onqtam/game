@@ -69,6 +69,7 @@
     _Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"") \
     _Pragma("GCC diagnostic ignored \"-Wreorder\"") \
     _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"") \
+    _Pragma("GCC diagnostic ignored \"-Wparentheses\"") \
 
 #define HA_CLANG_SUPPRESS_WARNING(w)
 #define HA_CLANG_SUPPRESS_WARNING_END
