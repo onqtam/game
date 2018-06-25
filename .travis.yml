@@ -52,9 +52,17 @@ matrix:
 before_install:
   # substitute ssh submodules with https for later fetch
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - export LLVM_CONFIG=/usr/bin/llvm-config-6.0
-  - export LD_LIBRARY_PATH=/usr/lib/llvm-6.0/lib/
-  - export PATH=/usr/lib/llvm-6.0/bin:$PATH
+  # setting up libclang
+  - export LLVM_VERSION="6.0"
+  - export LLVM_DIR=/usr/lib/llvm-$LLVM_VERSION
+  - export LLVM_CONFIG=/usr/bin/llvm-config-$LLVM_VERSION
+  - export LIBCLANG_LIBRARY=$LLVM_DIR/lib/libclang.so.${LLVM_VERSION%.*}
+  - export LIBCLANG_LIBRARY_DIR=$LLVM_DIR/lib
+  - export LIBCLANG_INCLUDE_DIR=$LLVM_DIR/include
+  - export LIBCLANG_SYSTEM_INCLUDE_DIR=$LLVM_DIR/lib/clang/$LLVM_VERSION/include
+  - export CLANG_BINARY=$LLVM_DIR/bin/clang++
+  - export LD_LIBRARY_PATH=$LLVM_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+  - export PATH=$LLVM_DIR/bin${PATH:+:$PATH}
 
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
