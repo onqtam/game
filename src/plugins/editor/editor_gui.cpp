@@ -19,7 +19,7 @@ static bool is_in_range(int val, int bound_1, int bound_2) {
 }
 
 void editor::update_gui() {
-    ImGui::SetNextWindowSize(ImVec2(300, 550), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 450), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiSetCond_FirstUseEver);
     if(ImGui::Begin("scene explorer", nullptr, ImGuiWindowFlags_MenuBar)) {
         if(ImGui::BeginMenuBar()) {
@@ -137,7 +137,7 @@ void editor::update_gui() {
     }
     ImGui::End();
 
-    ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(float(Application::get().width() - 410), 10),
                             ImGuiSetCond_FirstUseEver);
 
@@ -259,8 +259,8 @@ void editor::update_gui() {
     }
     ImGui::End();
 
-    ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(10, float(Application::get().height() - 510)),
+    ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(10, float(Application::get().height() - 310)),
                             ImGuiSetCond_FirstUseEver);
 
     if(ImGui::Begin("command history", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -451,7 +451,7 @@ void editor::update_gui() {
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiSetCond_FirstUseEver);
-    ImGui::ShowTestWindow();
+    //ImGui::ShowTestWindow();
 }
 
 void editor::update_gizmo() {

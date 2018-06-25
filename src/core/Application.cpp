@@ -200,8 +200,8 @@ int Application::run(int argc, char** argv) {
     //GLFWmonitor*     monitor = glfwGetPrimaryMonitor();
     GLFWmonitor*       monitor = monitors[num_monitors - 1];
     const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
-    m_width                    = mode->width;
-    m_height                   = mode->height;
+    m_width                    = mode->width * 3 / 4;
+    m_height                   = mode->height * 3 / 4;
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 #endif // EMSCRIPTEN
