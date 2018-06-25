@@ -2,7 +2,6 @@
 improve parser and attributes
 - tags
 - callbacks
-- the fact that inl files for types aren't into the dependency graph... and registry.cpp cannot compile when object.h is touched
 
 add rcrl
 

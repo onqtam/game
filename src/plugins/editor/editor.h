@@ -13,7 +13,7 @@ HA_SUPPRESS_WARNINGS_END
 
 struct attributes_changed_cmd
 {
-    HA_FRIENDS_OF_TYPE(attributes_changed_cmd);
+#include <gen/editor.h.inl.attributes_changed_cmd>
 
 public:
     oid e;
@@ -25,7 +25,7 @@ public:
 
 struct object_creation_cmd
 {
-    HA_FRIENDS_OF_TYPE(object_creation_cmd);
+#include <gen/editor.h.inl.object_creation_cmd>
 
 public:
     oid id;
@@ -36,7 +36,7 @@ public:
 
 struct object_mutation_cmd
 {
-    HA_FRIENDS_OF_TYPE(object_mutation_cmd);
+#include <gen/editor.h.inl.object_mutation_cmd>
 
 public:
     oid id;
@@ -48,7 +48,7 @@ public:
 
 struct compound_cmd
 {
-    HA_FRIENDS_OF_TYPE(compound_cmd);
+#include <gen/editor.h.inl.compound_cmd>
 
 public:
     typedef std::variant<attributes_changed_cmd, object_mutation_cmd, object_creation_cmd,
@@ -66,7 +66,7 @@ typedef compound_cmd::commands_vector commands_vector;
 class editor : public UpdatableMixin<editor>, public InputEventListener, public Singleton<editor>
 {
     HA_SINGLETON(editor);
-    HA_MESSAGES_IN_MIXIN(editor);
+#include <gen/editor.h.inl.editor>
 
     commands_vector undo_redo_commands;
     int             curr_undo_redo                       = -1;
@@ -138,7 +138,7 @@ struct renderPart;
 DYNAMIX_DECLARE_MIXIN(selected);
 class selected
 {
-    HA_MESSAGES_IN_MIXIN(selected);
+#include <gen/editor.h.inl.selected>
 
     static void submit_aabb_rec(const Object& curr, std::vector<renderPart>& out);
 

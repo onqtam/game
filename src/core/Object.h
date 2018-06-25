@@ -46,9 +46,7 @@ class ATTRS(export, nomsg) Object : public dynamix::object
 {
     friend class ObjectManager;
 
-//#include <gen/Object.h.inl.Object>
-
-    HA_EXPORTED_FRIENDS_OF_TYPE(Object);
+#include <gen/Object.h.inl.Object>
 
     oid              m_id;
     oid              m_parent;

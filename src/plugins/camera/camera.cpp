@@ -18,7 +18,7 @@ static auto proj() {
 
 class gameplay_camera : public InputEventListener, public UpdatableMixin<gameplay_camera>
 {
-    HA_MESSAGES_IN_MIXIN(gameplay_camera);
+#include <gen/camera.cpp.inl.gameplay_camera>
 
     float cursor_x = 0.f;
     float cursor_y = 0.f;
@@ -92,7 +92,7 @@ HA_MIXIN_DEFINE(gameplay_camera, Interface_camera)
 
 class maya_camera : public InputEventListener, public UpdatableMixin<maya_camera>
 {
-    HA_MESSAGES_IN_MIXIN(maya_camera);
+#include <gen/camera.cpp.inl.maya_camera>
 
     float radius             = 50.f;
     float yaw                = yama::deg_to_rad(-90.f);

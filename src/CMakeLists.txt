@@ -24,6 +24,8 @@ endif()
 add_definitions(-DDOCTEST_CONFIG_IMPLEMENTATION_IN_DLL) # imported doctest symbols - test runner in a separate dll
 
 ucm_add_dirs(TO registry_src "core/registry" FILTER_POP 2)
+# added here so the custom_command is executed on it and it gets parsed before compiling the registry
+list(APPEND registry_src core/Object.h)
 add_library(registry STATIC ${registry_src})
 target_link_libraries(registry sajson dynamix)
 target_add_fPIC(registry)
@@ -67,9 +69,6 @@ if(${WITH_PLUGINS})
     set_target_properties(game PROPERTIES ENABLE_EXPORTS ON) # so plugins can link to the executable
     target_compile_definitions(game PRIVATE "HAPI=${ha_symbol_export}")
 endif()
-
-#add_custom_target(gen_object_stuff DEPENDS ${gen_folder}/Object.h.inl)
-#add_dependencies(registry gen_object_stuff)
 
 target_link_libraries(game dynamix)
 target_link_libraries(game ppk_assert)

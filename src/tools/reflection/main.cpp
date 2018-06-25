@@ -67,6 +67,7 @@ friend {{#export}}HAPI {{/export}}cstr imgui_bind_attributes(Object& e, cstr mix
 void get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs);
 {{/nomsg}}
 {{/imgui}}
+private:
 )raw");
 
     for(auto& curr : types) {
