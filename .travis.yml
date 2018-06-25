@@ -52,7 +52,7 @@ matrix:
 before_install:
   # substitute ssh submodules with https for later fetch
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-#  - export LLVM_CONFIG_BINARY=/usr/bin/llvm-config-6.0
+  - export LLVM_CONFIG=/usr/bin/llvm-config-6.0
   - export LD_LIBRARY_PATH=/usr/lib/llvm-6.0/lib/
   - export PATH=/usr/lib/llvm-6.0/bin:$PATH
 
