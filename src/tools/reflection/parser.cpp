@@ -80,7 +80,7 @@ vector<unique_ptr<TypeBase>> GetTypes(const char* file, int argc, char* argv[]) 
 
     const char* const args[] = {"-x", "c++", "-std=c++17",
                                 "-DATTRS(...)=__attribute__((annotate(#__VA_ARGS__)))",
-                                "-DHAPI=__attribute__((visibility(\"default\")))"};
+                                "-DHAPI="};
 
     CXTranslationUnit unit = Parse(index, file, sizeof(args) / sizeof(args[0]), args);
 
