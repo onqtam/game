@@ -55,7 +55,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 #== INCLUDE PATHS ==================================================================================
 #===================================================================================================
 
-set(BOOST_DIR "boost_1_67_0")
+set(BOOST_DIR "boost_1_68_0")
 set(GLEW_DIR "glew-1.13.0")
 
 # this is for find_package() calls
