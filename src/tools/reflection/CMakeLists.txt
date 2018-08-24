@@ -16,6 +16,8 @@
 # = others
 # https://www.youtube.com/watch?v=E6i8jmiy8MY
 # P. Goldsborough “clang-useful: Building useful tools with LLVM and clang for fun and profit"
+# = non clang-based:
+# https://github.com/rttrorg/rttr
 
 if(WIN32 OR TOOLCHAIN STREQUAL "js")
     set(LLVM_CONFIG true)

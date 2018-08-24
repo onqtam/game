@@ -52,7 +52,7 @@ const int serialize_tests_counter_start = __COUNTER__;
     type getSomeVal<type>() {                                                                      \
         return __VA_ARGS__;                                                                        \
     }                                                                                              \
-    test_case_template_instantiate(serialization_template, doctest::Types<type>)
+    test_case_template_instantiate(serialization_template, type)
 
 HA_SERIALIZE_TEST(char, 'g');
 HA_SERIALIZE_TEST(int, 42);
