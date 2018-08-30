@@ -29,7 +29,7 @@ public:
         cursor_x = Application::get().width() / 2.f;
         cursor_y = Application::get().height() / 2.f;
 
-        ha_this.set_pos(yama::vector3::coord(0, 100, 50));
+        ha_this.set_pos(yama::vector3::coord(0, 100, 30));
         ha_this.set_rot(yama::quaternion::rotation_vectors(k_forward, k_init_look_direction));
     }
 

@@ -102,7 +102,9 @@ if(MSVC AND ${WITH_PLUGINS})
     target_compile_definitions(game PRIVATE "RCRL_BUILD_FOLDER=\"${PROJECT_BINARY_DIR}\"")
     target_compile_definitions(game PRIVATE "RCRL_BIN_FOLDER=\"$<TARGET_FILE_DIR:game>/\"")
     target_compile_definitions(game PRIVATE "RCRL_EXTENSION=\"${CMAKE_SHARED_LIBRARY_SUFFIX}\"")
-    target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
+    if(${CMAKE_GENERATOR} MATCHES "Visual Studio" OR ${CMAKE_GENERATOR} MATCHES "Xcode")
+        target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
+    endif()
     
     # the plugin target that will be recompiled and loaded by RCRL
     add_library(plugin_rcrl SHARED EXCLUDE_FROM_ALL ${plugin_file})

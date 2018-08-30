@@ -80,17 +80,14 @@ static ppk::assert::implementation::AssertAction::AssertAction assertHandler(
         return static_cast<AssertAction::AssertAction>(0);
     } else if(AssertLevel::Debug <= level && level < AssertLevel::Error) {
 #ifdef _WIN32
-
         // this might cause issues if there are multiple windows or threads
         int res = MessageBox(GetActiveWindow(), buf, "Assert failed! Break in the debugger?",
                              MB_YESNO | MB_ICONEXCLAMATION);
 
         if(res == 7)
             return static_cast<AssertAction::AssertAction>(0);
-        return AssertAction::Break;
-#else
-        return AssertAction::Break;
 #endif
+        return AssertAction::Break;
     } else if(AssertLevel::Error <= level && level < AssertLevel::Fatal) {
         return AssertAction::Throw;
     }
