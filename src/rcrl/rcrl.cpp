@@ -1,5 +1,6 @@
 #include "rcrl.h"
 #include "rcrl_parser.h"
+#include "utils/utils.h"
 
 #include <cassert>
 #include <fstream>
@@ -186,16 +187,18 @@ bool submit_code(string code, Mode default_mode, bool* used_default_mode) {
     last_compile_successful = false;
 
     compiler_output.clear();
-    compiler_process = unique_ptr<TinyProcessLib::Process>(
-            new TinyProcessLib::Process("cmake --build " RCRL_BUILD_FOLDER " --target " RCRL_PLUGIN_NAME
+    compiler_process = unique_ptr<TinyProcessLib::Process>(new TinyProcessLib::Process(
+            (Utils::getPathToExe() + "../../../scripts/batch/msvc_driver.bat cmake --build " +
+             RCRL_BUILD_FOLDER " --target " RCRL_PLUGIN_NAME
 #ifdef RCRL_CONFIG
-                                        " --config " RCRL_CONFIG
+             + " --config " + RCRL_CONFIG
 #endif // multi config IDE
 #if defined(RCRL_CONFIG) && defined(_MSC_VER)
-                                        " -- /verbosity:quiet"
+             + " -- /verbosity:quiet"
 #endif // Visual Studio
-                                        ,
-                                        "", output_appender, output_appender));
+             )
+                    .c_str(),
+            "", output_appender, output_appender));
 
     return true;
 }
