@@ -5,6 +5,7 @@
 
 HA_SUPPRESS_WARNINGS
 #include <boost/range/adaptor/reversed.hpp>
+#include <imgui.h>
 #include <imgui/imgui_internal.h>
 HA_SUPPRESS_WARNINGS_END
 

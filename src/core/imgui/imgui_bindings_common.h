@@ -1,8 +1,10 @@
 #pragma once
 
+HAPI void unbound_attribute(cstr attr);
+
 template <typename... Args>
 cstr imgui_bind_attribute(Object&, cstr, cstr attr, Args&&...) {
-    ImGui::TextDisabled("couldn't bind \"%s\"", attr);
+    unbound_attribute(attr);
     return nullptr;
 }
 

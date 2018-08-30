@@ -6,8 +6,8 @@
 #include "imgui/ImGuiManager.h"
 
 HA_SUPPRESS_WARNINGS
-
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -123,12 +123,32 @@ void Application::scrollCallback(GLFWwindow* window, double, double yoffset) {
     Application::get().addInputEvent(ev);
 }
 
-void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
-    ImGuiManager::get().onGlfwKeyEvent(key, action);
+bool g_console_visible = false;
 
-    InputEvent ev;
-    ev.key = {InputEvent::KEY, key, KeyAction(action), mods};
-    Application::get().addInputEvent(ev);
+void Application::keyCallback(GLFWwindow*, int key, int, int action, int mods) {
+    // calling the callback from the imgui/glfw integration only if not a dash because when writing an underscore (with shift down)
+    // ImGuiColorTextEdit does a paste - see this for more info: https://github.com/BalazsJako/ImGuiColorTextEdit/issues/18
+    if(key != '-' || g_console_visible == false) {
+        ImGuiManager::get().onGlfwKeyEvent(key, action);
+
+        InputEvent ev;
+        ev.key = {InputEvent::KEY, key, KeyAction(action), mods};
+        Application::get().addInputEvent(ev);
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    if(g_console_visible) {
+        // add the '\n' char when 'enter' is pressed - for ImGuiColorTextEdit
+        if(io.WantCaptureKeyboard && key == GLFW_KEY_ENTER && !io.KeyCtrl &&
+           (action == GLFW_PRESS || action == GLFW_REPEAT))
+            io.AddInputCharacter((unsigned short)'\n');
+    }
+
+    // console toggle
+    if(!io.WantCaptureKeyboard && !io.WantTextInput && key == GLFW_KEY_GRAVE_ACCENT &&
+       (action == GLFW_PRESS || action == GLFW_REPEAT))
+        g_console_visible = !g_console_visible;
 }
 
 void Application::charCallback(GLFWwindow*, unsigned int c) { ImGuiManager::get().onCharEvent(c); }
@@ -317,13 +337,19 @@ void Application::update() {
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
 
+    // main imgui font
+    ImGui::PushFont(ImGuiManager::get().getMainFont());
+
+    // update game stuff
+    World::get().update();
+
+    // pop main font
+    ImGui::PopFont();
+
 #if defined(HA_WITH_PLUGINS) && defined(_MSC_VER)
     void do_repl(int);
     do_repl(w);
 #endif // HA_WITH_PLUGINS && MSVC
-
-    // update game stuff
-    World::get().update();
 
     // render
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -346,9 +372,11 @@ void Application::reset(uint32 flags) { m_reset = flags; }
 
 #include <ImGuiColorTextEdit/TextEditor.h>
 #include "rcrl/rcrl.h"
-bool g_console_visible = true;
 
 void do_repl(int window_w) {
+    // push big font for repl
+    ImGui::PushFont(ImGuiManager::get().getBigFont());
+
     ImGuiIO& io = ImGui::GetIO();
 
     static TextEditor history;
@@ -362,6 +390,7 @@ void do_repl(int window_w) {
     static bool inited = false;
     if(!inited) {
         inited = true;
+
         history.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
         history.SetReadOnly(true);
         history.SetText("#include \"precompiled.h\"\n");
@@ -394,6 +423,7 @@ cout << vec.size() << endl;
     // console should be always fixed
     ImGui::SetNextWindowSize({(float)window_w, -1.f}, ImGuiCond_Always);
     ImGui::SetNextWindowPos({0.f, 0.f}, ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(1);
 
     // sets breakpoints on the program_output instance of the text editor widget - used to highlight new output
     auto do_breakpoints_on_output = [&](int old_line_count, const std::string& new_output) {
@@ -409,7 +439,7 @@ cout << vec.size() << endl;
     if(g_console_visible && ImGui::Begin("console", nullptr,
                                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                                  ImGuiWindowFlags_NoMove)) {
-        const auto  text_field_height = ImGui::GetTextLineHeight() * 15;
+        const auto  text_field_height = ImGui::GetTextLineHeight() * 13;
         const float left_right_ratio  = 0.5f;
         // top left part
         ImGui::BeginChild("history code", ImVec2(window_w * left_right_ratio, text_field_height));
@@ -598,6 +628,8 @@ cout << vec.size() << endl;
             editor.SetCursorPosition({0, 0});
         }
     }
+    // pop the big badboy font
+    ImGui::PopFont();
 }
 
 #endif // HA_WITH_PLUGINS && MSVC

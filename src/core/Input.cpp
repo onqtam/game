@@ -2,6 +2,10 @@
 
 #include "core/Application.h"
 
+HA_SUPPRESS_WARNINGS
+#include <imgui.h>
+HA_SUPPRESS_WARNINGS_END
+
 void InputEventListener_add(InputEventListener* in) {
     Application::get().addInputEventListener(in);
 }

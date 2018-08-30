@@ -7,11 +7,14 @@
 #include "core/messages/messages_editor.h"
 
 HA_SUPPRESS_WARNINGS
+#include <imgui.h>
 #ifdef _WIN32
 #include <nfd.h>
 #endif // _WIN32
 #include <imgui/imgui_internal.h>
 HA_SUPPRESS_WARNINGS_END
+
+void unbound_attribute(cstr attr) { ImGui::TextDisabled("couldn't bind \"%s\"", attr); }
 
 // CAUTION: Duplicated form ImGui in order to implement widgets that can tell if the user is done interacting.
 static void PushMultiItemsWidths(int components, float w_full = 0.0f);

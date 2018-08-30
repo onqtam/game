@@ -57,9 +57,7 @@ typedef dynamix::internal::mixin_type_info mixin_type_info;
 #    include <GL/glext.h>
 #endif
 
-// TODO: remove me from pch since there are just a few users after bobi merges the imgui-refactoring
 #define IMGUI_API HA_SYMBOL_IMPORT
-#include <imgui.h>
 
 #include <yama/yama.hpp>
 

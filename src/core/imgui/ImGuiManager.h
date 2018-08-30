@@ -4,6 +4,7 @@
 #include "core/rendering/TexturePtr.h"
 
 struct ImDrawData;
+struct ImFont;
 
 class ImGuiManager : public Singleton<ImGuiManager>
 {
@@ -16,6 +17,9 @@ public:
     void onGlfwKeyEvent(int key, int action);
     void onCharEvent(unsigned c);
     
+    ImFont* getMainFont() const;
+    ImFont* getBigFont() const;
+
 private:
     HA_SINGLETON(ImGuiManager);
 
@@ -31,6 +35,9 @@ private:
     int m_projParam = -1;
 
     TexturePtr m_fontsTexture;
+    
+    ImFont* main;
+    ImFont* big;
 
     static void imguiRenderCallback(ImDrawData* data);
 };
