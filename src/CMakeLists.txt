@@ -43,18 +43,6 @@ ucm_add_dirs(TO SOURCES "utils/base64")
 ucm_add_dirs(TO SOURCES "utils/aabb")
 ucm_add_dirs(TO SOURCES "core/rendering")
 
-message(${SOURCES})
-
-if(MSVC)
-    list(APPEND SOURCES 
-        rcrl/rcrl.h
-        rcrl/rcrl.cpp
-        rcrl/rcrl_parser.h
-        rcrl/rcrl_parser.cpp
-        rcrl/rcrl_for_plugin.h
-    )
-endif()
-
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)
 
@@ -67,6 +55,11 @@ ucm_add_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
 add_plugin(NAME camera ${plugin_camera})
 
 # ========= PLUGINS END =========
+
+if(MSVC AND ${WITH_PLUGINS})
+    # add the sources to the game project
+    ucm_add_dirs(TO SOURCES "rcrl")
+endif()
 
 add_executable(game "${SOURCES};${PLUGIN_SOURCES}")
 add_precompiled_header(game "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
@@ -94,6 +87,43 @@ target_link_libraries(game tiny-process-library)
 if(WIN32)
     target_link_libraries(game nativefiledialog)
 endif()
+
+# ========= REPL =============
+
+if(MSVC AND ${WITH_PLUGINS})
+    # the file that will 
+    set(plugin_file ${PROJECT_BINARY_DIR}/plugin.cpp)
+    # touch the file so it exists
+    file(WRITE ${plugin_file} "")
+    
+    # defines needed for RCRL integration
+    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_FILE=\"${plugin_file}\"")
+    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_NAME=\"plugin\"")
+    target_compile_definitions(game PRIVATE "RCRL_BUILD_FOLDER=\"${PROJECT_BINARY_DIR}\"")
+    target_compile_definitions(game PRIVATE "RCRL_BIN_FOLDER=\"$<TARGET_FILE_DIR:game>/\"")
+    target_compile_definitions(game PRIVATE "RCRL_EXTENSION=\"${CMAKE_SHARED_LIBRARY_SUFFIX}\"")
+    if(${CMAKE_GENERATOR} MATCHES "Visual Studio" OR ${CMAKE_GENERATOR} MATCHES "Xcode")
+        target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
+    endif()
+    
+    # the plugin target that will be recompiled and loaded by RCRL
+    add_library(repl_plugin SHARED EXCLUDE_FROM_ALL ${plugin_file})
+    # link the RCRL plugin with the host app so we can call stuff from it
+    target_link_libraries(repl_plugin game)
+    # exclude it even for Visual Studio when building the whole solution (EXCLUDE_FROM_ALL is not enough)
+    set_target_properties(repl_plugin PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+    # no 'lib' prefix for some compilers/platforms - simplifies my code
+    set_target_properties(repl_plugin PROPERTIES PREFIX "")
+    # we don't want .pdb files for the plugin because when we are within Visual Studio and debugging the application it locks
+    # the .pdb for the original .dll and subsequent compiles fail even though we have loaded copies of the original .dll
+    # can also use /PDBALTPATH - https://blog.molecular-matters.com/2014/05/10/using-runtime-compiled-c-code-as-a-scripting-language-under-the-hood/
+    set_target_properties(repl_plugin PROPERTIES LINK_FLAGS /DEBUG:NONE)
+    
+    # add a precompiled header
+    add_precompiled_header(repl_plugin "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
+endif()
+
+# ========= REPL END =========
 
 if(TOOLCHAIN STREQUAL "js")
     set_target_properties(game PROPERTIES SUFFIX ".html")

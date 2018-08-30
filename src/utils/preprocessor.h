@@ -84,7 +84,13 @@ struct print_ct;
         callback;                                                                                  \
     }
 
-//void gather_oids_mixins(std::vector<const_oid*>& out);
+#define HA_FRIENDS_OF_TYPE_COMMON(export, type)                                                    \
+    friend export void   serialize(const type& src, JsonData& out);                                \
+    friend export size_t deserialize(type& dest, const sajson::value& val);                        \
+    friend export cstr   imgui_bind_attributes(Object& e, cstr mixin, type& obj)
+
+#define HA_FRIENDS_OF_TYPE(type) HA_FRIENDS_OF_TYPE_COMMON(HA_EMPTY(), type)
+#define HA_EXPORTED_FRIENDS_OF_TYPE(type) HA_FRIENDS_OF_TYPE_COMMON(HAPI, type)
 
 // helpers that don't expand to anything - used by the type parser
 #define ATTRS(...) // list attributes and tags in a comma-separated fashion using this
