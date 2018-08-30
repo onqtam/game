@@ -314,6 +314,14 @@ void Application::update() {
     // send input events to the rest of the app
     processEvents();
 
+    int w, h;
+    glfwGetWindowSize(m_window, &w, &h);
+
+#if defined(HA_WITH_PLUGINS) && defined(_MSC_VER)
+    void do_repl(int);
+    do_repl(w);
+#endif // HA_WITH_PLUGINS && MSVC
+
     // update game stuff
     World::get().update();
 
@@ -325,8 +333,6 @@ void Application::update() {
     glfwSwapBuffers(m_window);
 
     // handle resizing
-    int w, h;
-    glfwGetWindowSize(m_window, &w, &h);
     if(uint32(w) != m_width || uint32(h) != m_height) {
         m_width  = w;
         m_height = h;
@@ -335,3 +341,263 @@ void Application::update() {
 }
 
 void Application::reset(uint32 flags) { m_reset = flags; }
+
+#if defined(HA_WITH_PLUGINS) && defined(_MSC_VER)
+
+#include <ImGuiColorTextEdit/TextEditor.h>
+#include "rcrl/rcrl.h"
+bool g_console_visible = true;
+
+void do_repl(int window_w) {
+    ImGuiIO& io = ImGui::GetIO();
+
+    static TextEditor history;
+    static TextEditor compiler_output;
+    static TextEditor program_output(compiler_output);
+    static TextEditor editor;
+    static int        last_compiler_exitcode = 0;
+    static bool       used_default_mode      = false;
+    static rcrl::Mode default_mode           = rcrl::ONCE;
+
+    static bool inited = false;
+    if(!inited) {
+        inited = true;
+        history.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+        history.SetReadOnly(true);
+        history.SetText("#include \"precompiled.h\"\n");
+
+        compiler_output.SetLanguageDefinition(TextEditor::LanguageDefinition());
+        compiler_output.SetReadOnly(true);
+        auto custom_palette = TextEditor::GetDarkPalette();
+        custom_palette[(int)TextEditor::PaletteIndex::MultiLineComment] =
+                0xcccccccc; // text is treated as such by default
+        compiler_output.SetPalette(custom_palette);
+
+        editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+
+        // set some initial code
+        editor.SetText(R"raw(// global
+#include <iostream>
+using namespace std;
+// once
+cout << "Hello world!" << endl;
+// global
+#include <vector>
+auto getVec() { return vector<int>({1, 2, 3}); }
+// vars
+auto vec = getVec();
+// once
+cout << vec.size() << endl;
+)raw");
+    }
+
+    // console should be always fixed
+    ImGui::SetNextWindowSize({(float)window_w, -1.f}, ImGuiCond_Always);
+    ImGui::SetNextWindowPos({0.f, 0.f}, ImGuiCond_Always);
+
+    // sets breakpoints on the program_output instance of the text editor widget - used to highlight new output
+    auto do_breakpoints_on_output = [&](int old_line_count, const std::string& new_output) {
+        TextEditor::Breakpoints bps;
+        if(old_line_count == program_output.GetTotalLines() && new_output.size())
+            bps.insert(old_line_count);
+        for(auto curr_line = old_line_count; curr_line < program_output.GetTotalLines();
+            ++curr_line)
+            bps.insert(curr_line);
+        program_output.SetBreakpoints(bps);
+    };
+
+    if(g_console_visible && ImGui::Begin("console", nullptr,
+                                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                                                 ImGuiWindowFlags_NoMove)) {
+        const auto  text_field_height = ImGui::GetTextLineHeight() * 15;
+        const float left_right_ratio  = 0.5f;
+        // top left part
+        ImGui::BeginChild("history code", ImVec2(window_w * left_right_ratio, text_field_height));
+        auto hcpos = history.GetCursorPosition();
+        ImGui::Text("Executed code: %3d/%-3d %3d lines", hcpos.mLine + 1, hcpos.mColumn + 1,
+                    editor.GetTotalLines());
+        history.Render("History");
+        ImGui::EndChild();
+        ImGui::SameLine();
+        // top right part
+        ImGui::BeginChild("compiler output", ImVec2(0, text_field_height));
+        auto new_output = rcrl::get_new_compiler_output();
+        if(new_output.size()) {
+            auto total_output = compiler_output.GetText() + new_output;
+
+            // scan for errors through the lines and highlight them with markers
+            auto                     curr_pos                = 0;
+            auto                     line                    = 1;
+            auto                     first_error_marker_line = 0;
+            TextEditor::ErrorMarkers error_markers;
+            do {
+                auto new_curr_pos_1 =
+                        total_output.find("error", curr_pos + 1); // add 1 to skip new lines
+                auto new_curr_pos_2 =
+                        total_output.find("\n", curr_pos + 1); // add 1 to skip new lines
+                if(new_curr_pos_1 < new_curr_pos_2) {
+                    error_markers.insert(std::make_pair(line, ""));
+                    if(!first_error_marker_line)
+                        first_error_marker_line = line;
+                }
+                if(new_curr_pos_2 < new_curr_pos_1) {
+                    line++;
+                }
+                curr_pos = std::min(new_curr_pos_1, new_curr_pos_2);
+            } while(size_t(curr_pos) != std::string::npos);
+            compiler_output.SetErrorMarkers(error_markers);
+
+            // update compiler output
+            compiler_output.SetText(move(total_output));
+            if(first_error_marker_line)
+                compiler_output.SetCursorPosition({first_error_marker_line, 1});
+            else
+                compiler_output.SetCursorPosition({compiler_output.GetTotalLines(), 1});
+        }
+        if(last_compiler_exitcode)
+            ImGui::TextColored({1, 0, 0, 1}, "Compiler output - ERROR!");
+        else
+            ImGui::Text("Compiler output:        ");
+        ImGui::SameLine();
+        auto cocpos = compiler_output.GetCursorPosition();
+        ImGui::Text("%3d/%-3d %3d lines", cocpos.mLine + 1, cocpos.mColumn + 1,
+                    compiler_output.GetTotalLines());
+        compiler_output.Render("Compiler output");
+        ImGui::EndChild();
+
+        // bottom left part
+        ImGui::BeginChild("source code", ImVec2(window_w * left_right_ratio, text_field_height));
+        auto ecpos = editor.GetCursorPosition();
+        ImGui::Text("RCRL Console: %3d/%-3d %3d lines | %s", ecpos.mLine + 1, ecpos.mColumn + 1,
+                    editor.GetTotalLines(), editor.CanUndo() ? "*" : " ");
+        editor.Render("Code");
+        ImGui::EndChild();
+        ImGui::SameLine();
+        // bottom right part
+        ImGui::BeginChild("program output", ImVec2(0, text_field_height));
+        auto ocpos = program_output.GetCursorPosition();
+        ImGui::Text("Program output: %3d/%-3d %3d lines", ocpos.mLine + 1, ocpos.mColumn + 1,
+                    program_output.GetTotalLines());
+        program_output.Render("Output");
+        ImGui::EndChild();
+
+        // bottom buttons
+        ImGui::Text("Default mode:");
+        ImGui::SameLine();
+        ImGui::RadioButton("global", (int*)&default_mode, rcrl::GLOBAL);
+        ImGui::SameLine();
+        ImGui::RadioButton("vars", (int*)&default_mode, rcrl::VARS);
+        ImGui::SameLine();
+        ImGui::RadioButton("once", (int*)&default_mode, rcrl::ONCE);
+        ImGui::SameLine();
+        auto compile = ImGui::Button("Compile and run");
+        ImGui::SameLine();
+        if(ImGui::Button("Cleanup Plugins") && !rcrl::is_compiling()) {
+            compiler_output.SetText("");
+            auto output_from_cleanup = rcrl::cleanup_plugins(true);
+            auto old_line_count      = program_output.GetTotalLines();
+            program_output.SetText(program_output.GetText() + output_from_cleanup);
+            program_output.SetCursorPosition({program_output.GetTotalLines(), 0});
+
+            last_compiler_exitcode = 0;
+            history.SetText("#include \"precompiled_for_plugin.h\"\n");
+
+            // highlight the new stdout lines
+            do_breakpoints_on_output(old_line_count, output_from_cleanup);
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Clear Output"))
+            program_output.SetText("");
+        ImGui::SameLine();
+        ImGui::Dummy({20, 0});
+        ImGui::SameLine();
+#if !RCRL_LIVE_DEMO
+        ImGui::Text("Use Ctrl+Enter to submit code");
+#endif // RCRL_LIVE_DEMO
+
+        // if the user has submitted code for compilation
+#if RCRL_LIVE_DEMO
+        extern std::list<const char*> fragments;
+        static bool                   fragment_popped = false;
+        if(!rcrl::is_compiling() && !fragment_popped && fragments.size() &&
+           io.KeysDown[GLFW_KEY_ENTER] && io.KeyCtrl) {
+            editor.SetText(fragments.front());
+            fragments.pop_front();
+            fragment_popped = true;
+        }
+#else  // RCRL_LIVE_DEMO
+        compile |= (io.KeysDown[GLFW_KEY_ENTER] && io.KeyCtrl);
+#endif // RCRL_LIVE_DEMO
+        if(compile && !rcrl::is_compiling() && editor.GetText().size() > 1) {
+            // clear compiler output
+            compiler_output.SetText("");
+
+            auto getCodePrefix = [&]() {
+#ifdef __APPLE__ // related to this: https://github.com/onqtam/rcrl/issues/4
+                static bool first_time_called = true;
+                if(first_time_called) {
+                    first_time_called = false;
+                    return string("//global\n#include \"precompiled_for_plugin.h\"\n") +
+                           (default_mode == rcrl::GLOBAL ?
+                                    "// global\n" :
+                                    (default_mode == rcrl::VARS ? "// vars\n" : "// once\n"));
+                }
+#endif
+                return std::string("");
+            };
+
+            // submit to the RCRL engine
+            if(rcrl::submit_code(getCodePrefix() + editor.GetText(), default_mode,
+                                 &used_default_mode)) {
+                // make the editor code untouchable while compiling
+                editor.SetReadOnly(true);
+            } else {
+                last_compiler_exitcode = 1;
+            }
+#if RCRL_LIVE_DEMO
+            fragment_popped = false;
+#endif // RCRL_LIVE_DEMO
+        }
+        ImGui::End();
+    }
+
+    // if there is a spawned compiler process and it has just finished
+    if(rcrl::try_get_exit_status_from_compile(last_compiler_exitcode)) {
+        // we can edit the code again
+        editor.SetReadOnly(false);
+
+        if(last_compiler_exitcode) {
+            // errors occurred - set cursor to the last line of the erroneous code
+            editor.SetCursorPosition({editor.GetTotalLines(), 0});
+        } else {
+            // append to the history and focus last line
+            history.SetCursorPosition({history.GetTotalLines(), 1});
+            auto history_text = history.GetText();
+            // add a new line (if one is missing) to the code that will go to the history for readability
+            if(history_text.size() && history_text.back() != '\n')
+                history_text += '\n';
+            // if the default mode was used - add an extra comment before the code to the history for clarity
+            if(used_default_mode)
+                history_text += default_mode == rcrl::GLOBAL ?
+                                        "// global\n" :
+                                        (default_mode == rcrl::VARS ? "// vars\n" : "// once\n");
+            history.SetText(history_text + editor.GetText());
+
+            // load the new plugin
+            auto output_from_loading = rcrl::copy_and_load_new_plugin(true);
+            auto old_line_count      = program_output.GetTotalLines();
+            program_output.SetText(program_output.GetText() + output_from_loading);
+            // TODO: used for auto-scroll but the cursor in the editor is removed (unfocused) sometimes from this...
+            //program_output.SetCursorPosition({program_output.GetTotalLines(), 0});
+
+            // highlight the new stdout lines
+            do_breakpoints_on_output(old_line_count, output_from_loading);
+
+            // clear the editor
+            editor.SetText("\r"); // an empty string "" breaks it for some reason...
+            editor.SetCursorPosition({0, 0});
+        }
+    }
+}
+
+#endif // HA_WITH_PLUGINS && MSVC

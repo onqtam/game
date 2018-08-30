@@ -98,13 +98,11 @@ if(MSVC AND ${WITH_PLUGINS})
     
     # defines needed for RCRL integration
     target_compile_definitions(game PRIVATE "RCRL_PLUGIN_FILE=\"${plugin_file}\"")
-    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_NAME=\"plugin\"")
+    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_NAME=\"repl_plugin\"")
     target_compile_definitions(game PRIVATE "RCRL_BUILD_FOLDER=\"${PROJECT_BINARY_DIR}\"")
     target_compile_definitions(game PRIVATE "RCRL_BIN_FOLDER=\"$<TARGET_FILE_DIR:game>/\"")
     target_compile_definitions(game PRIVATE "RCRL_EXTENSION=\"${CMAKE_SHARED_LIBRARY_SUFFIX}\"")
-    if(${CMAKE_GENERATOR} MATCHES "Visual Studio" OR ${CMAKE_GENERATOR} MATCHES "Xcode")
-        target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
-    endif()
+    target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
     
     # the plugin target that will be recompiled and loaded by RCRL
     add_library(repl_plugin SHARED EXCLUDE_FROM_ALL ${plugin_file})
