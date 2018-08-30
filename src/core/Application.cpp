@@ -426,7 +426,7 @@ cout << vec.size() << endl;
             auto total_output = compiler_output.GetText() + new_output;
 
             // scan for errors through the lines and highlight them with markers
-            auto                     curr_pos                = 0;
+            size_t                   curr_pos                = 0;
             auto                     line                    = 1;
             auto                     first_error_marker_line = 0;
             TextEditor::ErrorMarkers error_markers;

@@ -50,7 +50,7 @@ add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest
 
 ucm_add_dirs(TO plugin_src "plugins/common" FILTER_POP 1)
 ucm_add_dirs(TO plugin_src "plugins/editor" FILTER_POP 1)
-add_plugin(NAME plugin ${plugin_src})
+add_plugin(NAME mixins ${plugin_src})
 ucm_add_dirs(TO plugin_camera "plugins/camera" FILTER_POP 1)
 add_plugin(NAME camera ${plugin_camera})
 
@@ -98,27 +98,27 @@ if(MSVC AND ${WITH_PLUGINS})
     
     # defines needed for RCRL integration
     target_compile_definitions(game PRIVATE "RCRL_PLUGIN_FILE=\"${plugin_file}\"")
-    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_NAME=\"repl_plugin\"")
+    target_compile_definitions(game PRIVATE "RCRL_PLUGIN_NAME=\"plugin_rcrl\"")
     target_compile_definitions(game PRIVATE "RCRL_BUILD_FOLDER=\"${PROJECT_BINARY_DIR}\"")
     target_compile_definitions(game PRIVATE "RCRL_BIN_FOLDER=\"$<TARGET_FILE_DIR:game>/\"")
     target_compile_definitions(game PRIVATE "RCRL_EXTENSION=\"${CMAKE_SHARED_LIBRARY_SUFFIX}\"")
     target_compile_definitions(game PRIVATE "RCRL_CONFIG=\"$<CONFIG>\"")
     
     # the plugin target that will be recompiled and loaded by RCRL
-    add_library(repl_plugin SHARED EXCLUDE_FROM_ALL ${plugin_file})
+    add_library(plugin_rcrl SHARED EXCLUDE_FROM_ALL ${plugin_file})
     # link the RCRL plugin with the host app so we can call stuff from it
-    target_link_libraries(repl_plugin game)
+    target_link_libraries(plugin_rcrl game)
     # exclude it even for Visual Studio when building the whole solution (EXCLUDE_FROM_ALL is not enough)
-    set_target_properties(repl_plugin PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(plugin_rcrl PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
     # no 'lib' prefix for some compilers/platforms - simplifies my code
-    set_target_properties(repl_plugin PROPERTIES PREFIX "")
+    set_target_properties(plugin_rcrl PROPERTIES PREFIX "")
     # we don't want .pdb files for the plugin because when we are within Visual Studio and debugging the application it locks
     # the .pdb for the original .dll and subsequent compiles fail even though we have loaded copies of the original .dll
     # can also use /PDBALTPATH - https://blog.molecular-matters.com/2014/05/10/using-runtime-compiled-c-code-as-a-scripting-language-under-the-hood/
-    set_target_properties(repl_plugin PROPERTIES LINK_FLAGS /DEBUG:NONE)
+    set_target_properties(plugin_rcrl PROPERTIES LINK_FLAGS /DEBUG:NONE)
     
     # add a precompiled header
-    add_precompiled_header(repl_plugin "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
+    add_precompiled_header(plugin_rcrl "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 endif()
 
 # ========= REPL END =========
