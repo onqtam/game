@@ -5,6 +5,8 @@
 #include "rendering/Renderer.h"
 #include "imgui/ImGuiManager.h"
 
+#define RCRL_LIVE_DEMO 1
+
 HA_SUPPRESS_WARNINGS
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -347,8 +349,8 @@ void Application::update() {
     ImGui::PopFont();
 
 #if defined(HA_WITH_PLUGINS) && defined(_MSC_VER)
-    void do_repl(int);
-    do_repl(w);
+    void do_rcrl(int);
+    do_rcrl(w);
 #endif // HA_WITH_PLUGINS && MSVC
 
     // render
@@ -373,8 +375,8 @@ void Application::reset(uint32 flags) { m_reset = flags; }
 #include <ImGuiColorTextEdit/TextEditor.h>
 #include "rcrl/rcrl.h"
 
-void do_repl(int window_w) {
-    // push big font for repl
+void do_rcrl(int window_w) {
+    // push big font for rcrl
     ImGui::PushFont(ImGuiManager::get().getBigFont());
 
     ImGuiIO& io = ImGui::GetIO();
@@ -404,20 +406,15 @@ void do_repl(int window_w) {
 
         editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
 
+#if !RCRL_LIVE_DEMO
         // set some initial code
-        editor.SetText(R"raw(// global
-#include <iostream>
-using namespace std;
+        editor.SetText(R"raw(// vars
+auto& objects = ObjectManager::get().getObjects();
 // once
-cout << "Hello world!" << endl;
-// global
-#include <vector>
-auto getVec() { return vector<int>({1, 2, 3}); }
-// vars
-auto vec = getVec();
-// once
-cout << vec.size() << endl;
+for(auto& obj : objects)
+    obj.second.move_local({20, 0, 0});
 )raw");
+#endif // RCRL_LIVE_DEMO
     }
 
     // console should be always fixed
@@ -631,5 +628,17 @@ cout << vec.size() << endl;
     // pop the big badboy font
     ImGui::PopFont();
 }
+
+#if RCRL_LIVE_DEMO
+
+std::list<const char*> fragments = {
+        R"raw(// vars
+auto& objects = ObjectManager::get().getObjects();
+)raw",
+        R"raw(for(auto& obj : objects)
+    obj.second.move_local({20, 0, 0});
+)raw"};
+
+#endif // RCRL_LIVE_DEMO
 
 #endif // HA_WITH_PLUGINS && MSVC

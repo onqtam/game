@@ -88,7 +88,7 @@ if(WIN32)
     target_link_libraries(game nativefiledialog)
 endif()
 
-# ========= REPL =============
+# ========= RCRL =============
 
 if(MSVC AND ${WITH_PLUGINS})
     # the file that will 
@@ -121,7 +121,7 @@ if(MSVC AND ${WITH_PLUGINS})
     add_precompiled_header(plugin_rcrl "${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h")
 endif()
 
-# ========= REPL END =========
+# ========= RCRL END =========
 
 if(TOOLCHAIN STREQUAL "js")
     set_target_properties(game PROPERTIES SUFFIX ".html")
