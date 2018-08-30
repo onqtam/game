@@ -43,6 +43,18 @@ ucm_add_dirs(TO SOURCES "utils/base64")
 ucm_add_dirs(TO SOURCES "utils/aabb")
 ucm_add_dirs(TO SOURCES "core/rendering")
 
+message(${SOURCES})
+
+if(MSVC)
+    list(APPEND SOURCES 
+        rcrl/rcrl.h
+        rcrl/rcrl.cpp
+        rcrl/rcrl_parser.h
+        rcrl/rcrl_parser.cpp
+        rcrl/rcrl_for_plugin.h
+    )
+endif()
+
 # this cannot go inside the game executable because the doctest header is included by the precompiled header in all source files
 add_library(doctest_runner SHARED utils/doctest/doctest_runner.cpp utils/doctest/doctest_proxy.h)
 
@@ -76,6 +88,8 @@ target_link_libraries(game tinygizmo)
 target_link_libraries(game imgui)
 target_link_libraries(game registry)
 target_link_libraries(game doctest_runner)
+target_link_libraries(game ImGuiColorTextEdit)
+target_link_libraries(game tiny-process-library)
 
 if(WIN32)
     target_link_libraries(game nativefiledialog)

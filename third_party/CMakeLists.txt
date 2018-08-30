@@ -27,6 +27,13 @@ target_compile_definitions(imgui PRIVATE "IMGUI_API=${ha_symbol_export}")
 set_target_properties(imgui PROPERTIES FOLDER "3rdparty")
 target_add_fPIC(imgui)
 
+# LIBRARY ImGuiColorTextEdit
+add_library(ImGuiColorTextEdit STATIC ImGuiColorTextEdit/TextEditor.cpp ImGuiColorTextEdit/TextEditor.h)
+target_include_directories(ImGuiColorTextEdit INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit)
+set_target_properties(ImGuiColorTextEdit PROPERTIES FOLDER "3rdparty")
+target_add_fPIC(ImGuiColorTextEdit)
+target_link_libraries(ImGuiColorTextEdit PRIVATE imgui)
+
 # LIBRARY dynamix
 ucm_add_dirs("dynamix/include/dynamix" "dynamix/src" RECURSIVE TO dynamix.sources REC FILTER_POP 1)
 ucm_add_target(NAME dynamix TYPE SHARED CPP_PER_UNITY 20 SOURCES "${dynamix.sources}")
@@ -95,6 +102,10 @@ if(NOT TOOLCHAIN STREQUAL "js")
     ucm_add_dirs("FileWatcher" TO file_watcher.sources)
     ucm_add_target(NAME file_watcher TYPE STATIC SOURCES "${file_watcher.sources}")
     set_target_properties(file_watcher PROPERTIES FOLDER "3rdparty")
+
+    # LIBRARY tiny-process-library
+    add_subdirectory(tiny-process-library)
+    set_target_properties(tiny-process-library PROPERTIES FOLDER "3rdparty")
 endif()
 
 ## LIBRARY assimp
