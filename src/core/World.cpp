@@ -12,52 +12,43 @@ World::World()
         : Singleton<World>(this) {
     auto& om = ObjectManager::get();
 
-    // load level if it exists
-    auto f = fopen("level.json", "r");
-    if(f) {
-        fseek(f, 0, SEEK_END);
-        long fsize = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        JsonData state;
-        state.reserve(fsize + 1);
-        state.data().resize(fsize); // 1 less than the capacity - will add a null terminator later - which won't be included in the size
-        fread(state.data().data(), fsize, 1, f);
-        fclose(f);
-        state.addNull();
+    //// load level if it exists
+    //try {
+    //    JsonData state;
+    //    state.fread("level.json");
 
-        const auto& doc = state.parse();
-        hassert(doc.is_valid());
-        auto val = doc.get_root();
+    //    const auto& doc = state.parse();
+    //    hassert(doc.is_valid());
+    //    auto val = doc.get_root();
 
-        auto objects_val = val.get_object_value(0);
-        auto len = objects_val.get_length();
-        // for each object
-        for(size_t i = 0; i < len; ++i) {
-            auto json_obj = objects_val.get_array_element(i);
+    //    auto objects_array = val.get_object_value(0);
+    //    auto len           = objects_array.get_length();
+    //    // for each object
+    //    for(size_t i = 0; i < len; ++i) {
+    //        auto json_obj = objects_array.get_array_element(i);
 
-            auto& obj = ObjectManager::get().createFromId(
-                    oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
+    //        auto& obj = ObjectManager::get().createFromId(
+    //                oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
 
-            deserialize(obj, json_obj.get_value_of_key({"state", 5}));
+    //        deserialize(obj, json_obj.get_value_of_key({"state", 5}));
 
-            auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
-            auto num_mixins  = mixins_json.get_length();
-            for(size_t k = 0; k < num_mixins; ++k) {
-                // hack to init the camera id
-                auto mixin_name = mixins_json.get_object_key(k).data();
-                if(strcmp(mixin_name, "gameplay_camera") == 0)
-                    m_camera = obj.id();
+    //        auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
+    //        auto num_mixins  = mixins_json.get_length();
+    //        for(size_t k = 0; k < num_mixins; ++k) {
+    //            // hack to init the camera id
+    //            auto mixin_name = mixins_json.get_object_key(k).data();
+    //            if(strcmp(mixin_name, "gameplay_camera") == 0)
+    //                m_camera = obj.id();
 
-                obj.addMixin(mixin_name);
-            }
+    //            obj.addMixin(mixin_name);
+    //        }
 
-            if(obj.implements(common::deserialize_mixins_msg)) {
-                common::deserialize_mixins(obj, mixins_json);
-            }
-        }
+    //        if(obj.implements(common::deserialize_mixins_msg))
+    //            common::deserialize_mixins(obj, mixins_json);
+    //    }
 
-        return;
-    }
+    //    return;
+    //} catch(...) {}
 
     m_camera = om.create("camera").id();
     //m_camera.obj().addMixin("maya_camera");
@@ -120,50 +111,43 @@ World::World()
 
     dummy5.set_parent(obj2.id());
 
-    
-    // load level if it exists - after the creation of the objects
-    auto f = fopen("level.json", "r");
-    if(f) {
-        fseek(f, 0, SEEK_END);
-        long fsize = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        JsonData state;
-        state.reserve(fsize + 1);
-        state.data().resize(fsize); // 1 less than the capacity - will add a null terminator later - which won't be included in the size
-        fread(state.data().data(), fsize, 1, f);
-        fclose(f);
-        state.addNull();
+    //// load level if it exists - after the creation of the objects
+    //try {
+    //    JsonData state;
+    //    state.fread("level.json");
 
-        const auto& doc = state.parse();
-        hassert(doc.is_valid());
-        auto val = doc.get_root();
+    //    const auto& doc = state.parse();
+    //    hassert(doc.is_valid());
 
-        auto objects_val = val.get_object_value(0);
-        auto len = objects_val.get_length();
-        // for each object
-        for(size_t i = 0; i < len; ++i) {
-            auto json_obj = objects_val.get_array_element(i);
-            auto obj_id   = oid(oid::internal_type(json_obj.get_value_of_key({"id", 2}).get_integer_value()));
+    //    // for each object
+    //    auto objects_array = doc.get_root().get_object_value(0);
+    //    for(size_t i = 0; i < objects_array.get_length(); ++i) {
+    //        auto json_obj = objects_array.get_array_element(i);
+    //        auto obj_id   = oid(
+    //                oid::internal_type(json_obj.get_value_of_key({"id", 2}).get_integer_value()));
 
-            Object* o = nullptr;
-            if(ObjectManager::get().has(obj_id)) {
-                o = &ObjectManager::get().getById(obj_id);
-            } else {
-                o = &ObjectManager::get().createFromId(
-                        oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
-            }
+    //        Object* o = nullptr;
+    //        if(ObjectManager::get().has(obj_id)) {
+    //            // either get it
+    //            o = &ObjectManager::get().getById(obj_id);
+    //        } else {
+    //            // or create it
+    //            o = &ObjectManager::get().createFromId(
+    //                    oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
+    //        }
 
-            deserialize(*o, json_obj.get_value_of_key({"state", 5}));
+    //        // deserialize the attibutes of the object itself
+    //        deserialize(*o, json_obj.get_value_of_key({"state", 5}));
 
-            auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
-            auto num_mixins  = mixins_json.get_length();
-            for(size_t k = 0; k < num_mixins; ++k)
-                o->addMixin(mixins_json.get_object_key(k).data());
-
-            if(o->implements(common::deserialize_mixins_msg))
-                common::deserialize_mixins(*o, mixins_json);
-        }
-    }
+    //        // add mixins to the objects
+    //        auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
+    //        for(size_t k = 0; k < mixins_json.get_length(); ++k)
+    //            o->addMixin(mixins_json.get_object_key(k).data());
+    //        // and deserialize the attributes of those mixins
+    //        if(o->implements(common::deserialize_mixins_msg))
+    //            common::deserialize_mixins(*o, mixins_json);
+    //    }
+    //} catch(...) {}
 }
 
 void World::update() {
@@ -181,8 +165,8 @@ void World::update() {
 
     auto& rd0 = r.getRenderData(0);
 
-    for (const auto& e : ObjectManager::get().getObjects())
-        if (e.second.implements(rend::get_rendering_parts_msg))
+    for(const auto& e : ObjectManager::get().getObjects())
+        if(e.second.implements(rend::get_rendering_parts_msg))
             rend::get_rendering_parts(e.second, rd0);
 
     mixins["editor"].update(dt);

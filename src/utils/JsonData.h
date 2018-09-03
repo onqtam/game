@@ -113,4 +113,6 @@ public:
     }
 
     HAPI void prettify();
+    HAPI void fread(cstr path);
+    HAPI void fwrite(cstr path);
 };

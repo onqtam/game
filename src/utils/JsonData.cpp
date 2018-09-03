@@ -70,3 +70,24 @@ void JsonData::prettify() {
 
     m_data = formatted;
 }
+
+void JsonData::fread(cstr path) {
+    auto f = fopen(path, "r");
+    if(!f)
+        throw std::runtime_error("file not found!");
+
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    reserve(fsize + 1);
+    data().resize(fsize); // 1 less than the capacity - will add a null terminator later
+    ::fread(data().data(), fsize, 1, f);
+    fclose(f);
+    addNull();
+}
+
+void JsonData::fwrite(cstr path) {
+    auto f = fopen(path, "wb");
+    ::fwrite(data().data(), 1, size(), f);
+    fclose(f);
+}

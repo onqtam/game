@@ -133,10 +133,7 @@ void editor::save() {
     state.endObject();
 
     state.prettify();
-
-    auto f = fopen("level.json", "wb");
-    fwrite(state.data().data(), 1, state.size(), f);
-    fclose(f);
+    state.fwrite("level.json");
 }
 
 HA_MIXIN_DEFINE(editor, Interface_editor& rend::get_rendering_parts_msg)

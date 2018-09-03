@@ -542,12 +542,10 @@ for(auto& obj : objects)
         // if the user has submitted code for compilation
 #if RCRL_LIVE_DEMO
         extern std::list<const char*> fragments;
-        static bool                   fragment_popped = false;
-        if(!rcrl::is_compiling() && !fragment_popped && fragments.size() &&
+        if(!rcrl::is_compiling() && editor.GetText().size() < 2 && fragments.size() &&
            io.KeysDown[GLFW_KEY_ENTER] && io.KeyCtrl) {
             editor.SetText(fragments.front());
             fragments.pop_front();
-            fragment_popped = true;
         }
 #else  // RCRL_LIVE_DEMO
         compile |= (io.KeysDown[GLFW_KEY_ENTER] && io.KeyCtrl);
@@ -578,9 +576,6 @@ for(auto& obj : objects)
             } else {
                 last_compiler_exitcode = 1;
             }
-#if RCRL_LIVE_DEMO
-            fragment_popped = false;
-#endif // RCRL_LIVE_DEMO
         }
         ImGui::End();
     }
@@ -632,12 +627,11 @@ std::list<const char*> fragments = {
         R"raw(// vars
 auto& objects = ObjectManager::get().getObjects();
 )raw",
-        R"raw(for(auto& obj : objects)
-    obj.second.move_local({20, 0, 0});
+        R"raw(//once
+for(auto& obj : objects)
+    obj.second.move_local({30, 0, 0});
 )raw",
         R"raw(//once
-auto& objects = ObjectManager::get().getObjects();
-
 JsonData state;
 state.startObject();
 
@@ -669,10 +663,45 @@ state.endArray();
 state.endObject();
 
 state.prettify();
+state.fwrite("level.json");
+)raw",
 
-auto f = fopen("level.json", "wb");
-fwrite(state.data().data(), 1, state.size(), f);
-fclose(f);
+// this might go into a separate file - to not have to scroll through the rest
+        R"raw(//once
+JsonData state;
+state.fread("level.json");
+
+const auto& doc = state.parse();
+hassert(doc.is_valid());
+
+// for each object
+auto objects_array = doc.get_root().get_object_value(0);
+for(size_t i = 0; i < objects_array.get_length(); ++i) {
+    auto json_obj = objects_array.get_array_element(i);
+    auto obj_id   = oid(
+            oid::internal_type(json_obj.get_value_of_key({"id", 2}).get_integer_value()));
+
+    Object* o = nullptr;
+    if(ObjectManager::get().has(obj_id)) {
+        // either get it
+        o = &ObjectManager::get().getById(obj_id);
+    } else {
+        // or create it
+        o = &ObjectManager::get().createFromId(
+                oid(int16(json_obj.get_value_of_key({"id", 2}).get_integer_value())));
+    }
+
+    // deserialize the attibutes of the object itself
+    deserialize(*o, json_obj.get_value_of_key({"state", 5}));
+
+    // add mixins to the objects
+    auto mixins_json = json_obj.get_value_of_key({"mixins", 6});
+    for(size_t k = 0; k < mixins_json.get_length(); ++k)
+        o->addMixin(mixins_json.get_object_key(k).data());
+    // and deserialize the attributes of those mixins
+    if(o->implements(common::deserialize_mixins_msg))
+        common::deserialize_mixins(*o, mixins_json);
+}
 )raw"};
 
 #endif // RCRL_LIVE_DEMO
