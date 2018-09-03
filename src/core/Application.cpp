@@ -634,6 +634,45 @@ auto& objects = ObjectManager::get().getObjects();
 )raw",
         R"raw(for(auto& obj : objects)
     obj.second.move_local({20, 0, 0});
+)raw",
+        R"raw(//once
+auto& objects = ObjectManager::get().getObjects();
+
+JsonData state;
+state.startObject();
+
+state.addKey("objects");
+state.startArray();
+
+for(auto& p : objects) {
+    auto& curr = p.second;
+
+    state.startObject();
+    state.addKey("id");
+    auto id_str = std::to_string(oid::internal_type(curr.id()));
+    state.append(id_str.c_str(), id_str.size());
+    state.addComma();
+    state.addKey("state");
+    serialize(curr, state);
+    state.addComma();
+    state.addKey("mixins");
+    state.startObject();
+    if(curr.implements(common::serialize_mixins_msg))
+        common::serialize_mixins(curr, nullptr, state);
+    state.endObject();
+    state.endObject();
+
+    state.addComma();
+}
+
+state.endArray();
+state.endObject();
+
+state.prettify();
+
+auto f = fopen("level.json", "wb");
+fwrite(state.data().data(), 1, state.size(), f);
+fclose(f);
 )raw"};
 
 #endif // RCRL_LIVE_DEMO
