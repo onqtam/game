@@ -23,8 +23,13 @@ HA_SINGLETON_INSTANCE(ImGuiManager);
 
 using namespace yama;
 
-static cstr imguiGetClipboardText(void* userData);
-static void imguiSetClipboardText(void* userData, cstr text);
+static cstr imguiGetClipboardText(void* userData) {
+    return glfwGetClipboardString((GLFWwindow*)userData);
+}
+
+static void imguiSetClipboardText(void* userData, cstr text) {
+    glfwSetClipboardString((GLFWwindow*)userData, text);
+}
 
 static const char* vertexShaderSource = R"delim(
 uniform mat4 proj;
@@ -265,12 +270,4 @@ void ImGuiManager::imguiRenderCallback(ImDrawData* data) {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-static cstr imguiGetClipboardText(void* userData) {
-    return glfwGetClipboardString((GLFWwindow*)userData);
-}
-
-static void imguiSetClipboardText(void* userData, cstr text) {
-    glfwSetClipboardString((GLFWwindow*)userData, text);
 }

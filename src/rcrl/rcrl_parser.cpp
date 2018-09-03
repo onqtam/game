@@ -168,8 +168,8 @@ vector<VariableDefinition> parse_vars(const string& text, size_t line_start) {
     bool               in_var               = false;
     size_t             current_var_name_end = 0;
 
-    int line   = line_start;
-    int column = 1;
+    auto line   = line_start;
+    auto column = 1;
 
     auto parse_error = [&](const char* msg) {
         return string("parse error (") + to_string(line) + "/" + to_string(column) + "): " + msg;

@@ -43,7 +43,9 @@ int wildcmp(cstr str, cstr wild);
 bool endsWith(const std::string& fullString, const std::string& ending);
 
 inline char* strncpy(char* destination, cstr source, size_t num) {
-    auto res             = ::strncpy(destination, source, num);
+    HA_GCC_SUPPRESS_WARNING("-Wstringop-truncation")
+    auto res = ::strncpy(destination, source, num);
+    HA_GCC_SUPPRESS_WARNING_END
     destination[num - 1] = '\0';
     return res;
 }

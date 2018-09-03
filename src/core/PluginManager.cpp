@@ -57,6 +57,8 @@ static vector<string> getOriginalPlugins();
 
 HA_SINGLETON_INSTANCE(PluginManager);
 
+HA_GCC_SUPPRESS_WARNING("-Wcast-function-type")
+
 void PluginManager::handleFileAction(FW::WatchID, const FW::String&, const FW::String& filename,
                                      FW::Action action) {
     Application::State preserved_state = Application::get().state();
@@ -169,6 +171,8 @@ void PluginManager::init() {
     // start the file watcher
     m_fileWatcher.addWatch(Utils::getPathToExe(), this, false);
 }
+
+HA_GCC_SUPPRESS_WARNING_END
 
 void PluginManager::update() { m_fileWatcher.update(); }
 

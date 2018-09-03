@@ -70,6 +70,7 @@
     _Pragma("GCC diagnostic ignored \"-Wreorder\"") \
     _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"") \
     _Pragma("GCC diagnostic ignored \"-Wparentheses\"") \
+    _Pragma("GCC diagnostic ignored \"-Wctor-dtor-privacy\"") \
 
 #define HA_CLANG_SUPPRESS_WARNING(w)
 #define HA_CLANG_SUPPRESS_WARNING_END

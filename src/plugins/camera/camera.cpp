@@ -43,38 +43,37 @@ public:
         }
     }
 
-    void update(float dt) {
-        return;
-        uint32 w = Application::get().width();
-        uint32 h = Application::get().height();
+    void update(float /*dt*/) {
+        //uint32 w = Application::get().width();
+        //uint32 h = Application::get().height();
 
-        auto move_vec = yama::vector3::zero();
+        //auto move_vec = yama::vector3::zero();
 
-        if(cursor_x < 10)
-            move_vec += yama::vector3::coord(-k_speed * dt, 0, 0);
-        if(cursor_x > w - 10)
-            move_vec += yama::vector3::coord(k_speed * dt, 0, 0);
-        if(cursor_y < 10)
-            move_vec += yama::vector3::coord(0, 0, -k_speed * dt);
-        if(cursor_y > h - 10)
-            move_vec += yama::vector3::coord(0, 0, k_speed * dt);
+        //if(cursor_x < 10)
+        //    move_vec += yama::vector3::coord(-k_speed * dt, 0, 0);
+        //if(cursor_x > w - 10)
+        //    move_vec += yama::vector3::coord(k_speed * dt, 0, 0);
+        //if(cursor_y < 10)
+        //    move_vec += yama::vector3::coord(0, 0, -k_speed * dt);
+        //if(cursor_y > h - 10)
+        //    move_vec += yama::vector3::coord(0, 0, k_speed * dt);
 
-        auto pos = ha_this.get_pos();
-        pos += move_vec;
-        auto fix_vec = yama::vector3::zero();
-        auto half_w  = World::get().width() / 2;
-        auto half_h  = World::get().height() / 2;
-        if(abs(pos.x) > half_w)
-            fix_vec.x = Utils::sign(pos.x) * half_w - pos.x;
-        if(abs(pos.z) > half_h)
-            fix_vec.z = Utils::sign(pos.z) * half_h - pos.z;
+        //auto pos = ha_this.get_pos();
+        //pos += move_vec;
+        //auto fix_vec = yama::vector3::zero();
+        //auto half_w  = World::get().width() / 2;
+        //auto half_h  = World::get().height() / 2;
+        //if(abs(pos.x) > half_w)
+        //    fix_vec.x = Utils::sign(pos.x) * half_w - pos.x;
+        //if(abs(pos.z) > half_h)
+        //    fix_vec.z = Utils::sign(pos.z) * half_h - pos.z;
 
-        move_vec += fix_vec;
+        //move_vec += fix_vec;
 
-        ha_this.move_local(move_vec);
+        //ha_this.move_local(move_vec);
 
-        ha_this.move_local(yama::normalize(rotate(k_forward, ha_this.get_rot())) * scroll * 2.f);
-        scroll = 0.f;
+        //ha_this.move_local(yama::normalize(rotate(k_forward, ha_this.get_rot())) * scroll * 2.f);
+        //scroll = 0.f;
     }
 
     yama::matrix get_view_matrix() const {
