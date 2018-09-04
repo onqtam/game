@@ -40,6 +40,9 @@ HA_SUPPRESS_WARNINGS
 extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins();
 HA_SUPPRESS_WARNINGS_END
 
+// use this in plugins to not get linker errors but still be able to get your own mixins
+MixinInfoMap& getMixins_Local();
+
 int registerMixin(cstr name, MixinInfo info);
 
 template <typename T>
@@ -108,10 +111,32 @@ load_unload_proc getUnloadProc() {
 #define HA_MIXIN_DEFINE_IN_PLUGIN_UNLOAD(n) nullptr
 #endif // HA_PLUGIN
 
+// this differs from DYNAMIX_DEFINE_MIXIN in that it explicitly registers the mixin while all globals in a
+// translation unit are initialized from top to bottom - and not at the end because of some template instantiation
+#define DYNAMIX_DEFINE_MIXIN_2(mixin_type, mixin_features)                                         \
+    /* create a mixin_type_info getter for this type */                                            \
+    ::dynamix::internal::mixin_type_info& _dynamix_get_mixin_type_info(const mixin_type*) {        \
+        return ::dynamix::internal::mixin_type_info_instance<mixin_type>::info();                  \
+    }                                                                                              \
+    HA_UNUSED_GLOBAL_NO_WARNINGS(                                                                  \
+            HA_CAT_1(_mixin_register_internal_omgomgomg_, mixin_type)) = []() {                    \
+        if(_dynamix_get_mixin_type_info((mixin_type*)nullptr).id == dynamix::INVALID_MIXIN_ID)     \
+            dynamix::internal::domain::safe_instance().register_mixin_type<mixin_type>(            \
+                    _dynamix_get_mixin_type_info((mixin_type*)nullptr));                           \
+        return 0;                                                                                  \
+    }();                                                                                           \
+    HA_UNUSED_GLOBAL_NO_WARNINGS_END                                                               \
+    /* create a features parsing function */                                                       \
+    /* features can be parsed multiple times by different parsers */                               \
+    template <typename FeaturesParser>                                                             \
+    void _dynamix_parse_mixin_features(const mixin_type*, FeaturesParser& parser) {                \
+        parser& I_DYNAMIX_MIXIN_NAME_FEATURE(#mixin_type) & mixin_features;                        \
+    }
+
 #define HA_MIXIN_DEFINE_COMMON(n, features)                                                        \
     template <>                                                                                    \
     PagedMixinAllocator<n>* PagedMixinAllocator<n>::instance = nullptr;                            \
-    DYNAMIX_DEFINE_MIXIN(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)        \
+    DYNAMIX_DEFINE_MIXIN_2(n, (PagedMixinAllocator<n>::constructGlobalInstance()) & features)      \
     HA_UNUSED_GLOBAL_NO_WARNINGS(HA_CAT_1(_mixin_register_, n)) =                                  \
             registerMixin(#n, /* force new line for format */                                      \
                           {[](Object* o) { dynamix::mutate(o).add<n>(); },    /**/                 \

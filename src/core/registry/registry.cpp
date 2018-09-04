@@ -5,6 +5,8 @@ extern "C" HA_SYMBOL_EXPORT MixinInfoMap& getMixins() {
     return data;
 }
 
+MixinInfoMap& getMixins_Local() { return getMixins(); }
+
 int registerMixin(cstr name, MixinInfo info) {
     getMixins()[name] = info;
     return 0;
