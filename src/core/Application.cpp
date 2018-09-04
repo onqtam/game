@@ -646,7 +646,7 @@ auto& objects = ObjectManager::get().getObjects();
         R"raw(// once
 for(auto& obj : objects)
     if(obj.second.has("mesh"))
-        obj.second.move_local({20, 0, 0});
+        obj.second.move_local({10, 0, 0});
 )raw",
         // ===============================================
         R"raw(// global
