@@ -125,7 +125,8 @@ load_unload_proc getUnloadProc() {
                            },                                                                      \
                            []() -> decltype(PagedMixinAllocator<n>::get().getObjects()) {          \
                                return PagedMixinAllocator<n>::get().getObjects();                  \
-                           }}) HA_UNUSED_GLOBAL_NO_WARNINGS_END
+                           }});                                                                    \
+    HA_UNUSED_GLOBAL_NO_WARNINGS_END
 
 #define HA_MIXIN_DEFINE(n, f)                                                                      \
     void n::serialize_mixins(cstr concrete_mixin, JsonData& out) const {                           \
@@ -140,9 +141,8 @@ load_unload_proc getUnloadProc() {
         if(in.find_object_key(str) != in.get_length())                                             \
             deserialize(*this, in.get_value_of_key(str));                                          \
     }                                                                                              \
-    HA_MIXIN_DEFINE_COMMON(                                                                        \
-            n, common::serialize_mixins_msg& common::deserialize_mixins_msg&                       \
-                               common::get_imgui_binding_callbacks_from_mixins_msg& f);            \
+    HA_MIXIN_DEFINE_COMMON(n, common::serialize_mixins_msg& common::deserialize_mixins_msg&        \
+                                      common::get_imgui_binding_callbacks_from_mixins_msg& f)      \
     void n::get_imgui_binding_callbacks_from_mixins(imgui_binding_callbacks& cbs) {                \
         cbs.push_back({&_dynamix_get_mixin_type_info((n*)nullptr),                                 \
                        [](Object& obj) { imgui_bind_attributes(obj, #n, *obj.get<n>()); }});       \
