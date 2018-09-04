@@ -180,6 +180,17 @@ void Application::removeInputEventListener(InputEventListener* in) {
     m_inputEventListeners.erase(it);
 }
 
+void Application::addFrameBeginEventListener(FrameBeginEventListener* in) {
+    hassert(std::find(m_frameBeginEventListeners.begin(), m_frameBeginEventListeners.end(), in) ==
+            m_frameBeginEventListeners.end());
+    m_frameBeginEventListeners.push_back(in);
+}
+void Application::removeFrameBeginEventListener(FrameBeginEventListener* in) {
+    auto it = std::find(m_frameBeginEventListeners.begin(), m_frameBeginEventListeners.end(), in);
+    hassert(it != m_frameBeginEventListeners.end());
+    m_frameBeginEventListeners.erase(it);
+}
+
 int Application::run(int argc, char** argv) {
 #ifndef EMSCRIPTEN
 #ifdef _WIN32
@@ -330,14 +341,18 @@ void Application::update() {
     // imgui
     ImGui::NewFrame();
 
+    // main imgui font
+    ImGui::PushFont(ImGuiManager::get().getMainFont());
+
+    // signal
+    for(auto& curr : m_frameBeginEventListeners)
+        curr->on_event();
+
     // send input events to the rest of the app
     processEvents();
 
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
-
-    // main imgui font
-    ImGui::PushFont(ImGuiManager::get().getMainFont());
 
     // update game stuff
     World::get().update();
@@ -627,11 +642,24 @@ std::list<const char*> fragments = {
         R"raw(// vars
 auto& objects = ObjectManager::get().getObjects();
 )raw",
-        R"raw(//once
+        R"raw(// once
 for(auto& obj : objects)
     obj.second.move_local({30, 0, 0});
 )raw",
-        R"raw(//once
+        R"raw(// global
+#include "imgui.h"
+#include "core/Events.h"
+
+struct Painter : public FrameBeginEventListener {
+    void on_event() override {
+        ImGui::ShowDemoWindow();
+    }
+};
+
+// vars
+Painter p;
+)raw",
+        R"raw(// once
 JsonData state;
 state.startObject();
 
@@ -665,9 +693,8 @@ state.endObject();
 state.prettify();
 state.fwrite("level.json");
 )raw",
-
-// this might go into a separate file - to not have to scroll through the rest
-        R"raw(//once
+        // this might go into a separate file - to not have to scroll through the rest
+        R"raw(// once
 JsonData state;
 state.fread("level.json");
 

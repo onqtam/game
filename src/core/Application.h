@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Input.h"
+#include "Events.h"
 
 struct GLFWwindow;
 
@@ -41,15 +42,18 @@ public:
 
     State state() const { return m_state; }
     void  setState(State state) { m_state = state; }
-
+    
     void addInputEventListener(InputEventListener* in);
     void removeInputEventListener(InputEventListener* in);
+    void addFrameBeginEventListener(FrameBeginEventListener* in);
+    void removeFrameBeginEventListener(FrameBeginEventListener* in);
 
 private:
     friend class ImGuiManager;
 
-    std::vector<InputEvent>          m_inputs;
-    std::vector<InputEventListener*> m_inputEventListeners;
+    std::vector<InputEvent>               m_inputs;
+    std::vector<InputEventListener*>      m_inputEventListeners;
+    std::vector<FrameBeginEventListener*> m_frameBeginEventListeners;
 
     GLFWwindow* m_window;
     uint32      m_reset;
