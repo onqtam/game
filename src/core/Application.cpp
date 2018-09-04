@@ -448,7 +448,7 @@ for(auto& obj : objects)
     if(g_console_visible && ImGui::Begin("console", nullptr,
                                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                                  ImGuiWindowFlags_NoMove)) {
-        const auto  text_field_height = ImGui::GetTextLineHeight() * 13;
+        const auto  text_field_height = ImGui::GetTextLineHeight() * 12;
         const float left_right_ratio  = 0.5f;
         // top left part
         ImGui::BeginChild("history code", ImVec2(window_w * left_right_ratio, text_field_height));
@@ -642,23 +642,34 @@ std::list<const char*> fragments = {
         R"raw(// vars
 auto& objects = ObjectManager::get().getObjects();
 )raw",
+        // ===============================================
         R"raw(// once
 for(auto& obj : objects)
-    obj.second.move_local({30, 0, 0});
+    if(obj.second.has("mesh"))
+        obj.second.move_local({20, 0, 0});
 )raw",
+        // ===============================================
+        R"raw(// global
+#include "core/World.h"
+
+// once
+World::get().camera().obj().move_local({0, 30, 0});
+)raw",
+        // ===============================================
         R"raw(// global
 #include "imgui.h"
 #include "core/Events.h"
 
 struct Painter : public FrameBeginEventListener {
-    void on_event() override {
+    void on_event() override { // called on each frame
         ImGui::ShowDemoWindow();
     }
 };
 
 // vars
-Painter p;
+Painter painter; // instantiate it
 )raw",
+        // ===============================================
         R"raw(// once
 JsonData state;
 state.startObject();
@@ -666,8 +677,8 @@ state.startObject();
 state.addKey("objects");
 state.startArray();
 
-for(auto& p : objects) {
-    auto& curr = p.second;
+for(auto& o : objects) {
+    auto& curr = o.second;
 
     state.startObject();
     state.addKey("id");
@@ -690,10 +701,54 @@ for(auto& p : objects) {
 state.endArray();
 state.endObject();
 
+// save to a file
 state.prettify();
 state.fwrite("level.json");
 )raw",
-        // this might go into a separate file - to not have to scroll through the rest
+        // ===============================================
+        // DO NOT CLEAN UP PLUGINS AFTER THIS SNIPPET! WILL CRASH!
+        // DO NOT SUBMIT ANY MORE SNIPPETS AFTER THIS! WILL CRASH!
+        R"raw(// global
+#include "core/rendering/GraphicsHelpers.h"
+#include "core/messages/messages_rendering.h"
+
+class green_wireframe_mesh {
+    GeomMan::Handle mesh;
+
+public:
+    green_wireframe_mesh() {
+        mesh = GeomMan::get().get("",
+            createSolidBox, 0.8f, 0.8f, 0.8f, 0xFF00BB00);
+    }
+
+    void get_rendering_parts(std::vector<renderPart>& out) const {
+        out.push_back({mesh, TempMesh(),
+            ha_this.get_transform().as_mat()});
+    }
+
+    AABB get_aabb() const { return mesh.get().bbox; }
+};
+
+HA_MIXIN_DEFINE_WITHOUT_CODEGEN(green_wireframe_mesh,
+    rend::get_rendering_parts_msg& rend::get_aabb_msg)
+
+// once
+for(auto& curr : getMixins_Local()) // not important
+    getAllMixins()[curr.first] = curr.second;
+
+// for each object - add a green attachment
+for(auto& curr : objects) {
+    auto& obj = curr.second;
+    if(!obj.has("mesh")) continue;
+
+    auto& att = ObjectManager::get().create("attachment");
+    att.addMixin("green_wireframe_mesh");
+    att.set_parent(obj.id());
+    att.move_local({0, 3, 0});
+}
+)raw",
+        // ===============================================
+        // this should go into a separate file - to not have to scroll through the rest
         R"raw(// once
 JsonData state;
 state.fread("level.json");
