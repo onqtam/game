@@ -1,12 +1,19 @@
-# The best game ever
+# The best game engine ever
 
 [![Windows status](https://ci.appveyor.com/api/projects/status/h2wfkb1y546x5tsw/branch/master?svg=true)](https://ci.appveyor.com/project/onqtam/game/branch/master)
 [![Linux Status](https://travis-ci.org/onqtam/game.svg?branch=master)](https://travis-ci.org/onqtam/game)
 [![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 
-This is a repository of a future game and game engine. It will use only open technologies and will be multiplatform.
-Sometime in the distant future (1-2 years) shall go private when progress starts to speed up and a demo takes shape.
+This project was meant to become the most awesome C++ game engine (in terms of the object model and iteration speed during development).
+
+Here are the key R&D innovations of this engine:
+- automatic code generation of serialization & GUI binding routines for classes thanks to the static reflection - based on the technique from [this project](https://github.com/onqtam/cmake-reflection-template) (but moved from a hacky Python script to using [LibClang](https://clang.llvm.org/docs/Tooling.html#libclang) to parse the C++) - all in the spirit of keeping things [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
+- a very flexible object model where polymorphic objects can be composed at runtime (with the help of [dynamix](https://github.com/iboB/dynamix) which helps separate the interface from the implementation) and each component can be built into a separate shared object
+- thanks to the 2 things above you could modify almost any part of the code and recompile it without having to stop the running the engine - it would magically pick up the changes - this is achieved by: 1) serializing the components of all objects which will be reloaded, 2) removing those components from the objects, 3) reloading the component shared objects, 4) recreating the components in the objects, and 5) deserializing the state into them - with the ability to add or remove fields from classes/structs! Even entire subsystems are reloadable (like the Editor) and can be developed while the engine is running!
+- has integrated [RCRL](https://github.com/onqtam/rcrl) which is a REPL for C++ and the entire engine API can be used - this was demoed at [CppCon 2018](https://youtu.be/UEuA0yuw_O0?t=1122)
+
+Unfortunately it was really hard to convince any studio to pour resources into the development of a new engine - this is deemed too impractical in 2018... So I'm sorry to say the project has been abandoned.
 
 ## Building
 
