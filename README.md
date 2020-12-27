@@ -13,6 +13,8 @@ Here are the key R&D innovations of this engine:
 - thanks to the 2 things above you could modify almost any part of the code and recompile it without having to stop the running engine - it would magically pick up the changes - this is achieved by: 1) serializing the components of all objects which will be reloaded, 2) removing those components from the objects, 3) reloading the shared objects which define the components, 4) recreating the components in the objects, and 5) deserializing the state into them - with the ability to add or remove fields from classes/structs (changing the memory layout)! Even entire subsystems are reloadable (like the Editor) and can be developed while the engine is running!
 - integrated [RCRL](https://github.com/onqtam/rcrl) (a REPL for C++) and the entire engine API can be used - this was demoed at [CppCon 2018](https://youtu.be/UEuA0yuw_O0?t=1122)
 
+[![youtube cppcon video showcase](docs/rcrl_cppcon_2018_thumbnail.png)](https://youtu.be/UEuA0yuw_O0?t=1122)
+
 Unfortunately it was really hard to convince any studio to pour resources into the development of a new engine - this was deemed too impractical in 2018... So I'm sorry to say the project has been abandoned.
 
 ## Building
